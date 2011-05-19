@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Toolbox">
+      <UniqueIdentifier>{f47525e6-bff8-4281-b244-7444cac8d22b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\Tools">
+      <UniqueIdentifier>{c352f7e0-57fd-43e1-b75c-079c07fedc32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\ToolShapes">
+      <UniqueIdentifier>{38a08928-d8a5-4963-b794-c08a1b334a81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\BrushModes">
+      <UniqueIdentifier>{3a81ffd1-3f5b-4ad5-a537-86d3d0740819}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\Tools\BrushTool">
+      <UniqueIdentifier>{2ccdeef9-ef7e-40f6-ab15-00bf50673037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\ToolShapes\CircleToolShape">
+      <UniqueIdentifier>{c231cfc1-eab0-47db-8261-148a4dc01af5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\BrushModes\TranslateBrushMode">
+      <UniqueIdentifier>{c72392ef-c2c8-4bac-82b6-8e4e5777558a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pluginMain.cpp" />
+    <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp">
+      <Filter>Toolbox\BrushModes</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\ToolShapes\ToolShape.cpp">
+      <Filter>Toolbox\ToolShapes</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.cpp">
+      <Filter>Toolbox\BrushModes\TranslateBrushMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.cpp">
+      <Filter>Toolbox\ToolShapes\CircleToolShape</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
+      <Filter>Toolbox\BrushModes</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\ToolShapes\ToolShape.hpp">
+      <Filter>Toolbox\ToolShapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.hpp">
+      <Filter>Toolbox\BrushModes\TranslateBrushMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp">
+      <Filter>Toolbox\ToolShapes\CircleToolShape</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
