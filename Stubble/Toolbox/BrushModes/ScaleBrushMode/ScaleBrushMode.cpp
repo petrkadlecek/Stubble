@@ -1,4 +1,4 @@
-#include "TranslateBrushMode.hpp"
+#include "ScaleBrushMode.hpp"
 
 namespace Stubble
 {
@@ -6,9 +6,9 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void TranslateBrushMode::doBrush( MVector aDX, float aDT )
+	void ScaleBrushMode::doBrush( MVector aDX, float aDT )
 	{
-		std::cout << "TranslateBrushMode::doBrush()" << endl;
+		std::cout << "ScaleBrushMode::doBrush()" << endl;
 		/*TODO*/
 		//implement the actual transformations
 	}

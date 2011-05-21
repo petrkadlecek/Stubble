@@ -1,5 +1,5 @@
-#ifndef STUBBLE_TRANSLATE_BRUSH_MODE_HPP
-#define STUBBLE_TRANSLATE_BRUSH_MODE_HPP
+#ifndef STUBBLE_SCALE_BRUSH_MODE_HPP
+#define STUBBLE_SCALE_BRUSH_MODE_HPP
 
 #include <maya/MVector.h>
 #include "../BrushMode.hpp"
@@ -11,9 +11,9 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the translate brush transformations.
+/// The class implementing the scale brush transformations.
 ///----------------------------------------------------------------------------------------------------
-class TranslateBrushMode :
+class ScaleBrushMode :
 	public BrushMode
 {
 public:

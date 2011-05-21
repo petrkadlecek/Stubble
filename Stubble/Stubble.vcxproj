@@ -134,15 +134,20 @@
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
+    <ClCompile Include="Toolbox\BrushModes\ScaleBrushMode\ScaleBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\ToolShape.cpp" />
+    <ClCompile Include="Toolbox\Tools\BrushTool\BrushTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
+    <ClInclude Include="Toolbox\BrushModes\ScaleBrushMode\ScaleBrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.hpp" />
+    <ClInclude Include="Toolbox\HairTask.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\ToolShape.hpp" />
+    <ClInclude Include="Toolbox\Tools\BrushTool\BrushTool.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

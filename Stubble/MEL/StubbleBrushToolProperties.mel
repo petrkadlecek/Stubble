@@ -1,0 +1,29 @@
+global proc StubbleBrushToolProperties()
+{	
+	if( !`control -exists stubbleBrushToolLayout` )
+	{
+		setUITemplate -pushTemplate OptionsTemplate;
+
+		string $parent = `toolPropertyWindow -query -location`;
+		setParent $parent;
+
+		columnLayout stubbleBrushToolLayout;
+			frameLayout -collapsable true -collapse false
+				-l "Brush Tool Settings" stubbleBrushToolFrame;
+				columnLayout stubbleBrushToolOptions;
+				$parent = `setParent -query`;
+				
+					separator -style "none";
+
+				string $group1 = `radioButtonGrp -numberOfRadioButtons 3
+				    -label "Brush Mode: " -labelArray3 "Translate" "Rotate" "Scale" stubbleBrushToolBrushMode1`;
+				radioButtonGrp -numberOfRadioButtons 3 -shareCollection $group1
+				    -label "" -labelArray3 "Clump" "Puff Root" "Puff End" stubbleBrushToolBrushMode2;
+					
+				setParent ..;
+			setParent ..;
+		setParent ..;
+	
+		setUITemplate -popTemplate;
+	}
+}
