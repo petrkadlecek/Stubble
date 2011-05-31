@@ -7,6 +7,12 @@
 #include <maya/MPxContextCommand.h>
 
 #include "../../BrushModes/BrushMode.hpp"
+#include "../../BrushModes/ClumpBrushMode/ClumpBrushMode.hpp"
+#include "../../BrushModes/PuffEndBrushMode/PuffEndBrushMode.hpp"
+#include "../../BrushModes/PuffRootBrushMode/PuffRootBrushMode.hpp"
+#include "../../BrushModes/RotateBrushMode/RotateBrushMode.hpp"
+#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
+#include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
 
 namespace Stubble
 {
@@ -98,7 +104,14 @@ protected:
 	/*TODO*/
 	//Shape *mShape; ///< Current brush shape (circle, texture shape...).
 
-	BrushMode *mBrushMode; ///< Current brush mode (translate, rotate, scale, clump...).
+	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
+
+	static ClumpBrushMode clumpBrushMode;
+	static PuffEndBrushMode puffEndBrushMode;
+	static PuffRootBrushMode puffRootBrushMode;
+	static RotateBrushMode rotateBrushMode;
+	static ScaleBrushMode scaleBrushMode;
+	static TranslateBrushMode translateBrushMode;
 
 private:
 

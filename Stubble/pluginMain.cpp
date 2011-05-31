@@ -18,7 +18,7 @@
 EXPORT MStatus initializePlugin( MObject aObj )
 { 
 	MStatus status;
-	MFnPlugin plugin( aObj, "The Stubble Team", "1.01", "Any" );
+	MFnPlugin plugin( aObj, "The Stubble Team", "1.03", "Any" );
 
 	// Add plug-in feature registration here
 	// register BrushToolCommand

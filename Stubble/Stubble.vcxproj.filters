@@ -25,6 +25,21 @@
     <Filter Include="Toolbox\BrushModes\ScaleBrushMode">
       <UniqueIdentifier>{bd9c481c-fa47-420e-b99e-c93c2c24d5a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Toolbox\BrushModes\RotateBrushMode">
+      <UniqueIdentifier>{b8305e7a-f9c6-45a3-abb7-754b56b939a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\BrushModes\ClumpBrushMode">
+      <UniqueIdentifier>{ec463fd7-a307-490d-872c-a229c657fcea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\BrushModes\PuffRootBrushMode">
+      <UniqueIdentifier>{bc1dad0d-b2f9-4aa8-a03b-e6be6c825fbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Toolbox\BrushModes\PuffEndBrushMode">
+      <UniqueIdentifier>{f2734259-5de3-4847-84c0-a36ac1d11cc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MEL">
+      <UniqueIdentifier>{01798d18-147a-4775-aaa7-9eeb2cb86ff0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -45,6 +60,18 @@
     </ClCompile>
     <ClCompile Include="Toolbox\BrushModes\ScaleBrushMode\ScaleBrushMode.cpp">
       <Filter>Toolbox\BrushModes\ScaleBrushMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\BrushModes\RotateBrushMode\RotateBrushMode.cpp">
+      <Filter>Toolbox\BrushModes\RotateBrushMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.cpp">
+      <Filter>Toolbox\BrushModes\ClumpBrushMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\BrushModes\PuffRootBrushMode\PuffRootBrushMode.cpp">
+      <Filter>Toolbox\BrushModes\PuffRootBrushMode</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp">
+      <Filter>Toolbox\BrushModes\PuffEndBrushMode</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,5 +96,25 @@
     <ClInclude Include="Toolbox\BrushModes\ScaleBrushMode\ScaleBrushMode.hpp">
       <Filter>Toolbox\BrushModes\ScaleBrushMode</Filter>
     </ClInclude>
+    <ClInclude Include="Toolbox\BrushModes\RotateBrushMode\RotateBrushMode.hpp">
+      <Filter>Toolbox\BrushModes\RotateBrushMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp">
+      <Filter>Toolbox\BrushModes\ClumpBrushMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\BrushModes\PuffRootBrushMode\PuffRootBrushMode.hpp">
+      <Filter>Toolbox\BrushModes\PuffRootBrushMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp">
+      <Filter>Toolbox\BrushModes\PuffEndBrushMode</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MEL\StubbleBrushToolProperties.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleBrushToolValues.mel">
+      <Filter>MEL</Filter>
+    </None>
   </ItemGroup>
 </Project>

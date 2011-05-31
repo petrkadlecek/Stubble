@@ -1,8 +1,8 @@
 #include <maya/MCursor.h>
 
 #include "BrushTool.hpp"
-#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
-#include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
+//#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
+//#include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
 
 /*TODO*/
 //const char *radiusFlag = "-r", *radiusLongFlag = "-radius";
@@ -79,6 +79,13 @@ MStatus	BrushToolCommand::appendSyntax()
 // BrushTool
 //----------------------------------------------------------------------------------------------------
 
+ClumpBrushMode BrushTool::clumpBrushMode;
+PuffEndBrushMode BrushTool::puffEndBrushMode;
+PuffRootBrushMode BrushTool::puffRootBrushMode;
+RotateBrushMode BrushTool::rotateBrushMode;
+ScaleBrushMode BrushTool::scaleBrushMode;
+TranslateBrushMode BrushTool::translateBrushMode;
+
 BrushTool::BrushTool()
 {
 	setTitleString( "Stubble Brush Tool" );
@@ -86,13 +93,11 @@ BrushTool::BrushTool()
 	// The next two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
 	// so we make sure that the starting state is valid.
 	mBrushModeChoice = 1;
-	mBrushMode = new TranslateBrushMode();
+	mBrushMode = &BrushTool::translateBrushMode;
 }
 
 BrushTool::~BrushTool()
 {
-	// Make sure the state object is deleted.
-	delete mBrushMode;
 }
 
 void BrushTool::getClassName( MString &aName ) const
@@ -209,18 +214,30 @@ void BrushTool::doBrush( MVector aDX, float aDT )
 void BrushTool::changeBrushMode()
 {
 	// Release the current BrushMode object.
-	delete mBrushMode;
+	//delete mBrushMode;
 
 	switch (mBrushModeChoice)
 	{
 	case 1:
-		mBrushMode = new TranslateBrushMode();
+		mBrushMode = &BrushTool::translateBrushMode;
+		break;
+	case 2:
+		mBrushMode = &BrushTool::rotateBrushMode;
 		break;
 	case 3:
-		mBrushMode = new ScaleBrushMode();
+		mBrushMode = &BrushTool::scaleBrushMode;
+		break;
+	case 4:
+		mBrushMode = &BrushTool::clumpBrushMode;
+		break;
+	case 5:
+		mBrushMode = &BrushTool::puffRootBrushMode;
+		break;
+	case 6:
+		mBrushMode = &BrushTool::puffEndBrushMode;
 		break;
 	default:
-		mBrushMode = new TranslateBrushMode();
+		mBrushMode = &BrushTool::translateBrushMode;
 		mBrushModeChoice = 1;
 	}
 }

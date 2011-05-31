@@ -6,7 +6,6 @@ global proc StubbleBrushToolValues( string $ctxName )
 	int $brushModeChoice = `StubbleBrushToolCommand -q -brushModeChoice $ctxName`;
 		
 	radioButtonGrp -e
-		-sl $brushModeChoice
 		-on1 ("StubbleBrushToolCommand -e -brushModeChoice 1 " + $ctxName)
 		-on2 ("StubbleBrushToolCommand -e -brushModeChoice 2 " + $ctxName)
 		-on3 ("StubbleBrushToolCommand -e -brushModeChoice 3 " + $ctxName)
@@ -17,6 +16,11 @@ global proc StubbleBrushToolValues( string $ctxName )
 		-on2 ("StubbleBrushToolCommand -e -brushModeChoice 5 " + $ctxName)
 		-on3 ("StubbleBrushToolCommand -e -brushModeChoice 6 " + $ctxName)
 		stubbleBrushToolBrushMode2;
-	
+
+	if (1 <= $brushModeChoice && $brushModeChoice <= 3)
+		radioButtonGrp -e -sl $brushModeChoice stubbleBrushToolBrushMode1;
+	else if (4 <= $brushModeChoice && $brushModeChoice <= 6)
+		radioButtonGrp -e -sl ($brushModeChoice-3) stubbleBrushToolBrushMode2;
+
 	toolPropertySelect stubbleBrushToolLayout;
 }
