@@ -1,8 +1,6 @@
 #ifndef STUBBLE_TOOL_SHAPE_HPP
 #define STUBBLE_TOOL_SHAPE_HPP
 
-#include "CircleToolShape\CircleToolShape.hpp"
-
 namespace Stubble
 {
 
@@ -30,7 +28,6 @@ public:
 	virtual void draw() = 0;
 protected:
 	float mSize; ///< Tool shape size.
-private:
 };
 	
 } // namespace Toolbox

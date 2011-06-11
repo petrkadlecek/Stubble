@@ -1,5 +1,7 @@
-#ifndef STUBBLE_TOOL_SHAPE_HPP
-#define STUBBLE_TOOL_SHAPE_HPP
+#ifndef STUBBLE_CIRCLE_TOOL_SHAPE_HPP
+#define STUBBLE_CIRCLE_TOOL_SHAPE_HPP
+
+#include "../ToolShape.hpp"
 
 namespace Stubble
 {
@@ -10,7 +12,8 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 /// Circle brush shape.
 ///----------------------------------------------------------------------------------------------------
-class CircleToolShape
+class CircleToolShape :
+	public ToolShape
 {
 public:
 	/* TODO once we have GuideHair...
@@ -27,4 +30,4 @@ public:
 
 } // namespace Stubble
 
-#endif // STUBBLE_TOOL_SHAPE_HPP
+#endif // STUBBLE_CIRCLE_TOOL_SHAPE_HPP

@@ -13,7 +13,8 @@
 #include "../../BrushModes/RotateBrushMode/RotateBrushMode.hpp"
 #include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
-#include "../../ToolShapes/ToolShape.hpp"
+#include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
+
 
 namespace Stubble
 {
