@@ -13,6 +13,7 @@
 #include "../../BrushModes/RotateBrushMode/RotateBrushMode.hpp"
 #include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
+#include "../../ToolShapes/ToolShape.hpp"
 
 namespace Stubble
 {
@@ -101,8 +102,7 @@ protected:
 
 	float mFalloff; ///< Brush falloff.
 
-	/*TODO*/
-	//Shape *mShape; ///< Current brush shape (circle, texture shape...).
+	ToolShape *mShape; ///< Current brush shape (circle, texture shape...).
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 
