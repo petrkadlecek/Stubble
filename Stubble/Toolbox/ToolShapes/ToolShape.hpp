@@ -1,6 +1,8 @@
 #ifndef STUBBLE_TOOL_SHAPE_HPP
 #define STUBBLE_TOOL_SHAPE_HPP
 
+#include "CircleToolShape\CircleToolShape.hpp"
+
 namespace Stubble
 {
 
