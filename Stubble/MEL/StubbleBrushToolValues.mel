@@ -4,7 +4,13 @@ global proc StubbleBrushToolValues( string $ctxName )
 	setParent $parent;
 	
 	int $brushModeChoice = `StubbleBrushToolCommand -q -brushModeChoice $ctxName`;
+	int $radius = `StubbleBrushToolCommand -q -circleRadius $ctxName`;
 		
+	floatSliderGrp -e
+		-v $radius
+		-cc ("StubbleBrushToolCommand -e -circleRadius #1 " + $ctxName)
+		stubbleCircleRadius;
+			
 	radioButtonGrp -e
 		-on1 ("StubbleBrushToolCommand -e -brushModeChoice 1 " + $ctxName)
 		-on2 ("StubbleBrushToolCommand -e -brushModeChoice 2 " + $ctxName)

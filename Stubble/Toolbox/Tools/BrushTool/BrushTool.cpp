@@ -4,8 +4,8 @@
 //#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 //#include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
 
-/*TODO*/
-//const char *radiusFlag = "-r", *radiusLongFlag = "-radius";
+
+const char *circleRadiusFlag = "-cr", *circleRadiusLongFlag = "-circleRadius";
 const char *brushModeChoiceFlag = "-bmc", *brushModeChoiceLongFlag = "-brushModeChoice";
 
 namespace Stubble
@@ -53,6 +53,13 @@ MStatus	BrushToolCommand::doEditFlags()
 		// this is the connection between the UI and the brushMode state change
 		mCurrentBrushToolObject->changeBrushMode();
 	}
+
+	if( pars.isFlagSet( circleRadiusFlag ) )
+	{
+		pars.getFlagArgument( circleRadiusFlag, 0, ( mCurrentBrushToolObject->mCircleRadius ) );
+		mCurrentBrushToolObject->notify();
+	}
+
 	return MS::kSuccess;
 }
 
@@ -62,7 +69,10 @@ MStatus	BrushToolCommand::doQueryFlags()
 
 	if( pars.isFlagSet( brushModeChoiceFlag ) )
 		setResult( mCurrentBrushToolObject->mBrushModeChoice );
-		
+	
+	if( pars.isFlagSet( circleRadiusFlag ) )
+		setResult( mCurrentBrushToolObject->mCircleRadius );
+	
 	return MS::kSuccess;
 }
 
@@ -72,6 +82,8 @@ MStatus	BrushToolCommand::appendSyntax()
 	
 	syn.addFlag( brushModeChoiceFlag, brushModeChoiceLongFlag, MSyntax::kLong );
 
+	syn.addFlag( circleRadiusFlag, circleRadiusLongFlag, MSyntax::kLong );
+
 	return MS::kSuccess;
 }
 
@@ -79,12 +91,22 @@ MStatus	BrushToolCommand::appendSyntax()
 // BrushTool
 //----------------------------------------------------------------------------------------------------
 
-ClumpBrushMode BrushTool::clumpBrushMode;
-PuffEndBrushMode BrushTool::puffEndBrushMode;
-PuffRootBrushMode BrushTool::puffRootBrushMode;
-RotateBrushMode BrushTool::rotateBrushMode;
-ScaleBrushMode BrushTool::scaleBrushMode;
-TranslateBrushMode BrushTool::translateBrushMode;
+ClumpBrushMode BrushTool::sClumpBrushMode;
+PuffEndBrushMode BrushTool::sPuffEndBrushMode;
+PuffRootBrushMode BrushTool::sPuffRootBrushMode;
+RotateBrushMode BrushTool::sRotateBrushMode;
+ScaleBrushMode BrushTool::sScaleBrushMode;
+TranslateBrushMode BrushTool::sTranslateBrushMode;
+
+QPointer<MouseMoveListener> BrushTool::sMouseMoveListener;
+
+void BrushTool::deleteMouseMoveListener()
+{
+	if (!(sMouseMoveListener.isNull())) 
+	{
+		delete sMouseMoveListener;
+	}
+}
 
 BrushTool::BrushTool()
 {
@@ -93,7 +115,7 @@ BrushTool::BrushTool()
 	// The next two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
 	// so we make sure that the starting state is valid.
 	mBrushModeChoice = 1;
-	mBrushMode = &BrushTool::translateBrushMode;
+	mBrushMode = &BrushTool::sTranslateBrushMode;
 }
 
 BrushTool::~BrushTool()
@@ -116,6 +138,9 @@ void BrushTool::toolOnSetup ( MEvent & )
 	setHelpString( sHelpTxt );	//	Sets the help text in the help UI item.
 
 	setCursor( MCursor::editCursor );
+
+	// initialize the mouse move listener with the current tool as its owner
+	sMouseMoveListener = new MouseMoveListener( mView.widget(), this );
 
 	// Record current selection mode and masks
 	mPrevSelMode = MGlobal::selectionMode();
@@ -141,6 +166,8 @@ void BrushTool::toolOffCleanup()
 	{
 		MGlobal::setObjectSelectionMask( mPrevObjMask );
 	}
+
+	BrushTool::deleteMouseMoveListener();
 }
 
 MStatus BrushTool::doPress( MEvent &event )
@@ -211,6 +238,11 @@ void BrushTool::doBrush( MVector aDX, float aDT )
 	mBrushMode->doBrush( aDX, aDT );
 }
 
+void BrushTool::notify()
+{
+	mShape->update( this );
+}
+
 void BrushTool::changeBrushMode()
 {
 	// Release the current BrushMode object.
@@ -219,27 +251,32 @@ void BrushTool::changeBrushMode()
 	switch (mBrushModeChoice)
 	{
 	case 1:
-		mBrushMode = &BrushTool::translateBrushMode;
+		mBrushMode = &BrushTool::sTranslateBrushMode;
 		break;
 	case 2:
-		mBrushMode = &BrushTool::rotateBrushMode;
+		mBrushMode = &BrushTool::sRotateBrushMode;
 		break;
 	case 3:
-		mBrushMode = &BrushTool::scaleBrushMode;
+		mBrushMode = &BrushTool::sScaleBrushMode;
 		break;
 	case 4:
-		mBrushMode = &BrushTool::clumpBrushMode;
+		mBrushMode = &BrushTool::sClumpBrushMode;
 		break;
 	case 5:
-		mBrushMode = &BrushTool::puffRootBrushMode;
+		mBrushMode = &BrushTool::sPuffRootBrushMode;
 		break;
 	case 6:
-		mBrushMode = &BrushTool::puffEndBrushMode;
+		mBrushMode = &BrushTool::sPuffEndBrushMode;
 		break;
 	default:
-		mBrushMode = &BrushTool::translateBrushMode;
+		mBrushMode = &BrushTool::sTranslateBrushMode;
 		mBrushModeChoice = 1;
 	}
+}
+
+void BrushTool::changeToolShape()
+{
+	/*TODO*/
 }
 
 } // namespace Toolbox

@@ -10,7 +10,7 @@ float ToolShape::getSize()
 {
 	return mSize;
 }
-	
+
 } // namespace Toolbox
 
 } // namespace Stubble

@@ -1,3 +1,15 @@
+/*
+	Usage:
+
+		if ( !`contextInfo -exists stubbleBrushTool` )
+		{
+			StubbleBrushToolCommand stubbleBrushTool;
+			print ( "Created the stubbleBrushTool context.\n" );
+		}
+		setToolTo stubbleBrushTool;
+*/
+
+
 #include <maya/MFnPlugin.h>
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 
@@ -18,7 +30,7 @@
 EXPORT MStatus initializePlugin( MObject aObj )
 { 
 	MStatus status;
-	MFnPlugin plugin( aObj, "The Stubble Team", "1.03", "Any" );
+	MFnPlugin plugin( aObj, "The Stubble Team", "0.11", "Any" );
 
 	// Add plug-in feature registration here
 	// register BrushToolCommand

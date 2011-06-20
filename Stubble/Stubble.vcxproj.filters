@@ -73,6 +73,12 @@
     <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp">
       <Filter>Toolbox\BrushModes\PuffEndBrushMode</Filter>
     </ClCompile>
+    <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\Tools\GenericTool.cpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -107,6 +113,12 @@
     </ClInclude>
     <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp">
       <Filter>Toolbox\BrushModes\PuffEndBrushMode</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\Tools\MouseMoveListener.hpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\Tools\GenericTool.hpp">
+      <Filter>Toolbox\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

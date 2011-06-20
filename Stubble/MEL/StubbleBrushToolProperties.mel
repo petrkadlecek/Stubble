@@ -19,6 +19,16 @@ global proc StubbleBrushToolProperties()
 				    -label "Brush Mode: " -labelArray3 "Translate" "Rotate" "Scale" stubbleBrushToolBrushMode1`;
 				radioButtonGrp -numberOfRadioButtons 3 -shareCollection $group1
 				    -label "" -labelArray3 "Clump" "Puff Root" "Puff End" stubbleBrushToolBrushMode2;
+
+					separator -style "none";
+
+				floatSliderGrp -label "Radius"
+					-value 30
+					-field true
+					-precision 0
+					-minValue 10.0 -maxValue 100.0
+					-fieldMinValue 10.0 -fieldMaxValue 100.0 
+						stubbleCircleRadius;
 					
 				setParent ..;
 			setParent ..;

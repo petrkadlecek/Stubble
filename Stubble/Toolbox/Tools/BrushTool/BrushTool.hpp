@@ -6,6 +6,15 @@
 #include <maya/MPxContext.h>
 #include <maya/MPxContextCommand.h>
 
+#include <maya/MQtUtil.h>
+#include <QtCore/QPointer>
+#include <QtGui/QApplication>
+#include <QtOpenGL/QGLWidget>
+#include <QtGui/QMouseEvent>
+
+#include "../GenericTool.hpp"
+#include "../MouseMoveListener.hpp"
+
 #include "../../BrushModes/BrushMode.hpp"
 #include "../../BrushModes/ClumpBrushMode/ClumpBrushMode.hpp"
 #include "../../BrushModes/PuffEndBrushMode/PuffEndBrushMode.hpp"
@@ -13,7 +22,8 @@
 #include "../../BrushModes/RotateBrushMode/RotateBrushMode.hpp"
 #include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
-#include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
+//#include "../../ToolShapes/ToolShape.hpp"
+//#include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
 
 namespace Stubble
@@ -26,7 +36,7 @@ namespace Toolbox
 /// This class implements the brush tool.
 ///----------------------------------------------------------------------------------------------------
 class BrushTool :
-	public MPxContext
+	public GenericTool
 {
 public:
 	///----------------------------------------------------------------------------------------------------
@@ -82,14 +92,20 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	void doBrush( MVector aDX, float aDT );
 
+	///----------------------------------------------------------------------------------------------------
+	/// Notifies the relevant depending objects of the changes in the user interface.
+	///----------------------------------------------------------------------------------------------------
+	void notify();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Deletes the mouse move listener.
+	///----------------------------------------------------------------------------------------------------
+	static void deleteMouseMoveListener();
+
+	/// the mouse move listener
+	static QPointer<MouseMoveListener> sMouseMoveListener;
+	
 	int mBrushModeChoice; ///< The index of the brush mode to be used (translate, rotate, scale, clump...)
-
-	/*TODO*/
-	/*/// removes the widget that draws the visual aid
-	static void cleanup();
-
-	/// the widget that draws the visual aid
-	static QPointer<CoolWidget>	coolwdg;*/
 
 protected:
 
@@ -99,20 +115,20 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	void changeBrushMode();
 
+	virtual void changeToolShape();
+
 	float mSensitivity; ///< Brush sensitivity.
 
 	float mFalloff; ///< Brush falloff.
 
-	ToolShape *mShape; ///< Current brush shape (circle, texture shape...).
-
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 
-	static ClumpBrushMode clumpBrushMode;
-	static PuffEndBrushMode puffEndBrushMode;
-	static PuffRootBrushMode puffRootBrushMode;
-	static RotateBrushMode rotateBrushMode;
-	static ScaleBrushMode scaleBrushMode;
-	static TranslateBrushMode translateBrushMode;
+	static ClumpBrushMode sClumpBrushMode;
+	static PuffEndBrushMode sPuffEndBrushMode;
+	static PuffRootBrushMode sPuffRootBrushMode;
+	static RotateBrushMode sRotateBrushMode;
+	static ScaleBrushMode sScaleBrushMode;
+	static TranslateBrushMode sTranslateBrushMode;
 
 private:
 
@@ -127,8 +143,6 @@ private:
 	short mPrevPos[ 2 ]; ///< The previous location of the cursor during dragging.
 
 	short mEndPos[ 2 ]; ///< The location of the cursor when the mouse gets released.
-
-	M3dView mView; ///< The view in which we are doing the brushing.
 
 	MGlobal::MSelectionMode mPrevSelMode; ///< Previous selection mode, used when undoing the command.
 	
