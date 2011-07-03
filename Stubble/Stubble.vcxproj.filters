@@ -40,6 +40,12 @@
     <Filter Include="MEL">
       <UniqueIdentifier>{01798d18-147a-4775-aaa7-9eeb2cb86ff0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HairShape">
+      <UniqueIdentifier>{21a25821-7cbb-49f0-a570-9244e685535e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Primitives">
+      <UniqueIdentifier>{35b2f530-4198-4486-af2a-b596052fff9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -78,6 +84,18 @@
     </ClCompile>
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp">
       <Filter>Toolbox\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape.cpp">
+      <Filter>HairShape</Filter>
+    </ClCompile>
+    <ClCompile Include="GuideHair.cpp">
+      <Filter>HairShape</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives\Vector3D.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="HairGuides.cpp">
+      <Filter>HairShape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +137,18 @@
     </ClInclude>
     <ClInclude Include="Toolbox\Tools\GenericTool.hpp">
       <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape.hpp">
+      <Filter>HairShape</Filter>
+    </ClInclude>
+    <ClInclude Include="GuideHair.hpp">
+      <Filter>HairShape</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives\Vector3D.hpp">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="HairGuides.hpp">
+      <Filter>HairShape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
