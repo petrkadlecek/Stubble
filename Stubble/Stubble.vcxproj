@@ -132,9 +132,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GuideHair.cpp" />
-    <ClCompile Include="HairGuides.cpp" />
-    <ClCompile Include="HairShape.cpp" />
+    <ClCompile Include="HairShape\HairShape.cpp" />
+    <ClCompile Include="HairShape\Hairs\GuideHair.cpp" />
+    <ClCompile Include="HairShape\Hairs\HairGuides.cpp" />
+    <ClCompile Include="HairShape\Mesh\MeshPoint.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Primitives\Vector3D.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
@@ -151,9 +152,14 @@
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GuideHair.hpp" />
-    <ClInclude Include="HairGuides.hpp" />
-    <ClInclude Include="HairShape.hpp" />
+    <ClInclude Include="HairShape\HairShape.hpp" />
+    <ClInclude Include="HairShape\Hairs\GuideHair.hpp" />
+    <ClInclude Include="HairShape\Hairs\HairGuides.hpp" />
+    <ClInclude Include="HairShape\Mesh\Mesh.hpp" />
+    <ClInclude Include="HairShape\Mesh\MeshPoint.hpp" />
+    <ClInclude Include="HairShape\Mesh\Triangle.hpp" />
+    <ClInclude Include="HairShape\Mesh\TriangleConstIterator.hpp" />
+    <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
     <ClInclude Include="Primitives\Vector3D.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />
