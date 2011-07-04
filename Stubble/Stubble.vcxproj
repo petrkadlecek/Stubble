@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_2011|Win32">
@@ -132,10 +132,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HairShape\HairShape.cpp" />
-    <ClCompile Include="HairShape\Hairs\GuideHair.cpp" />
-    <ClCompile Include="HairShape\Hairs\HairGuides.cpp" />
+    <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
+    <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
+    <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshPoint.cpp" />
+    <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Primitives\Vector3D.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
@@ -152,14 +153,15 @@
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HairShape\HairShape.hpp" />
-    <ClInclude Include="HairShape\Hairs\GuideHair.hpp" />
-    <ClInclude Include="HairShape\Hairs\HairGuides.hpp" />
+    <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
+    <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />
+    <ClInclude Include="HairShape\HairComponents\HairGuides.hpp" />
     <ClInclude Include="HairShape\Mesh\Mesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshPoint.hpp" />
     <ClInclude Include="HairShape\Mesh\Triangle.hpp" />
     <ClInclude Include="HairShape\Mesh\TriangleConstIterator.hpp" />
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
+    <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp" />
     <ClInclude Include="Primitives\Vector3D.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />

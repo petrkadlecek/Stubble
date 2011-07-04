@@ -46,11 +46,14 @@
     <Filter Include="Primitives">
       <UniqueIdentifier>{35b2f530-4198-4486-af2a-b596052fff9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HairShape\Hairs">
-      <UniqueIdentifier>{ff012dea-ab73-4ba2-96f9-22a7e9b3b9ef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="HairShape\Mesh">
       <UniqueIdentifier>{a3c36546-aae7-4de7-b7e0-6d8b4a6950c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HairShape\UserInterface">
+      <UniqueIdentifier>{6f0d4396-8ff8-4923-9fca-12611ddf0183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HairShape\HairComponents">
+      <UniqueIdentifier>{ff012dea-ab73-4ba2-96f9-22a7e9b3b9ef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -94,17 +97,20 @@
     <ClCompile Include="Primitives\Vector3D.cpp">
       <Filter>Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\HairShape.cpp">
-      <Filter>HairShape</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Hairs\GuideHair.cpp">
-      <Filter>HairShape\Hairs</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Hairs\HairGuides.cpp">
-      <Filter>HairShape\Hairs</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\Mesh\MeshPoint.cpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\HairShape.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\GuideHair.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\HairGuides.cpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -150,15 +156,6 @@
     <ClInclude Include="Primitives\Vector3D.hpp">
       <Filter>Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\HairShape.hpp">
-      <Filter>HairShape</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Hairs\GuideHair.hpp">
-      <Filter>HairShape\Hairs</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Hairs\HairGuides.hpp">
-      <Filter>HairShape\Hairs</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\Mesh\Mesh.hpp">
       <Filter>HairShape\Mesh</Filter>
     </ClInclude>
@@ -173,6 +170,18 @@
     </ClInclude>
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\HairShape.hpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\GuideHair.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\HairGuides.hpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

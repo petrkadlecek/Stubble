@@ -3,6 +3,7 @@
 
 #include <maya/MStatus.h>
 #include <maya/MBoundingBox.h>
+#include <maya/MPxSurfaceShape.h>
 
 namespace Stubble
 {
@@ -13,7 +14,7 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 /// The main class that encapsulates informations about hairs
 ///----------------------------------------------------------------------------------------------------
-class HairShape
+class HairShape: public MPxSurfaceShape
 {
 public:
 	HairShape();
@@ -26,12 +27,17 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Getter for bounding box of HairShape.
 	///----------------------------------------------------------------------------------------------------
-	bool isBounded() const;
+	virtual bool isBounded() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// This function calculates and returns Node volume.
+	///
+	/// \return The bounding box of the shape
 	///----------------------------------------------------------------------------------------------------
-	MBoundingBox HairShape::boundingBox() const;
+	virtual MBoundingBox boundingBox() const;
+
+	/// TODO - comment
+	virtual MStatus compute( const MPlug &plug, MDataBlock &dataBlock );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Function draws guide hairs and also interporated hairs.
