@@ -1,20 +1,15 @@
 #include "GuideHair.hpp"
 
+
 using namespace Stubble;
 using namespace HairShape;
 
-///----------------------------------------------------------------------------------------------------
-/// Default constructor. 
-///----------------------------------------------------------------------------------------------------
 inline GuideHair::GuideHair():
 	mGuideHairVerticesCount( 0 ),
 	mGuideHairVertices( 0 )
 {
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Copy constructor. 
-///----------------------------------------------------------------------------------------------------
 inline GuideHair::GuideHair( const GuideHair & aCopy ):
 	mRelativePosition( aCopy.mRelativePosition ),
 	mWorldSpacePosition( aCopy.mWorldSpacePosition ),
@@ -33,13 +28,6 @@ inline GuideHair::GuideHair( const GuideHair & aCopy ):
 		sizeof( Vector3D< double > ) * mGuideHairVerticesCount );
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Copy operator. 
-///
-/// \param	aCopy	a copy. 
-///
-/// \return	The result of the operation. 
-///----------------------------------------------------------------------------------------------------
 inline const GuideHair & GuideHair::operator==( const GuideHair & aCopy )
 {
 	// First allocate memory for vertices
@@ -68,41 +56,21 @@ inline const GuideHair & GuideHair::operator==( const GuideHair & aCopy )
 	return *this;
 }
 
-
-///----------------------------------------------------------------------------------------------------
-/// Gets a relative position. 
-///----------------------------------------------------------------------------------------------------
 inline const UVPoint &  GuideHair::getRelativePosition() const
 {
 	return mRelativePosition;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Sets a relative position. 
-///
-/// \param	aRelativePosition	a relative position. 
-///----------------------------------------------------------------------------------------------------
 inline void GuideHair::setRelativePosition( const UVPoint & aRelativePosition )
 {
 	mRelativePosition = aRelativePosition;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the world position, tangent, normal, binormal and u,v coordinates of guide hair. 
-///
-/// \return	The position, tangent, normal, binormal and u,v coordinates of guide hair as PointOnMesh. 
-///----------------------------------------------------------------------------------------------------
 inline const MeshPoint & GuideHair::getGuideWorldPosition() const
 {
 	return mWorldSpacePosition;
 }
 
-///----------------------------------------------------------------------------------------------------
-///  Resets the guide hair vertices in normal direction. 
-///
-/// \param	aGuideHairVerticesCount	Number of the vertices.
-/// \param	aSegmentSize	Size of a segment. 
-///----------------------------------------------------------------------------------------------------
 inline void GuideHair::resetGuideHairVertices( unsigned int aGuideHairVerticesCount, double aSegmentSize )
 {
 	if ( aGuideHairVerticesCount != mGuideHairVerticesCount )
@@ -116,11 +84,6 @@ inline void GuideHair::resetGuideHairVertices( unsigned int aGuideHairVerticesCo
 	resetSegments( aSegmentSize );
 }
 
-///----------------------------------------------------------------------------------------------------
-///  Resets the segments in normal direction without changes to guide hair vertices count
-///
-/// \param	aSegmentSize				Size of segment. 
-///----------------------------------------------------------------------------------------------------
 inline void GuideHair::resetSegments( double aSegmentSize )
 {
 	double z = aSegmentSize;
@@ -129,43 +92,21 @@ inline void GuideHair::resetSegments( double aSegmentSize )
 		it->set( 0, 0, z );
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the guide hair vertices.
-///
-/// \return	The guide hair vertices.
-///----------------------------------------------------------------------------------------------------
 inline const GuideHair::GuideHairVertices GuideHair::getGuideHairVertices() const
 {
 	return mGuideHairVertices;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the guide hair vertices count.
-///
-/// \return	The guide hair vertices.
-///----------------------------------------------------------------------------------------------------
 inline unsigned int GuideHair::getGuideHairVerticesCount() const
 {
 	return mGuideHairVerticesCount;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the world transform matrix. Can be used as model-view OpenGL matrix (glMultMatrix( * ) ). 
-///
-/// \return	The world transform matrix. 
-///----------------------------------------------------------------------------------------------------
 inline const double * GuideHair::getWorldTransformMatrix() const
 {
 	return mWorldTransformMatrix;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets a guide hair vertex in world coordinates. 
-///
-/// \param	aIndex	Zero-based index of vertex
-///
-/// \return	The vertex in world coordinates. 
-///----------------------------------------------------------------------------------------------------
 inline Vector3D< double > GuideHair::getGuideHairVertexInWorldCoordinates( unsigned int aIndex ) const
 {
 	Vector3D< double > guideHairVertex = mGuideHairVertices[ aIndex ];
@@ -184,9 +125,6 @@ inline Vector3D< double > GuideHair::getGuideHairVertexInWorldCoordinates( unsig
 		mWorldTransformMatrix[ 14 ] );
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Finaliser. 
-///----------------------------------------------------------------------------------------------------
 inline GuideHair::~GuideHair()
 {
 	delete mGuideHairVertices;
