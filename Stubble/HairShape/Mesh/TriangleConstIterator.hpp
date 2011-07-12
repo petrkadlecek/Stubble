@@ -153,7 +153,7 @@ void TriangleConstIterator::reset()
 ///----------------------------------------------------------------------------------------------------
 /// Finaliser. 
 ///----------------------------------------------------------------------------------------------------
-ConstTriangleIterator::~ConstTriangleIterator2()
+TriangleConstIterator::~TriangleConstIterator()
 {
 }
 

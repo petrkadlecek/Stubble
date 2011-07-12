@@ -277,6 +277,231 @@ inline std::ostream & operator<<( std::ostream & aStreamOut, const Vector3D< Typ
 template < typename Type >
 inline std::istream & operator>>( std::istream & aStreamIn, Vector3D< Type > & aVector );
 
+// inline functions implementation
+template < typename Type >
+inline Vector3D< Type >::Vector3D():
+	x( 0 ),
+	y( 0 ),
+	z( 0 )
+{
+}
+
+template < typename Type >
+inline Vector3D< Type >::Vector3D( Type aX, Type aY, Type aZ ):
+	x( aX ),
+	y( aY ),
+	z( aZ ) 
+{
+}
+
+template < typename Type >
+inline Vector3D< Type >::Vector3D( const Vector3D & aStart, const Vector3D & aEnd ): 
+	x( aEnd.x - aStart.x ), 
+	y( aEnd.y - aStart.y ), 
+	z( aEnd.z - aStart.z ) 
+{
+}	
+
+template < typename Type >
+inline Type Vector3D< Type >::size() const
+{ 
+	return sqrt( x * x  +  y * y  +  z * z );
+}
+
+template < typename Type >
+inline Type Vector3D< Type >::sizePwr2() const 
+{
+	return x * x  +  y * y  +  z * z;
+}
+
+template < typename Type >
+inline Type Vector3D< Type >::operator[] ( unsigned int aIndex ) const
+{
+	if ( aIndex == 0 )
+		return x;
+
+	if ( aIndex == 1 )
+		return y;
+
+	return z;
+}
+
+template < typename Type >
+inline Type & Vector3D< Type >::operator[] ( unsigned int aIndex )
+{
+	if ( aIndex == 0 ) return x;
+	if ( aIndex == 1 ) return y;
+	return z;
+}
+
+template < typename Type >
+inline const Vector3D< Type > & Vector3D< Type >::operator+= ( const Vector3D & aVector ) 
+{
+	x += aVector.x;
+	y += aVector.y;
+	z += aVector.z;
+	return *this;
+}
+
+template < typename Type >
+inline const Vector3D< Type > & Vector3D< Type >::operator-= ( const Vector3D & aVector ) 
+{
+	x -= aVector.x;
+	y -= aVector.y;
+	z -= aVector.z;
+	return *this;
+}
+
+template < typename Type >
+inline const Vector3D< Type > & Vector3D< Type >::operator*= ( Type aValue ) 
+{
+	x *= aValue;
+	y *= aValue;
+	z *= aValue;
+	return *this;
+}
+
+template < typename Type >
+inline const Vector3D< Type > & Vector3D< Type >::operator/= ( Type aValue ) 
+{
+	x /= aValue;
+	y /= aValue;
+	z /= aValue;
+	return *this;
+}
+
+template < typename Type >
+inline bool Vector3D< Type >::operator== ( const Vector3D & aVector ) const
+{
+	return x == aVector.x && y == aVector.y && z == aVector.z;
+}
+
+template < typename Type >
+inline bool Vector3D< Type >::operator!= ( const Vector3D & aVector ) const
+{
+	return x != aVector.x || y != aVector.y || z != aVector.z;
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::operator+ ( const Vector3D & aVector ) const 
+{
+	return Vector3D( x + aVector.x, y + aVector.y, z + aVector.z );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::operator-( const Vector3D & aVector ) const 
+{
+	return Vector3D( x - aVector.x, y - aVector.y, z - aVector.z );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::operator-() const 
+{
+	return Vector3D( -x, -y, -z );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::operator* ( Type aScalar ) const 
+{
+	return Vector3D( x * aScalar, y * aScalar, z * aScalar );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::operator/ ( Type aScalar ) const 
+{
+	return Vector3D( x / aScalar, y / aScalar, z / aScalar );
+}
+
+template < typename Type >
+inline void Vector3D< Type >::set( Type aX, Type aY, Type aZ )
+{
+	x = aX;
+	y = aY;
+	z = aZ;
+}
+	
+template < typename Type >
+inline Vector3D< Type > & Vector3D< Type >::normalize() 
+{
+	if ( x == 0 && y == 0 && z == 0 ) 
+	{
+		return *this;
+	}
+
+	*this /= size();
+
+	return *this;
+}
+
+	
+#ifdef MAYA
+template < typename Type >
+inline Vector3D< Type >::Vector3D( const MVector & aMayaVector ):
+	x( aMayaVector.x ),
+	y( aMayaVector.y ),
+	z( aMayaVector.z )
+{
+}
+
+template < typename Type >
+inline Vector3D< Type >::Vector3D( const MPoint & aMayaPoint ):
+	x( aMayaPoint.x ),
+	y( aMayaPoint.y ),
+	z( aMayaPoint.z )
+{
+}
+
+template < typename Type >
+inline MVector Vector3D< Type >::toMayaVector() const
+{
+	return MVector( x, y, z );
+}
+
+template < typename Type >
+inline MPoint Vector3D< Type >::toMayaPoint() const
+{
+	return MPoint( x, y, z );
+}
+
+#endif
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::normalize( const Vector3D & aVector ) 
+{
+	if ( aVector.x == 0 && aVector.y == 0 && aVector.z == 0 ) 
+	{
+		return aVector;
+	}
+
+	return aVector / aVector.size();
+}
+
+template < typename Type >
+inline Type Vector3D< Type >::dotProduct( const Vector3D & aVector1, const Vector3D & aVector2 ) 
+{
+	return aVector1.x * aVector2.x  +  aVector1.y * aVector2.y  +  aVector1.z * aVector2.z;
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::crossProduct( const Vector3D & aVector1, const Vector3D & aVector2 ) 
+{
+	return Vector3D( aVector1.y * aVector2.z - aVector1.z * aVector2.y,
+					 aVector1.z * aVector2.x - aVector1.x * aVector2.z,
+					 aVector1.x * aVector2.y - aVector1.y * aVector2.x );
+}
+
+template < typename Type >
+inline std::ostream & operator<<( std::ostream & aStreamOut, const Vector3D< Type > & aVector )
+{
+	return aStreamOut << aVector.x << " " << aVector.y << " " << aVector.z;
+}
+
+template < typename Type >
+inline std::istream & operator>>( std::istream & aStreamIn, Vector3D< Type > & aVector )
+{
+	return aStreamIn >> aVector.x >> aVector.y >> aVector.z;
+}
+
 } //namespace Stubble
 
 #endif //STUBBLE_VECTOR_3D_HPP

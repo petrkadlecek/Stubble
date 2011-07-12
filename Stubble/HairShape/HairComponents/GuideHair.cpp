@@ -1,8 +1,10 @@
 #include "GuideHair.hpp"
 
+namespace Stubble
+{
 
-using namespace Stubble;
-using namespace HairShape;
+namespace HairShape
+{
 
 inline GuideHair::GuideHair():
 	mGuideHairVerticesCount( 0 ),
@@ -129,3 +131,7 @@ inline GuideHair::~GuideHair()
 {
 	delete mGuideHairVertices;
 }
+
+} // namespace HairShape
+
+} // namespace Stubble

@@ -1,9 +1,16 @@
 #include "HairGuides.hpp"
 
-using namespace Stubble;
-using namespace HairShape;
+namespace Stubble
+{
+
+namespace HairShape
+{
 
 void HairGuides::generate(const MFnMesh &aMayaMesh, int aCount, bool aInterpolateFromPrevious)
 {
 
 }
+
+} // namespace HairShape
+
+} // namespace Stubble

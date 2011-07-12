@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_2011|Win32">
@@ -132,13 +132,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HairShape\Generators\RandomGenerator.cpp" />
+    <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
     <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshPoint.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="pluginMain.cpp" />
-    <ClCompile Include="Primitives\Vector3D.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp" />
@@ -153,6 +154,8 @@
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\CommonFunctions.hpp" />
+    <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp" />
@@ -163,6 +166,7 @@
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp" />
     <ClInclude Include="Primitives\Vector3D.hpp" />
+    <ClInclude Include="HairShape\Generators\RandomGenerator.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp" />

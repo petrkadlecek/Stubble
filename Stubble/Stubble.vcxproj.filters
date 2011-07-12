@@ -55,6 +55,12 @@
     <Filter Include="HairShape\HairComponents">
       <UniqueIdentifier>{ff012dea-ab73-4ba2-96f9-22a7e9b3b9ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HairShape\Generators">
+      <UniqueIdentifier>{a04b9c22-1555-4b57-8aa9-cf88c3822e49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{8f81952a-8e8b-4b35-9136-da1a93d75a50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -94,9 +100,6 @@
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp">
       <Filter>Toolbox\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="Primitives\Vector3D.cpp">
-      <Filter>Primitives</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\Mesh\MeshPoint.cpp">
       <Filter>HairShape\Mesh</Filter>
     </ClCompile>
@@ -111,6 +114,12 @@
     </ClCompile>
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Generators\RandomGenerator.cpp">
+      <Filter>HairShape\Generators</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp">
+      <Filter>HairShape\Generators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +191,15 @@
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CommonFunctions.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp">
+      <Filter>HairShape\Generators</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Generators\RandomGenerator.hpp">
+      <Filter>HairShape\Generators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
