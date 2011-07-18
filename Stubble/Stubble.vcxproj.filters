@@ -100,9 +100,6 @@
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp">
       <Filter>Toolbox\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\Mesh\MeshPoint.cpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClCompile>
@@ -200,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\Generators\RandomGenerator.hpp">
       <Filter>HairShape\Generators</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StubbleException.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,9 @@
 #define STUBBLE_GUIDE_HAIR_HPP
 
 #include "Primitives\Vector3D.hpp"
-#include "..\Mesh\MeshPoint.hpp"
-#include "..\Mesh\UVPoint.hpp"
+#include "HairShape\Mesh\MeshPoint.hpp"
+#include "HairShape\Mesh\UVPoint.hpp"
+#include "HairShape\Generators\RandomGenerator.hpp"
 
 namespace Stubble
 {
@@ -72,6 +73,17 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void resetSegments( double aSegmentSize );
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	///  Randomize segments - function for testing only. 
+	///
+	/// \param	aRandomization					a randomization vector. 
+	/// \param	aSegmentsCount					Number of the segments. 
+	/// \param	aSegmentSize					Size of a segment. 
+	/// \param [in,out]	aRandomGenerator		a random number generator. 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	inline void randomizeSegments( const Vector3D< double > aRandomization, int aSegmentsCount, double aSegmentSize, 
+		RandomGenerator & aRandomGenerator );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the guide hair vertices.
 	///
@@ -118,6 +130,8 @@ private:
 
 	double mWorldTransformMatrix[ 16 ]; ///< The world transformation matrix
 };
+
+// inline functions implementation
 
 } // namespace HairShape
 

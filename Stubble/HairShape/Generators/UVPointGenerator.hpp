@@ -2,7 +2,7 @@
 #define STUBBLE_UV_POINT_GENERATOR_HPP
 
 #include "RandomGenerator.hpp"
-#include "..\Mesh\MeshPoint.hpp"
+#include "..\Mesh\UVPoint.hpp"
 #include "..\Mesh\TriangleConstIterator.hpp"
 
 #include <vector>
@@ -43,7 +43,7 @@ public:
 	///
 	/// \return	Generated sample. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint next();
+	UVPoint next();
 	
 	#ifdef MAYA
 
@@ -157,7 +157,19 @@ private:
 
 	///< true if generator is inited
 	bool mIsInited;
+
+	///< The triangles cdf
+	double * mTrianglesCDF;
+
+	///< Number of triangles
+	int mTrianglesCount;
 };
+
+// inline functions implementation
+inline bool UVPointGenerator::isInited() const
+{
+	return mIsInited;
+}
 
 } // namespace HairShape
 

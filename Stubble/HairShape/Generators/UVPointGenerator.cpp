@@ -1,6 +1,8 @@
 #include "UVPointGenerator.hpp"
 
-#include "..\..\Primitives\Vector3D.hpp"
+#include "Primitives\Vector3D.hpp"
+#include "Common\StubbleException.hpp"
+#include "HairShape\Mesh\UVPoint.hpp"
 
 namespace Stubble
 {
@@ -183,6 +185,41 @@ UVPointGenerator::UVPointGenerator( TriangleConstIterator & aTriangleConstIterat
 	mIsInited = mSubTriangles.size() != 0;
 }
 
+UVPoint UVPointGenerator::next()
+{
+	if ( !isInited() )
+		throw StubbleException( "AdaptivePointGenerator::next : not inited !" );
+
+	UVPoint sample; // Generated point
+	double average; // Average color at generated point
+
+	do {
+		// First select in which triangle sample will be placed
+		double xi0 = mRandomNumberGenerator.randomDouble( 0, mTrianglesCDF[ mTrianglesCount - 1] );
+
+		// TODO - correct !!!
+		int triangle = 12345; //static_cast< int >( sampleFromCDF( mTrianglesCDF, mTrianglesCount, xi0, false) );
+
+		// Then select barycentric u,v coordinates
+		double xi1 = mRandomNumberGenerator.uniformNumber();
+		double xi2 = mRandomNumberGenerator.uniformNumber();
+		double sqrtXi1 = sqrt( xi1 );
+		double u = 1 - sqrtXi1;
+		double v = xi2 * sqrtXi1;
+
+		// TODO
+		//sample = UVPoint(u, v, mTrianglesIDs[ triangle ]);
+
+		// TODO
+		// Calculate texture coordinates
+		//Proxies::MeshProxy::TextureCoordinates tc = mMeshProxy->getTextureCoordinates( sample );
+
+		// Match their color against randomly generated number
+		average = 1; //mTextureProxy->averageAt( tc.mUCoordinate, tc.mVCoordinate );
+	} while ( average <= mRandomNumberGenerator.randomDouble( 0, 1 ) );
+
+	return sample;
+}
 void UVPointGenerator::BuildVertices()
 {
 	mVertices = new Vertex[ VERTICES_COUNT ];

@@ -1,6 +1,10 @@
 #ifndef STUBBLE_HAIR_GUIDES_HPP
 #define STUBBLE_HAIR_GUIDES_HPP
 
+#include "GuideHair.hpp"
+#include "HairShape\Generators\RandomGenerator.hpp"
+#include "HairShape\Generators\UVPointGenerator.hpp"
+
 #include <maya/MFnMesh.h>
 
 namespace Stubble
@@ -16,19 +20,25 @@ class HairGuides
 {
 public:
 	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the guide hairs
+	///----------------------------------------------------------------------------------------------------
+	typedef GuideHair * GuideHairs;
+
+	///----------------------------------------------------------------------------------------------------
 	/// Constructor
 	///----------------------------------------------------------------------------------------------------
 	HairGuides();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Generates guides hairs.
-	///----------------------------------------------------------------------------------------------------
-	void generate(const MFnMesh &aMayaMesh, int aCount, bool aInterpolateFromPrevious = false);
-
-	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
 	~HairGuides();
+
+private:
+	// TODO - temporary placement
+	GuideHairs mGuideHairs; ///< Array of guide hairs.	
+
+	int mGuideHairsCount;
 };
 
 } // namespace HairShape

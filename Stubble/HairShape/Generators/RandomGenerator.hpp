@@ -38,6 +38,36 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	double uniformNumber();
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Gets the uniform random double from [aMin,aMax]. 
+	///
+	/// \param	aMin	a minimum. 
+	/// \param	aMax	a maximum. 
+	///
+	/// \return	Uniform random double from [aMin,aMax]. 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	inline double randomDouble( double aMin, double aMax );
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Gets the uniform random float from [aMin,aMax]. 
+	///
+	/// \param	aMin	a minimum. 
+	/// \param	aMax	a maximum. 
+	///
+	/// \return	Uniform random float from [aMin,aMax]. 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	inline float randomFloat( float aMin, float aMax );
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Gets the uniform random integer from [aMin,aMax]. 
+	///
+	/// \param	aMin	a minimum. 
+	/// \param	aMax	a maximum. 
+	///
+	/// \return	Uniform random integer from [aMin,aMax]. 
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	inline int randomInteger( int aMin, int aMax );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Finaliser. 
 	///----------------------------------------------------------------------------------------------------
@@ -48,6 +78,13 @@ private:
 	double c, cd, cm; ///< Random generator data
 	int i97, j97; ///< Random generator data
 };
+
+// inline functions implementation
+inline double RandomGenerator::randomDouble( double aMin, double aMax ) 
+{
+	return ( aMin >= aMax ) ? ( aMin  ) : 
+			( aMin + (aMax - aMin) * uniformNumber() );
+}
 
 } // namespace HairShape
 

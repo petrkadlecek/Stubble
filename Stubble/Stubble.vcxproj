@@ -76,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -137,7 +137,6 @@
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
     <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
-    <ClCompile Include="HairShape\Mesh\MeshPoint.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
@@ -155,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\CommonFunctions.hpp" />
+    <ClInclude Include="Common\StubbleException.hpp" />
     <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />

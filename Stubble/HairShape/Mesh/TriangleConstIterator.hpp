@@ -15,7 +15,6 @@ namespace HairShape
 class TriangleConstIterator
 {
 public:
-
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor. 
 	///
