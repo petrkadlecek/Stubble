@@ -12,6 +12,9 @@ namespace Stubble
 namespace HairShape
 {
 
+///----------------------------------------------------------------------------------------------------
+/// Class implementing the actual guide hair, consists of hair vertices, transform matrices, etc.
+///----------------------------------------------------------------------------------------------------
 class GuideHair
 {
 public:
@@ -73,14 +76,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void resetSegments( double aSegmentSize );
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
+	///----------------------------------------------------------------------------------------------------
 	///  Randomize segments - function for testing only. 
 	///
 	/// \param	aRandomization					a randomization vector. 
 	/// \param	aSegmentsCount					Number of the segments. 
 	/// \param	aSegmentSize					Size of a segment. 
 	/// \param [in,out]	aRandomGenerator		a random number generator. 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
+	///----------------------------------------------------------------------------------------------------
 	inline void randomizeSegments( const Vector3D< double > aRandomization, int aSegmentsCount, double aSegmentSize, 
 		RandomGenerator & aRandomGenerator );
 
@@ -99,11 +102,25 @@ public:
 	inline unsigned int getGuideHairVerticesCount() const;
 
 	///----------------------------------------------------------------------------------------------------
+	/// Gets the desired segment hair
+	///
+	/// \return The segment hair
+	///----------------------------------------------------------------------------------------------------
+	inline double getSegmentLength() const;
+
+	///----------------------------------------------------------------------------------------------------
 	/// Gets the world transform matrix. Can be used as model-view OpenGL matrix (glMultMatrix( * ) ).
 	///
 	/// \return	The world transform matrix. 
 	///----------------------------------------------------------------------------------------------------
 	inline const double * getWorldTransformMatrix() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the local transform matrix. Can be used as model-view OpenGL matrix (glMultMatrix( * ) ).
+	///
+	/// \return	The local transform matrix. 
+	///----------------------------------------------------------------------------------------------------
+	inline const double * getLocalTransformMatrix() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets a guide hair vertex in world coordinates. 
@@ -128,7 +145,11 @@ private:
 
 	unsigned int mGuideHairVerticesCount; ///< Number of guide hair vertices
 
-	double mWorldTransformMatrix[ 16 ]; ///< The world transformation matrix
+	double mSegmentLength; ///< Lenght of the hair segment (same between all hair vertices
+
+	double mWorldTransformMatrix[ 16 ]; ///< The local to world transformation matrix
+
+	double mLocalTransformMatrix[ 16 ]; ///< The world to local transformation matrix
 };
 
 // inline functions implementation

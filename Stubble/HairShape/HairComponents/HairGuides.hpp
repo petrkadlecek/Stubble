@@ -38,7 +38,7 @@ private:
 	// TODO - temporary placement
 	GuideHairs mGuideHairs; ///< Array of guide hairs.	
 
-	int mGuideHairsCount;
+	int mGuideHairsCount; ///< Number of guide hair
 };
 
 } // namespace HairShape

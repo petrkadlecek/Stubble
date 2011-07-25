@@ -7,8 +7,9 @@ namespace HairShape
 {
 
 inline GuideHair::GuideHair():
+	mGuideHairVertices( 0 ),
 	mGuideHairVerticesCount( 0 ),
-	mGuideHairVertices( 0 )
+	mSegmentLength( 0.0 )
 {
 }
 
@@ -16,10 +17,15 @@ inline GuideHair::GuideHair( const GuideHair & aCopy ):
 	mRelativePosition( aCopy.mRelativePosition ),
 	mWorldSpacePosition( aCopy.mWorldSpacePosition ),
 	mGuideHairVertices( 0 ),
-	mGuideHairVerticesCount( aCopy.mGuideHairVerticesCount )
+	mGuideHairVerticesCount( aCopy.mGuideHairVerticesCount ),
+	mSegmentLength( aCopy.mSegmentLength )
 {
 	// Copy the world transformation matrix
-	memcpy( reinterpret_cast< void *>( mWorldTransformMatrix ), reinterpret_cast< const void *>( aCopy.mWorldTransformMatrix ),
+	memcpy( reinterpret_cast< void * >( mWorldTransformMatrix ), reinterpret_cast< const void * >( aCopy.mWorldTransformMatrix ),
+		sizeof( double ) * 16 );
+
+	// Copy the local transformation matrix
+	memcpy( reinterpret_cast< void * >( mLocalTransformMatrix ), reinterpret_cast< const void * >( aCopy.mLocalTransformMatrix ),
 		sizeof( double ) * 16 );
 
 	// Allocate memory for guide hair vertices
@@ -37,6 +43,7 @@ inline const GuideHair & GuideHair::operator==( const GuideHair & aCopy )
 	{
 		GuideHairVertices temp = aCopy.mGuideHairVerticesCount > 0 ? new Vector3D< double >[ aCopy.mGuideHairVerticesCount ] : 0;
 		mGuideHairVerticesCount = aCopy.mGuideHairVerticesCount;
+		mSegmentLength = aCopy.mSegmentLength;
 		delete [] mGuideHairVertices;
 		mGuideHairVertices = temp;
 	}
@@ -45,7 +52,11 @@ inline const GuideHair & GuideHair::operator==( const GuideHair & aCopy )
 	mWorldSpacePosition = aCopy.mWorldSpacePosition;
 
 	// Copy the world transformation matrix
-	memcpy( reinterpret_cast< void *>( mWorldTransformMatrix ), reinterpret_cast< const void *>( aCopy.mWorldTransformMatrix ),
+	memcpy( reinterpret_cast< void * >( mWorldTransformMatrix ), reinterpret_cast< const void * >( aCopy.mWorldTransformMatrix ),
+		sizeof( double ) * 16 );
+
+	// Copy the local transformation matrix
+	memcpy( reinterpret_cast< void * >( mLocalTransformMatrix ), reinterpret_cast< const void * >( aCopy.mLocalTransformMatrix ),
 		sizeof( double ) * 16 );
 
 	// Allocate memory for vertices
@@ -88,10 +99,13 @@ inline void GuideHair::resetGuideHairVertices( unsigned int aGuideHairVerticesCo
 
 inline void GuideHair::resetSegments( double aSegmentSize )
 {
+	mSegmentLength = aSegmentSize;
 	double z = aSegmentSize;
 	for( GuideHairVertices it = mGuideHairVertices + 1, end = mGuideHairVertices + mGuideHairVerticesCount; it != end; ++it, 
 		z += aSegmentSize )
+	{
 		it->set( 0, 0, z );
+	}
 }
 
 inline const GuideHair::GuideHairVertices GuideHair::getGuideHairVertices() const
@@ -104,13 +118,24 @@ inline unsigned int GuideHair::getGuideHairVerticesCount() const
 	return mGuideHairVerticesCount;
 }
 
+inline double GuideHair::getSegmentLength() const
+{
+	return mSegmentLength;
+}
+
 inline const double * GuideHair::getWorldTransformMatrix() const
 {
 	return mWorldTransformMatrix;
 }
 
+inline const double * GuideHair::getLocalTransformMatrix() const
+{
+	return mLocalTransformMatrix;
+}
+
 inline Vector3D< double > GuideHair::getGuideHairVertexInWorldCoordinates( unsigned int aIndex ) const
 {
+	//TODO: rewrite using a common vector transform method
 	Vector3D< double > guideHairVertex = mGuideHairVertices[ aIndex ];
 	return Vector3D< double >( 
 		guideHairVertex.x * mWorldTransformMatrix[ 0 ] +
