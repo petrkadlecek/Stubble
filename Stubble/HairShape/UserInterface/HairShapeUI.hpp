@@ -32,7 +32,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Maya will call this routine with requests that have been previously added to the drawing queue.
 	///
-	/// \param 	request	the drawing request
+	/// \param request	the drawing request
 	/// \param view	the interactive 3d view in which to draw
 	///----------------------------------------------------------------------------------------------------
     virtual void draw( const MDrawRequest & request, M3dView & view ) const;

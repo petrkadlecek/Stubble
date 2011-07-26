@@ -17,6 +17,56 @@ namespace HairShape
 class HairShape: public MPxSurfaceShape
 {
 public:
+	/// the unique type ID of our custom node
+	static const MTypeId typeId;
+
+	/// the unique type name of our custom node
+	static const MString typeName;
+
+	// handles to the attributes added to the node
+
+	///The count attribute
+	static MObject countAttr;
+
+	///The generated count attribute
+	static MObject genCountAttr;
+
+	/// The length attribute
+	static MObject lengthAttr;
+
+	/// The surface attribute
+	static MObject surfaceAttr;
+
+	/// The random x coordinate attribute
+	static MObject randomXAttr;
+
+	/// The random y coordinate attribute
+	static MObject randomYAttr;
+
+	/// The random z coordinate attribute
+	static MObject randomZAttr;
+
+	/// The gen. random x coordinate attribute
+	static MObject genRandomXAttr;
+
+	/// The gen. random y coordinate attribute
+	static MObject genRandomYAttr;
+
+	/// The gen. random z coordinate attribute
+	static MObject genRandomZAttr;
+
+	/// The segments count
+	static MObject segmentsAttr;
+
+	/// The redraw attribute
+	static MObject redrawAttr;
+
+	///< The display normals and tangents attribute
+	static MObject displayNormalsAndTangentsAttr;
+
+	///< The texture attribute
+	static MObject textureAttr;
+
 	HairShape();
 
 	///----------------------------------------------------------------------------------------------------
@@ -36,18 +86,15 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual MBoundingBox boundingBox() const;
 
-	/// TODO - comment
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// Computes new attributes of our Node based on other updated attributes.
+	///
+	/// \param Node plug - which attribute was changed.
+	/// \param [in,out] The data block with attributes values.
+	///
+	/// \return Maya status code.
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual MStatus compute( const MPlug &plug, MDataBlock &dataBlock );
-
-	///----------------------------------------------------------------------------------------------------
-	/// Function draws guide hairs and also interporated hairs.
-	///----------------------------------------------------------------------------------------------------
-	void draw();
-
-	///----------------------------------------------------------------------------------------------------
-	/// Selecting hairs that calls applying selection on HairGuids.
-	///----------------------------------------------------------------------------------------------------
-	void select();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates new HairShape.
@@ -65,7 +112,8 @@ public:
     static MStatus initialize();
 
 private:
-
+	// <summary> The bounding box of our node
+	MBoundingBox mBoundingBox;
 
 };
 

@@ -16,10 +16,10 @@ void RandomGenerator::reset( int aIJ, int aKL )
 	aIJ = clamp( aIJ, 0, 31328 );
 	aKL = clamp( aKL, 0, 30081 );
 
-	i = ((aIJ/177) % 177) + 2;
-	j =  (aIJ      % 177) + 2;
-	k = ((aKL/169) % 178) + 1;
-	l =  (aKL      % 169);
+	i = ((aIJ / 177) % 177) + 2;
+	j =  (aIJ % 177) + 2;
+	k = ((aKL / 169) % 178) + 1;
+	l =  (aKL % 169);
 
 	for ( ii = 0; ii < 97; ii++ )
 	{
@@ -32,9 +32,9 @@ void RandomGenerator::reset( int aIJ, int aKL )
 			i = j;
 			j = k;
 			k = m;
-			l = (53*l + 1) % 169;
+			l = (53 * l + 1) % 169;
 
-			if ( l*m % 64 >= 32 )
+			if ( l * m % 64 >= 32 )
 				s += t;
 
 			t *= 0.5;
@@ -65,10 +65,10 @@ double RandomGenerator::uniformNumber()
 	if( --j97 < 0 )
 		j97 = 96;
 
-	if( (c   -= cd)< 0.0 )
+	if( (c -= cd) < 0.0 )
 		c += cm;
 
-	if( (uni -= c)< 0.0 )
+	if( (uni -= c) < 0.0 )
 		uni += 1.0;
 
 	return uni;
