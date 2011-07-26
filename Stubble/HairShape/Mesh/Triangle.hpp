@@ -1,7 +1,7 @@
 #ifndef STUBBLE_TRIANGLE_HPP
 #define STUBBLE_TRIANGLE_HPP
 
-#include "MeshPoint.hpp"
+#include "HairShape\Mesh\MeshPoint.hpp"
 
 #include <vector>
 

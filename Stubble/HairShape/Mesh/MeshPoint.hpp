@@ -1,6 +1,7 @@
 #ifndef STUBBLE_MESH_POINT_HPP
 #define STUBBLE_MESH_POINT_HPP
 
+#include "Common\CommonTypes.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #include <sstream>
@@ -35,8 +36,8 @@ public:
 	/// \param	aUCoordinate	the u coordinate. 
 	/// \param	aVCoordinate	the v coordinate. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint( const Vector3D< double > &aPosition, const Vector3D< double > &aNormal, 
-		const Vector3D< double > &aTangent, double aUCoordinate, double aVCoordinate );
+	inline MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< Real > &aNormal, 
+		const Vector3D< Real > &aTangent, double aUCoordinate, double aVCoordinate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates MeshPoint class without normal and tangent specification. 
@@ -45,35 +46,35 @@ public:
 	/// \param	aUCoordinate	the u coordinate. 
 	/// \param	aVCoordinate	the v coordinate. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint( const Vector3D< double > &aPosition, double aUCoordinate, double aVCoordinate );
+	inline MeshPoint( const Vector3D< Real > &aPosition, double aUCoordinate, double aVCoordinate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the position of point. 
 	///
 	/// \return	The position of point. 
 	///----------------------------------------------------------------------------------------------------
-	inline const Vector3D< double > & getPosition() const;
+	inline const Vector3D< Real > & getPosition() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the normal. 
 	///
 	/// \return	The normal. 
 	///----------------------------------------------------------------------------------------------------
-	inline const Vector3D< double > & getNormal() const;
+	inline const Vector3D< Real > & getNormal() const;
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the tangent. 
 	///
 	/// \return	The tangent. 
 	///----------------------------------------------------------------------------------------------------
-	inline const Vector3D< double > & getTangent() const;
+	inline const Vector3D< Real > & getTangent() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the binormal. 
 	///
 	/// \return	The binormal. 
 	///----------------------------------------------------------------------------------------------------
-	inline const Vector3D< double > & getBinormal() const;
+	inline const Vector3D< Real > & getBinormal() const;
 		
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the u coordinate. 
@@ -96,17 +97,17 @@ public:
 	///
 	/// \return	world vector
 	///----------------------------------------------------------------------------------------------------
-	Vector3D< double > toWorld( const Vector3D< double > aLocalVector ) const;
+	Vector3D< Real > toWorld( const Vector3D< Real > aLocalVector ) const;
 	
 private:
 
-	Vector3D< double > mPosition; ///< The point position 
+	Vector3D< Real > mPosition; ///< The point position 
 
-	Vector3D< double > mNormal; ///< The normal in selected position
+	Vector3D< Real > mNormal; ///< The normal in selected position
 
-	Vector3D< double > mTangent; ///< The tangent in selected position
+	Vector3D< Real > mTangent; ///< The tangent in selected position
 
-	Vector3D< double > mBinormal; ///< The binormal in selected position
+	Vector3D< Real > mBinormal; ///< The binormal in selected position
 	
 	double mUCoordinate; ///< The texture u coordinate
 
@@ -138,28 +139,28 @@ inline MeshPoint::MeshPoint()
 {
 }
 
-inline MeshPoint::MeshPoint( const Vector3D< double > &aPosition, const Vector3D< double > &aNormal, 
-	const Vector3D< double > &aTangent, double aUCoordinate, double aVCoordinate ):
+inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< Real > &aNormal, 
+	const Vector3D< Real > &aTangent, double aUCoordinate, double aVCoordinate ):
 	mPosition( aPosition ),
 	mNormal( aNormal ),
 	mTangent( aTangent ),
 	mUCoordinate( aUCoordinate ),
 	mVCoordinate( aVCoordinate ),
 	// Calculates binormal as normalized aTangent x aNormal
-	mBinormal( Vector3D< double >::crossProduct( aTangent, aNormal ).normalize() )
+	mBinormal( Vector3D< Real >::crossProduct( aTangent, aNormal ).normalize() )
 {
 }
 
-inline MeshPoint::MeshPoint( const Vector3D< double > &aPosition, double aUCoordinate, double aVCoordinate ):
+inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, double aUCoordinate, double aVCoordinate ):
 mPosition( aPosition ),
 mUCoordinate( aUCoordinate ),
 mVCoordinate( aVCoordinate )
 {
 }
 
-inline Vector3D< double > MeshPoint::toWorld( const Vector3D< double > aLocalVector ) const
+inline Vector3D< Real > MeshPoint::toWorld( const Vector3D< Real > aLocalVector ) const
 {
-	return Vector3D< double >( 
+	return Vector3D< Real >( 
 		aLocalVector.x * mBinormal.x +
 		aLocalVector.y * mTangent.x +
 		aLocalVector.z * mNormal.x +
@@ -174,22 +175,22 @@ inline Vector3D< double > MeshPoint::toWorld( const Vector3D< double > aLocalVec
 		mPosition.z );
 }
 
-inline const Vector3D< double > & MeshPoint::getPosition() const 
+inline const Vector3D< Real > & MeshPoint::getPosition() const 
 {
 	return mPosition;
 }
 
-inline const Vector3D< double > & MeshPoint::getNormal() const 
+inline const Vector3D< Real > & MeshPoint::getNormal() const 
 {
 	return mNormal;
 }
 
-inline const Vector3D< double > & MeshPoint::getTangent() const 
+inline const Vector3D< Real > & MeshPoint::getTangent() const 
 {
 	return mTangent;
 }
 
-inline const Vector3D< double > & MeshPoint::getBinormal() const 
+inline const Vector3D< Real > & MeshPoint::getBinormal() const 
 {
 	return mBinormal;
 }

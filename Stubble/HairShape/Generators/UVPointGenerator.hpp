@@ -1,9 +1,10 @@
 #ifndef STUBBLE_UV_POINT_GENERATOR_HPP
 #define STUBBLE_UV_POINT_GENERATOR_HPP
 
-#include "RandomGenerator.hpp"
-#include "..\Mesh\UVPoint.hpp"
-#include "..\Mesh\TriangleConstIterator.hpp"
+#include "HairShape\Generators\RandomGenerator.hpp"
+#include "HairShape\Mesh\UVPoint.hpp"
+#include "HairShape\Mesh\TriangleConstIterator.hpp"
+#include "HairShape\Texture\Texture.hpp"
 
 #include <vector>
 
@@ -19,12 +20,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///
+	/// \param	aTexture						texture
 	/// \param	aTriangleConstIterator			mesh triangle iterator
 	/// \param [in,out]	aRandomGenerator		random number generator. 
 	///----------------------------------------------------------------------------------------------------
-
-	// TODO mesh as an argument
-	UVPointGenerator( TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator );
+	UVPointGenerator(const Texture &aTexture, TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -45,18 +45,6 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	UVPoint next();
 	
-	#ifdef MAYA
-
-	// TODO
-	///----------------------------------------------------------------------------------------------------
-	/// Sets the voxels probabilities. 
-	///
-	/// \param	aMeshProxy	a mesh proxy. 
-	///----------------------------------------------------------------------------------------------------
-	void setVoxelsProbabilities( Proxies::MeshProxy2 & aMeshProxy ) const;
-
-	#endif
-
 private:
 
 	///----------------------------------------------------------------------------------------------------

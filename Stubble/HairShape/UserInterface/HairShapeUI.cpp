@@ -12,13 +12,13 @@ namespace Stubble
 namespace HairShape
 {
 
-HairShapeUI::HairShapeUI() {}
+HairShapeUI::HairShapeUI(HairShape *aHairShape): mHairShape(aHairShape) {}
 
 HairShapeUI::~HairShapeUI() {}
 
-void* HairShapeUI::creator()
+void* HairShapeUI::creator(HairShape *aHairShape)
 {
-	return new HairShapeUI();
+	return new HairShapeUI(aHairShape);
 }
 
 void HairShapeUI::getDrawRequests( const MDrawInfo & info, bool objectAndActiveOnly, MDrawRequestQueue & requests )
@@ -29,9 +29,8 @@ void HairShapeUI::getDrawRequests( const MDrawInfo & info, bool objectAndActiveO
     MDrawData data;
     MDrawRequest request = info.getPrototype( *this );
 
-	// TODO
-    // HairShape* shapeNode = (HairShape*)surfaceShape();
-	// getDrawData( shapeNode, data );
+    HairShape* shapeNode = (HairShape*)surfaceShape();
+	getDrawData( shapeNode, data );
 
     request.setDrawData( data );
 	requests.add( request );
@@ -43,8 +42,7 @@ void HairShapeUI::draw( const MDrawRequest & request, M3dView & view ) const
 	// which quadric to draw and with what values.
     MDrawData data = request.drawData();
 
-	// TODO
-    // HairShape * geom = (HairShape*)data.geometry();
+    HairShape * geom = (HairShape*)data.geometry();
 
 	MDagPath thisCameraView; // the dagPath for this modelPanel's Camera
 	MMatrix cameraInverseMatrix; // inverse matrix for the modelPanel's Camera
@@ -72,8 +70,7 @@ void HairShapeUI::draw( const MDrawRequest & request, M3dView & view ) const
 	// This places the render origin at Maya's world center.
 	glLoadMatrixd( (GLdouble *)dMatrix );
 
-	// TODO
-	// geom->DrawHaircut(request.displayStatus() != M3dView::DisplayStatus::kDormant);
+	geom->draw();
 
 	glPopMatrix();
 	glPopAttrib();

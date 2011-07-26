@@ -1,7 +1,7 @@
 #ifndef STUBBLE_TRIANGLE_CONST_ITERATOR_HPP
 #define STUBBLE_TRIANGLE_CONST_ITERATOR_HPP
 
-#include "Triangle.hpp"
+#include "HairShape\Mesh\Triangle.hpp"
 
 namespace Stubble
 {

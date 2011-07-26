@@ -11,6 +11,7 @@
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\HairComponents\UndoStack.hpp"
 #include "HairShape\HairLength\LengthInfo.hpp"
+#include "HairShape\Mesh\MayaMesh.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
 
 #include <fstream>
@@ -25,9 +26,6 @@ namespace HairShape
 
 namespace HairComponents
 {
-
-/* TODO */
-typedef UNKNOWN MayaMesh;
 
 ///----------------------------------------------------------------------------------------------------
 /// Class stores hair guides, implements undo stack and selection.

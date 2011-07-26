@@ -99,6 +99,11 @@ void* HairShape::creator()
 	return new HairShape();
 }
 
+void HairShape::draw()
+{
+	// TODO
+}
+
 } // namespace HairShape
 
 } // namespace Stubble

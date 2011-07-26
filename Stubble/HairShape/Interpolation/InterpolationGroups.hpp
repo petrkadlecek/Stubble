@@ -1,6 +1,7 @@
 #ifndef STUBBLE_INTERPOLATION_GROUPS_HPP
 #define STUBBLE_INTERPOLATION_GROUPS_HPP
 
+#include "HairShape\Texture\Texture.hpp"
 #include "Common\CommonTypes.hpp"
 
 namespace Stubble
@@ -11,8 +12,6 @@ namespace HairShape
 
 namespace Interpolation
 {
-
-typedef UNKNOWN Texture;
 
 ///-------------------------------------------------------------------------------------------------
 /// Class for managing interpolation groups

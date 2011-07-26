@@ -10,7 +10,7 @@ namespace Stubble
 namespace HairShape
 {
 
-UVPointGenerator::UVPointGenerator( TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator ):
+UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator ):
 	mVertices( 0 ),
 	mIsInited( false ),
 	mRandomNumberGenerator( aRandomNumberGenerator )
@@ -43,7 +43,7 @@ UVPointGenerator::UVPointGenerator( TriangleConstIterator & aTriangleConstIterat
 		const MeshPoint & p1 = triangle.getPoint1();
 		const MeshPoint & p2 = triangle.getPoint2();
 		const MeshPoint & p3 = triangle.getPoint3();
-		double area = (Vector3D< double >::crossProduct( p2.getPosition() - p1.getPosition(), 
+		double area = (Vector3D< Real >::crossProduct( p2.getPosition() - p1.getPosition(), 
 			p3.getPosition() - p1.getPosition() ).size()) / 2;
 
 		// Calculate size of texture on triangle
@@ -56,8 +56,7 @@ UVPointGenerator::UVPointGenerator( TriangleConstIterator & aTriangleConstIterat
 		double sizeU = sizeU12 > sizeU13 ? ( sizeU12 > sizeU23 ? sizeU12 : sizeU23) : ( sizeU13 > sizeU23 ? sizeU13 : sizeU23);
 		double sizeV = sizeV12 > sizeV13 ? ( sizeV12 > sizeV23 ? sizeV12 : sizeV23) : ( sizeV13 > sizeV23 ? sizeV13 : sizeV23);
 
-		// TODO - place here aTextureProxy.getWidth() & aTextureProxy.getHeight()
-		double size = sizeU > sizeV ? sizeU * 1.00000000000000000000000000000000000000000000001 : sizeV * 1.00000000000000000000000000000000000000000000001;
+		double size = sizeU > sizeV ? sizeU * aTexture.getWidth() : sizeV * aTexture.getHeight();
 
 		// Power 2 size
 		unsigned int isize = static_cast< unsigned int >( ceil( size ) ) - 1;
@@ -125,8 +124,7 @@ UVPointGenerator::UVPointGenerator( TriangleConstIterator & aTriangleConstIterat
 					double v = p1.getVCoordinate() * barU + p2.getVCoordinate() * barV + 
 						p3.getVCoordinate() * barW;
 					// New cdf value (texture average * area of sub triangle)
-					// TODO - place averageAt( u, v )
-					double p = 1.00000000000000000000000000000000000000000000001 * area;
+					double p = aTexture.realAtUV(u, v) * area;
 
 					// Do I have father ?
 					if ( subTriangle.mTriangleSimpleID != 0 ) 

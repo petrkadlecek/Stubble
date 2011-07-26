@@ -77,7 +77,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;MAYA;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
       <Optimization>Disabled</Optimization>
@@ -139,6 +139,7 @@
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp" />
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp" />
+    <ClCompile Include="HairShape\Texture\Texture.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
     <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="HairShape\HairComponents\UndoStack.hpp" />
     <ClInclude Include="HairShape\HairLength\LengthInfo.hpp" />
     <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp" />
+    <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp" />
@@ -181,9 +183,11 @@
     <ClInclude Include="HairShape\Mesh\TriangleConstIterator.hpp" />
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp" />
+    <ClInclude Include="Primitives\BoundingBox.hpp" />
     <ClInclude Include="Primitives\Matrix.hpp" />
     <ClInclude Include="Primitives\Vector3D.hpp" />
     <ClInclude Include="HairShape\Generators\RandomGenerator.hpp" />
+    <ClInclude Include="HairShape\Texture\Texture.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp" />

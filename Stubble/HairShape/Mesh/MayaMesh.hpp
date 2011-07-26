@@ -1,68 +1,72 @@
-#ifndef STUBBLE_HAIR_SHAPE_UI_HPP
-#define STUBBLE_HAIR_SHAPE_UI_HPP
+#ifndef STUBBLE_MAYA_MESH_HPP
+#define STUBBLE_MAYA_MESH_HPP
 
-#include <maya\MPxSurfaceShapeUI.h>
+#include <maya\MObject.h>
+#include <maya\MString.h>
 
-#include "HairShape\UserInterface\HairShape.hpp"
+#include "HairShape\Mesh\Mesh.hpp"
+#include "HairShape\Mesh\UVPoint.hpp"
+
+#include <fstream>
 
 namespace Stubble
 {
 
 namespace HairShape
 {
-
 ///----------------------------------------------------------------------------------------------------
-/// UI class defines the UI part of a hair shape node.
+/// Stores proxy to current Maya mesh and rest pose mesh.
 ///----------------------------------------------------------------------------------------------------
-class HairShapeUI : public MPxSurfaceShapeUI
+class MayaMesh
 {
-public:
 	///----------------------------------------------------------------------------------------------------
-	/// Default constructor.
-	///----------------------------------------------------------------------------------------------------
-	HairShapeUI( HairShape *aHairShape );
-
-	///----------------------------------------------------------------------------------------------------
-	/// This function places drawing requests on maya's drawing queue and is called whenever the view is refreshed.
+	/// Maya mesh constructor that accepts Maya mesh object and UV set
 	///
-	/// \param info	the drawing state information
-	/// \param objectAndActiveOnly	This parameter is used to determine if draw requests for components need to be supplied.
-	/// \param queue	the drawing queue to place the draw request on
+	/// \param aMesh	Maya mesh object.
+	/// \param aUVSet	UVSet string.
 	///----------------------------------------------------------------------------------------------------
-    virtual void getDrawRequests( const MDrawInfo & info, bool objectAndActiveOnly, MDrawRequestQueue & requests );
+	MayaMesh(const MObject & aMesh, const MString & aUVSet);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Maya will call this routine with requests that have been previously added to the drawing queue.
+	/// Gets rest position of mesh.
+	/// 
+	/// \return rest position of mesh
+	const Mesh getRestPose() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets point on mesh interpolated from 3 vertices of given triangle
+	///----------------------------------------------------------------------------------------------------
+	inline MeshPoint getMeshPoint(const UVPoint &aPoint) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets triangle as 3 vertices.
+	///----------------------------------------------------------------------------------------------------
+	inline const Triangle & getTriangle(int aID) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets number of mesh's triangles.
+	///----------------------------------------------------------------------------------------------------
+	inline unsigned int getTriangleCount() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Method called in case of updated mesh.
 	///
-	/// \param request	the drawing request
-	/// \param view	the interactive 3d view in which to draw
+	/// \param aUpdatedMesh	updated mesh
+	/// \param aUVSet		UVSet string
 	///----------------------------------------------------------------------------------------------------
-    virtual void draw( const MDrawRequest & request, M3dView & view ) const;
+	void meshUpdate(MObject & aUpdatedMesh, const MString * aUVSet = 0);
 
-	///----------------------------------------------------------------------------------------------------
-	/// Selection method called when selection has been detected.
-	///----------------------------------------------------------------------------------------------------
-    virtual bool select( MSelectInfo &selectInfo, MSelectionList &selectionList,  MPointArray &worldSpaceSelectPts ) const;
-
-	///----------------------------------------------------------------------------------------------------
-	/// Creates HairShapeUI.
-	///
-	/// \param aHairShape	hair shape 
-	///----------------------------------------------------------------------------------------------------
-    static void * creator( HairShape *aHairShape );
+	// TODO - add
+	// const UniformGrid & getMeshUG();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
-    virtual ~HairShapeUI();
-
-private:
-
-	HairShape *mHairShape; ///<	Hair shape object pointer
+	inline ~MayaMesh();
 };
 
 } // namespace HairShape
 
 } // namespace Stubble
 
-#endif // STUBBLE_HAIR_SHAPE_UI_HPP
+#endif // STUBBLE_MAYA_MESH_HPP
