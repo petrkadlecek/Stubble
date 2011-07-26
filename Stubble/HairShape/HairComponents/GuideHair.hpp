@@ -145,7 +145,7 @@ private:
 
 	unsigned int mGuideHairVerticesCount; ///< Number of guide hair vertices
 
-	double mSegmentLength; ///< Lenght of the hair segment (same between all hair vertices
+	double mSegmentLength; ///< Length of the hair segment (same between all hair vertices
 
 	double mWorldTransformMatrix[ 16 ]; ///< The local to world transformation matrix
 

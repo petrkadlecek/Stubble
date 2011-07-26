@@ -1,7 +1,7 @@
 #ifndef STUBBLE_VECTOR_3D_HPP
 #define STUBBLE_VECTOR_3D_HPP
 
-#include <sstream>
+#include <fstream>
 
 #ifdef MAYA
 #include <maya/MVector.h>

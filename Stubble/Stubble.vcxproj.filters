@@ -61,6 +61,12 @@
     <Filter Include="Common">
       <UniqueIdentifier>{8f81952a-8e8b-4b35-9136-da1a93d75a50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HairShape\Interpolation">
+      <UniqueIdentifier>{2535ace8-1545-4cd0-a968-c60cef974f03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HairShape\HairLength">
+      <UniqueIdentifier>{aa1ac17e-1ae4-4b07-af07-0c6dace0e3ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -117,6 +123,21 @@
     </ClCompile>
     <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp">
       <Filter>HairShape\Generators</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp">
+      <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +221,42 @@
     </ClInclude>
     <ClInclude Include="Common\StubbleException.hpp">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\Segments.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CommonTypes.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\UndoStack.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\GuidePosition.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives\Matrix.hpp">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\RestPositionsUG.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\DisplayedGuides.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\SegmentsStorage.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairLength\LengthInfo.hpp">
+      <Filter>HairShape\HairLength</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
