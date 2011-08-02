@@ -36,12 +36,12 @@ void Texture::init(float value, float value1, float value2, float value3)
 	mTexture[3] = value3;
 }
 
-float Texture::realAtUV( float u, float v ) const
+float Texture::realAtUV( Real u, Real v ) const
 {
 	return colorAtUV(u, v)[0];
 }
 
-Texture::Color Texture::colorAtUV( float u, float v ) const
+Texture::Color Texture::colorAtUV( Real u, Real v ) const
 {
 	unsigned int x = static_cast< unsigned int > ( floor(u * mWidth + 0.5) );
 	unsigned int y = static_cast< unsigned int > ( floor(v * mHeight + 0.5) );

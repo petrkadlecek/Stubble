@@ -9,7 +9,7 @@ namespace HairShape
 
 void RandomGenerator::reset( int aIJ, int aKL )
 {
-	double s, t;
+	Real s, t;
 	int i, j, k, l, m;
 	int ii, jj;
 
@@ -49,29 +49,6 @@ void RandomGenerator::reset( int aIJ, int aKL )
 	
 	i97 = 96;
 	j97 = 32;
-}
-
-double RandomGenerator::uniformNumber()
-{
-	double uni = u[i97] - u[j97];
-	
-	if ( uni < 0.0 )
-		uni += 1.0;
-
-	u[i97] = uni;
-	if( --i97 < 0 )
-		i97 = 96;
-
-	if( --j97 < 0 )
-		j97 = 96;
-
-	if( (c -= cd) < 0.0 )
-		c += cm;
-
-	if( (uni -= c) < 0.0 )
-		uni += 1.0;
-
-	return uni;
 }
 
 } // namespace HairShape

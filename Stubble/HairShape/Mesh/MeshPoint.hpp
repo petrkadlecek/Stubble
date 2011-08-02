@@ -37,7 +37,7 @@ public:
 	/// \param	aVCoordinate	the v coordinate. 
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< Real > &aNormal, 
-		const Vector3D< Real > &aTangent, double aUCoordinate, double aVCoordinate );
+		const Vector3D< Real > &aTangent, Real aUCoordinate, Real aVCoordinate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates MeshPoint class without normal and tangent specification. 
@@ -46,7 +46,7 @@ public:
 	/// \param	aUCoordinate	the u coordinate. 
 	/// \param	aVCoordinate	the v coordinate. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint( const Vector3D< Real > &aPosition, double aUCoordinate, double aVCoordinate );
+	inline MeshPoint( const Vector3D< Real > &aPosition, Real aUCoordinate, Real aVCoordinate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the position of point. 
@@ -81,14 +81,14 @@ public:
 	///
 	/// \return	The u coordinate. 
 	///----------------------------------------------------------------------------------------------------
-	inline double getUCoordinate() const;
+	inline Real getUCoordinate() const;
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the v coordinate. 
 	///
 	/// \return	The v coordinate. 
 	///----------------------------------------------------------------------------------------------------
-	inline double getVCoordinate() const; 
+	inline Real getVCoordinate() const; 
 
 	///----------------------------------------------------------------------------------------------------
 	/// Converts local vector to a world vector. 
@@ -109,9 +109,9 @@ private:
 
 	Vector3D< Real > mBinormal; ///< The binormal in selected position
 	
-	double mUCoordinate; ///< The texture u coordinate
+	Real mUCoordinate; ///< The texture u coordinate
 
-	double mVCoordinate; ///< The texture v coordinate
+	Real mVCoordinate; ///< The texture v coordinate
 };
 
 ///----------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ inline MeshPoint::MeshPoint()
 }
 
 inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< Real > &aNormal, 
-	const Vector3D< Real > &aTangent, double aUCoordinate, double aVCoordinate ):
+	const Vector3D< Real > &aTangent, Real aUCoordinate, Real aVCoordinate ):
 	mPosition( aPosition ),
 	mNormal( aNormal ),
 	mTangent( aTangent ),
@@ -151,7 +151,7 @@ inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< 
 {
 }
 
-inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, double aUCoordinate, double aVCoordinate ):
+inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, Real aUCoordinate, Real aVCoordinate ):
 mPosition( aPosition ),
 mUCoordinate( aUCoordinate ),
 mVCoordinate( aVCoordinate )
@@ -195,26 +195,30 @@ inline const Vector3D< Real > & MeshPoint::getBinormal() const
 	return mBinormal;
 }
 	
-inline double MeshPoint::getUCoordinate() const 
+inline Real MeshPoint::getUCoordinate() const 
 {
 	return mUCoordinate;
 }
 
-inline double MeshPoint::getVCoordinate() const 
+inline Real MeshPoint::getVCoordinate() const 
 {
 	return mVCoordinate;
 }
 
 inline std::ostream & HairShape::operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )
 {
-	return aStreamOut << aPointOnMesh.mPosition << " " << aPointOnMesh.mNormal << " " << aPointOnMesh.mTangent 
-		<< " " << aPointOnMesh.mBinormal << " " << aPointOnMesh.mUCoordinate << " " << aPointOnMesh.mVCoordinate;
+	aStreamOut << aPointOnMesh.mPosition << aPointOnMesh.mNormal << aPointOnMesh.mTangent << aPointOnMesh.mBinormal;
+	aStreamOut.write( reinterpret_cast< const char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
+	aStreamOut.write( reinterpret_cast< const char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
+	return aStreamOut;
 }
 
 inline std::istream & HairShape::operator>>( std::istream & aStreamIn, MeshPoint & aPointOnMesh )
 {
-	return aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent 
-		>> aPointOnMesh.mBinormal >> aPointOnMesh.mUCoordinate >> aPointOnMesh.mVCoordinate;
+	aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent >> aPointOnMesh.mBinormal;
+	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
+	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
+	return aStreamIn;
 }
 
 } // namespace HairShape

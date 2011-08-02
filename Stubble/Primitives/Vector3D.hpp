@@ -493,13 +493,15 @@ inline Vector3D< Type > Vector3D< Type >::crossProduct( const Vector3D & aVector
 template < typename Type >
 inline std::ostream & operator<<( std::ostream & aStreamOut, const Vector3D< Type > & aVector )
 {
-	return aStreamOut << aVector.x << " " << aVector.y << " " << aVector.z;
+	aStreamOut.write( reinterpret_cast< const char * >( &aVector ), sizeof( Vector3D< Type > ) );
+	return aStreamOut;
 }
 
 template < typename Type >
 inline std::istream & operator>>( std::istream & aStreamIn, Vector3D< Type > & aVector )
 {
-	return aStreamIn >> aVector.x >> aVector.y >> aVector.z;
+	aStreamIn.read( reinterpret_cast< char * >( &aVector ), sizeof( Vector3D< Type > ) );
+	return aStreamIn;
 }
 
 } //namespace Stubble

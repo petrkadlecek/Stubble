@@ -33,22 +33,22 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Single float constructor
 	///----------------------------------------------------------------------------------------------------
-	Texture(float value);
+	Texture( float value );
 
 	///----------------------------------------------------------------------------------------------------
 	/// 3-dimensional float constructor
 	///----------------------------------------------------------------------------------------------------
-	Texture(float value, float value1, float value2);
+	Texture( float value, float value1, float value2 );
 
 	///----------------------------------------------------------------------------------------------------
 	/// 4-dimensional float constructor
 	///----------------------------------------------------------------------------------------------------
-	Texture(float value, float value1, float value2, float value3);
+	Texture( float value, float value1, float value2, float value3 );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Initilize values of texture
 	///----------------------------------------------------------------------------------------------------
-	void init(float value, float value1, float value2, float value3);
+	void init( float value, float value1, float value2, float value3 );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing Color
@@ -73,7 +73,7 @@ public:
 	///
 	/// \return	float texture value
 	///----------------------------------------------------------------------------------------------------
-	float realAtUV( float u, float v ) const;
+	float realAtUV( Real u, Real v ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets texture value at the given UV coordinates.
@@ -83,7 +83,7 @@ public:
 	///
 	/// \return	float texture value
 	///----------------------------------------------------------------------------------------------------
-	Color colorAtUV( float u, float v ) const;
+	Color colorAtUV( Real u, Real v ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Puts texture in stream.

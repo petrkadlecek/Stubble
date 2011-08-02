@@ -1,6 +1,8 @@
 #ifndef STUBBLE_UV_POINT_HPP
 #define STUBBLE_UV_POINT_HPP
 
+#include "Common\CommonTypes.hpp"
+
 namespace Stubble
 {
 
@@ -22,17 +24,17 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor
 	///----------------------------------------------------------------------------------------------------
-	inline UVPoint(float aU, float AV, int aTriangleID);
+	inline UVPoint( Real aU, Real AV, int aTriangleID );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the U part.
 	///----------------------------------------------------------------------------------------------------
-	inline float getU() const;
+	inline Real getU() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the V part.
 	///----------------------------------------------------------------------------------------------------
-	inline float getV() const;
+	inline Real getV() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets ID of the triangle.
@@ -40,9 +42,9 @@ public:
 	inline int getTriangleID() const;
 
 private:
-	float mU; ///< The U coordinate.
+	Real mU; ///< The U coordinate.
 
-	float mV; ///< The V coordinate.
+	Real mV; ///< The V coordinate.
 
 	int mTriangleID; ///< ID of triangle.
 };
@@ -57,7 +59,7 @@ inline UVPoint::UVPoint()
 ///----------------------------------------------------------------------------------------------------
 /// Constructor
 ///----------------------------------------------------------------------------------------------------
-inline UVPoint::UVPoint(float aU, float AV, int aTriangleID):
+inline UVPoint::UVPoint( Real aU, Real AV, int aTriangleID ):
 	mU(aU),
 	mV(mV),
 	mTriangleID(aTriangleID)
@@ -67,7 +69,7 @@ inline UVPoint::UVPoint(float aU, float AV, int aTriangleID):
 ///----------------------------------------------------------------------------------------------------
 /// Gets the U part.
 ///----------------------------------------------------------------------------------------------------
-inline float UVPoint::getU() const
+inline Real UVPoint::getU() const
 {
 	return mU;
 }
@@ -75,7 +77,7 @@ inline float UVPoint::getU() const
 ///----------------------------------------------------------------------------------------------------
 /// Gets the V part.
 ///----------------------------------------------------------------------------------------------------
-inline float UVPoint::getV() const
+inline Real UVPoint::getV() const
 {
 	return mV;
 }

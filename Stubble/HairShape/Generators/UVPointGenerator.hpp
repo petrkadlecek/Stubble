@@ -1,6 +1,7 @@
 #ifndef STUBBLE_UV_POINT_GENERATOR_HPP
 #define STUBBLE_UV_POINT_GENERATOR_HPP
 
+#include "Common\CommonTypes.hpp"
 #include "HairShape\Generators\RandomGenerator.hpp"
 #include "HairShape\Mesh\UVPoint.hpp"
 #include "HairShape\Mesh\TriangleConstIterator.hpp"
@@ -24,7 +25,7 @@ public:
 	/// \param	aTriangleConstIterator			mesh triangle iterator
 	/// \param [in,out]	aRandomGenerator		random number generator. 
 	///----------------------------------------------------------------------------------------------------
-	UVPointGenerator(const Texture &aTexture, TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator );
+	UVPointGenerator( const Texture &aTexture, TriangleConstIterator & aTriangleConstIterator, RandomGenerator & aRandomNumberGenerator );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -32,25 +33,27 @@ public:
 	inline ~UVPointGenerator();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Query if this object is inited. 
-	///
-	/// \return	true if inited, false if not. 
-	///----------------------------------------------------------------------------------------------------
-	inline bool isInited() const;
-
-	///----------------------------------------------------------------------------------------------------
 	/// Generation of next sample. 
 	///
 	/// \return	Generated sample. 
 	///----------------------------------------------------------------------------------------------------
 	UVPoint next();
-	
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets a triangle normalized density. 
+	///
+	/// \param	aID	Identifier for a triangle. 
+	///
+	/// \return	The triangle normalized density. 
+	///----------------------------------------------------------------------------------------------------
+	inline Real getTriangleDensity( int aID ) const;
+
 private:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Builds the vertices. 
 	///----------------------------------------------------------------------------------------------------
-	inline void BuildVertices();
+	void BuildVertices();
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Sub triangle. 
@@ -67,7 +70,7 @@ private:
 		/// \param	aTriangleSimpleID	Simple identifier for triangle or current recursion depth. 
 		///----------------------------------------------------------------------------------------------------
 		void set( unsigned __int16 aVertex1ID, unsigned __int16 aVertex2ID, 
-			unsigned __int16 aVertex3ID, double aCDFValue, unsigned int aTriangleSimpleID )
+			unsigned __int16 aVertex3ID, Real aCDFValue, unsigned int aTriangleSimpleID )
 		{
 			mVertex1ID = aVertex1ID;
 			mVertex2ID = aVertex2ID;
@@ -87,7 +90,7 @@ private:
 		unsigned __int16 mVertex1ID; ///< Identifier for the vertex 1
 		unsigned __int16 mVertex2ID; ///< Identifier for the vertex 2
 		unsigned __int16 mVertex3ID; ///< Identifier for the vertex 3
-		double mCDFValue; ///< The cdf value
+		Real mCDFValue; ///< The cdf value
 	};
 
 	///----------------------------------------------------------------------------------------------------
@@ -100,14 +103,24 @@ private:
 
 	struct Vertex
 	{
-		double mU; ///< The u coordinate
-		double mV; ///< The v coordinate
+		Real mU; ///< The u coordinate
+		Real mV; ///< The v coordinate
 	};
 
 	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the sub triangles .
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< SubTriangle > SubTriangles;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing array of reals .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< Real > RealArray;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing array of vertices .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< Vertex > VerticesArray;
 
 	///< Depth of the maximum division of one triangle
 	static const unsigned int MAX_DIVISION_DEPTH = 8;
@@ -134,29 +147,31 @@ private:
 	///< Number of vertices in divided triangle
 	static const unsigned int VERTICES_COUNT = THIRD_VERTEX_INDEX + 1;
 	
-	///< The sub triangles cdf
-	SubTriangles mSubTriangles;	
+	SubTriangles mSubTriangles;	///< The sub triangles cdf
 	
-	///< The vertices
-	Vertex * mVertices;
+	VerticesArray mVertices; ///< The vertices
 	
-	///< The random number generator
-	RandomGenerator & mRandomNumberGenerator;
+	RandomGenerator & mRandomNumberGenerator; ///< The random number generator
 
-	///< true if generator is inited
-	bool mIsInited;
-
-	///< The triangles cdf
-	double * mTrianglesCDF;
-
-	///< Number of triangles
-	int mTrianglesCount;
+	RealArray mTrianglesPDF;  ///< The triangles pdf
 };
 
 // inline functions implementation
-inline bool UVPointGenerator::isInited() const
+
+inline UVPointGenerator::~UVPointGenerator()
 {
-	return mIsInited;
+}
+
+///----------------------------------------------------------------------------------------------------
+/// Gets a triangle density. 
+///
+/// \param	aID	Identifier for a triangle. 
+///
+/// \return	The triangle density. 
+///----------------------------------------------------------------------------------------------------
+inline Real UVPointGenerator::getTriangleDensity( int aID ) const
+{
+	return mTrianglesPDF[ aID ];
 }
 
 } // namespace HairShape

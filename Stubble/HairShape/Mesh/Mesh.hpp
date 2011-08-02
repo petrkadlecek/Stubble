@@ -23,7 +23,7 @@ public:
 	///
 	/// \param	aInStream	input file stream
 	///----------------------------------------------------------------------------------------------------
-	inline Mesh(std::istream & aInStream);
+	inline Mesh( std::istream & aInStream );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets const triangle iterator.
@@ -33,12 +33,12 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets point on mesh interpolated from 3 vertices of given triangle
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint getMeshPoint(const UVPoint &aPoint) const;
+	inline MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets triangle as 3 vertices.
 	///----------------------------------------------------------------------------------------------------
-	inline const Triangle & getTriangle(int aID) const;
+	inline const Triangle & getTriangle( int aID ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.

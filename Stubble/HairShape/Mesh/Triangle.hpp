@@ -19,29 +19,45 @@ class Triangle
 public:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the point 1. 
+	/// Constructor. 
 	///
-	/// \return	The point 1. 
+	/// \param	mVertex1	The first triangle Vertex. 
+	/// \param	mVertex2	The second triangle Vertex. 
+	/// \param	mVertex3	The third triangle Vertex. 
 	///----------------------------------------------------------------------------------------------------
-	inline const MeshPoint & getPoint1() const;
+	inline Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex2, const MeshPoint & mVertex3 );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the point 2. 
+	/// Constructor realized from stream
 	///
-	/// \return	The point 2. 
+	/// \param	aInStream	input file stream
 	///----------------------------------------------------------------------------------------------------
-	inline const MeshPoint & getPoint2() const;
+	inline Triangle( std::istream & aInStream );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the point 3. 
+	/// Gets the Vertex 1. 
 	///
-	/// \return	The point 3. 
+	/// \return	The Vertex 1. 
 	///----------------------------------------------------------------------------------------------------
-	inline const MeshPoint & getPoint3() const;
+	inline const MeshPoint & getVertex1() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the Vertex 2. 
+	///
+	/// \return	The Vertex 2. 
+	///----------------------------------------------------------------------------------------------------
+	inline const MeshPoint & getVertex2() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the Vertex 3. 
+	///
+	/// \return	The Vertex 3. 
+	///----------------------------------------------------------------------------------------------------
+	inline const MeshPoint & getVertex3() const;
 
 private:
 
-	MeshPoint mPoints[ 3 ]; ///< The points
+	MeshPoint mVertices[ 3 ]; ///< The Vertices
 };
 
 ///----------------------------------------------------------------------------------------------------
@@ -49,34 +65,33 @@ private:
 ///----------------------------------------------------------------------------------------------------
 typedef std::vector< Triangle > Triangles;
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the point 1. 
-///
-/// \return	The point 1. 
-///----------------------------------------------------------------------------------------------------
-inline const MeshPoint & Triangle::getPoint1() const
+// inline functions implementation
+
+inline Triangle::Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex2, const MeshPoint & mVertex3 )
 {
-	return mPoints[ 0 ];
+	mVertices[ 0 ] = mVertex1;
+	mVertices[ 1 ] = mVertex2;
+	mVertices[ 2 ] = mVertex3;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the point 2. 
-///
-/// \return	The point 2. 
-///----------------------------------------------------------------------------------------------------
-inline const MeshPoint & Triangle::getPoint2() const
+inline Triangle::Triangle( std::istream & aInStream )
 {
-	return mPoints[ 1 ];
+	aInStream >> mVertices[ 0 ] >> mVertices[ 1 ] >> mVertices[ 2 ];
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the point 3. 
-///
-/// \return	The point 3. 
-///----------------------------------------------------------------------------------------------------
-inline const MeshPoint & Triangle::getPoint3() const
+inline const MeshPoint & Triangle::getVertex1() const
 {
-	return mPoints[ 2 ];
+	return mVertices[ 0 ];
+}
+
+inline const MeshPoint & Triangle::getVertex2() const
+{
+	return mVertices[ 1 ];
+}
+
+inline const MeshPoint & Triangle::getVertex3() const
+{
+	return mVertices[ 2 ];
 }
 
 } // namespace HairShape
