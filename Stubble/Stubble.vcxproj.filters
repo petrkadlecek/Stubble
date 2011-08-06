@@ -145,6 +145,9 @@
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
+    <ClCompile Include="Toolbox\HairTaskProcessor.cpp">
+      <Filter>Toolbox</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -272,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="Primitives\Matrix.hpp">
       <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\HairTaskProcessor.hpp">
+      <Filter>Toolbox</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
