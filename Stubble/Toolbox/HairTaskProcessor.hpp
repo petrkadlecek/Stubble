@@ -22,6 +22,7 @@ class HairTaskProcessor
 public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the instance of the class
+	///
 	/// \return The class instance
 	///----------------------------------------------------------------------------------------------------
 	static inline HairTaskProcessor *getInstance ();
@@ -33,25 +34,35 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Returns true if the thread is running, contains critical section
+	///
 	/// \return Value indicating worker thread activity
 	///----------------------------------------------------------------------------------------------------
 	static inline bool isRunning ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Synchronisation barrier that waits until the thread finishes work
+	/// Synchronisation barrier that waits until the thread finishes work, contains critical section
 	///----------------------------------------------------------------------------------------------------
 	static void waitFinishWorkerThread ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Enqueues new hair task into the accumulator queue
+	/// Enqueues new hair task into the accumulator queue and creates a worker thread if there's not one
+	/// aready active. Contains two critical sections.
+	///
 	/// \param aTask The new task to be added
 	///----------------------------------------------------------------------------------------------------
 	void enqueueTask (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Clears out the whole accumulator queue
+	/// Clears out the whole accumulator queue, contains critical section
 	///----------------------------------------------------------------------------------------------------
 	void purgeAccumulator ();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns the size of the accumulator. Contains critical section
+	///
+	/// \return The size of the accumulator queue
+	///----------------------------------------------------------------------------------------------------
+	inline size_t getAccumulatorSize ();
 
 private:
 	///----------------------------------------------------------------------------------------------------
@@ -75,42 +86,49 @@ private:
 	HairTaskProcessor & operator = (const HairTaskProcessor &aObj) {};
 
 	///----------------------------------------------------------------------------------------------------
-	/// Tries to create new worker thread if there isn't already one active
+	/// Tries to create new worker thread if there isn't already one active, contains critical section
 	///----------------------------------------------------------------------------------------------------
 	static void tryCreateWorkerThread ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Callback function that is called right after the thread finished
+	/// Callback function that is called right after the thread finished. Sets the isRunning flag to
+	/// false. Contains critical section.
+	///
 	/// \param aData Optional data supplied to the callback, see Maya API manual for more information
 	///----------------------------------------------------------------------------------------------------
 	static void workerFinishedCB (void *aData);
 
 	///----------------------------------------------------------------------------------------------------
-	/// The actual code executed by the worker thread
+	/// The actual code executed by the worker thread. Contains critical sections.
+	///
 	/// \param aData Optional data supplied to the worker thread, see Maya API manual for more information
 	///----------------------------------------------------------------------------------------------------
-	static void asyncWorkerLoop (void *aData);
+	static MThreadRetVal asyncWorkerLoop (void *aData);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns another task from the queue. If the queue is empty, returns dummy hair task object
+	/// Returns another task from the queue. If the queue is empty, returns dummy hair task object.
+	/// Contains critical section.
+	///
 	/// \return The next task object from the queue
 	///----------------------------------------------------------------------------------------------------
 	HairTask *getTask ();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Calls doBrush method contained within the aTask object
+	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
 	void doBrush (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Makes sure that hair retains their properties by minimizing an error functional
+	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
 	void enforceConstraints (HairTask *aTask);
 
 	static HairTaskProcessor *mInstance; ///< The class instance
-	std::deque< HairTask > mTaskAccumulator; ///< The task queue
+	std::deque< HairTask* > mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
 	static bool mIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock mIsRunningLock; ///< isRunning spinlock
@@ -152,6 +170,21 @@ inline bool HairTaskProcessor::isRunning ()
 	// ------------------------------------
 
 	return result;
+}
+
+inline size_t HairTaskProcessor::getAccumulatorSize ()
+{
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	mTaskAccumulatorLock.lock();
+		size_t size = mTaskAccumulator.size();
+	mTaskAccumulatorLock.unlock();
+	// ------------------------------------
+	// End cricical section
+	// ------------------------------------
+
+	return size;
 }
 
 } // namespace Toolbox

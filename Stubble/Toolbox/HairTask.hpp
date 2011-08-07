@@ -16,7 +16,7 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 typedef struct HairTask
 {
-	BrushMode *mBrushMode; ///< Brush state containing the brush operation method
+	BrushMode *mBrushMode; ///< Brush state containing the brush operation method - points to an effective singleton, no deletion takes place!
 	Vector3D< double > mDx; ///< Cursor change projected into the eye coordinates
 	//vector< HairGuide > mAffectedGuides; //TODO
 } HairTask;

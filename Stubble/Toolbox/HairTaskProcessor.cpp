@@ -20,38 +20,140 @@ MSpinLock HairTaskProcessor::mIsRunningLock;
 
 void HairTaskProcessor::waitFinishWorkerThread ()
 {
-	//TODO
+	// Contains critical section
+	while ( HairTaskProcessor::isRunning() )
+	{
+#ifdef _WIN32
+		Sleep(0);
+#else
+		sleep(0);
+#endif
+	}
 }
 
 void HairTaskProcessor::enqueueTask (HairTask *aTask)
 {
-	//TODO
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	mTaskAccumulatorLock.lock();
+		mTaskAccumulator.push_back(aTask); //TODO: exception handling?
+	mTaskAccumulatorLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
+
+	// Contains critical section
+	HairTaskProcessor::tryCreateWorkerThread();
 }
 
 void HairTaskProcessor::purgeAccumulator ()
 {
-	//TODO
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	mTaskAccumulatorLock.lock();
+		mTaskAccumulator.clear();
+	mTaskAccumulatorLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
 }
 
 void HairTaskProcessor::tryCreateWorkerThread ()
 {
-	//TODO
+	// Contains critical section
+	if ( HairTaskProcessor::isRunning() )
+	{
+		goto end;
+	}
+
+	MStatus status = MThreadAsync::init();
+	if ( MStatus::kSuccess != status )
+	{
+		status.perror( "HairTaskProcessor: Failed to acquire thread resources" );
+		//TODO: exception?
+		goto end;
+	}
+
+	status = MThreadAsync::createTask(HairTaskProcessor::asyncWorkerLoop, 0, HairTaskProcessor::workerFinishedCB, 0);
+	if ( MStatus::kSuccess != status )
+	{
+		status.perror( "HairTaskProcessor: Failed to run the worker thread" );
+		//TODO: exception?
+	}
+
+end: // To avoid multiple exit points
+	return;
 }
 
 void HairTaskProcessor::workerFinishedCB (void *aData)
 {
-	//TODO
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	HairTaskProcessor::mIsRunningLock.lock();
+		HairTaskProcessor::mIsRunning = false;
+	HairTaskProcessor::mIsRunningLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
 }
 
-void HairTaskProcessor::asyncWorkerLoop (void *aData)
+MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 {
-	//TODO
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	HairTaskProcessor::mIsRunningLock.lock();
+		HairTaskProcessor::mIsRunning = true;
+	HairTaskProcessor::mIsRunningLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
+
+	HairTaskProcessor *hairTaskProcessor = HairTaskProcessor::getInstance();
+	size_t accumulatorSize = hairTaskProcessor->getAccumulatorSize(); // Contains critical section
+	bool run = (accumulatorSize > 0); // Loop control
+
+	while ( run )
+	{
+		// Contains critical section
+		HairTask *task = hairTaskProcessor->getTask(); //TODO: handle null pointer?
+		hairTaskProcessor->doBrush(task);
+		hairTaskProcessor->enforceConstraints(task);
+
+		// Contains critical section
+		accumulatorSize = hairTaskProcessor->getAccumulatorSize();
+		run = (accumulatorSize > 0);
+	}
+
+	return 0;
 }
 
 HairTask *HairTaskProcessor::getTask ()
 {
-	//TODO
-	return 0;
+	HairTask *task = 0;
+
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	mTaskAccumulatorLock.lock();
+		if ( mTaskAccumulator.size() > 0 )
+		{
+			task = mTaskAccumulator.front();
+			mTaskAccumulator.pop_front();
+		}
+		else
+		{
+			task = new HairTask(); // Dummy object, warning contains null pointer
+		}
+	mTaskAccumulatorLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
+
+	return task;
 }
 
 void HairTaskProcessor::doBrush (HairTask *aTask)
