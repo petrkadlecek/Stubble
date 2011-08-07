@@ -12,6 +12,8 @@
 #include <QtOpenGL/QGLWidget>
 #include <QtGui/QMouseEvent>
 
+#include "../../../Primitives/Vector3D.hpp"
+
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
 
@@ -90,7 +92,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which performs the brushing transformations by calling the BrushMode's doBrush() method.
 	///----------------------------------------------------------------------------------------------------
-	void doBrush( MVector aDX, float aDT );
+	void doBrush( Vector3D< double > aDX );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the relevant depending objects of the changes in the user interface.

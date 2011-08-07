@@ -1,7 +1,6 @@
 #ifndef STUBBLE_CLUMP_BRUSH_MODE_HPP
 #define STUBBLE_CLUMP_BRUSH_MODE_HPP
 
-#include <maya/MVector.h>
 #include "../BrushMode.hpp"
 
 namespace Stubble
@@ -20,7 +19,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which implements the actual brush transformations.
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush( MVector aDX, float aDT );
+	virtual void doBrush( Vector3D< double > aDX );
 };
 
 } // namespace Toolbox

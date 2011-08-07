@@ -191,7 +191,7 @@ MStatus BrushTool::doPress( MEvent &event )
 			mEndPos[ 1 ] = mPrevPos[ 1 ] = mStartPos[ 1 ];
 
 			// Testing the state pattern.
-			this->doBrush( MVector( 3, 5, 2), 4 );
+			this->doBrush( Vector3D<double>(1.0, 2.0, 3.0) );
 
 			return MS::kSuccess;
 		}
@@ -233,9 +233,9 @@ MStatus BrushTool::doRelease( MEvent & event )
 	return MS::kSuccess;
 }
 
-void BrushTool::doBrush( MVector aDX, float aDT )
+void BrushTool::doBrush( Vector3D< double > aDX )
 {
-	mBrushMode->doBrush( aDX, aDT );
+	mBrushMode->doBrush( aDX ); //TODO: add proper HairTask dispatch code
 }
 
 void BrushTool::notify()

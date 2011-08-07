@@ -6,9 +6,9 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void PuffRootBrushMode::doBrush( MVector aDX, float aDT )
+	void PuffRootBrushMode::doBrush( Vector3D< double > aDX )
 	{
-		std::cout << "PuffRootBrushMode::doBrush()" << endl;
+		std::cout << "PuffRootBrushMode::doBrush()" << std::endl;
 		/*TODO*/
 		//implement the actual transformations
 	}

@@ -6,9 +6,9 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void ScaleBrushMode::doBrush( MVector aDX, float aDT )
+	void ScaleBrushMode::doBrush( Vector3D< double > aDX )
 	{
-		std::cout << "ScaleBrushMode::doBrush()" << endl;
+		std::cout << "ScaleBrushMode::doBrush()" << std::endl;
 		/*TODO*/
 		//implement the actual transformations
 	}

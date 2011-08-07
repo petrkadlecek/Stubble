@@ -6,9 +6,9 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void TranslateBrushMode::doBrush( MVector aDX, float aDT )
+	void TranslateBrushMode::doBrush( Vector3D< double > aDX )
 	{
-		std::cout << "TranslateBrushMode::doBrush()" << endl;
+		std::cout << "TranslateBrushMode::doBrush()" << std::endl;
 		/*TODO*/
 		//implement the actual transformations
 	}
