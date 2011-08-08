@@ -17,6 +17,8 @@
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
 
+#include "../../HairTaskProcessor.hpp"
+
 #include "../../BrushModes/BrushMode.hpp"
 #include "../../BrushModes/ClumpBrushMode/ClumpBrushMode.hpp"
 #include "../../BrushModes/PuffEndBrushMode/PuffEndBrushMode.hpp"
@@ -90,9 +92,10 @@ public:
 	virtual void getClassName( MString &aName ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// The method which performs the brushing transformations by calling the BrushMode's doBrush() method.
+	/// The method which performs the brushing transformations by dispatching a HairTask to the
+	/// HairTaskProcessor which takes care of the rest in the asynchronous loop
 	///----------------------------------------------------------------------------------------------------
-	void doBrush( Vector3D< double > aDX );
+	void doBrush( Vector3D< double > aDX ); //FIXME: add selected hair parameter
 
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the relevant depending objects of the changes in the user interface.

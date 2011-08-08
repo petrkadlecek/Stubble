@@ -118,14 +118,14 @@ private:
 	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
-	void doBrush (HairTask *aTask);
+	void doBrush (const HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Makes sure that hair retains their properties by minimizing an error functional
 	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
-	void enforceConstraints (HairTask *aTask);
+	void enforceConstraints (const HairTask *aTask);
 
 	static HairTaskProcessor *sInstance; ///< The class instance
 	std::deque< HairTask* > mTaskAccumulator; ///< The task queue

@@ -19,7 +19,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which implements the actual brush transformations.
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush( Vector3D< double > aDX );
+	virtual void doBrush ( const Vector3D< double > &aDX );
 };
 
 } // namespace Toolbox

@@ -6,7 +6,7 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void RotateBrushMode::doBrush( Vector3D< double > aDX )
+	void RotateBrushMode::doBrush ( const Vector3D< double > &aDX )
 	{
 		std::cout << "RotateBrushMode::doBrush()" << std::endl;
 		/*TODO*/

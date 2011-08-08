@@ -122,6 +122,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		HairTask *task = hairTaskProcessor->getTask(); //TODO: handle null pointer?
 		hairTaskProcessor->doBrush(task);
 		hairTaskProcessor->enforceConstraints(task);
+		delete task;
 
 		// Contains critical section
 		accumulatorSize = hairTaskProcessor->getAccumulatorSize();
@@ -156,12 +157,12 @@ HairTask *HairTaskProcessor::getTask ()
 	return task;
 }
 
-void HairTaskProcessor::doBrush (HairTask *aTask)
+void HairTaskProcessor::doBrush (const HairTask *aTask)
 {
-	//TODO
+	aTask->mBrushMode->doBrush(aTask->mDx);
 }
 
-void HairTaskProcessor::enforceConstraints (HairTask *aTask)
+void HairTaskProcessor::enforceConstraints (const HairTask *aTask)
 {
 	//TODO
 }

@@ -20,7 +20,7 @@ public:
 	///
 	/// \param aDX Cursor change in local coordinates
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush( Vector3D< double > aDX ) = 0;
+	virtual void doBrush ( const Vector3D< double > &aDX ) = 0;
 };
 
 } // namespace Toolbox

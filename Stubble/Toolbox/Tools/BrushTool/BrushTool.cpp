@@ -190,8 +190,7 @@ MStatus BrushTool::doPress( MEvent &event )
 			mEndPos[ 0 ] = mPrevPos[ 0 ] = mStartPos[ 0 ];
 			mEndPos[ 1 ] = mPrevPos[ 1 ] = mStartPos[ 1 ];
 
-			// Testing the state pattern.
-			this->doBrush( Vector3D<double>(1.0, 2.0, 3.0) );
+			std::cout << "doPress()\n";
 
 			return MS::kSuccess;
 		}
@@ -203,6 +202,8 @@ MStatus BrushTool::doPress( MEvent &event )
 
 MStatus BrushTool::doDrag( MEvent &event )
 {
+	std::cout << "doDrag()\n";
+
 	// If we are dragging and left mouse button is pressed, then handle the event.
 	if( !event.isModifierLeftMouseButton() )
 	{
@@ -211,7 +212,10 @@ MStatus BrushTool::doDrag( MEvent &event )
 		mPrevPos[ 1 ] = mEndPos[ 1 ];
 
 		// Get the new location of the cursor
-		event.getPosition( mEndPos[ 0 ], mEndPos[ 1 ] );		
+		event.getPosition( mEndPos[ 0 ], mEndPos[ 1 ] );
+
+		//TODO: calculate dX
+		this->doBrush( Vector3D< double >(1.0, 1.0, 1.0) );
 	}
 
 	// In every other case, just let the base class handle the event.
@@ -235,7 +239,14 @@ MStatus BrushTool::doRelease( MEvent & event )
 
 void BrushTool::doBrush( Vector3D< double > aDX )
 {
-	mBrushMode->doBrush( aDX ); //TODO: add proper HairTask dispatch code
+	std::cout << "doBrush()\n";
+
+	HairTask *task = new HairTask(); //TODO: create a factory method
+	task->mBrushMode = this->mBrushMode;
+	task->mDx = aDX;
+	//TODO: add affected hair
+
+	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
 
 void BrushTool::notify()

@@ -6,7 +6,7 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void ScaleBrushMode::doBrush( Vector3D< double > aDX )
+	void ScaleBrushMode::doBrush ( const Vector3D< double > &aDX )
 	{
 		std::cout << "ScaleBrushMode::doBrush()" << std::endl;
 		/*TODO*/
