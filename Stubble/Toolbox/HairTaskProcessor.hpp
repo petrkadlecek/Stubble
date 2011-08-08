@@ -127,34 +127,34 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	void enforceConstraints (HairTask *aTask);
 
-	static HairTaskProcessor *mInstance; ///< The class instance
+	static HairTaskProcessor *sInstance; ///< The class instance
 	std::deque< HairTask* > mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
-	static bool mIsRunning; ///< Flag for determining that the thread is active
-	static MSpinLock mIsRunningLock; ///< isRunning spinlock
+	static bool sIsRunning; ///< Flag for determining that the thread is active
+	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 
 };
 
 inline HairTaskProcessor *HairTaskProcessor::getInstance ()
 {
-	if (0 == HairTaskProcessor::mInstance)
+	if (0 == HairTaskProcessor::sInstance)
 	{
-		HairTaskProcessor::mInstance = new HairTaskProcessor();
+		HairTaskProcessor::sInstance = new HairTaskProcessor();
 	}
 
-	return HairTaskProcessor::mInstance;
+	return HairTaskProcessor::sInstance;
 }
 
 inline void HairTaskProcessor::destroyInstance ()
 {
-	if (HairTaskProcessor::mInstance)
+	if (HairTaskProcessor::sInstance)
 	{
 		//TODO
 
-		delete HairTaskProcessor::mInstance;
+		delete HairTaskProcessor::sInstance;
 	}
 
-	HairTaskProcessor::mInstance = 0;
+	HairTaskProcessor::sInstance = 0;
 }
 
 inline bool HairTaskProcessor::isRunning ()
@@ -162,9 +162,9 @@ inline bool HairTaskProcessor::isRunning ()
 	// ------------------------------------
 	// Begin critical section
 	// ------------------------------------
-	HairTaskProcessor::mIsRunningLock.lock();
-		bool result = HairTaskProcessor::mIsRunning;
-	HairTaskProcessor::mIsRunningLock.unlock();
+	HairTaskProcessor::sIsRunningLock.lock();
+		bool result = HairTaskProcessor::sIsRunning;
+	HairTaskProcessor::sIsRunningLock.unlock();
 	// ------------------------------------
 	// End cricical section
 	// ------------------------------------

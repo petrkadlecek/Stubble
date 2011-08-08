@@ -10,9 +10,9 @@ namespace Toolbox
 // Static data members and constatns:
 // ----------------------------------------------------------------------------
 
-HairTaskProcessor *HairTaskProcessor::mInstance = 0;
-bool HairTaskProcessor::mIsRunning = false;
-MSpinLock HairTaskProcessor::mIsRunningLock;
+HairTaskProcessor *HairTaskProcessor::sInstance = 0;
+bool HairTaskProcessor::sIsRunning = false;
+MSpinLock HairTaskProcessor::sIsRunningLock;
 
 // ----------------------------------------------------------------------------
 // Methods:
@@ -92,9 +92,9 @@ void HairTaskProcessor::workerFinishedCB (void *aData)
 	// ------------------------------------
 	// Begin critical section
 	// ------------------------------------
-	HairTaskProcessor::mIsRunningLock.lock();
-		HairTaskProcessor::mIsRunning = false;
-	HairTaskProcessor::mIsRunningLock.unlock();
+	HairTaskProcessor::sIsRunningLock.lock();
+		HairTaskProcessor::sIsRunning = false;
+	HairTaskProcessor::sIsRunningLock.unlock();
 	// ------------------------------------
 	// End critical section
 	// ------------------------------------
@@ -105,9 +105,9 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 	// ------------------------------------
 	// Begin critical section
 	// ------------------------------------
-	HairTaskProcessor::mIsRunningLock.lock();
-		HairTaskProcessor::mIsRunning = true;
-	HairTaskProcessor::mIsRunningLock.unlock();
+	HairTaskProcessor::sIsRunningLock.lock();
+		HairTaskProcessor::sIsRunning = true;
+	HairTaskProcessor::sIsRunningLock.unlock();
 	// ------------------------------------
 	// End critical section
 	// ------------------------------------
