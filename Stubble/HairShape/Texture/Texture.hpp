@@ -9,8 +9,6 @@
 
 #include <fstream>
 
-#define COLOR_COMPONENTS	4
-
 namespace Stubble
 {
 
@@ -46,9 +44,9 @@ public:
 	Texture( float value, float value1, float value2, float value3 );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Initilize values of texture
+	/// Initilize array for texture
 	///----------------------------------------------------------------------------------------------------
-	void init( float value, float value1, float value2, float value3 );
+	void init();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing Color
@@ -131,6 +129,21 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	unsigned int getHeight() const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets count of color components
+	///----------------------------------------------------------------------------------------------------
+	unsigned int getColorCompomentsCount() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets raw data of texture
+	///----------------------------------------------------------------------------------------------------
+	float *getRawData() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets info about texture animation
+	///----------------------------------------------------------------------------------------------------
+	bool isAnimated() const;
+
 #ifdef MAYA
 	///----------------------------------------------------------------------------------------------------
 	/// Resample entire texture.
@@ -141,11 +154,15 @@ public:
 private:
 	bool mDirty;	///< Dirty flag
 
-	float* mTexture;	///< Texture matrix
+	float *mTexture;	///< Texture matrix
 
 	unsigned int mWidth;	///< Texture width
 
 	unsigned int mHeight;	///< Texture height
+
+	unsigned int mColorComponents;	///< Color component count
+
+	bool mIsAnimated;	///< Identification of texture type
 };
 
 // inline functions implementation

@@ -21,6 +21,12 @@ typedef double Time;
 ///-------------------------------------------------------------------------------------------------
 typedef void * UNKNOWN;
 
+///-------------------------------------------------------------------------------------------------
+/// Defines an alias representing fixed length arrays.
+///-------------------------------------------------------------------------------------------------
+typedef double Real3[3];
+typedef double Real4[3];
+
 } // namespace Stubble
 
 #endif // STUBBLE_COMMON_TYPES_HPP

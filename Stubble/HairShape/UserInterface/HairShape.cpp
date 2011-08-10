@@ -62,33 +62,19 @@ MStatus HairShape::compute(const MPlug &plug, MDataBlock &dataBlock)
 			return MS::kFailure;
 		}
 
-		// TODO
-		/*
-		if ( !callbackIsRegistered )
-		{
-			MStatus status = RegisterTopologyCallback();
-			if ( status != MStatus::kSuccess )
-			{
-				return status;
-			}
-		}
-		*/
-
 		// getting hair attributes
-		/*
 		const int count = dataBlock.inputValue(countAttr).asInt();
-		length = dataBlock.inputValue(lengthAttr).asFloat();
-		genCount = dataBlock.inputValue(genCountAttr).asInt();
+		const float length = dataBlock.inputValue(lengthAttr).asFloat();
+		const int genCount = dataBlock.inputValue(genCountAttr).asInt();
 		const float randomX = dataBlock.inputValue(randomXAttr).asFloat();
 		const float randomY = dataBlock.inputValue(randomYAttr).asFloat();
 		const float randomZ = dataBlock.inputValue(randomZAttr).asFloat();
-		genRandom.x = dataBlock.inputValue(genRandomXAttr).asFloat();
-		genRandom.y = dataBlock.inputValue(genRandomYAttr).asFloat();
-		genRandom.z = dataBlock.inputValue(genRandomZAttr).asFloat();
+		const float getRandomX = dataBlock.inputValue(genRandomXAttr).asFloat();
+		const float getRandomY = dataBlock.inputValue(genRandomYAttr).asFloat();
+		const float getRandomZ = dataBlock.inputValue(genRandomZAttr).asFloat();
 		const int segments = dataBlock.inputValue(segmentsAttr).asInt();
 		MString texture = dataBlock.inputValue(textureAttr).asString();
-		displayNormalsAndTangents = dataBlock.inputValue(displayNormalsAndTangentsAttr).asBool();
-		*/
+		bool displayNormalsAndTangents = dataBlock.inputValue(displayNormalsAndTangentsAttr).asBool();
 	}
 
 	return MS::kSuccess;

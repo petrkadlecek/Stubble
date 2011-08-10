@@ -148,6 +148,9 @@
     <ClCompile Include="Toolbox\HairTaskProcessor.cpp">
       <Filter>Toolbox</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Mesh\MayaMesh.cpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -278,6 +281,9 @@
     </ClInclude>
     <ClInclude Include="Toolbox\HairTaskProcessor.hpp">
       <Filter>Toolbox</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp">
+      <Filter>HairShape\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

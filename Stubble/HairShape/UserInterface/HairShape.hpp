@@ -1,6 +1,9 @@
 #ifndef STUBBLE_HAIR_SHAPE_HPP
 #define STUBBLE_HAIR_SHAPE_HPP
 
+#include "HairShape\Generators\UVPointGenerator.hpp"
+#include "HairShape\Mesh\MayaMesh.hpp"
+
 #include <maya/MStatus.h>
 #include <maya/MBoundingBox.h>
 #include <maya/MPxSurfaceShape.h>
@@ -117,8 +120,12 @@ public:
     static MStatus initialize();
 
 private:
-	// <summary> The bounding box of our node
-	MBoundingBox mBoundingBox;
+	
+	MBoundingBox mBoundingBox; ///< The bounding box of our node
+
+	UVPointGenerator *mUVPointGenerator; ///< UV point generator
+
+	MayaMesh *mMayaMesh; ///< Maya mesh
 
 };
 

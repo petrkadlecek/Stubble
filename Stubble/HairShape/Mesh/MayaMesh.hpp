@@ -1,10 +1,12 @@
 #ifndef STUBBLE_MAYA_MESH_HPP
 #define STUBBLE_MAYA_MESH_HPP
 
+#include <maya\MFnMesh.h>
 #include <maya\MObject.h>
 #include <maya\MString.h>
 
 #include "HairShape\Mesh\Mesh.hpp"
+#include "HairShape\Mesh\MeshTriangle.hpp"
 #include "HairShape\Mesh\UVPoint.hpp"
 
 #include <fstream>
@@ -19,6 +21,7 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 class MayaMesh
 {
+public:
 	///----------------------------------------------------------------------------------------------------
 	/// Maya mesh constructor that accepts Maya mesh object and UV set
 	///
@@ -36,17 +39,17 @@ class MayaMesh
 	///----------------------------------------------------------------------------------------------------
 	/// Gets point on mesh interpolated from 3 vertices of given triangle
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint getMeshPoint(const UVPoint &aPoint) const;
+	MeshPoint getMeshPoint(const UVPoint &aPoint) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets triangle as 3 vertices.
 	///----------------------------------------------------------------------------------------------------
-	inline const Triangle & getTriangle(int aID) const;
+	const Triangle getTriangle(int aID) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getTriangleCount() const;
+	unsigned int getTriangleCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Method called in case of updated mesh.
@@ -62,7 +65,16 @@ class MayaMesh
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
-	inline ~MayaMesh();
+	~MayaMesh();
+
+private:
+	MeshTriangles mMeshTriangles; ///< Triangles of mesh stored only as indices to rest pose
+
+	Mesh mRestPose; ///< Rest pose mesh
+
+	MFnMesh * mUpdatedMesh; ///< The updated mesh
+	
+	const MString * mUVSet; ///< UV Set name
 };
 
 } // namespace HairShape
