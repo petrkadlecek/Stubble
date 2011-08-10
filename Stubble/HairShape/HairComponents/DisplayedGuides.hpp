@@ -36,17 +36,20 @@ public:
 	///
 	/// \param	aGuidesCurrentPositions	the guides current positions. 
 	/// \param	aFrameSegments			the guides segments in current frame. 
+	/// \param	aSelectedGuides			the selected guides to be high lighted. 
 	///-------------------------------------------------------------------------------------------------
 	void build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
-		const FrameSegments & aFrameSegments );
+		const FrameSegments & aFrameSegments,
+		const SelectedGuides & aSelectedGuides );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Redisplays the selected guides
 	///
 	/// \param	aSelectedGuides	the selected guides. 
-	/// \param	aHighlight		true if selected guides should be highlighted..
+	/// \param	aHighlight		highlight the selected guides ?
+	/// 						
 	///-------------------------------------------------------------------------------------------------
-	void rebuild( const SelectedGuides & aSelectedGuides, bool aHighlight );
+	void selectionRebuild( const SelectedGuides & aSelectedGuides, bool aHighlight );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Draws the guides.

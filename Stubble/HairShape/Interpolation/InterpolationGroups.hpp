@@ -1,8 +1,11 @@
 #ifndef STUBBLE_INTERPOLATION_GROUPS_HPP
 #define STUBBLE_INTERPOLATION_GROUPS_HPP
 
-#include "HairShape\Texture\Texture.hpp"
 #include "Common\CommonTypes.hpp"
+#include "Common\StubbleException.hpp"
+#include "HairShape\Texture\Texture.hpp"
+
+#include <vector>
 
 namespace Stubble
 {
@@ -63,7 +66,7 @@ public:
 	/// \param	aGroupId		Identifier for a group. 
 	/// \param	aSegmentsCount	Number of the segments for selected group. 
 	///-------------------------------------------------------------------------------------------------
-	inline void getGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount );
+	inline void setGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets a group identifier. 
@@ -85,32 +88,94 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned int getSegmentsCount( Real aU, Real aV ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the color compoment count. 
+	///
+	///
+	/// \return	The color compoment count. 
+	///----------------------------------------------------------------------------------------------------
+	inline unsigned int getColorCompomentCount() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets a color of interpolation group. 
+	///
+	/// \param	aGroupId	Identifier for a interpolation group. 
+	///
+	/// \return	The color of interpolation group. 
+	///----------------------------------------------------------------------------------------------------
+	inline Texture::Color getColorOfGroup( unsigned int aGroupId ) const;
+
+private:
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing number of interpolation groups segments .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< unsigned int > InterpolationGroupsSegmentsCount;
+
+	unsigned int mTextureHeight;   ///< The texture height
+
+	unsigned int mTextureWidth;	///< The texture width
+
+	unsigned int * mInterpolationGroupsTexture;	///< Interpolation groups texture
+
+	Texture::Color mInterpolationGroupsColors; ///< List of colors of the interpolation groups
+
+	unsigned int mColorComponentCount;  ///< Number of color components
+
+	InterpolationGroupsSegmentsCount mInterpolationGroupsSegmentsCount; ///< Number of interpolation groups segments
 };
 
 // inline functions implementation
 
 inline InterpolationGroups::~InterpolationGroups()
 {
+	delete [] mInterpolationGroupsTexture;
+	delete [] mInterpolationGroupsColors;
 }
 
 inline unsigned int InterpolationGroups::getGroupsCount() const
 {
+	return static_cast< unsigned int >( mInterpolationGroupsSegmentsCount.size() );
 }
 
 inline unsigned int InterpolationGroups::getGroupSegmentsCount( unsigned int aGroupId ) const
 {
+	return mInterpolationGroupsSegmentsCount[ aGroupId ];
 }
 
-inline void InterpolationGroups::getGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount )
+inline void InterpolationGroups::setGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount )
 {
+	if ( aSegmentsCount == 0 )
+	{
+		throw StubbleException(" InterpolationGroups::setGroupSegmentsCount : segments count must be greater than 0 ");
+	}
+	mInterpolationGroupsSegmentsCount[ aGroupId ] = aSegmentsCount;
 }
 
 inline unsigned int InterpolationGroups::getGroupId( Real aU, Real aV ) const
 {
+	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth - 0.5) );
+	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight - 0.5) );
+
+	return *( mInterpolationGroupsTexture + y * mTextureWidth + x );
 }
 
 inline unsigned int InterpolationGroups::getSegmentsCount( Real aU, Real aV ) const
 {
+	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth - 0.5) );
+	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight - 0.5) );
+
+	return mInterpolationGroupsSegmentsCount[ *( mInterpolationGroupsTexture + y * mTextureWidth + x ) ];
+}
+
+inline unsigned int InterpolationGroups::getColorCompomentCount() const
+{
+	return mColorComponentCount;
+}
+
+inline Texture::Color InterpolationGroups::getColorOfGroup( unsigned int aGroupId ) const
+{
+	return mInterpolationGroupsColors + aGroupId * mColorComponentCount;
 }
 
 } // namespace Interpolation

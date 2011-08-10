@@ -60,16 +60,6 @@ struct PartialStorage
 	GuidesIds mIds; ///< The identifiers of guides
 };
 
-///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the segments changes stack.
-///-------------------------------------------------------------------------------------------------
-typedef std::vector< PartialStorage * > SegmentsChangesStack;
-
-///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the segments changes stack pointer .
-///-------------------------------------------------------------------------------------------------
-typedef SegmentsChangesStack::iterator SegmentsChangesStackPointer;
-
 } // namespace HairComponents
 
 } // namespace HairShape

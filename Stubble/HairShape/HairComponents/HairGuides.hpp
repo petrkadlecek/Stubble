@@ -63,12 +63,15 @@ public:
 	///
 	/// \return	The guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	const RestPositionsUG & getGuidesSegmentsUG();
+	const SegmentsUG & getGuidesSegmentsUG();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Updates the guides after the brush or any other tool was used. 
+	/// 
+	/// \param	aStoreUpdate	if true, stores updates of selected guides to stack, 
+	/// 						otherwise draw update only
 	///----------------------------------------------------------------------------------------------------
-	void updateGuides();
+	void updateGuides( bool aStoreUpdate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the guides positions uniform grid. 
@@ -77,12 +80,12 @@ public:
 	///
 	/// \return	The guides positions uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	const SegmentsUG & getGuidesPositionsUG( const Interpolation::InterpolationGroups & aInterpolationGroups );
+	const RestPositionsUG & getGuidesPositionsUG( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws guides and interpolated hair.
 	///----------------------------------------------------------------------------------------------------
-	void draw() const;
+	void draw();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import nurbs. TODO !!!

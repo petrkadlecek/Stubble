@@ -10,7 +10,7 @@ namespace HairComponents
 {
 
 SegmentsUG::SegmentsUG():
-	mDirtyBit( false )
+	mDirtyBit( true )
 {
 }
 

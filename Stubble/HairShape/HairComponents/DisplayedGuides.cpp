@@ -10,7 +10,7 @@ namespace HairComponents
 {
 
 DisplayedGuides::DisplayedGuides():
-	mDirtyBit( false )
+	mDirtyBit( true )
 {
 }
 
@@ -19,12 +19,12 @@ DisplayedGuides::~DisplayedGuides()
 }
 
 void DisplayedGuides::build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
-	const FrameSegments & aFrameSegments )
+	const FrameSegments & aFrameSegments, const SelectedGuides & aSelectedGuides )
 {
 	mDirtyBit = false;
 }
 
-void DisplayedGuides::rebuild( const SelectedGuides & aSelectedGuides, bool aHighlight  )
+void DisplayedGuides::selectionRebuild( const SelectedGuides & aSelectedGuides, bool aHighlight )
 {
 	mDirtyBit = false;
 }

@@ -13,7 +13,7 @@ namespace HairComponents
 /// Default constructor. 
 ///-------------------------------------------------------------------------------------------------
 RestPositionsUG::RestPositionsUG():
-	mDirtyBit( false )
+	mDirtyBit( true )
 {
 }
 

@@ -4,6 +4,7 @@
 #include "HairShape\HairComponents\Segments.hpp"
 
 #include <cassert>
+#include <list>
 
 namespace Stubble
 {
@@ -72,6 +73,18 @@ public:
 	inline void add( PartialStorage * aChange );
 
 private:
+	static const size_t MAX_STACK_SIZE = 100;  ///< Size of the maximum stack
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the segments changes stack.
+	///-------------------------------------------------------------------------------------------------
+	typedef std::list< PartialStorage * > SegmentsChangesStack;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the segments changes stack pointer .
+	///-------------------------------------------------------------------------------------------------
+	typedef SegmentsChangesStack::iterator SegmentsChangesStackPointer;
+
 	SegmentsChangesStack mChanges;  ///< The segments changes stack
 
 	SegmentsChangesStackPointer mCurrent;   ///< The current stack pointer
@@ -123,6 +136,11 @@ inline void UndoStack::add( PartialStorage * aChange )
 {
 	// First remove all redo steps
 	mChanges.erase( mCurrent, mChanges.end() );
+	// If stack is too big, erase first element
+	if ( mChanges.size() > MAX_STACK_SIZE )
+	{
+		mChanges.pop_front();
+	}
 	// Add change to stack
 	mChanges.push_back( aChange );
 	// Finally set pointer to stack end

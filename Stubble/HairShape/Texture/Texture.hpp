@@ -56,6 +56,23 @@ public:
 	typedef float* Color;
 
 	///----------------------------------------------------------------------------------------------------
+	/// Color comparator. 
+	///----------------------------------------------------------------------------------------------------
+	template < unsigned int tComponentCount >
+	struct ColorComparator
+	{
+		///----------------------------------------------------------------------------------------------------
+		/// Comparator operator. 
+		///
+		/// \param	aColor	the first color to compare
+		/// \param	aColor	the second color to compare
+		/// 				
+		/// \return	true, if aColor1 < aColor2				
+		///----------------------------------------------------------------------------------------------------
+		inline bool operator() ( const Color & aColor1, const Color & aColor2 ) const;
+	};
+
+	///----------------------------------------------------------------------------------------------------
 	/// Stream constructor
 	///----------------------------------------------------------------------------------------------------
 	Texture( std::istream & aIsStream );
@@ -131,6 +148,29 @@ private:
 	unsigned int mHeight;	///< Texture height
 };
 
+// inline functions implementation
+
+template< unsigned int tComponentCount >
+inline bool Texture::ColorComparator< tComponentCount >::operator() ( const Texture::Color & aColor1, 
+	const Texture::Color & aColor2 ) const
+{
+	for( unsigned int i = 0; i < tComponentCount; ++i ) // For every component
+	{
+		if ( aColor1[ i ] < aColor2[ i ] )
+		{
+			return true;
+		}
+		else
+		{
+			if ( aColor1[ i ] > aColor2[ i ] )
+			{
+				return false;
+			}
+		}
+		// Components equal so far -> continue
+	}
+	return false; // color1 equals color2
+}
 
 } // namespace HairShape
 
