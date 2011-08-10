@@ -11,6 +11,10 @@
 
 
 #include <maya/MFnPlugin.h>
+
+#include "HairShape\UserInterface\HairShape.hpp"
+#include "HairShape\UserInterface\HairShapeUI.hpp"
+
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 
 // Export the functions to make them visible in Maya
@@ -40,6 +44,16 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	// check for error
 	if ( status != MS::kSuccess )
 		status.perror( "Could not register BrushToolCommand." );
+
+	status = plugin.registerShape( Stubble::HairShape::HairShape::typeName, // Node name
+								  Stubble::HairShape::HairShape::typeId, // Unique ID of our node
+								  Stubble::HairShape::HairShape::creator, // Handler to creator function (just creates node)
+								  Stubble::HairShape::HairShape::initialize, // Handler to initialize function (initializes all attributes)
+								  Stubble::HairShape::HairShapeUI::creator ); //Creator of UI
+
+	// check for error
+	if( status != MS::kSuccess )
+		status.perror( "could not register the HairShape node" );
 
 	return status;
 }

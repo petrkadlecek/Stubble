@@ -2,6 +2,7 @@
 #define STUBBLE_HAIR_SHAPE_HPP
 
 #include "HairShape\Generators\UVPointGenerator.hpp"
+#include "HairShape\HairComponents\HairGuides.hpp"
 #include "HairShape\Mesh\MayaMesh.hpp"
 
 #include <maya/MStatus.h>
@@ -126,6 +127,10 @@ private:
 	UVPointGenerator *mUVPointGenerator; ///< UV point generator
 
 	MayaMesh *mMayaMesh; ///< Maya mesh
+
+	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
+
+	UNKNOWN *mInterpolatedHairs; ///< Interpolated hairs
 
 };
 

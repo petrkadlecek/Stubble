@@ -1,5 +1,9 @@
 #include "HairShape.hpp"
 
+#include <maya\MFnNumericAttribute.h>
+#include <maya\MFnStringData.h>
+#include <maya\MFnTypedAttribute.h>
+
 namespace Stubble
 {
 
@@ -88,6 +92,121 @@ void* HairShape::creator()
 void HairShape::draw()
 {
 	// TODO
+}
+
+MStatus HairShape::initialize()
+{	
+	MStatus status;
+
+	//define surface attribute
+	MFnTypedAttribute tAttr;
+	surfaceAttr = tAttr.create( "surface", "srf", MFnData::kMesh, MObject::kNullObj, &status );
+	tAttr.setWritable( true );
+	if( !status )
+	{
+		status.perror( "Creation of a mesh has failed" );
+		return status;
+	}
+
+	addAttribute( surfaceAttr );
+
+	//define count attribute
+	MFnNumericAttribute nAttr;
+	countAttr = nAttr.create( "count", "cnt", MFnNumericData::kInt, 100 );
+	nAttr.setKeyable( true );
+	addAttribute( countAttr );
+
+	//define gen. count attribute
+	genCountAttr = nAttr.create( "Interpolated_Hair", "gcnt", MFnNumericData::kInt, 10000 );
+	nAttr.setKeyable( true );
+	addAttribute( genCountAttr );
+
+	//define length attribute
+	lengthAttr = nAttr.create( "length", "len", MFnNumericData::kFloat, 0.2 );
+	nAttr.setMin( 0.0000001 );
+	nAttr.setKeyable( true );
+	addAttribute( lengthAttr );
+
+	//define random X attribute
+	randomXAttr = nAttr.create("random_X", "rX", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(randomXAttr);
+	
+	//define random Y attribute
+	randomYAttr = nAttr.create("random_Y", "rY", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(randomYAttr);
+
+	//define random Z attribute
+	randomZAttr = nAttr.create("random_Z", "rZ", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(randomZAttr);
+
+	//define gen. random X attribute
+	genRandomXAttr = nAttr.create("Interpolated_random_X", "irX", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(genRandomXAttr);
+	
+	//define gen. random Y attribute
+	genRandomYAttr = nAttr.create("Interpolated_random_Y", "irY", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(genRandomYAttr);
+
+	//define gen. random Z attribute
+	genRandomZAttr = nAttr.create("Interpolated_random_Z", "irZ", MFnNumericData::kFloat, 0.0);
+	nAttr.setMin(0);
+	nAttr.setKeyable(true);
+	addAttribute(genRandomZAttr);
+
+	//define segments attribute
+	segmentsAttr = nAttr.create("segments_count", "bpc", MFnNumericData::kInt, 5);
+	nAttr.setMin(1);
+	nAttr.setKeyable(true);
+	addAttribute(segmentsAttr);
+
+	//define display normals and tangents attribute
+	displayNormalsAndTangentsAttr = nAttr.create("display_normals_and_tangents", "dnt", MFnNumericData::kBoolean,false);
+	nAttr.setKeyable(true);
+	addAttribute(displayNormalsAndTangentsAttr);
+
+	// Declare the function set and a MObject for the attribute data.
+	MFnStringData fnStringData;
+	MObject defaultString = fnStringData.create( "" );
+
+	// Create the attribute and specify its default.
+	textureAttr = tAttr.create( "texture", "txt", MFnData::kString, defaultString );
+
+	tAttr.setStorable(true);
+	tAttr.setKeyable(false);
+
+	addAttribute( textureAttr );
+
+	//redraw attr
+	redrawAttr = nAttr.create("redraw", "rdrw", MFnNumericData::kInt, 0);
+	nAttr.setHidden(true);
+	addAttribute(redrawAttr);
+
+	//this tells maya what inputs affect what outputs
+	attributeAffects(surfaceAttr, redrawAttr);
+	attributeAffects(countAttr, redrawAttr);
+	attributeAffects(genCountAttr, redrawAttr);
+	attributeAffects(lengthAttr, redrawAttr);
+	attributeAffects(randomXAttr, redrawAttr);
+	attributeAffects(randomYAttr, redrawAttr);
+	attributeAffects(randomZAttr, redrawAttr);
+	attributeAffects(genRandomXAttr, redrawAttr);
+	attributeAffects(genRandomYAttr, redrawAttr);
+	attributeAffects(genRandomZAttr, redrawAttr);
+	attributeAffects(segmentsAttr, redrawAttr);
+	attributeAffects(displayNormalsAndTangentsAttr, redrawAttr);
+	attributeAffects(textureAttr, redrawAttr);
+
+	return MS::kSuccess;
 }
 
 } // namespace HairShape

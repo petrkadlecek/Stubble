@@ -12,13 +12,13 @@ namespace Stubble
 namespace HairShape
 {
 
-HairShapeUI::HairShapeUI(HairShape *aHairShape): mHairShape(aHairShape) {}
+HairShapeUI::HairShapeUI() {}
 
 HairShapeUI::~HairShapeUI() {}
 
-void* HairShapeUI::creator(HairShape *aHairShape)
+void* HairShapeUI::creator()
 {
-	return new HairShapeUI(aHairShape);
+	return new HairShapeUI();
 }
 
 void HairShapeUI::getDrawRequests( const MDrawInfo & info, bool objectAndActiveOnly, MDrawRequestQueue & requests )

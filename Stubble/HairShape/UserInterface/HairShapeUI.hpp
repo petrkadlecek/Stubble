@@ -20,7 +20,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor.
 	///----------------------------------------------------------------------------------------------------
-	HairShapeUI( HairShape *aHairShape );
+	HairShapeUI();
 
 	///----------------------------------------------------------------------------------------------------
 	/// This function places drawing requests on maya's drawing queue and is called whenever the view is refreshed.
@@ -49,16 +49,12 @@ public:
 	///
 	/// \param aHairShape	hair shape 
 	///----------------------------------------------------------------------------------------------------
-    static void * creator( HairShape *aHairShape );
+    static void * creator();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
     virtual ~HairShapeUI();
-
-private:
-
-	HairShape *mHairShape; ///<	Hair shape object pointer
 };
 
 } // namespace HairShape
