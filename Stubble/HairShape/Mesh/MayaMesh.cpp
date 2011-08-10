@@ -80,7 +80,7 @@ const Mesh MayaMesh::getRestPose() const
 	return mRestPose;
 }
 
-inline MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
+MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 {
 	if ( mUpdatedMesh == 0 )
 		return mRestPose.getMeshPoint( aPoint );

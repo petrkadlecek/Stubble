@@ -20,7 +20,7 @@ InterpolationGroups::InterpolationGroups( const Texture & aInterpolationGroupsTe
 
 void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsTexture, unsigned int aSegmentsCount )
 {
-	if ( /* TODO aInterpolationGroupsTexture.isAnimated()*/ false )
+	if ( aInterpolationGroupsTexture.isAnimated() )
 	{
 		throw StubbleException(" InterpolationGroups::updateGroups : interpolation groups texture can not be animated ! ");
 	}
@@ -32,18 +32,19 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 	Texture::Color tempInterpolationGroupsColors = 0;
 	try 
 	{
-		const unsigned int tempColorComponentCount = 4; // TODO aInterpolationGroupsTexture.getComponentCount();
+		const unsigned int tempColorComponentCount = aInterpolationGroupsTexture.getColorCompomentsCount();
 		const unsigned int tempTextureWidth = aInterpolationGroupsTexture.getWidth();
 		const unsigned int tempTextureHeight = aInterpolationGroupsTexture.getHeight();
 		const unsigned int size = tempTextureWidth * tempTextureHeight;
 		// Prepare place for interpolation groups texture
 		tempInterpolationGroupsTexture = new unsigned int[ size ];
 		// Get texture raw data
-		const Texture::Color rawData = 0; // TODO aInterpolationGroupsTexture.getRawData();
+		const Texture::Color rawData = aInterpolationGroupsTexture.getRawData();
 		const Texture::Color rawDataEnd = rawData + size * tempColorComponentCount;
 		// Prepare structure for colors
-		typedef std::map< Texture::Color, unsigned int, Texture::ColorComparator< tempColorComponentCount > > ColorMap;
-		ColorMap colorMap;
+		typedef std::map< Texture::Color, unsigned int, Texture::ColorComparator > ColorMap;
+		Texture::ColorComparator cmp( tempColorComponentCount );
+		ColorMap colorMap( cmp );
 		// Go through all pixels
 		unsigned int * iterCpy = tempInterpolationGroupsTexture;
 		for( Texture::Color iter = rawData; iter < rawDataEnd; iter += tempColorComponentCount, ++iterCpy )

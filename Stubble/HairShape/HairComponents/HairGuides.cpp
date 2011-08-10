@@ -102,20 +102,20 @@ void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 {
 	if ( aTopologyChanged )
 	{
+		/* TODO update rest positions.. + solve destruction of some guides */
 		// Rest positions has changed...
 		mRestPositionsUG.setDirty();
 	}
-	else
+	// Update current positions
+	GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
+	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+		++restPosIt, ++currPosIt )
 	{
-		// First update current positions
-		GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
-		for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
-			++restPosIt, ++currPosIt )
-		{
-			
-		}
+		currPosIt->mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
+		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
 	}
-	// Segments has changed...
+	// Current positions has changed...
 	mDisplayedGuides.setDirty();
 	mSegmentsUG.setDirty();
 }
@@ -158,14 +158,24 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
+	mSegmentsStorage->setSegmentsCount( mCurrentPositions, aInterpolationGroups );
+	// Segments has changed...
+	mDisplayedGuides.setDirty();
+	mSegmentsUG.setDirty();
 }
 
 void HairGuides::updateLength( const HairLength::LengthInfo & aLengthInfo )
 {
+	/* IS GOING TO BE REMOVED - LIKELY */
+	mSegmentsStorage->setLength( mCurrentPositions, aLengthInfo );
+	// Segments has changed...
+	mDisplayedGuides.setDirty();
+	mSegmentsUG.setDirty();
 }
 
 void HairGuides::exportToFile( std::ostream & aOutputStream )
 {
+	/* TODO */
 }
 
 } // namespace HairComponents

@@ -24,9 +24,9 @@ struct GuideCurrentPosition
 {
 	MeshPoint mPosition;	///< The position on current mesh
 
-	Matrix< Real > mMatrix; ///< The transformation matrix
+	Matrix< Real > mWorldTransformMatrix; ///< The world transformation matrix
 
-	Matrix< Real > mInverseMatrix; ///< The inverse transformation matrix
+	Matrix< Real > mLocalTransformMatrix; ///< The local transformation matrix
 };
 
 ///-------------------------------------------------------------------------------------------------

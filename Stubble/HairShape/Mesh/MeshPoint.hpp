@@ -2,6 +2,7 @@
 #define STUBBLE_MESH_POINT_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "Primitives\Matrix.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #include <sstream>
@@ -98,7 +99,21 @@ public:
 	/// \return	world vector
 	///----------------------------------------------------------------------------------------------------
 	Vector3D< Real > toWorld( const Vector3D< Real > aLocalVector ) const;
-	
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets a local transform matrix. 
+	///
+	/// \param [out]	aLocalTransformMatrix	a local transform matrix. 
+	///----------------------------------------------------------------------------------------------------
+	inline void getLocalTransformMatrix( Matrix< Real > & aLocalTransformMatrix ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets a world transform matrix. 
+	///
+	/// \param [out]	aWorldTransformMatrix	a world transform matrix. 
+	///----------------------------------------------------------------------------------------------------
+	inline void getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const;
+
 private:
 
 	Vector3D< Real > mPosition; ///< The point position 
@@ -203,6 +218,16 @@ inline Real MeshPoint::getUCoordinate() const
 inline Real MeshPoint::getVCoordinate() const 
 {
 	return mVCoordinate;
+}
+
+inline void MeshPoint::getLocalTransformMatrix( Matrix< Real > & aLocalTransformMatrix ) const
+{
+	/* TODO */
+}
+
+inline void MeshPoint::getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const
+{
+	/* TODO */
 }
 
 inline std::ostream & HairShape::operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )

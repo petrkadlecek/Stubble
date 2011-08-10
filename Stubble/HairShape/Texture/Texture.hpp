@@ -56,9 +56,16 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Color comparator. 
 	///----------------------------------------------------------------------------------------------------
-	template < unsigned int tComponentCount >
-	struct ColorComparator
+	class ColorComparator
 	{
+	public:
+
+		///----------------------------------------------------------------------------------------------------
+		/// Constructor. 
+		///
+		/// \param	aComponentCount	Number of the components. 
+		explicit inline ColorComparator( unsigned int aComponentCount );
+
 		///----------------------------------------------------------------------------------------------------
 		/// Comparator operator. 
 		///
@@ -68,6 +75,8 @@ public:
 		/// \return	true, if aColor1 < aColor2				
 		///----------------------------------------------------------------------------------------------------
 		inline bool operator() ( const Color & aColor1, const Color & aColor2 ) const;
+	private:
+		unsigned int mComponentCount;   ///< Number of components
 	};
 
 	///----------------------------------------------------------------------------------------------------
@@ -167,11 +176,15 @@ private:
 
 // inline functions implementation
 
-template< unsigned int tComponentCount >
-inline bool Texture::ColorComparator< tComponentCount >::operator() ( const Texture::Color & aColor1, 
+inline Texture::ColorComparator::ColorComparator( unsigned int aComponentCount ):
+	mComponentCount( aComponentCount )
+{
+}
+
+inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor1, 
 	const Texture::Color & aColor2 ) const
 {
-	for( unsigned int i = 0; i < tComponentCount; ++i ) // For every component
+	for( unsigned int i = 0; i < mComponentCount; ++i ) // For every component
 	{
 		if ( aColor1[ i ] < aColor2[ i ] )
 		{
