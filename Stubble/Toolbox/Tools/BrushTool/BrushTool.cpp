@@ -172,6 +172,8 @@ void BrushTool::toolOffCleanup()
 
 MStatus BrushTool::doPress( MEvent &event )
 {
+	//std::cout << "doPress()\n" << std::flush;
+
 	// If we have a left mouse click, start the selection.
 	if( event.mouseButton() == MEvent::kLeftMouse )
 	{
@@ -190,8 +192,6 @@ MStatus BrushTool::doPress( MEvent &event )
 			mEndPos[ 0 ] = mPrevPos[ 0 ] = mStartPos[ 0 ];
 			mEndPos[ 1 ] = mPrevPos[ 1 ] = mStartPos[ 1 ];
 
-			std::cout << "doPress()\n";
-
 			return MS::kSuccess;
 		}
 	}
@@ -202,7 +202,7 @@ MStatus BrushTool::doPress( MEvent &event )
 
 MStatus BrushTool::doDrag( MEvent &event )
 {
-	std::cout << "doDrag()\n";
+	//std::cout << "doDrag()\n" << std::flush;
 
 	// If we are dragging and left mouse button is pressed, then handle the event.
 	if( !event.isModifierLeftMouseButton() )
@@ -224,6 +224,8 @@ MStatus BrushTool::doDrag( MEvent &event )
 
 MStatus BrushTool::doRelease( MEvent & event )
 {
+	//std::cout << "doRelease()\n" << std::flush;
+
 	MStatus stat;
 
 	// only bother handling the release of a left mouse button.
@@ -239,7 +241,7 @@ MStatus BrushTool::doRelease( MEvent & event )
 
 void BrushTool::doBrush( Vector3D< double > aDX )
 {
-	std::cout << "doBrush()\n";
+	//std::cout << "doBrush()\n" << std::flush;
 
 	HairTask *task = new HairTask(); //TODO: create a factory method
 	task->mBrushMode = this->mBrushMode;

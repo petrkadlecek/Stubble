@@ -37,7 +37,7 @@ bool MouseMoveListener::eventFilter( QObject *aObject, QEvent *aEvent )
 	// pass the necessary drawing information to the tool object
 	mOwner->drawToolShape( mScreenCoords, eventType );
 
-	return true;
+	return QWidget::eventFilter(aObject, aEvent);
 }
 
 } // namespace Toolbox
