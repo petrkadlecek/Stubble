@@ -1,4 +1,6 @@
 #include <maya/MCursor.h>
+#include <maya/MFnCamera.h>
+#include <maya/MDagPath.h>
 
 #include "BrushTool.hpp"
 //#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
@@ -214,8 +216,10 @@ MStatus BrushTool::doDrag( MEvent &event )
 		// Get the new location of the cursor
 		event.getPosition( mEndPos[ 0 ], mEndPos[ 1 ] );
 
-		//TODO: calculate dX
-		this->doBrush( Vector3D< double >(1.0, 1.0, 1.0) );
+		// Dispatch brushing event
+		short dX = mEndPos[ 0 ] - mPrevPos[ 0 ];
+		short dY = mEndPos[ 1 ] - mPrevPos[ 0 ];
+		this->doBrush( Vector3D< double >(dX, dY, 0.0) );
 	}
 
 	// In every other case, just let the base class handle the event.
@@ -243,9 +247,21 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 {
 	//std::cout << "doBrush()\n" << std::flush;
 
+	// Transform the move vector into the eye coordinates
+	MDagPath cameraPath;
+	mView.getCamera(cameraPath);
+	MFnCamera camera(cameraPath);
+
+	MStatus status;
+	MVector right = camera.rightDirection(MSpace::kWorld, &status);
+	MVector up = camera.upDirection(MSpace::kWorld, &status);
+	static const double ratio = 1e-2;
+	MVector moveVector = ratio * aDX.x * right + ratio * aDX.y * up;
+
+	// Create the hair task
 	HairTask *task = new HairTask(); //TODO: create a factory method
 	task->mBrushMode = this->mBrushMode;
-	task->mDx = aDX;
+	task->mDx.set(moveVector.x, moveVector.y, moveVector.z);
 	//TODO: add affected hair
 
 	HairTaskProcessor::getInstance()->enqueueTask(task);

@@ -55,6 +55,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets up any user interface things we need when the tool	is made current.
+	///
 	/// \param aEvent Information on the input event.
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOnSetup( MEvent &aEvent );
@@ -66,6 +67,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse press event.
+	///
 	/// \param aEvent Information on the input event.
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
@@ -73,6 +75,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse drag event.
+	///
 	/// \param aEvent Information on the input event.
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
@@ -80,6 +83,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse release event.
+	///
 	/// \param aEvent Information on the input event.
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
@@ -87,6 +91,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Provides the class name.
+	///
 	/// \param aName Placeholder for the return value.
 	///----------------------------------------------------------------------------------------------------
 	virtual void getClassName( MString &aName ) const;
@@ -94,6 +99,8 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which performs the brushing transformations by dispatching a HairTask to the
 	/// HairTaskProcessor which takes care of the rest in the asynchronous loop
+	///
+	/// \param aDX Position change in the screen coordinates
 	///----------------------------------------------------------------------------------------------------
 	void doBrush( Vector3D< double > aDX ); //FIXME: add selected hair parameter
 
@@ -156,7 +163,7 @@ private:
 
 	int mClickBoxSize; ///< GUI click box size.
 
-	static const MString sHelpTxt; ///< Help text that will be displayed in the help line.
+	static const MString sHelpTxt; ///< Help text that will be displayed in the help line
 };
 
 
