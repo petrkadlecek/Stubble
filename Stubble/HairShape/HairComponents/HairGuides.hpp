@@ -10,7 +10,6 @@
 #include "HairShape\HairComponents\SegmentsUG.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\HairComponents\UndoStack.hpp"
-#include "HairShape\HairLength\LengthInfo.hpp"
 #include "HairShape\Mesh\MayaMesh.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
 
@@ -134,13 +133,12 @@ public:
 	/// \param [in,out]	aUVPointGenerator	a uv point generator. 
 	/// \param	aMayaMesh					a maya mesh. 
 	/// \param	aInterpolationGroups		the interpolation groups object 
-	/// \param	aLengthInfo					Object describing a length of guides. 
 	/// \param	aCount						Number of hair guides. 
 	/// \param	aInterpolateFromPrevious	true to an interpolate from old guides. 
 	///----------------------------------------------------------------------------------------------------
 	void generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo, 
-		int aCount, bool aInterpolateFromPrevious = false );
+		const Interpolation::InterpolationGroups & aInterpolationGroups, int aCount, 
+		bool aInterpolateFromPrevious = false );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Updates the segments count described by aInterpolationGroups. 
@@ -148,13 +146,6 @@ public:
 	/// \param	aInterpolationGroups	the interpolation groups object 
 	///-------------------------------------------------------------------------------------------------
 	void updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Updates the length of hair guides described by aLengthInfo. 
-	///
-	/// \param	aLengthInfo	Object describing a length. 
-	///-------------------------------------------------------------------------------------------------
-	void updateLength( const HairLength::LengthInfo & aLengthInfo );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Export to file.

@@ -30,10 +30,9 @@ public:
 	///
 	/// \param	aCurrentPositions		the current positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
-	/// \param	aLengthInfo				Information describing a length. 
 	///-------------------------------------------------------------------------------------------------
 	SegmentsStorage( const GuidesCurrentPositions & aCurrentPositions, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo );
+		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, interpolates segments from old segments in aOldStorage
@@ -42,11 +41,10 @@ public:
 	/// \param	aOldRestPositionsUG		the old rest positions uniform grid. 
 	/// \param	aCurrentPositions		the current positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
-	/// \param	aLengthInfo				Information describing a length. 
 	///-------------------------------------------------------------------------------------------------
 	SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesCurrentPositions & aCurrentPositions, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo );
+		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
@@ -105,15 +103,6 @@ public:
 	/// \return	true if it succeeds, false if it fails. 
 	///-------------------------------------------------------------------------------------------------
 	inline bool imported() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Sets the length of guides. 
-	///
-	/// \param	aCurrentPositions	the current positions of guides. 
-	/// \param	aLengthInfo			Information describing a length. 
-	///-------------------------------------------------------------------------------------------------
-	void setLength( const GuidesCurrentPositions & aCurrentPositions, const HairLength::LengthInfo & aLengthInfo ); 
-
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the segments count

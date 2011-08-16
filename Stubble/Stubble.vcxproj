@@ -173,7 +173,6 @@
     <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp" />
     <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\UndoStack.hpp" />
-    <ClInclude Include="HairShape\HairLength\LengthInfo.hpp" />
     <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp" />
     <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
@@ -207,8 +206,10 @@
     <ClInclude Include="Toolbox\Tools\MouseMoveListener.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MEL\Stubble3DelightRendering.mel" />
     <None Include="MEL\StubbleBrushToolProperties.mel" />
     <None Include="MEL\StubbleBrushToolValues.mel" />
+    <None Include="MEL\StubbleCreateHair.mel" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

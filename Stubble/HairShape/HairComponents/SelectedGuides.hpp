@@ -31,6 +31,8 @@ struct SelectedGuide
 
 	/* TO DO */
 	UNKNOWN mSelection; ///< Defines the type of selection and selected points
+
+	bool mDirtyBit;	///< True if segments has been changed
 };
 
 ///-------------------------------------------------------------------------------------------------

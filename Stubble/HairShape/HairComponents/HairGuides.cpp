@@ -150,8 +150,7 @@ void HairGuides::emptyHistoryStack()
 }
 
 void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo, 
-	int aCount, bool aInterpolateFromPrevious )
+	const Interpolation::InterpolationGroups & aInterpolationGroups, int aCount, bool aInterpolateFromPrevious )
 {
 
 }
@@ -159,15 +158,6 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	mSegmentsStorage->setSegmentsCount( mCurrentPositions, aInterpolationGroups );
-	// Segments has changed...
-	mDisplayedGuides.setDirty();
-	mSegmentsUG.setDirty();
-}
-
-void HairGuides::updateLength( const HairLength::LengthInfo & aLengthInfo )
-{
-	/* IS GOING TO BE REMOVED - LIKELY */
-	mSegmentsStorage->setLength( mCurrentPositions, aLengthInfo );
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
 	mSegmentsUG.setDirty();

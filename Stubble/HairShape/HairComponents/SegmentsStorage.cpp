@@ -10,13 +10,13 @@ namespace HairComponents
 {
 
 SegmentsStorage::SegmentsStorage( const GuidesCurrentPositions & aCurrentPositions, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo )
+	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 }
 
 SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
 	const GuidesCurrentPositions & aCurrentPositions, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups, const HairLength::LengthInfo & aLengthInfo )
+	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 }
 
@@ -35,10 +35,6 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 }
 
 void SegmentsStorage::importSegments( const FrameSegments & aFrameSegments )
-{
-}
-
-void SegmentsStorage::setLength( const GuidesCurrentPositions & aCurrentPositions, const HairLength::LengthInfo & aLengthInfo )
 {
 }
 

@@ -67,9 +67,6 @@
     <Filter Include="HairShape\Interpolation">
       <UniqueIdentifier>{6a2b5c65-c1ef-49ae-9cbb-274af16b2d12}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HairShape\HairLength">
-      <UniqueIdentifier>{36b4f788-9453-4e6e-bd2e-7d0184b0614d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -267,9 +264,6 @@
     <ClInclude Include="HairShape\HairComponents\UndoStack.hpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\HairLength\LengthInfo.hpp">
-      <Filter>HairShape\HairLength</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
@@ -291,6 +285,12 @@
       <Filter>MEL</Filter>
     </None>
     <None Include="MEL\StubbleBrushToolValues.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleCreateHair.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\Stubble3DelightRendering.mel">
       <Filter>MEL</Filter>
     </None>
   </ItemGroup>
