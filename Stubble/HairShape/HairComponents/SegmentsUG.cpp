@@ -28,7 +28,7 @@ void SegmentsUG::select( const SelectionMask & aSelectionMask, SelectedGuides & 
 {
 }
 
-void SegmentsUG::rebuild( const SelectedGuides & aSelectedGuides )
+void SegmentsUG::build( const SelectedGuides & aSelectedGuides, bool aFullBuild )
 {
 	mDirtyBit = false;
 }

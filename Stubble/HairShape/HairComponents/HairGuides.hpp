@@ -51,18 +51,12 @@ public:
 	void applySelection( const SelectionMask & aSelectionMask );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the selected guides. 
+	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
+	/// demand and it's dirty flag is never set by HairGuides class.
 	///
-	/// \return	The selected guides. 
+	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	SelectedGuides & getSelectedGuides(); 
-
-	///----------------------------------------------------------------------------------------------------
-	/// Gets the guides segments uniform grid. 
-	///
-	/// \return	The guides segments uniform grid. 
-	///----------------------------------------------------------------------------------------------------
-	const SegmentsUG & getGuidesSegmentsUG();
+	const SegmentsUG & getSelectedGuidesUG();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Updates the guides after the brush or any other tool was used. 
@@ -121,6 +115,20 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	void redo();
 
+	///-------------------------------------------------------------------------------------------------
+	/// Queries if we can undo. 
+	///
+	/// \return	true if it succeeds, false if it fails. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool canUndo() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Queries if we can redo. 
+	///
+	/// \return	true if it succeeds, false if it fails. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool canRedo() const;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Empties history stack of hair guides changes.
 	///----------------------------------------------------------------------------------------------------
@@ -137,7 +145,7 @@ public:
 	/// \param	aInterpolateFromPrevious	true to an interpolate from old guides. 
 	///----------------------------------------------------------------------------------------------------
 	void generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, int aCount, 
+		const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned int aCount, 
 		bool aInterpolateFromPrevious = false );
 
 	///-------------------------------------------------------------------------------------------------
@@ -157,7 +165,9 @@ public:
 private:
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid
 
-	SegmentsUG mSegmentsUG; ///< The segments uniform grid
+	SegmentsUG mAllSegmentsUG; ///< The all segments uniform grid
+
+	SegmentsUG mSelectedSegmentsUG; ///< The selected segments uniform grid
 
 	SegmentsStorage * mSegmentsStorage;   ///< The segments storage
 
@@ -171,6 +181,18 @@ private:
 
 	SelectedGuides mSelectedGuides; ///< The selected guides
 };
+
+// inline functions implementation
+
+inline bool HairGuides::canUndo() const
+{
+	return mUndoStack.canUndo();
+}
+
+inline bool HairGuides::canRedo() const
+{
+	return mUndoStack.canRedo();
+}
 
 } // namespace HairComponents
 

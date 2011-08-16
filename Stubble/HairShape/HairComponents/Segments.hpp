@@ -4,6 +4,7 @@
 #include "Common\CommonTypes.hpp"
 #include "Primitives\Vector3D.hpp"
 
+#include <map>
 #include <vector>
 
 namespace Stubble
@@ -16,7 +17,7 @@ namespace HairComponents
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the guide segments .
+/// Defines an alias representing the guide segments ( as vertices of hair ).
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< Vector3D< Real > > Segments;
 
@@ -38,7 +39,7 @@ struct FrameSegments
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing all frames segments .
 ///-------------------------------------------------------------------------------------------------
-typedef std::vector< FrameSegments > AllFramesSegments;
+typedef std::map< Time, FrameSegments > AllFramesSegments;
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing identifier for the guide .

@@ -21,42 +21,35 @@ HairGuides::~HairGuides()
 
 void HairGuides::applySelection( const SelectionMask & aSelectionMask )
 {
-	if ( mSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
+	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
-		mSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
+		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
 	}
 	// Hide old selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Apply selection
-	mSegmentsUG.select( aSelectionMask, mSelectedGuides );
+	mAllSegmentsUG.select( aSelectionMask, mSelectedGuides );
+	// Rebuild selected segments UG
+	mSelectedSegmentsUG.build( mSelectedGuides, true );
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }
 
-SelectedGuides & HairGuides::getSelectedGuides() 
+const SegmentsUG & HairGuides::getSelectedGuidesUG()
 {
-	return mSelectedGuides;
-}
-
-const SegmentsUG & HairGuides::getGuidesSegmentsUG()
-{
-	if ( mSegmentsUG.isDirty() ) // Is segments UG up-to-date ?
-	{
-		mSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
-	}
-	return mSegmentsUG;
+	return mSelectedSegmentsUG;
 }
 
 void HairGuides::updateGuides( bool aStoreUpdate )
 {
 	// Update selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
-	// Set guides segments dirty
-	mSegmentsUG.setDirty();
 	if ( aStoreUpdate ) // Final update ? ( user has stop using brush, etc. )
 	{
 		// Propagate changes to all frames and update undo stack
 		mUndoStack.add( mSegmentsStorage->propagateChanges( mSelectedGuides ) );
+		// Set guides segments dirty
+		mAllSegmentsUG.setDirty();
 	}
 }
 
@@ -95,7 +88,8 @@ void HairGuides::setCurrentTime( Time aTime )
 	// Everything has changed...
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
-	mSegmentsUG.setDirty();
+	mAllSegmentsUG.setDirty();
+	mUndoStack.clear();
 }
 
 void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
@@ -103,6 +97,7 @@ void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 	if ( aTopologyChanged )
 	{
 		/* TODO update rest positions.. + solve destruction of some guides */
+		throw StubbleException(" HairGuides::meshUpdate : NOT IMPLEMENTED ");
 		// Rest positions has changed...
 		mRestPositionsUG.setDirty();
 	}
@@ -117,7 +112,8 @@ void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 	}
 	// Current positions has changed...
 	mDisplayedGuides.setDirty();
-	mSegmentsUG.setDirty();
+	mAllSegmentsUG.setDirty();
+	mUndoStack.clear();
 }
 
 void HairGuides::undo()
@@ -129,7 +125,7 @@ void HairGuides::undo()
 	mSegmentsStorage->replace( mUndoStack.undo() );
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
-	mSegmentsUG.setDirty();
+	mAllSegmentsUG.setDirty();
 }
 
 void HairGuides::redo()
@@ -141,7 +137,7 @@ void HairGuides::redo()
 	mSegmentsStorage->replace( mUndoStack.redo() );
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
-	mSegmentsUG.setDirty();
+	mAllSegmentsUG.setDirty();
 }
 
 void HairGuides::emptyHistoryStack()
@@ -150,22 +146,76 @@ void HairGuides::emptyHistoryStack()
 }
 
 void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups, int aCount, bool aInterpolateFromPrevious )
+	const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned int aCount, 
+	bool aInterpolateFromPrevious )
 {
-
+	// Temporary hair guides
+	SegmentsStorage * tmpSegmentsStorage;
+	GuidesRestPositions tmpRestPositions;
+	tmpRestPositions.resize( aCount );
+	mCurrentPositions.clear();
+	mCurrentPositions.resize( aCount );
+	// Start generating positions
+	GuidesRestPositions::iterator restPosIt = tmpRestPositions.begin();
+	GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
+	for ( unsigned int i = 0; i < aCount; ++i, ++restPosIt, ++currPosIt )
+	{
+		// Generate rest pose position
+		restPosIt->mUVPoint = aUVPointGenerator.next();
+		restPosIt->mPosition = aMayaMesh.getRestPose().getMeshPoint( restPosIt->mUVPoint );
+		// Calculate current position
+		currPosIt->mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
+		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
+	}
+	// Now we can create new segments
+	if ( aInterpolateFromPrevious )
+	{
+		if ( mSegmentsStorage == 0 )
+		{
+			throw StubbleException(" HairGuides::generate : No old segments to interpolate from ! ");
+		}
+		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, mRestPositionsUG, mCurrentPositions, aInterpolationGroups );
+	}
+	else
+	{
+		tmpSegmentsStorage = new SegmentsStorage( mCurrentPositions, aInterpolationGroups );
+	}
+	// Now we can throw away old data
+	std::swap( tmpRestPositions, mRestPositions );
+	std::swap( tmpSegmentsStorage, mSegmentsStorage );
+	delete tmpSegmentsStorage;
+	// Everything has changed...
+	mUndoStack.clear();
+	mDisplayedGuides.setDirty();
+	mRestPositionsUG.setDirty();
+	mAllSegmentsUG.setDirty();
 }
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	mSegmentsStorage->setSegmentsCount( mCurrentPositions, aInterpolationGroups );
 	// Segments has changed...
+	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
-	mSegmentsUG.setDirty();
+	mAllSegmentsUG.setDirty();
 }
 
 void HairGuides::exportToFile( std::ostream & aOutputStream )
 {
-	/* TODO */
+	// First export uniform grid of rest positions
+	mRestPositionsUG.exportToFile( aOutputStream );
+	// Then export current segments of all guides
+	const GuidesSegments & currentSegments = mSegmentsStorage->getCurrentSegments().mSegments;
+	// For each guide
+	for ( GuidesSegments::const_iterator it = currentSegments.begin(); it != currentSegments.end(); ++it )
+	{
+		// For each hair vertex
+		for ( Segments::const_iterator segIt = it->begin(); segIt != it->end(); ++segIt )
+		{
+			aOutputStream << *segIt;
+		}
+	}
 }
 
 } // namespace HairComponents

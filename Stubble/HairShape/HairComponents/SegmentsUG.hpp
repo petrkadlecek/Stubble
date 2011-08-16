@@ -41,19 +41,20 @@ public:
 		const FrameSegments & aFrameSegments );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Builds the part of uniform grid holding the selected guides. 
+	///
+	/// \param	aSelectedGuides	the selected guides.
+	/// \param	aFullBuild	if false, only updates "dirty" selected guides 
+	///-------------------------------------------------------------------------------------------------
+	void build( const SelectedGuides & aSelectedGuides, bool aFullBuild );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Selects the guides using selection mask. 
 	///
 	/// \param	aSelectionMask	the selection mask. 
 	/// \param [in,out]	aResult	the selected guides. 
 	///-------------------------------------------------------------------------------------------------
 	void select( const SelectionMask & aSelectionMask, SelectedGuides & aResult );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Rebuilds the part of uniform grid holding the selected guides. 
-	///
-	/// \param	aSelectedGuides	the selected guides. 
-	///-------------------------------------------------------------------------------------------------
-	void rebuild( const SelectedGuides & aSelectedGuides );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 

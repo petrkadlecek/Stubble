@@ -6,7 +6,6 @@
 #include "HairShape\HairComponents\RestPositionsUG.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
-#include "HairShape\HairLength\LengthInfo.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
 
 namespace Stubble
@@ -88,7 +87,7 @@ public:
 	///
 	/// \param	aFrameSegments	the segments in time frame. 
 	///-------------------------------------------------------------------------------------------------
-	void importSegments( const FrameSegments & aFrameSegments );
+	inline void importSegments( const FrameSegments & aFrameSegments );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the segments from current time frame. 
@@ -114,7 +113,7 @@ public:
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 private:
-	AllFramesSegments mSegments;  ///< The all segments
+	AllFramesSegments mSegments;  ///< The all segments (exists after the import!)
 
 	FrameSegments mCurrent; ///< The current frame segments
 };
@@ -130,6 +129,11 @@ inline Segments & SegmentsStorage::getGuideSegments( GuideId aGuideId )
 	return mCurrent.mSegments[ aGuideId ];
 }
 
+inline void SegmentsStorage::importSegments( const FrameSegments & aFrameSegments )
+{
+	mSegments.insert( std::make_pair( aFrameSegments.mFrame, aFrameSegments ) );
+}
+
 inline const FrameSegments & SegmentsStorage::getCurrentSegments() const
 {
 	return mCurrent;
@@ -137,7 +141,7 @@ inline const FrameSegments & SegmentsStorage::getCurrentSegments() const
 
 inline bool SegmentsStorage::imported() const
 {
-	return mSegments.size() > 1;
+	return !mSegments.empty();
 }
 
 } // namespace HairComponents

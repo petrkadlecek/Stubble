@@ -15,8 +15,23 @@ namespace HairShape
 namespace HairComponents
 {
 
-/* TO DO : */
-typedef UNKNOWN SelectionMask;
+// TODO
+typedef void * SelectionMask;
+
+///-------------------------------------------------------------------------------------------------
+/// Additional information about the segment for tools (brush tool, cut tool etc.) 
+///-------------------------------------------------------------------------------------------------
+struct OneSegmentAdditionalInfo
+{
+	bool mActive;	///< true to active
+
+	Real mFallOff;	///< The fall off
+};
+
+///-------------------------------------------------------------------------------------------------
+/// Defines an alias representing the segments additional info .
+///-------------------------------------------------------------------------------------------------
+typedef std::vector< OneSegmentAdditionalInfo > SegmentsAdditionalInfo;
 
 ///-------------------------------------------------------------------------------------------------
 /// Selected guide. 
@@ -27,12 +42,11 @@ struct SelectedGuide
 
 	GuideId mGuideId; ///< The guide segments id
 
-	Segments & mSegments; ///< Reference to segments of selected guide
+	Segments * mSegments; ///< Pointer to segments of selected guide ( represented as vertices )
 
-	/* TO DO */
-	UNKNOWN mSelection; ///< Defines the type of selection and selected points
+	SegmentsAdditionalInfo mSegmentsAdditionalInfo; ///< Information describing the segments additional params
 
-	bool mDirtyBit;	///< True if segments has been changed
+	bool mDirtyFlag; ///< True if segments has been changed
 };
 
 ///-------------------------------------------------------------------------------------------------
