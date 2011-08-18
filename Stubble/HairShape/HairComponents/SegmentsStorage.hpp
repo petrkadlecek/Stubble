@@ -1,7 +1,7 @@
 #ifndef STUBBLE_SEGMENTS_STORAGE_HPP
 #define STUBBLE_SEGMENTS_STORAGE_HPP
 
-
+#include "Primitives\BoundingBox.hpp"
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\RestPositionsUG.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
@@ -102,6 +102,15 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void setSegmentsCount( const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets a bounding box. 
+	///
+	/// \param	aCurrentPositions	the current positions of guides. 
+	///
+	/// \return	The bounding box. 
+		///----------------------------------------------------------------------------------------------------
+	BoundingBox getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const;
 
 private:
 

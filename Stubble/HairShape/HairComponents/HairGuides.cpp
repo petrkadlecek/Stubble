@@ -10,7 +10,8 @@ namespace HairComponents
 {
 
 HairGuides::HairGuides():
-	mSegmentsStorage( 0 )
+	mSegmentsStorage( 0 ),
+	mBoundingBoxDirtyFlag( false )
 {
 }
 
@@ -35,6 +36,16 @@ void HairGuides::applySelection( const SelectionMask & aSelectionMask )
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }
 
+BoundingBox HairGuides::getBoundingBox()
+{
+	if ( mBoundingBoxDirtyFlag && mSegmentsStorage )
+	{
+		mBoundingBox = mSegmentsStorage->getBoundingBox( mCurrentPositions );
+		mBoundingBoxDirtyFlag = false;
+	}
+	return mBoundingBox;
+}
+
 const SegmentsUG & HairGuides::getSelectedGuidesUG()
 {
 	return mSelectedSegmentsUG;
@@ -44,12 +55,33 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 {
 	// Update selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+	// Update bounding box
+	// For every selected guide
+	for( SelectedGuides::const_iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
+	{
+		if ( it->mDirtyFlag )
+		{
+			// For every segment
+			for ( Segments::const_iterator segIt = it->mSegments.mSegments.begin();
+				segIt != it->mSegments.mSegments.end(); ++segIt )
+			{
+				// Transform to world and expand bbox
+				mBoundingBox.expand( mCurrentPositions[ it->mGuideId].mPosition.toWorld( *segIt ) );
+			}
+		}
+	}
 	if ( aStoreUpdate ) // Final update ? ( user has stop using brush, etc. )
 	{
 		// Propagate changes to all frames and update undo stack
 		mUndoStack.add( mSegmentsStorage->propagateChanges( mSelectedGuides ) );
 		// Set guides segments dirty
 		mAllSegmentsUG.setDirty();
+	}
+	// Set selected guides as non dirty
+	// For every selected guide
+	for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
+	{
+		it->mDirtyFlag = false;
 	}
 }
 
@@ -90,6 +122,7 @@ void HairGuides::setCurrentTime( Time aTime )
 	mRestPositionsUG.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
@@ -114,6 +147,7 @@ void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::undo()
@@ -126,6 +160,7 @@ void HairGuides::undo()
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::redo()
@@ -138,6 +173,7 @@ void HairGuides::redo()
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::emptyHistoryStack()
@@ -190,6 +226,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
 	mAllSegmentsUG.setDirty();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
@@ -199,6 +236,7 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::exportToFile( std::ostream & aOutputStream ) const

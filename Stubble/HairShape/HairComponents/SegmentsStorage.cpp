@@ -137,6 +137,26 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 	/* TODO REQUIRES MATH*/
 }
 
+BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const
+{
+	BoundingBox bbox;
+	GuidesCurrentPositions::const_iterator posIt = aCurrentPositions.begin();
+	// For every guide
+	for ( GuidesSegments::const_iterator guideIt = mCurrent.mSegments.begin();
+		guideIt != mCurrent.mSegments.end(); ++guideIt, ++posIt )
+	{
+		// For every segment
+		for ( Segments::const_iterator segIt = guideIt->mSegments.begin();
+			segIt != guideIt->mSegments.end(); ++segIt )
+		{
+			// Transform to world and expand bbox
+			bbox.expand( posIt->mPosition.toWorld( *segIt ) );
+		}
+	}
+	return bbox;
+}
+
+
 void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,

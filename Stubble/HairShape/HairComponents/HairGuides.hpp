@@ -51,6 +51,13 @@ public:
 	void applySelection( const SelectionMask & aSelectionMask );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Gets the bounding box. 
+	///
+	/// \return	The bounding box. 
+	///----------------------------------------------------------------------------------------------------
+	BoundingBox getBoundingBox();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
 	/// demand and it's dirty flag is never set by HairGuides class.
 	///
@@ -180,6 +187,10 @@ private:
 	UndoStack mUndoStack;   ///< Stack of guides changes.
 
 	SelectedGuides mSelectedGuides; ///< The selected guides
+
+	BoundingBox mBoundingBox;   ///< The bounding box of current guides
+
+	bool mBoundingBoxDirtyFlag; ///< true to bounding box dirty flag
 };
 
 // inline functions implementation

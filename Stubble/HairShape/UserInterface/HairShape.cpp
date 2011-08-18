@@ -86,6 +86,7 @@ MStatus HairShape::compute(const MPlug &plug, MDataBlock &dataBlock)
 				*mMayaMesh,
 				Interpolation::InterpolationGroups( Texture( interpolationGroupsTexture ), segments ),
 				count);
+			mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
 		}
 
 		// getting hair attributes

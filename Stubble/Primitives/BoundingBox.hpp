@@ -1,6 +1,7 @@
 #ifndef STUBBLE_BOUNDING_BOX_HPP
 #define STUBBLE_BOUNDING_BOX_HPP
 
+#include "Common\CommonTypes.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #ifdef MAYA
@@ -32,6 +33,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline BoundingBox( const MBoundingBox &aBoundingBox );
 
+	inline MBoundingBox toMBoundingBox() const;
 #endif
 
 	///----------------------------------------------------------------------------------------------------
@@ -50,6 +52,13 @@ public:
 	/// Returns the maximum point for the bounding box.
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D< Real > max() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// = casting operator. 
+	///
+	/// \param	aBoundingBox	a bounding box. 
+	///----------------------------------------------------------------------------------------------------
+	inline const BoundingBox & operator= ( const BoundingBox & aBoundingBox );
 
 private:
 	Vector3D< Real > mMin; ///<	Minimum coordinate values.
@@ -72,6 +81,12 @@ inline BoundingBox::BoundingBox( const MBoundingBox &aBoundingBox )
 	mMin = Vector3D< Real >( aBoundingBox.min().x, aBoundingBox.min().y, aBoundingBox.min().z );
 	mMax = Vector3D< Real >( aBoundingBox.max().x, aBoundingBox.max().y, aBoundingBox.max().z );
 }
+
+inline MBoundingBox BoundingBox::toMBoundingBox() const
+{
+	return MBoundingBox( mMin.toMayaPoint(), mMax.toMayaPoint() ); 
+}
+
 #endif
 
 inline void BoundingBox::expand( const Vector3D<Real> &aPoint )
@@ -93,6 +108,14 @@ inline Vector3D< Real > BoundingBox::max() const
 {
 	return mMax;
 }
+
+inline const BoundingBox & BoundingBox::operator= ( const BoundingBox & aBoundingBox )
+{
+	mMin = aBoundingBox.mMin;
+	mMax = aBoundingBox.mMax;
+	return *this;
+}
+
 
 } // Stubble
 

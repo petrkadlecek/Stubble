@@ -59,9 +59,9 @@ inline UVPoint::UVPoint()
 ///----------------------------------------------------------------------------------------------------
 /// Constructor
 ///----------------------------------------------------------------------------------------------------
-inline UVPoint::UVPoint( Real aU, Real AV, int aTriangleID ):
+inline UVPoint::UVPoint( Real aU, Real aV, int aTriangleID ):
 	mU(aU),
-	mV(mV),
+	mV(aV),
 	mTriangleID(aTriangleID)
 {
 }
