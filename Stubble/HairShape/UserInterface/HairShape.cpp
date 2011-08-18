@@ -18,16 +18,10 @@ MObject HairShape::countAttr;
 MObject HairShape::genCountAttr;
 MObject HairShape::lengthAttr;
 MObject HairShape::surfaceAttr;
-MObject HairShape::randomXAttr;
-MObject HairShape::randomYAttr;
-MObject HairShape::randomZAttr;
-MObject HairShape::genRandomXAttr;
-MObject HairShape::genRandomYAttr;
-MObject HairShape::genRandomZAttr;
 MObject HairShape::redrawAttr;
 MObject HairShape::segmentsAttr;
-MObject HairShape::textureAttr;
-MObject HairShape::displayNormalsAndTangentsAttr;
+MObject HairShape::densityTextureAttr;
+MObject HairShape::interpolationGroupsTextureAttr;
 
 HairShape::HairShape()
 {
@@ -61,24 +55,46 @@ MStatus HairShape::compute(const MPlug &plug, MDataBlock &dataBlock)
 		dataBlock.setClean(redrawAttr);
 
 		MObject meshObj = dataBlock.inputValue(surfaceAttr).asMesh(); //get input mesh
+		MFnMesh mesh = meshObj;
 		if(meshObj == MObject::kNullObj)
 		{
 			return MS::kFailure;
 		}
 
+		// first time creation of private members
+		if(mMayaMesh == 0)
+		{
+			MString uvSetName;
+			mesh.getCurrentUVSetName( uvSetName );
+
+			// maya mesh construction
+			mMayaMesh = new MayaMesh( meshObj, uvSetName );
+
+			// UV point generator construction
+			const float densityTexture = dataBlock.inputValue( densityTextureAttr ).asFloat();
+
+			mUVPointGenerator = new UVPointGenerator( Texture( densityTexture ),
+				mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+
+			// HairGuides construction
+			const float interpolationGroupsTexture = dataBlock.inputValue( interpolationGroupsTextureAttr ).asFloat();
+			const int count = dataBlock.inputValue( countAttr ).asInt();
+			const int segments = dataBlock.inputValue( segmentsAttr ).asInt();
+
+			mHairGuides = new HairComponents::HairGuides();
+			mHairGuides->generate( *mUVPointGenerator,
+				*mMayaMesh,
+				Interpolation::InterpolationGroups( Texture( interpolationGroupsTexture ), segments ),
+				count);
+		}
+
 		// getting hair attributes
-		const int count = dataBlock.inputValue(countAttr).asInt();
-		const float length = dataBlock.inputValue(lengthAttr).asFloat();
-		const int genCount = dataBlock.inputValue(genCountAttr).asInt();
-		const float randomX = dataBlock.inputValue(randomXAttr).asFloat();
-		const float randomY = dataBlock.inputValue(randomYAttr).asFloat();
-		const float randomZ = dataBlock.inputValue(randomZAttr).asFloat();
-		const float getRandomX = dataBlock.inputValue(genRandomXAttr).asFloat();
-		const float getRandomY = dataBlock.inputValue(genRandomYAttr).asFloat();
-		const float getRandomZ = dataBlock.inputValue(genRandomZAttr).asFloat();
-		const int segments = dataBlock.inputValue(segmentsAttr).asInt();
-		MString texture = dataBlock.inputValue(textureAttr).asString();
-		bool displayNormalsAndTangents = dataBlock.inputValue(displayNormalsAndTangentsAttr).asBool();
+		const int count = dataBlock.inputValue( countAttr ).asInt();
+		const float length = dataBlock.inputValue( lengthAttr ).asFloat();
+		const int genCount = dataBlock.inputValue( genCountAttr ).asInt();
+		const int segments = dataBlock.inputValue( segmentsAttr ).asInt();
+		const float densityTexture = dataBlock.inputValue( densityTextureAttr ).asFloat();
+		const float interpolationGroupsTexture = dataBlock.inputValue( interpolationGroupsTextureAttr ).asFloat();
 	}
 
 	return MS::kSuccess;
@@ -91,7 +107,7 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
-	// TODO
+	mHairGuides->draw();
 }
 
 MStatus HairShape::initialize()
@@ -127,66 +143,22 @@ MStatus HairShape::initialize()
 	nAttr.setKeyable( true );
 	addAttribute( lengthAttr );
 
-	//define random X attribute
-	randomXAttr = nAttr.create("random_X", "rX", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(randomXAttr);
-	
-	//define random Y attribute
-	randomYAttr = nAttr.create("random_Y", "rY", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(randomYAttr);
-
-	//define random Z attribute
-	randomZAttr = nAttr.create("random_Z", "rZ", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(randomZAttr);
-
-	//define gen. random X attribute
-	genRandomXAttr = nAttr.create("Interpolated_random_X", "irX", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(genRandomXAttr);
-	
-	//define gen. random Y attribute
-	genRandomYAttr = nAttr.create("Interpolated_random_Y", "irY", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(genRandomYAttr);
-
-	//define gen. random Z attribute
-	genRandomZAttr = nAttr.create("Interpolated_random_Z", "irZ", MFnNumericData::kFloat, 0.0);
-	nAttr.setMin(0);
-	nAttr.setKeyable(true);
-	addAttribute(genRandomZAttr);
-
 	//define segments attribute
 	segmentsAttr = nAttr.create("segments_count", "bpc", MFnNumericData::kInt, 5);
 	nAttr.setMin(1);
 	nAttr.setKeyable(true);
 	addAttribute(segmentsAttr);
 
-	//define display normals and tangents attribute
-	displayNormalsAndTangentsAttr = nAttr.create("display_normals_and_tangents", "dnt", MFnNumericData::kBoolean,false);
+	// define density texture attribute
+	densityTextureAttr = nAttr.create( "densityTexture", "dtxt", MFnNumericData::kFloat, 1 );
 	nAttr.setKeyable(true);
-	addAttribute(displayNormalsAndTangentsAttr);
+	addAttribute( densityTextureAttr );
 
-	// Declare the function set and a MObject for the attribute data.
-	MFnStringData fnStringData;
-	MObject defaultString = fnStringData.create( "" );
+	// define interpolation groups texture attribute
+	interpolationGroupsTextureAttr = nAttr.create( "interpolationGroupsTexture", "itxt", MFnNumericData::kFloat, 1 );
+	nAttr.setKeyable(true);
+	addAttribute( interpolationGroupsTextureAttr );
 
-	// Create the attribute and specify its default.
-	textureAttr = tAttr.create( "texture", "txt", MFnData::kString, defaultString );
-
-	tAttr.setStorable(true);
-	tAttr.setKeyable(false);
-
-	addAttribute( textureAttr );
-
-	//redraw attr
 	redrawAttr = nAttr.create("redraw", "rdrw", MFnNumericData::kInt, 0);
 	nAttr.setHidden(true);
 	addAttribute(redrawAttr);
@@ -196,15 +168,9 @@ MStatus HairShape::initialize()
 	attributeAffects(countAttr, redrawAttr);
 	attributeAffects(genCountAttr, redrawAttr);
 	attributeAffects(lengthAttr, redrawAttr);
-	attributeAffects(randomXAttr, redrawAttr);
-	attributeAffects(randomYAttr, redrawAttr);
-	attributeAffects(randomZAttr, redrawAttr);
-	attributeAffects(genRandomXAttr, redrawAttr);
-	attributeAffects(genRandomYAttr, redrawAttr);
-	attributeAffects(genRandomZAttr, redrawAttr);
 	attributeAffects(segmentsAttr, redrawAttr);
-	attributeAffects(displayNormalsAndTangentsAttr, redrawAttr);
-	attributeAffects(textureAttr, redrawAttr);
+	attributeAffects(densityTextureAttr, redrawAttr);
+	attributeAffects(interpolationGroupsTextureAttr, redrawAttr);
 
 	return MS::kSuccess;
 }

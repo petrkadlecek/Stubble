@@ -41,35 +41,17 @@ public:
 	/// The surface attribute
 	static MObject surfaceAttr;
 
-	/// The random x coordinate attribute
-	static MObject randomXAttr;
-
-	/// The random y coordinate attribute
-	static MObject randomYAttr;
-
-	/// The random z coordinate attribute
-	static MObject randomZAttr;
-
-	/// The gen. random x coordinate attribute
-	static MObject genRandomXAttr;
-
-	/// The gen. random y coordinate attribute
-	static MObject genRandomYAttr;
-
-	/// The gen. random z coordinate attribute
-	static MObject genRandomZAttr;
-
 	/// The segments count
 	static MObject segmentsAttr;
 
 	/// The redraw attribute
 	static MObject redrawAttr;
 
-	///< The display normals and tangents attribute
-	static MObject displayNormalsAndTangentsAttr;
+	///< The density texture attribute
+	static MObject densityTextureAttr;
 
-	///< The texture attribute
-	static MObject textureAttr;
+	///< The interpolation groups texture attribute
+	static MObject interpolationGroupsTextureAttr;
 
 	HairShape();
 
@@ -130,7 +112,7 @@ private:
 
 	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
 
-	UNKNOWN *mInterpolatedHairs; ///< Interpolated hairs
+	UNKNOWN mInterpolatedHairs; ///< Interpolated hairs
 
 };
 

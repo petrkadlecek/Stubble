@@ -1,0 +1,38 @@
+//Error message
+$error = "";
+//First store all selected objects 
+$selected = `ls -sl`;
+//For every selected object
+for ( $obj in $selected )
+{
+    // Does it have mesh ?
+    if( `objExists ( $obj +".worldMesh" )` )
+    {
+       // Create our locator
+       $locator = `createNode "HairShape"`; 
+       // Connect selected object mesh to our locator surface
+       connectAttr ( $obj + ".worldMesh" ) ( $locator + ".surface" );
+    }
+    else
+    {
+        $error += $obj + " does not have mesh\n";
+    }
+}
+// Any error occured ?
+if ( $error != "" )
+{
+    error( $error );
+}
+// DEFINE 3Delight render support
+global proc DL_userGetGeoTypeData (string $node_types[], string $plugin_requirements[], string $cache_commands[], string $not_used[])
+{
+    $node_types = { "HairShape" };
+    $plugin_requirements = { "" };
+    $cache_commands = { "Stubble3DelightCacheCommand"};
+    print "inside DL_userGetGeoTypeData";
+};
+global proc int DL_HairShapeCanUseObjectInstance (string $shape_name)
+{
+    print "inside DL_HairLocatorCanUseObjectInstance";
+    return 0;
+};
