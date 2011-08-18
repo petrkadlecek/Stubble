@@ -154,16 +154,22 @@ inline void InterpolationGroups::setGroupSegmentsCount( unsigned int aGroupId, u
 
 inline unsigned int InterpolationGroups::getGroupId( Real aU, Real aV ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth - 0.5) );
-	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight - 0.5) );
+	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth) );
+	x = x == mTextureWidth ? mTextureWidth - 1 : x;
+
+	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight) );
+	y = y == mTextureHeight ? mTextureHeight - 1 :  y;
 
 	return *( mInterpolationGroupsTexture + y * mTextureWidth + x );
 }
 
 inline unsigned int InterpolationGroups::getSegmentsCount( Real aU, Real aV ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth - 0.5) );
-	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight - 0.5) );
+	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth) );
+	x = x == mTextureWidth ? mTextureWidth - 1 : x;
+
+	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight) );
+	y = y == mTextureHeight ? mTextureHeight - 1 :  y;
 
 	return mInterpolationGroupsSegmentsCount[ *( mInterpolationGroupsTexture + y * mTextureWidth + x ) ];
 }

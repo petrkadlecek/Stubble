@@ -23,7 +23,7 @@ MObject HairShape::segmentsAttr;
 MObject HairShape::densityTextureAttr;
 MObject HairShape::interpolationGroupsTextureAttr;
 
-HairShape::HairShape()
+HairShape::HairShape(): mUVPointGenerator( 0 ), mMayaMesh( 0 ), mHairGuides( 0 ), mInterpolatedHairs( 0 )
 {
 }
 

@@ -112,7 +112,7 @@ private:
 
 	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
 
-	UNKNOWN mInterpolatedHairs; ///< Interpolated hairs
+	UNKNOWN *mInterpolatedHairs; ///< Interpolated hairs
 
 };
 

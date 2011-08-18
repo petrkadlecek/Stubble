@@ -11,12 +11,14 @@ namespace HairShape
 Texture::Texture(float value): mColorComponents(1)
 {
 	init();
+
 	mTexture[0] = value;
 }
 
 Texture::Texture(float value, float value1, float value2): mColorComponents(3)
 {
 	init();
+
 	mTexture[0] = value;
 	mTexture[1] = value1;
 	mTexture[2] = value2;
@@ -34,6 +36,7 @@ Texture::Texture(float value, float value1, float value2, float value3): mColorC
 
 void Texture::init()
 {
+	mIsAnimated = false;
 	mWidth = 1;
 	mHeight = 1;
 
@@ -47,8 +50,11 @@ float Texture::realAtUV( Real u, Real v ) const
 
 Texture::Color Texture::colorAtUV( Real u, Real v ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(u * mWidth - 0.5) );
-	unsigned int y = static_cast< unsigned int > ( floor(v * mHeight - 0.5) );
+	unsigned int x = static_cast< unsigned int > ( floor(u * mWidth) );
+	x = x == mWidth ? mWidth - 1 : x;
+
+	unsigned int y = static_cast< unsigned int > ( floor(v * mHeight) );
+	y = y == mHeight ? mHeight - 1 :  y;
 
 	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
 }
