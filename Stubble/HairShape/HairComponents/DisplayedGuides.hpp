@@ -71,7 +71,20 @@ public:
 private:
 	bool mDirtyBit; ///< true to dirty bit
 
-	unsigned int mVBO;  ///< The display structure
+	bool mHighLightSelected;	///< true to high light selected
+
+	const FrameSegments * mFrameSegments;   ///< The frame segments
+
+	const SelectedGuides * mSelectedGuides; ///< The selected guides
+
+	const GuidesCurrentPositions * mGuidesCurrentPositions;   ///< The guides current positions
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the guides selection .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< bool > GuidesSelection;
+
+	GuidesSelection mGuidesSelection;   ///< The guides selection ( true = selected )
 };
 
 // inline functions implementation
