@@ -27,10 +27,10 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, inits segments to point along surface normal. 
 	///
-	/// \param	aCurrentPositions		the current positions of guides. 
+	/// \param	aRestPositions			the rest positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
 	///-------------------------------------------------------------------------------------------------
-	SegmentsStorage( const GuidesCurrentPositions & aCurrentPositions, 
+	SegmentsStorage( const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///-------------------------------------------------------------------------------------------------
@@ -38,11 +38,11 @@ public:
 	///
 	/// \param	aOldStorage				the old segments storage. 
 	/// \param	aOldRestPositionsUG		the old rest positions uniform grid. 
-	/// \param	aCurrentPositions		the current positions of guides. 
+	/// \param	aRestPositions			the rest positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
 	///-------------------------------------------------------------------------------------------------
 	SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
-		const GuidesCurrentPositions & aCurrentPositions, 
+		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
@@ -56,15 +56,6 @@ public:
 	/// \param	aTime	Time. 
 	///-------------------------------------------------------------------------------------------------
 	void setFrame( Time aTime );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Gets a guide segments. 
-	///
-	/// \param	aGuideId	Identifier for a guide. 
-	///
-	/// \return	The guide segments. 
-	///-------------------------------------------------------------------------------------------------
-	inline Segments & getGuideSegments( GuideId aGuideId );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Replaces the old segments of some guides with aSegmentsChange (used only for undo, redo) 
@@ -106,13 +97,28 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the segments count
 	///
-	/// \param	aCurrentPositions		the current positions of guides. 
+	/// \param	aRestPositions			the rest positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
 	///-------------------------------------------------------------------------------------------------
-	void setSegmentsCount( const GuidesCurrentPositions & aCurrentPositions, 
+	void setSegmentsCount( const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 private:
+
+	/// ------------------------------------------------------------------------------------------
+	///  Interpolates segments from old segments
+	///
+	/// \param	aOldSegments			the old segments. 
+	/// \param	aOldRestPositionsUG		the old rest positions uniform grid. 
+	/// \param	aRestPositions			the rest positions of guides. 
+	/// \param	aInterpolationGroups	Interpolation groups. 
+	/// \param [in,out]	aOutputSegments	the output segments. 
+	///----------------------------------------------------------------------------------------------------
+	void InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
+		const GuidesRestPositions & aRestPositions, 
+		const Interpolation::InterpolationGroups & aInterpolationGroups,
+		FrameSegments & aOutputSegments ) const;
+
 	AllFramesSegments mSegments;  ///< The all segments (exists after the import!)
 
 	FrameSegments mCurrent; ///< The current frame segments
@@ -122,11 +128,6 @@ private:
 
 inline SegmentsStorage::~SegmentsStorage()
 {
-}
-
-inline Segments & SegmentsStorage::getGuideSegments( GuideId aGuideId )
-{
-	return mCurrent.mSegments[ aGuideId ];
 }
 
 inline void SegmentsStorage::importSegments( const FrameSegments & aFrameSegments )

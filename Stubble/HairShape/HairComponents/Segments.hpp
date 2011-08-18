@@ -21,10 +21,19 @@ namespace HairComponents
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< Vector3D< Real > > Segments;
 
+///----------------------------------------------------------------------------------------------------
+/// Store segments of one guide
+///----------------------------------------------------------------------------------------------------
+struct OneGuideSegments
+{
+	Real mSegmentLength;	///< Length of the segment
+	Segments mSegments; ///< The segments
+};
+
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the segments of all guides .
 ///-------------------------------------------------------------------------------------------------
-typedef std::vector< Segments > GuidesSegments;
+typedef std::vector< OneGuideSegments > GuidesSegments;
 
 ///-------------------------------------------------------------------------------------------------
 /// Segments of all guides in one time frame

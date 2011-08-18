@@ -160,7 +160,7 @@ public:
 	///
 	/// \param [in,out]	aOutputStream	the output stream. 
 	///-------------------------------------------------------------------------------------------------
-	void exportToFile( std::ostream & aOutputStream );
+	void exportToFile( std::ostream & aOutputStream ) const;
 
 private:
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid

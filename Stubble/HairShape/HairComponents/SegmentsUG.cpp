@@ -24,7 +24,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	mDirtyBit = false;
 }
 
-void SegmentsUG::select( const SelectionMask & aSelectionMask, SelectedGuides & aResult )
+void SegmentsUG::select( const SelectionMask & aSelectionMask, SelectedGuides & aResult ) const
 {
 }
 

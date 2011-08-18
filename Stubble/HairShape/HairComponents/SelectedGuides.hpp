@@ -42,11 +42,13 @@ struct SelectedGuide
 
 	GuideId mGuideId; ///< The guide segments id
 
-	Segments * mSegments; ///< Pointer to segments of selected guide ( represented as vertices )
+	OneGuideSegments mSegments; ///< Pointer to segments of selected guide ( represented as vertices )
 
 	SegmentsAdditionalInfo mSegmentsAdditionalInfo; ///< Information describing the segments additional params
 
-	bool mDirtyFlag; ///< True if segments has been changed
+	bool mDirtyRedrawFlag; ///< True if segments has been changed and needs to be redrawn
+
+	bool mDirtyFlag;	///< True if selected guide has been changed in any way and must be stored..
 };
 
 ///-------------------------------------------------------------------------------------------------

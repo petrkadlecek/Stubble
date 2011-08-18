@@ -54,7 +54,7 @@ public:
 	/// \param	aSelectionMask	the selection mask. 
 	/// \param [in,out]	aResult	the selected guides. 
 	///-------------------------------------------------------------------------------------------------
-	void select( const SelectionMask & aSelectionMask, SelectedGuides & aResult );
+	void select( const SelectionMask & aSelectionMask, SelectedGuides & aResult ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 

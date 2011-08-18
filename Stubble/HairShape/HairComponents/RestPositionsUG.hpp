@@ -17,6 +17,21 @@ namespace HairShape
 namespace HairComponents
 {
 
+///----------------------------------------------------------------------------------------------------
+/// Identifier and distance. 
+///----------------------------------------------------------------------------------------------------
+struct IdAndDistance
+{
+	GuideId mGuideId;	// Guide id
+
+	Real mDistance;	// Distance to guide's rest position
+};
+
+///----------------------------------------------------------------------------------------------------
+/// Defines an alias representing list of identifiers for the closest guides .
+///----------------------------------------------------------------------------------------------------
+typedef std::vector< IdAndDistance> ClosestGuidesIds;
+
 ///-------------------------------------------------------------------------------------------------
 /// Guides segments uniform grid
 ///-------------------------------------------------------------------------------------------------
@@ -49,13 +64,13 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the n closest guides from aPosition. 
 	///
-	/// \param	aPosition				the position. 
-	/// \param	aInterpolationGroupId	Identifier for a interpolation group. 
-	/// \param	aN						Number of closest guides to return. 
-	/// \param [in,out]	aGuidesIds		List of identifiers for a closest guides. 
+	/// \param	aPosition					the position. 
+	/// \param	aInterpolationGroupId		Identifier for a interpolation group. 
+	/// \param	aN							Number of closest guides to return. 
+	/// \param [in,out]	aClosestGuidesIds	List of identifiers for a closest guides. 
 	///-------------------------------------------------------------------------------------------------
 	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned int aInterpolationGroupId,
-		unsigned int aN, GuidesIds & aGuidesIds );
+		unsigned int aN, ClosestGuidesIds & aClosestGuidesIds ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
@@ -74,7 +89,7 @@ public:
 	///
 	/// \param [in,out]	aOutputStream	the output stream. 
 	///-------------------------------------------------------------------------------------------------
-	void exportToFile( std::ostream & aOutputStream );
+	void exportToFile( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Import from file. 

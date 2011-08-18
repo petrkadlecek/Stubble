@@ -175,11 +175,11 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		{
 			throw StubbleException(" HairGuides::generate : No old segments to interpolate from ! ");
 		}
-		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, mRestPositionsUG, mCurrentPositions, aInterpolationGroups );
+		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, mRestPositionsUG, tmpRestPositions, aInterpolationGroups );
 	}
 	else
 	{
-		tmpSegmentsStorage = new SegmentsStorage( mCurrentPositions, aInterpolationGroups );
+		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups );
 	}
 	// Now we can throw away old data
 	std::swap( tmpRestPositions, mRestPositions );
@@ -194,14 +194,14 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	mSegmentsStorage->setSegmentsCount( mCurrentPositions, aInterpolationGroups );
+	mSegmentsStorage->setSegmentsCount( mRestPositions, aInterpolationGroups );
 	// Segments has changed...
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 }
 
-void HairGuides::exportToFile( std::ostream & aOutputStream )
+void HairGuides::exportToFile( std::ostream & aOutputStream ) const
 {
 	// First export uniform grid of rest positions
 	mRestPositionsUG.exportToFile( aOutputStream );
@@ -211,7 +211,7 @@ void HairGuides::exportToFile( std::ostream & aOutputStream )
 	for ( GuidesSegments::const_iterator it = currentSegments.begin(); it != currentSegments.end(); ++it )
 	{
 		// For each hair vertex
-		for ( Segments::const_iterator segIt = it->begin(); segIt != it->end(); ++segIt )
+		for ( Segments::const_iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); ++segIt )
 		{
 			aOutputStream << *segIt;
 		}
