@@ -105,10 +105,12 @@ void HairGuides::draw()
 
 void HairGuides::importNURBS( void )
 {
+	/* TODO */
 }
 
 void HairGuides::exportNURBS( void )
 {
+	/* TODO */
 }
 
 void HairGuides::setCurrentTime( Time aTime )
@@ -125,12 +127,46 @@ void HairGuides::setCurrentTime( Time aTime )
 	mBoundingBoxDirtyFlag = true;
 }
 
-void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
+GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 {
 	if ( aTopologyChanged )
 	{
-		/* TODO update rest positions.. + solve destruction of some guides */
-		throw StubbleException(" HairGuides::meshUpdate : NOT IMPLEMENTED ");
+		const MeshUVCoordUG & positionConverter = aMayaMesh.getMeshUVCoordUG();
+		// Temporary hair guides
+		SegmentsStorage * tmpSegmentsStorage;
+		GuidesRestPositions tmpRestPositions;
+		tmpRestPositions.reserve( mRestPositions.size() ); // Optimalization
+		mCurrentPositions.clear();
+		mCurrentPositions.reserve( mRestPositions.size() ); // Optimalization
+		GuidesIds remainingGuides; // Stores ids of remaining guides
+		remainingGuides.reserve( mRestPositions.size() ); // Optimalization
+		// Calculate new positions
+		for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+			++restPosIt )
+		{
+			GuideRestPosition restPos;
+			restPos.mUVPoint = positionConverter.getUVPoint( restPosIt->mPosition );
+			if ( restPos.mUVPoint.getTriangleID() >= 0 ) // Topology change did not destroy the guide
+			{
+				// Handle rest position
+				restPos.mPosition = aMayaMesh.getRestPose().getMeshPoint( restPos.mUVPoint );
+				tmpRestPositions.push_back( restPos );
+				// Handle current position
+				GuideCurrentPosition currPos;
+				currPos.mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+				currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
+				currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
+				mCurrentPositions.push_back( GuideCurrentPosition() );
+				// Remember id
+				remainingGuides.push_back( static_cast< GuideId >( restPosIt - mRestPositions.begin() ) );
+			}
+		}
+		// Copy old segments
+		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, remainingGuides );
+		// Now we can throw away old data
+		std::swap( tmpRestPositions, mRestPositions );
+		std::swap( tmpSegmentsStorage, mSegmentsStorage );
+		delete tmpSegmentsStorage;
 		// Rest positions has changed...
 		mRestPositionsUG.setDirty();
 	}
@@ -148,6 +184,7 @@ void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
 	mBoundingBoxDirtyFlag = true;
+	return static_cast< GuideId >( mRestPositions.size() );
 }
 
 void HairGuides::undo()
@@ -211,7 +248,8 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		{
 			throw StubbleException(" HairGuides::generate : No old segments to interpolate from ! ");
 		}
-		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, mRestPositionsUG, tmpRestPositions, aInterpolationGroups );
+		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, getGuidesPositionsUG( aInterpolationGroups ), 
+			tmpRestPositions, aInterpolationGroups );
 	}
 	else
 	{

@@ -140,6 +140,8 @@
     <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp" />
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp" />
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp" />
+    <ClCompile Include="HairShape\Mesh\MeshUG.cpp" />
+    <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp" />
     <ClCompile Include="HairShape\Texture\Texture.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
     <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
@@ -176,6 +178,8 @@
     <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp" />
     <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
+    <ClInclude Include="HairShape\Mesh\MeshUG.hpp" />
+    <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp" />

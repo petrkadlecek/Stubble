@@ -1,0 +1,49 @@
+// Procedure for array printing : { "value1", "value2" }
+proc string arrayPrint( string $arr[] )
+{
+    string $res = "{ ";
+    int $first = 1;
+    for ( $str in $arr )     
+    {
+       if ( $first == 1 ) // First value ? No comma !
+       {
+           $res += "\"" + $str + "\"";
+           $first = 0;
+       }
+       else
+       {
+           $res += ", \"" + $str + "\"";
+       }
+    }
+    return $res + " }";
+}
+
+// Variables for storing old values
+string $TMP_node_types[]; 
+string $TMP_plugin_requirements[]; 
+string $TMP_cache_commands[]; 
+string $TMP_not_used[];
+
+// Call procedure to get old values
+if (`exists DL_userGetGeoTypeData`)
+{
+    DL_userGetGeoTypeData( $TMP_node_types, $TMP_plugin_requirements, $TMP_cache_commands, $TMP_not_used );
+}
+
+$TMP_node_types[ size( $TMP_node_types ) ] = "HairShape";
+$TMP_plugin_requirements[ size( $TMP_plugin_requirements ) ] = "";
+$TMP_cache_commands[ size( $TMP_cache_commands ) ] = "Stubble3DelightCacheCommand";
+
+// DEFINE NEW 3Delight render support
+eval(" global proc DL_userGetGeoTypeData (string $node_types[], string $plugin_requirements[], " + 
+	"string $cache_commands[], string $not_used[]) \n {" +
+    "$node_types = " + arrayPrint( $TMP_node_types ) + "; \n" +
+    "$plugin_requirements = " + arrayPrint( $TMP_plugin_requirements ) + "; \n" +
+    "$cache_commands = " + arrayPrint( $TMP_cache_commands ) + "; \n" +
+    "$not_used = " + arrayPrint( $TMP_not_used ) + "; \n }");
+
+// RenderMan object instances can not be used..
+global proc int DL_HairShapeCanUseObjectInstance (string $shape_name)
+{
+    return 0;
+};

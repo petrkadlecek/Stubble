@@ -61,13 +61,97 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Res
 	}
 }
 
+SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const GuidesIds & aRemainingGuides )
+{
+	if ( aOldStorage.imported() )
+	{
+		// For every frame
+		for ( AllFramesSegments::const_iterator it = aOldStorage.mSegments.begin(); 
+			it != aOldStorage.mSegments.end(); ++it )
+		{
+			FrameSegments & aOutputSegments = mSegments.insert( std::make_pair( it->first, FrameSegments() ) ).first->second;
+			aOutputSegments.mFrame = it->first;
+			aOutputSegments.mSegments.resize( aRemainingGuides.size() );
+			GuidesIds::const_iterator idIt = aRemainingGuides.begin();
+			// For every guide
+			for ( GuidesSegments::iterator guideIt = aOutputSegments.mSegments.begin(); 
+				guideIt != aOutputSegments.mSegments.end(); ++guideIt, ++ idIt )
+			{
+				*guideIt = it->second.mSegments[ *idIt ]; // Copy guide segments
+			}
+		}
+		// Reset current frame
+		setFrame( mCurrent.mFrame );
+	}
+	else
+	{
+		mCurrent.mSegments.resize( aRemainingGuides.size() );
+		GuidesIds::const_iterator idIt = aRemainingGuides.begin();
+		// For every guide
+		for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
+			guideIt != mCurrent.mSegments.end(); ++guideIt, ++ idIt )
+		{
+			*guideIt = aOldStorage.mCurrent.mSegments[ *idIt ]; // Copy guide segments
+		}
+	}
+}
+
 void SegmentsStorage::setFrame( Time aTime )
 {
 	if ( !imported() )
 	{
 		return; // Ignores time
 	}
-	/* TODO REQUIRES MATH*/
+	/* TODO MAY BE SOMETHING BETTER THAN LINEAR INTERPOLATION*/
+	/* TODO PROPAGATE CHANGES */
+	mCurrent.mFrame = aTime;
+	// Get bounds first
+	AllFramesSegments::const_iterator lowerBound = mSegments.lower_bound( aTime );
+	// Lower bound point to first element, which is equal or larger
+	// 1.we found equal element or all elements are greater -> no interpolation
+	if ( lowerBound->first == aTime || lowerBound == mSegments.begin() )
+	{
+		mCurrent.mSegments = lowerBound->second.mSegments;
+	}
+	else
+	{
+		if ( lowerBound == mSegments.end() ) // 2.Nothing is larger or equal -> no interpolation
+		{
+			mCurrent.mSegments = (--lowerBound)->second.mSegments;
+		}
+		else
+		{
+			// No we now for sure, that there is at least one lesser element and one greater element
+			// lowerBound now points to first greater element
+			// --lowerBound will point to last lesser element
+			GuidesSegments::const_iterator upIt = lowerBound->second.mSegments.begin();
+			Real upFactor = static_cast< Real >( lowerBound->first - aTime );
+			GuidesSegments::const_iterator lowIt = (--lowerBound)->second.mSegments.begin();
+			Real lowFactor = static_cast< Real >( aTime - lowerBound->first );
+			Real inverseTotalFactor = 1.0f / ( upFactor + lowFactor );
+			upFactor *= inverseTotalFactor;
+			lowFactor *= inverseTotalFactor;
+			// Finaly we can begin to copy
+			mCurrent.mSegments.resize( lowerBound->second.mSegments.size() );
+			// For every guide
+			for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
+				guideIt != mCurrent.mSegments.end(); ++guideIt, ++upIt, ++lowIt )
+			{
+				// For every segment
+				Segments::const_iterator upSegIt = upIt->mSegments.begin();	
+				Segments::const_iterator lowSegIt = lowIt->mSegments.begin();
+				for ( Segments::iterator segIt = guideIt->mSegments.begin(); 
+					segIt != guideIt->mSegments.end(); ++segIt, ++upSegIt, ++lowSegIt )
+				{
+					// Interpolate
+					*segIt = *upSegIt * upFactor + *lowSegIt * lowFactor;
+				}
+				/* TODO RECALCULATE SEGMENTS TO HAVE SAME LENGTH */
+			}
+
+		}
+	}
+	AllFramesSegments::const_iterator upperBound = mSegments.upper_bound( aTime );
 }
 
 void SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
@@ -188,11 +272,12 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		}
 		Real inverseCumulatedDistance = 1.0f / cumulatedDistance; 
 		// For every old guide segments to interpolate from
+		/* TODO this make create segments with different lengths in one guide */
 		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
 			// Old segments iterator
 			Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
-			Real weight = guideIdIt->mDistance * inverseCumulatedDistance; // Simple weight TODO make better
+			Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
 			// For every segment
 			for ( Segments::iterator segIt = guideIt->mSegments.begin(); segIt != guideIt->mSegments.end(); 
 				++segIt, ++oldSegIt )

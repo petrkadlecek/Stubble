@@ -1,6 +1,7 @@
 #include "Texture.hpp"
 
 #include "math.h"
+#include "Common\StubbleException.hpp"
 
 namespace Stubble
 {
@@ -92,6 +93,11 @@ float *Texture::getRawData() const
 bool Texture::isAnimated() const
 {
 	return mIsAnimated;
+}
+
+void setCurrentTime( Time aTime )
+{
+	throw StubbleException(" Texture::setCurrentTime : NOT IMPLEMENTED ");
 }
 
 Texture::~Texture()

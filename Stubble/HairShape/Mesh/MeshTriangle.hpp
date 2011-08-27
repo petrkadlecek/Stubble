@@ -54,18 +54,6 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline const int & getLocalVertex3() const;
 
-	///----------------------------------------------------------------------------------------------------
-	/// Sets the identifier for the voxel containing this triangle
-	///----------------------------------------------------------------------------------------------------
-	inline void setVoxelID( const unsigned int voxelID );
-
-	///----------------------------------------------------------------------------------------------------
-	/// Gets the identifier for the voxel containing this triangle
-	///
-	/// \return	voxel ID containing the triangle
-	///----------------------------------------------------------------------------------------------------
-	inline const unsigned int & getVoxelID() const;
-
 private:
 
 	///< Identifier for the face
@@ -79,9 +67,6 @@ private:
 
 	///< Identifier for the local vertex 3
 	int mLocalVertex3ID;
-
-	///< Identifier for the voxel containing this triangle
-	unsigned int mVoxelID;
 
 };
 
@@ -119,16 +104,6 @@ inline const int & MeshTriangle::getLocalVertex2() const
 inline const int & MeshTriangle::getLocalVertex3() const
 {
 	return mLocalVertex3ID;
-}
-
-inline void MeshTriangle::setVoxelID( const unsigned int voxelID )
-{
-	mVoxelID = voxelID;
-}
-
-inline const unsigned int & MeshTriangle::getVoxelID() const
-{
-	return mVoxelID;
 }
 
 } // namespace HairShape

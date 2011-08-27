@@ -45,6 +45,14 @@ public:
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Constructor, copies only selected segments from aOldStorage
+	///
+	/// \param	aOldStorage			the old segments storage. 
+	/// \param	aRemainingGuides	the remaining guides. 
+	///-------------------------------------------------------------------------------------------------
+	SegmentsStorage( const SegmentsStorage & aOldStorage, const GuidesIds & aRemainingGuides );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------

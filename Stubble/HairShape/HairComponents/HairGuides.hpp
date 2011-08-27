@@ -109,8 +109,10 @@ public:
 	///
 	/// \param	aMayaMesh			Maya mesh object.
 	/// \param	aTopologyChanged	true if topology of the mesh has changed.
+	/// 
+	/// \return number of guides	
 	///----------------------------------------------------------------------------------------------------
-	void meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged = false );
+	GuideId meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Undoes changed to hair guides.

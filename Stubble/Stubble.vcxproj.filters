@@ -148,6 +148,12 @@
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp">
       <Filter>HairShape\Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Mesh\MeshUG.cpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -277,6 +283,12 @@
       <Filter>Toolbox</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Mesh\MeshUG.hpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp">
       <Filter>HairShape\Mesh</Filter>
     </ClInclude>
   </ItemGroup>

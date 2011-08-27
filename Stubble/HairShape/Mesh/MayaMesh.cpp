@@ -83,7 +83,9 @@ const Mesh MayaMesh::getRestPose() const
 MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 {
 	if ( mUpdatedMesh == 0 )
+	{
 		return mRestPose.getMeshPoint( aPoint );
+	}
 
 	// First select full barycentric coordinates
 	double u = aPoint.getU();
@@ -195,11 +197,29 @@ void MayaMesh::meshUpdate(MObject & aUpdatedMesh, const MString * aUVSet)
 	delete mUpdatedMesh;
 	mUpdatedMesh = new MFnMesh( aUpdatedMesh );
 	mUVSet = aUVSet;
+	mMeshUG.setDirty();
 }
 
 MayaMesh::~MayaMesh()
 {
 	delete mUpdatedMesh;
+}
+
+void MayaMesh::getTriangles( Triangles & aResult ) const
+{
+	if ( mUpdatedMesh == 0 )
+	{
+		aResult = mRestPose.mTriangles; // Copies from rest pose
+	}
+	else
+	{
+		aResult.clear();
+		aResult.reserve( mMeshTriangles.size() );
+		for ( unsigned int i = 0; i < aResult.size(); ++i )
+		{
+			aResult.push_back( getTriangle( i ) );
+		}
+	}
 }
 
 } // namespace HairShape
