@@ -116,10 +116,8 @@ void HairGuides::exportNURBS( void )
 		for ( Segments::const_iterator segmentIt = hairIt->mSegments.mSegments.begin()
 			; segmentIt != hairIt->mSegments.mSegments.end()
 			; segmentIt++ )
-		{
-			const Vector3D<Real> point = *segmentIt;
-			double coors[] = { point.x, point.y, point.z };
-			pointArray.append( coors );
+		{			
+			pointArray.append( segmentIt->toMayaPoint() );
 		}
 		MFnNurbsCurve nurbsCurve;
 		MStatus status;
@@ -127,7 +125,7 @@ void HairGuides::exportNURBS( void )
 		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, false, false, true, MObject::kNullObj, &status );
 		if ( status != MStatus::kSuccess )
 		{
-			status.perror( "HairGuides: Failed to create nurbs" );			
+			status.perror( "HairGuides: Failed to create NURBS curve." );			
 		}
 	}
 }
