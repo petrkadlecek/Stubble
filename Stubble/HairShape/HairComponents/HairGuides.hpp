@@ -18,6 +18,10 @@
 #include <maya/MFnMesh.h>
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MPointArray.h>
+#include <maya/MSelectionList.h>
+#include <maya/MItSelectionList.h>
+#include <maya/MGlobal.h>
+#include <maya/MDagPath.h>
 
 namespace Stubble
 {
@@ -90,14 +94,14 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Import nurbs. TODO !!!
+	/// Import nurbs.
 	///----------------------------------------------------------------------------------------------------
-	void importNURBS( void );
+	void importNURBS();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Export nurbs. TODO !!!
+	/// Export nurbs.
 	///----------------------------------------------------------------------------------------------------
-	void exportNURBS( void );
+	void exportNURBS();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets a current time. 

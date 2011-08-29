@@ -103,12 +103,26 @@ void HairGuides::draw()
 	mDisplayedGuides.draw();
 }
 
-void HairGuides::importNURBS( void )
+void HairGuides::importNURBS()
 {
-	/* TODO */
+	MSelectionList selection;
+	MGlobal::getActiveSelectionList( selection );	
+	MItSelectionList curveIt( selection, MFn::kNurbsCurve );	
+	for ( ; !curveIt.isDone(); curveIt.next() )
+	{
+		MDagPath path;
+		curveIt.getDagPath( path );
+		MFnNurbsCurve curve( path );
+		// got the curve, TODO: get it into segment storage
+	}
+	mUndoStack.clear();
+	mDisplayedGuides.setDirty();
+	mRestPositionsUG.setDirty();
+	mAllSegmentsUG.setDirty();
+	mBoundingBoxDirtyFlag = true;
 }
 
-void HairGuides::exportNURBS( void )
+void HairGuides::exportNURBS()
 {
 	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); hairIt != mSelectedGuides.end(); hairIt++ )
 	{
