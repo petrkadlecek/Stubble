@@ -110,7 +110,26 @@ void HairGuides::importNURBS( void )
 
 void HairGuides::exportNURBS( void )
 {
-	/* TODO */
+	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); hairIt != mSelectedGuides.end(); hairIt++ )
+	{
+		MPointArray pointArray;				
+		for ( Segments::const_iterator segmentIt = hairIt->mSegments.mSegments.begin()
+			; segmentIt != hairIt->mSegments.mSegments.end()
+			; segmentIt++ )
+		{
+			const Vector3D<Real> point = *segmentIt;
+			double coors[] = { point.x, point.y, point.z };
+			pointArray.append( coors );
+		}
+		MFnNurbsCurve nurbsCurve;
+		MStatus status;
+
+		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, false, false, true, MObject::kNullObj, &status );
+		if ( status != MStatus::kSuccess )
+		{
+			status.perror( "HairGuides: Failed to create nurbs" );			
+		}
+	}
 }
 
 void HairGuides::setCurrentTime( Time aTime )

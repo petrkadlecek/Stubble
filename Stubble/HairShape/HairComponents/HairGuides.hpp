@@ -16,6 +16,8 @@
 #include <fstream>
 
 #include <maya/MFnMesh.h>
+#include <maya/MFnNurbsCurve.h>
+#include <maya/MPointArray.h>
 
 namespace Stubble
 {
