@@ -19,6 +19,11 @@ class Triangle
 public:
 
 	///----------------------------------------------------------------------------------------------------
+	/// Default constructor. 
+	///----------------------------------------------------------------------------------------------------
+	inline Triangle();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Constructor. 
 	///
 	/// \param	mVertex1	The first triangle Vertex. 
@@ -55,6 +60,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline const MeshPoint & getVertex3() const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the barycenter of triangle.
+	///
+	/// \return	The barycenter. 
+	///----------------------------------------------------------------------------------------------------
+	inline const Vector3D< Real > getBarycenter() const;
+
 private:
 
 	MeshPoint mVertices[ 3 ]; ///< The Vertices
@@ -67,6 +79,10 @@ private:
 typedef std::vector< Triangle > Triangles;
 
 // inline functions implementation
+
+inline Triangle::Triangle()
+{
+}
 
 inline Triangle::Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex2, const MeshPoint & mVertex3 )
 {
@@ -93,6 +109,13 @@ inline const MeshPoint & Triangle::getVertex2() const
 inline const MeshPoint & Triangle::getVertex3() const
 {
 	return mVertices[ 2 ];
+}
+
+inline const Vector3D< Real > Triangle::getBarycenter() const
+{
+	return ( mVertices[ 0 ].getPosition() + 
+		mVertices[ 1 ].getPosition() + 
+		mVertices[ 2 ].getPosition() ) / 3; 
 }
 
 } // namespace HairShape

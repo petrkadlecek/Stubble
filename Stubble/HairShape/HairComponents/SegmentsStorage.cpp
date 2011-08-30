@@ -10,7 +10,7 @@ namespace HairComponents
 {
 
 const Real HAIR_LENGTH = 1.0f;
-const unsigned int INTERPOLATE_FROM = 3;
+const unsigned __int32 INTERPOLATE_FROM = 3;
 
 SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
@@ -256,7 +256,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 	posIt != aRestPositions.end(); ++posIt, ++guideIt )
 	{
 		// Get interpolation group
-		unsigned int interpolationGroup = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(),
+		unsigned __int32 interpolationGroup = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(),
 																			posIt->mPosition.getVCoordinate() );
 		// Get segments count
 		guideIt->mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) ); 

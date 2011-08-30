@@ -31,7 +31,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 		for( std::size_t index = 0; !aTriangleConstIterator.end(); ++aTriangleConstIterator, ++index )
 		{
 			// Remember triangle ID
-			unsigned int triangleSimpleID = aTriangleConstIterator.getTriangleID();
+			unsigned __int32 triangleSimpleID = aTriangleConstIterator.getTriangleID();
 
 			// Calculate triangle area
 			const Triangle & triangle = aTriangleConstIterator.getTriangle();
@@ -54,7 +54,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 			Real size = sizeU > sizeV ? sizeU * aTexture.getWidth() : sizeV * aTexture.getHeight();
 
 			// Power 2 size
-			unsigned int isize = static_cast< unsigned int >( ceil( size ) ) - 1;
+			unsigned __int32 isize = static_cast< unsigned __int32 >( ceil( size ) ) - 1;
 			isize = ( isize >> 1 ) | isize;
 			isize = ( isize >> 2 ) | isize;
 			isize = ( isize >> 4 ) | isize;
@@ -86,10 +86,10 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 						int depth = subTriangle.mTriangleSimpleID + 1;
 						father[ subTriangle.mTriangleSimpleID ] = stackHead;
 						// Connect middle vertices of lines
-						unsigned int differentRowFix = 1 << ( ( MAX_DIVISION_DEPTH - depth ) << 1 );
-						unsigned int v1ID = subTriangle.mVertex1ID;
-						unsigned int v2ID = subTriangle.mVertex2ID;
-						unsigned int v3ID = subTriangle.mVertex3ID;
+						unsigned __int32 differentRowFix = 1 << ( ( MAX_DIVISION_DEPTH - depth ) << 1 );
+						unsigned __int32 v1ID = subTriangle.mVertex1ID;
+						unsigned __int32 v2ID = subTriangle.mVertex2ID;
+						unsigned __int32 v3ID = subTriangle.mVertex3ID;
 						unsigned __int16 middle12ID = 
 							static_cast< unsigned __int16 >( ( v1ID + v2ID ) >> 1 );
 						unsigned __int16 middle23ID = 
@@ -243,12 +243,12 @@ void UVPointGenerator::BuildVertices()
 {
 	mVertices.resize( VERTICES_COUNT );
 	// Now fill mVertices with barycentic coordinates
-	unsigned int index = 0, verticesInRowMinus1 = SECOND_VERTEX_INDEX;
+	unsigned __int32 index = 0, verticesInRowMinus1 = SECOND_VERTEX_INDEX;
 	Real u , v = 0, stepU = 1.0 / verticesInRowMinus1, stepV = stepU;
 	while ( index < VERTICES_COUNT )
 	{
 		u = 0; // New row of vertices
-		for( unsigned int rowIndex = 0; rowIndex <= verticesInRowMinus1; ++rowIndex, ++index )
+		for( unsigned __int32 rowIndex = 0; rowIndex <= verticesInRowMinus1; ++rowIndex, ++index )
 		{
 			mVertices[ index ].mU = u;
 			mVertices[ index ].mV = v;

@@ -47,7 +47,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getTriangleCount() const;
+	inline unsigned __int32 getTriangleCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets mesh's bounding box
@@ -114,9 +114,9 @@ inline const Triangle & Mesh::getTriangle( int aID ) const
 	return mTriangles[ aID ];
 }
 
-inline unsigned int Mesh::getTriangleCount() const
+inline unsigned __int32 Mesh::getTriangleCount() const
 {
-	return static_cast< unsigned int > (mTriangles.size());
+	return static_cast< unsigned __int32 > (mTriangles.size());
 }
 
 inline BoundingBox Mesh::getBoundingBox() const

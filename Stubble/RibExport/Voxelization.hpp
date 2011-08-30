@@ -2,11 +2,13 @@
 #define STUBBLE_VOXELIZATION_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "HairShape\Mesh\MayaMesh.hpp"
 #include "HairShape\Mesh\Mesh.hpp"
 #include "HairShape\Generators\UVPointGenerator.hpp"
 #include "Primitives\BoundingBox.hpp"
 
 #include <fstream>
+#include <vector>
 
 namespace Stubble
 {
@@ -37,7 +39,7 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
 	///-------------------------------------------------------------------------------------------------
-	~Voxelization();
+	inline ~Voxelization();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets a number of guide hair in voxel.
@@ -50,7 +52,7 @@ public:
 	///
 	/// \return	The voxel hair count. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getVoxelHairCount( unsigned int aTotalHairCount, unsigned int aVoxelId ) const;
+	inline unsigned __int32 getVoxelHairCount( unsigned __int32 aTotalHairCount, unsigned __int32 aVoxelId ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Queries if a voxel is empty. 
@@ -59,14 +61,14 @@ public:
 	///
 	/// \return	true if a voxel is empty, false if not. 
 	///-------------------------------------------------------------------------------------------------
-	inline bool isVoxelEmpty( unsigned int aVoxelId ) const;
+	inline bool isVoxelEmpty( unsigned __int32 aVoxelId ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the voxels count. 
 	///
 	/// \return	The voxels count. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getVoxelsCount() const;
+	inline unsigned __int32 getVoxelsCount() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Export current voxel to file. 
@@ -78,7 +80,7 @@ public:
 	/// \return	bounding box of current voxel 
 	///-------------------------------------------------------------------------------------------------
 	BoundingBox exportCurrentVoxel( std::ostream & aOutputStream, const MayaMesh & aCurrentMesh, 
-		unsigned int aVoxelId ) const;
+		unsigned __int32 aVoxelId ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Export rest pose voxel. 
@@ -87,24 +89,50 @@ public:
 	/// \param	aRestPoseMesh			a rest pose mesh. 
 	/// \param	aVoxelId				Identifier for a voxel. 
 	///-------------------------------------------------------------------------------------------------
-	void exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh & aRestPoseMesh, unsigned int aVoxelId ) const;
+	void exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh & aRestPoseMesh, unsigned __int32 aVoxelId ) const;
 
 private:
 
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing list of identifiers for the triangles .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< unsigned __int32 > TrianglesIds;
+
+	struct Voxel
+	{
+		Real mDensity;  ///< The density of hair in this voxel
+
+		TrianglesIds mTrianglesIds; ///< List of identifiers for the triangles
+	};
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the voxels .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< Voxel > Voxels;
+
+	Voxels mVoxels;
 };
 
 // inline methods implementation
 
-inline unsigned int Voxelization::getVoxelHairCount( unsigned int aTotalHairCount, unsigned int aVoxelId ) const
+inline Voxelization::~Voxelization()
 {
 }
 
-inline bool Voxelization::isVoxelEmpty( unsigned int aVoxelId ) const
+inline unsigned __int32 Voxelization::getVoxelHairCount( unsigned __int32 aTotalHairCount, 
+	unsigned __int32 aVoxelId ) const
 {
+	return static_cast< unsigned __int32 >( mVoxels[ aVoxelId ].mDensity * aTotalHairCount );
 }
 
-inline unsigned int Voxelization::getVoxelsCount() const
+inline bool Voxelization::isVoxelEmpty( unsigned __int32 aVoxelId ) const
 {
+	return mVoxels[ aVoxelId ].mTrianglesIds.empty();
+}
+
+inline unsigned __int32 Voxelization::getVoxelsCount() const
+{
+	return static_cast< unsigned __int32 >( mVoxels.size() );
 }
 
 } // namespace RibExport
@@ -113,4 +141,4 @@ inline unsigned int Voxelization::getVoxelsCount() const
 
 } // namespace Stubble
 
-#endif // STUBBLE_MAYA_MESH_HPP
+#endif // STUBBLE_VOXELIZATION_HPP

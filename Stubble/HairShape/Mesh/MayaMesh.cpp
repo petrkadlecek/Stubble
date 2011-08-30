@@ -21,7 +21,7 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(
 	while ( !iter.isDone() )
 	{
 		// Get local vertices indices
-		for(unsigned int i = 0; i < iter.polygonVertexCount(); ++i)
+		for(unsigned __int32 i = 0; i < iter.polygonVertexCount(); ++i)
 		{
 			localVerticesIndices[ iter.vertexIndex( i ) ] = i;
 		}
@@ -187,9 +187,9 @@ inline const Triangle MayaMesh::getTriangle(int aID) const
 	}
 }
 
-inline unsigned int MayaMesh::getTriangleCount() const
+inline unsigned __int32 MayaMesh::getTriangleCount() const
 {
-	return static_cast< unsigned int >( mMeshTriangles.size() );
+	return static_cast< unsigned __int32 >( mMeshTriangles.size() );
 }
 
 void MayaMesh::meshUpdate(MObject & aUpdatedMesh, const MString * aUVSet)
@@ -215,7 +215,7 @@ void MayaMesh::getTriangles( Triangles & aResult ) const
 	{
 		aResult.clear();
 		aResult.reserve( mMeshTriangles.size() );
-		for ( unsigned int i = 0; i < aResult.size(); ++i )
+		for ( unsigned __int32 i = 0; i < aResult.size(); ++i )
 		{
 			aResult.push_back( getTriangle( i ) );
 		}

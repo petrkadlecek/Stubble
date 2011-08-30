@@ -51,10 +51,10 @@ float Texture::realAtUV( Real u, Real v ) const
 
 Texture::Color Texture::colorAtUV( Real u, Real v ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(u * mWidth) );
+	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(u * mWidth) );
 	x = x == mWidth ? mWidth - 1 : x;
 
-	unsigned int y = static_cast< unsigned int > ( floor(v * mHeight) );
+	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(v * mHeight) );
 	y = y == mHeight ? mHeight - 1 :  y;
 
 	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
@@ -70,17 +70,17 @@ bool Texture::isDirty() const
 	return mDirty;
 }
 
-unsigned int Texture::getWidth() const
+unsigned __int32 Texture::getWidth() const
 {
 	return mWidth;
 }
 
-unsigned int Texture::getHeight() const
+unsigned __int32 Texture::getHeight() const
 {
 	return mHeight;
 }
 
-unsigned int Texture::getColorCompomentsCount() const
+unsigned __int32 Texture::getColorCompomentsCount() const
 {
 	return mColorComponents;
 }

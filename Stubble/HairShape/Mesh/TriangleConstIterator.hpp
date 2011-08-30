@@ -35,7 +35,7 @@ public:
 	///
 	/// \return	The triangle identifier. 
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getTriangleID() const;
+	inline unsigned __int32 getTriangleID() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the triangle. 
@@ -49,7 +49,7 @@ public:
 	///
 	/// \return	The triangles count. 
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getTrianglesCount() const;
+	inline unsigned __int32 getTrianglesCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the end. 
@@ -106,9 +106,9 @@ TriangleConstIterator & TriangleConstIterator::operator++ ()
 ///
 /// \return	The triangle identifier. 
 ///----------------------------------------------------------------------------------------------------
-unsigned int TriangleConstIterator::getTriangleID() const
+unsigned __int32 TriangleConstIterator::getTriangleID() const
 {
-	return static_cast< unsigned int >( mIter - mBegin );
+	return static_cast< unsigned __int32 >( mIter - mBegin );
 }
 
 ///----------------------------------------------------------------------------------------------------
@@ -126,9 +126,9 @@ const Triangle & TriangleConstIterator::getTriangle() const
 ///
 /// \return	The triangles count. 
 ///----------------------------------------------------------------------------------------------------
-unsigned int TriangleConstIterator::getTrianglesCount() const
+unsigned __int32 TriangleConstIterator::getTrianglesCount() const
 {
-	return static_cast< unsigned int >( mEnd - mBegin );
+	return static_cast< unsigned __int32 >( mEnd - mBegin );
 }
 
 ///----------------------------------------------------------------------------------------------------

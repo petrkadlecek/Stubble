@@ -27,8 +27,8 @@ void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions,
 	mDirtyBit = false;
 }
 
-void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned int aInterpolationGroupId,
-		unsigned int aN, ClosestGuidesIds & aClosestGuidesIds ) const
+void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
+		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const
 {
 	/* TODO */
 }

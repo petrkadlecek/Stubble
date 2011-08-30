@@ -3,6 +3,8 @@
 
 #include "CommonFunctions.hpp"
 
+#include <stdint.h>
+
 namespace Stubble 
 {
 
@@ -24,13 +26,13 @@ typedef void * UNKNOWN;
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing fixed length arrays.
 ///-------------------------------------------------------------------------------------------------
-typedef double Real3[3];
-typedef double Real4[3];
+typedef Real Real3[3];
+typedef Real Real4[3];
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the dimensions in 3D.
 ///-------------------------------------------------------------------------------------------------
-typedef unsigned int Dimensions3[3];
+typedef unsigned __int32 Dimensions3[3];
 
 } // namespace Stubble
 

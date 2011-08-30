@@ -250,7 +250,7 @@ void HairGuides::emptyHistoryStack()
 }
 
 void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned int aCount, 
+	const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned __int32 aCount, 
 	bool aInterpolateFromPrevious )
 {
 	// Temporary hair guides
@@ -262,7 +262,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	// Start generating positions
 	GuidesRestPositions::iterator restPosIt = tmpRestPositions.begin();
 	GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
-	for ( unsigned int i = 0; i < aCount; ++i, ++restPosIt, ++currPosIt )
+	for ( unsigned __int32 i = 0; i < aCount; ++i, ++restPosIt, ++currPosIt )
 	{
 		// Generate rest pose position
 		restPosIt->mUVPoint = aUVPointGenerator.next();

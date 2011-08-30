@@ -11,14 +11,14 @@ namespace HairShape
 namespace Interpolation
 {
 
-InterpolationGroups::InterpolationGroups( const Texture & aInterpolationGroupsTexture, unsigned int aSegmentsCount ):
+InterpolationGroups::InterpolationGroups( const Texture & aInterpolationGroupsTexture, unsigned __int32 aSegmentsCount ):
 	mInterpolationGroupsTexture( 0 ),
 	mInterpolationGroupsColors( 0 )
 {
 	updateGroups( aInterpolationGroupsTexture, aSegmentsCount );
 }
 
-void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsTexture, unsigned int aSegmentsCount )
+void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsTexture, unsigned __int32 aSegmentsCount )
 {
 	if ( aInterpolationGroupsTexture.isAnimated() )
 	{
@@ -28,30 +28,30 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 	{
 		throw StubbleException(" InterpolationGroups::setGroupSegmentsCount : segments count must be greater than 0 ");
 	}
-	unsigned int * tempInterpolationGroupsTexture = 0;
+	unsigned __int32 * tempInterpolationGroupsTexture = 0;
 	Texture::Color tempInterpolationGroupsColors = 0;
 	try 
 	{
-		const unsigned int tempColorComponentCount = aInterpolationGroupsTexture.getColorCompomentsCount();
-		const unsigned int tempTextureWidth = aInterpolationGroupsTexture.getWidth();
-		const unsigned int tempTextureHeight = aInterpolationGroupsTexture.getHeight();
-		const unsigned int size = tempTextureWidth * tempTextureHeight;
+		const unsigned __int32 tempColorComponentCount = aInterpolationGroupsTexture.getColorCompomentsCount();
+		const unsigned __int32 tempTextureWidth = aInterpolationGroupsTexture.getWidth();
+		const unsigned __int32 tempTextureHeight = aInterpolationGroupsTexture.getHeight();
+		const unsigned __int32 size = tempTextureWidth * tempTextureHeight;
 		// Prepare place for interpolation groups texture
-		tempInterpolationGroupsTexture = new unsigned int[ size ];
+		tempInterpolationGroupsTexture = new unsigned __int32[ size ];
 		// Get texture raw data
 		const Texture::Color rawData = aInterpolationGroupsTexture.getRawData();
 		const Texture::Color rawDataEnd = rawData + size * tempColorComponentCount;
 		// Prepare structure for colors
-		typedef std::map< Texture::Color, unsigned int, Texture::ColorComparator > ColorMap;
+		typedef std::map< Texture::Color, unsigned __int32, Texture::ColorComparator > ColorMap;
 		Texture::ColorComparator cmp( tempColorComponentCount );
 		ColorMap colorMap( cmp );
 		// Go through all pixels
-		unsigned int * iterCpy = tempInterpolationGroupsTexture;
+		unsigned __int32 * iterCpy = tempInterpolationGroupsTexture;
 		for( Texture::Color iter = rawData; iter < rawDataEnd; iter += tempColorComponentCount, ++iterCpy )
 		{
 			// First find if there is existing interpolation group with selected color or create new group
 			std::pair< ColorMap::iterator, bool > color = 
-				colorMap.insert( std::make_pair( iter, static_cast< unsigned int > ( colorMap.size() ) ) );
+				colorMap.insert( std::make_pair( iter, static_cast< unsigned __int32 > ( colorMap.size() ) ) );
 			// Set group id
 			*iterCpy = color.first->second;
 		}

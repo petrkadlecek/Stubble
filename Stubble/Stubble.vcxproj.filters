@@ -160,6 +160,9 @@
     <ClCompile Include="RibExport\Voxelization.cpp">
       <Filter>HairShape\RibExport</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Mesh\Mesh.cpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">

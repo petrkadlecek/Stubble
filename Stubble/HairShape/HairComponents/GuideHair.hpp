@@ -67,7 +67,7 @@ public:
 	/// \param	aGuideHairVerticesCount	Number of the vertices.
 	/// \param	aSegmentSize	Size of a segment. 
 	///----------------------------------------------------------------------------------------------------
-	inline void resetGuideHairVertices( unsigned int aGuideHairVerticesCount, double aSegmentSize );
+	inline void resetGuideHairVertices( unsigned __int32 aGuideHairVerticesCount, double aSegmentSize );
 
 	///----------------------------------------------------------------------------------------------------
 	///  Resets the segments in normal direction without changes to guide hair vertices count
@@ -99,7 +99,7 @@ public:
 	///
 	/// \return	The guide hair vertices.
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getGuideHairVerticesCount() const;
+	inline unsigned __int32 getGuideHairVerticesCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the desired segment hair
@@ -129,7 +129,7 @@ public:
 	///
 	/// \return	The vertex in world coordinates. 
 	///----------------------------------------------------------------------------------------------------
-	inline Vector3D< double > getGuideHairVertexInWorldCoordinates( unsigned int aIndex ) const;
+	inline Vector3D< double > getGuideHairVertexInWorldCoordinates( unsigned __int32 aIndex ) const;
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -143,7 +143,7 @@ private:
 
 	GuideHairVertices mGuideHairVertices; ///< The guide hair vertices ( including the root of the hair )
 
-	unsigned int mGuideHairVerticesCount; ///< Number of guide hair vertices
+	unsigned __int32 mGuideHairVerticesCount; ///< Number of guide hair vertices
 
 	double mSegmentLength; ///< Length of the hair segment (same between all hair vertices
 
@@ -231,7 +231,7 @@ inline const MeshPoint & GuideHair::getGuideWorldPosition() const
 	return mWorldSpacePosition;
 }
 
-inline void GuideHair::resetGuideHairVertices( unsigned int aGuideHairVerticesCount, double aSegmentSize )
+inline void GuideHair::resetGuideHairVertices( unsigned __int32 aGuideHairVerticesCount, double aSegmentSize )
 {
 	if ( aGuideHairVerticesCount != mGuideHairVerticesCount )
 	{
@@ -260,7 +260,7 @@ inline const GuideHair::GuideHairVertices GuideHair::getGuideHairVertices() cons
 	return mGuideHairVertices;
 }
 
-inline unsigned int GuideHair::getGuideHairVerticesCount() const
+inline unsigned __int32 GuideHair::getGuideHairVerticesCount() const
 {
 	return mGuideHairVerticesCount;
 }
@@ -280,7 +280,7 @@ inline const double * GuideHair::getLocalTransformMatrix() const
 	return mLocalTransformMatrix;
 }
 
-inline Vector3D< double > GuideHair::getGuideHairVertexInWorldCoordinates( unsigned int aIndex ) const
+inline Vector3D< double > GuideHair::getGuideHairVertexInWorldCoordinates( unsigned __int32 aIndex ) const
 {
 	//TODO: rewrite using a common vector transform method
 	Vector3D< double > guideHairVertex = mGuideHairVertices[ aIndex ];

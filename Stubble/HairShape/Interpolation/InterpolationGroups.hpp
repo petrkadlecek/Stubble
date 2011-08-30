@@ -29,7 +29,7 @@ public:
 	/// \param	aInterpolationGroupsTexture	The interpolation groups texture. 
 	/// \param	aSegmentsCount				Number of the segments for all groups. 
 	///-------------------------------------------------------------------------------------------------
-	InterpolationGroups( const Texture & aInterpolationGroupsTexture, unsigned int aSegmentsCount );
+	InterpolationGroups( const Texture & aInterpolationGroupsTexture, unsigned __int32 aSegmentsCount );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
@@ -42,14 +42,14 @@ public:
 	/// \param	aInterpolationGroupsTexture	The interpolation groups texture. 
 	/// \param	aSegmentsCount				Number of the segments for all groups. 
 	///-------------------------------------------------------------------------------------------------
-	void updateGroups( const Texture & aInterpolationGroupsTexture, unsigned int aSegmentsCount );
+	void updateGroups( const Texture & aInterpolationGroupsTexture, unsigned __int32 aSegmentsCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the interpolation groups count. 
 	/// 
 	/// \return	The interpolation groups count. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getGroupsCount() const;
+	inline unsigned __int32 getGroupsCount() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the interpolation group segments count. 
@@ -58,7 +58,7 @@ public:
 	///
 	/// \return	The interpolation group segments count. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getGroupSegmentsCount( unsigned int aGroupId ) const;
+	inline unsigned __int32 getGroupSegmentsCount( unsigned __int32 aGroupId ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the interpolation group segments count. 
@@ -66,7 +66,7 @@ public:
 	/// \param	aGroupId		Identifier for a group. 
 	/// \param	aSegmentsCount	Number of the segments for selected group. 
 	///-------------------------------------------------------------------------------------------------
-	inline void setGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount );
+	inline void setGroupSegmentsCount( unsigned __int32 aGroupId, unsigned __int32 aSegmentsCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets a group identifier. 
@@ -76,7 +76,7 @@ public:
 	///
 	/// \return	The group identifier. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getGroupId( Real aU, Real aV ) const;
+	inline unsigned __int32 getGroupId( Real aU, Real aV ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the segments count. 
@@ -86,7 +86,7 @@ public:
 	///
 	/// \return	The segments count. 
 	///-------------------------------------------------------------------------------------------------
-	inline unsigned int getSegmentsCount( Real aU, Real aV ) const;
+	inline unsigned __int32 getSegmentsCount( Real aU, Real aV ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the color compoment count. 
@@ -94,7 +94,7 @@ public:
 	///
 	/// \return	The color compoment count. 
 	///----------------------------------------------------------------------------------------------------
-	inline unsigned int getColorCompomentCount() const;
+	inline unsigned __int32 getColorCompomentCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets a color of interpolation group. 
@@ -103,24 +103,24 @@ public:
 	///
 	/// \return	The color of interpolation group. 
 	///----------------------------------------------------------------------------------------------------
-	inline Texture::Color getColorOfGroup( unsigned int aGroupId ) const;
+	inline Texture::Color getColorOfGroup( unsigned __int32 aGroupId ) const;
 
 private:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing number of interpolation groups segments .
 	///----------------------------------------------------------------------------------------------------
-	typedef std::vector< unsigned int > InterpolationGroupsSegmentsCount;
+	typedef std::vector< unsigned __int32 > InterpolationGroupsSegmentsCount;
 
-	unsigned int mTextureHeight;   ///< The texture height
+	unsigned __int32 mTextureHeight;   ///< The texture height
 
-	unsigned int mTextureWidth;	///< The texture width
+	unsigned __int32 mTextureWidth;	///< The texture width
 
-	unsigned int * mInterpolationGroupsTexture;	///< Interpolation groups texture
+	unsigned __int32 * mInterpolationGroupsTexture;	///< Interpolation groups texture
 
 	Texture::Color mInterpolationGroupsColors; ///< List of colors of the interpolation groups
 
-	unsigned int mColorComponentCount;  ///< Number of color components
+	unsigned __int32 mColorComponentCount;  ///< Number of color components
 
 	InterpolationGroupsSegmentsCount mInterpolationGroupsSegmentsCount; ///< Number of interpolation groups segments
 };
@@ -133,17 +133,17 @@ inline InterpolationGroups::~InterpolationGroups()
 	delete [] mInterpolationGroupsColors;
 }
 
-inline unsigned int InterpolationGroups::getGroupsCount() const
+inline unsigned __int32 InterpolationGroups::getGroupsCount() const
 {
-	return static_cast< unsigned int >( mInterpolationGroupsSegmentsCount.size() );
+	return static_cast< unsigned __int32 >( mInterpolationGroupsSegmentsCount.size() );
 }
 
-inline unsigned int InterpolationGroups::getGroupSegmentsCount( unsigned int aGroupId ) const
+inline unsigned __int32 InterpolationGroups::getGroupSegmentsCount( unsigned __int32 aGroupId ) const
 {
 	return mInterpolationGroupsSegmentsCount[ aGroupId ];
 }
 
-inline void InterpolationGroups::setGroupSegmentsCount( unsigned int aGroupId, unsigned int aSegmentsCount )
+inline void InterpolationGroups::setGroupSegmentsCount( unsigned __int32 aGroupId, unsigned __int32 aSegmentsCount )
 {
 	if ( aSegmentsCount == 0 )
 	{
@@ -152,34 +152,34 @@ inline void InterpolationGroups::setGroupSegmentsCount( unsigned int aGroupId, u
 	mInterpolationGroupsSegmentsCount[ aGroupId ] = aSegmentsCount;
 }
 
-inline unsigned int InterpolationGroups::getGroupId( Real aU, Real aV ) const
+inline unsigned __int32 InterpolationGroups::getGroupId( Real aU, Real aV ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth) );
+	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(aU * mTextureWidth) );
 	x = x == mTextureWidth ? mTextureWidth - 1 : x;
 
-	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight) );
+	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(aV * mTextureHeight) );
 	y = y == mTextureHeight ? mTextureHeight - 1 :  y;
 
 	return *( mInterpolationGroupsTexture + y * mTextureWidth + x );
 }
 
-inline unsigned int InterpolationGroups::getSegmentsCount( Real aU, Real aV ) const
+inline unsigned __int32 InterpolationGroups::getSegmentsCount( Real aU, Real aV ) const
 {
-	unsigned int x = static_cast< unsigned int > ( floor(aU * mTextureWidth) );
+	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(aU * mTextureWidth) );
 	x = x == mTextureWidth ? mTextureWidth - 1 : x;
 
-	unsigned int y = static_cast< unsigned int > ( floor(aV * mTextureHeight) );
+	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(aV * mTextureHeight) );
 	y = y == mTextureHeight ? mTextureHeight - 1 :  y;
 
 	return mInterpolationGroupsSegmentsCount[ *( mInterpolationGroupsTexture + y * mTextureWidth + x ) ];
 }
 
-inline unsigned int InterpolationGroups::getColorCompomentCount() const
+inline unsigned __int32 InterpolationGroups::getColorCompomentCount() const
 {
 	return mColorComponentCount;
 }
 
-inline Texture::Color InterpolationGroups::getColorOfGroup( unsigned int aGroupId ) const
+inline Texture::Color InterpolationGroups::getColorOfGroup( unsigned __int32 aGroupId ) const
 {
 	return mInterpolationGroupsColors + aGroupId * mColorComponentCount;
 }

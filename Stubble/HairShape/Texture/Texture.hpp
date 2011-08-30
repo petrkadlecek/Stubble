@@ -64,7 +64,7 @@ public:
 		/// Constructor. 
 		///
 		/// \param	aComponentCount	Number of the components. 
-		explicit inline ColorComparator( unsigned int aComponentCount );
+		explicit inline ColorComparator( unsigned __int32 aComponentCount );
 
 		///----------------------------------------------------------------------------------------------------
 		/// Comparator operator. 
@@ -76,7 +76,7 @@ public:
 		///----------------------------------------------------------------------------------------------------
 		inline bool operator() ( const Color & aColor1, const Color & aColor2 ) const;
 	private:
-		unsigned int mComponentCount;   ///< Number of components
+		unsigned __int32 mComponentCount;   ///< Number of components
 	};
 
 	///----------------------------------------------------------------------------------------------------
@@ -131,17 +131,17 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets informatin about texture width
 	///----------------------------------------------------------------------------------------------------
-	unsigned int getWidth() const;
+	unsigned __int32 getWidth() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets informatin about texture height
 	///----------------------------------------------------------------------------------------------------
-	unsigned int getHeight() const;
+	unsigned __int32 getHeight() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets count of color components
 	///----------------------------------------------------------------------------------------------------
-	unsigned int getColorCompomentsCount() const;
+	unsigned __int32 getColorCompomentsCount() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets raw data of texture
@@ -172,18 +172,18 @@ private:
 
 	float *mTexture;	///< Texture matrix
 
-	unsigned int mWidth;	///< Texture width
+	unsigned __int32 mWidth;	///< Texture width
 
-	unsigned int mHeight;	///< Texture height
+	unsigned __int32 mHeight;	///< Texture height
 
-	unsigned int mColorComponents;	///< Color component count
+	unsigned __int32 mColorComponents;	///< Color component count
 
 	bool mIsAnimated;	///< Identification of texture type
 };
 
 // inline functions implementation
 
-inline Texture::ColorComparator::ColorComparator( unsigned int aComponentCount ):
+inline Texture::ColorComparator::ColorComparator( unsigned __int32 aComponentCount ):
 	mComponentCount( aComponentCount )
 {
 }
@@ -191,7 +191,7 @@ inline Texture::ColorComparator::ColorComparator( unsigned int aComponentCount )
 inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor1, 
 	const Texture::Color & aColor2 ) const
 {
-	for( unsigned int i = 0; i < mComponentCount; ++i ) // For every component
+	for( unsigned __int32 i = 0; i < mComponentCount; ++i ) // For every component
 	{
 		if ( aColor1[ i ] < aColor2[ i ] )
 		{

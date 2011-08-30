@@ -62,7 +62,7 @@ public:
 	///
 	/// \return	The indexed value. 
 	///----------------------------------------------------------------------------------------------------
-	inline Type operator[] ( unsigned int aIndex ) const;
+	inline Type operator[] ( unsigned __int32 aIndex ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Array indexer operator. 
@@ -71,7 +71,7 @@ public:
 	///
 	/// \return	The indexed value. 
 	///----------------------------------------------------------------------------------------------------
-	inline Type & operator[] ( unsigned int aIndex );
+	inline Type & operator[] ( unsigned __int32 aIndex );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Addition assignment operator. 
@@ -315,7 +315,7 @@ inline Type Vector3D< Type >::sizePwr2() const
 }
 
 template < typename Type >
-inline Type Vector3D< Type >::operator[] ( unsigned int aIndex ) const
+inline Type Vector3D< Type >::operator[] ( unsigned __int32 aIndex ) const
 {
 	if ( aIndex == 0 )
 		return x;
@@ -327,7 +327,7 @@ inline Type Vector3D< Type >::operator[] ( unsigned int aIndex ) const
 }
 
 template < typename Type >
-inline Type & Vector3D< Type >::operator[] ( unsigned int aIndex )
+inline Type & Vector3D< Type >::operator[] ( unsigned __int32 aIndex )
 {
 	if ( aIndex == 0 ) return x;
 	if ( aIndex == 1 ) return y;

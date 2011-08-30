@@ -160,7 +160,7 @@ public:
 	/// \param	aInterpolateFromPrevious	true to an interpolate from old guides. 
 	///----------------------------------------------------------------------------------------------------
 	void generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned int aCount, 
+		const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned __int32 aCount, 
 		bool aInterpolateFromPrevious = false );
 
 	///-------------------------------------------------------------------------------------------------

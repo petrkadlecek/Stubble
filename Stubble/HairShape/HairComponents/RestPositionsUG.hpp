@@ -69,8 +69,8 @@ public:
 	/// \param	aN							Number of closest guides to return. 
 	/// \param [in,out]	aClosestGuidesIds	List of identifiers for a closest guides. 
 	///-------------------------------------------------------------------------------------------------
-	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned int aInterpolationGroupId,
-		unsigned int aN, ClosestGuidesIds & aClosestGuidesIds ) const;
+	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
+		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 

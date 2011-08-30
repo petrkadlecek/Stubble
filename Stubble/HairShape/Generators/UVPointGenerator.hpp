@@ -70,7 +70,7 @@ private:
 		/// \param	aTriangleSimpleID	Simple identifier for triangle or current recursion depth. 
 		///----------------------------------------------------------------------------------------------------
 		void set( unsigned __int16 aVertex1ID, unsigned __int16 aVertex2ID, 
-			unsigned __int16 aVertex3ID, Real aCDFValue, unsigned int aTriangleSimpleID )
+			unsigned __int16 aVertex3ID, Real aCDFValue, unsigned __int32 aTriangleSimpleID )
 		{
 			mVertex1ID = aVertex1ID;
 			mVertex2ID = aVertex2ID;
@@ -86,7 +86,7 @@ private:
 		{
 		}
 
-		unsigned int mTriangleSimpleID; ///< Simple identifier for the triangle or current recursion depth
+		unsigned __int32 mTriangleSimpleID; ///< Simple identifier for the triangle or current recursion depth
 		unsigned __int16 mVertex1ID; ///< Identifier for the vertex 1
 		unsigned __int16 mVertex2ID; ///< Identifier for the vertex 2
 		unsigned __int16 mVertex3ID; ///< Identifier for the vertex 3
@@ -123,29 +123,29 @@ private:
 	typedef std::vector< Vertex > VerticesArray;
 
 	///< Depth of the maximum division of one triangle
-	static const unsigned int MAX_DIVISION_DEPTH = 8;
+	static const unsigned __int32 MAX_DIVISION_DEPTH = 8;
 
 	///< Size of the maximum triangle uv (2^MAX_DISION_DEPTH)
-	static const unsigned int MAX_TRIANGLE_UV_SIZE = 1 << MAX_DIVISION_DEPTH;
+	static const unsigned __int32 MAX_TRIANGLE_UV_SIZE = 1 << MAX_DIVISION_DEPTH;
 	
 	///< Number of subtriangles = 4^MAX_DIVISION_DEPTH
-	static const unsigned int NUM_TRIANGLES = 1 << ( MAX_DIVISION_DEPTH << 1 );
+	static const unsigned __int32 NUM_TRIANGLES = 1 << ( MAX_DIVISION_DEPTH << 1 );
 	
 	///< Size of the stack = number of subtriangles + MAX_DIVISION_DEPTH = 4^MAX_DIVISION_DEPTH + MAX_DIVISION_DEPTH
-	static const unsigned int STACK_SIZE = NUM_TRIANGLES + MAX_DIVISION_DEPTH;
+	static const unsigned __int32 STACK_SIZE = NUM_TRIANGLES + MAX_DIVISION_DEPTH;
 
 	///< Index of first vertex in triangle
-	static const unsigned int FIRST_VERTEX_INDEX = 0;
+	static const unsigned __int32 FIRST_VERTEX_INDEX = 0;
 	
 	///< Index of second vertex in triangle (2^MAX_DIVISION_DEPTH)
-	static const unsigned int SECOND_VERTEX_INDEX = 1 << MAX_DIVISION_DEPTH;
+	static const unsigned __int32 SECOND_VERTEX_INDEX = 1 << MAX_DIVISION_DEPTH;
 	
 	///< Index of third vertex in triangle (2^MAX_DIVISION_DEPTH + 2)*(2^MAX_DIVISION_DEPTH + 1)/2 - 1
-	static const unsigned int THIRD_VERTEX_INDEX = 
+	static const unsigned __int32 THIRD_VERTEX_INDEX = 
 		( ( ( SECOND_VERTEX_INDEX + 1 ) * ( SECOND_VERTEX_INDEX + 2 ) ) >> 1 ) - 1;
 	
 	///< Number of vertices in divided triangle
-	static const unsigned int VERTICES_COUNT = THIRD_VERTEX_INDEX + 1;
+	static const unsigned __int32 VERTICES_COUNT = THIRD_VERTEX_INDEX + 1;
 	
 	SubTriangles mSubTriangles;	///< The sub triangles cdf
 	

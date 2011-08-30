@@ -53,7 +53,7 @@ typedef std::map< Time, FrameSegments > AllFramesSegments;
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing identifier for the guide .
 ///-------------------------------------------------------------------------------------------------
-typedef unsigned int GuideId;
+typedef unsigned __int32 GuideId;
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing list of identifiers for the guides .
