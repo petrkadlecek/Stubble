@@ -67,6 +67,9 @@
     <Filter Include="HairShape\Interpolation">
       <UniqueIdentifier>{6a2b5c65-c1ef-49ae-9cbb-274af16b2d12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HairShape\RibExport">
+      <UniqueIdentifier>{33103871-df72-42c9-9f13-d90140cc9d10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -153,6 +156,9 @@
     </ClCompile>
     <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RibExport\Voxelization.cpp">
+      <Filter>HairShape\RibExport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RibExport\Voxelization.hpp">
+      <Filter>HairShape\RibExport</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -27,6 +27,11 @@ typedef void * UNKNOWN;
 typedef double Real3[3];
 typedef double Real4[3];
 
+///-------------------------------------------------------------------------------------------------
+/// Defines an alias representing the dimensions in 3D.
+///-------------------------------------------------------------------------------------------------
+typedef unsigned int Dimensions3[3];
+
 } // namespace Stubble
 
 #endif // STUBBLE_COMMON_TYPES_HPP

@@ -148,6 +148,7 @@
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="pluginMain.cpp" />
+    <ClCompile Include="RibExport\Voxelization.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Primitives\Vector3D.hpp" />
     <ClInclude Include="HairShape\Generators\RandomGenerator.hpp" />
     <ClInclude Include="HairShape\Texture\Texture.hpp" />
+    <ClInclude Include="RibExport\Voxelization.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp" />
