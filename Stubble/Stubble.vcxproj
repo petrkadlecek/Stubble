@@ -76,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;MAYA;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -114,7 +114,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;MAYA;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -143,13 +143,14 @@
     <ClCompile Include="HairShape\Mesh\Mesh.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshUG.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp" />
+    <ClCompile Include="HairShape\Mesh\Voxelization.cpp" />
     <ClCompile Include="HairShape\Texture\Texture.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShape.cpp" />
-    <ClCompile Include="HairShape\HairComponents\GuideHair.cpp" />
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="pluginMain.cpp" />
-    <ClCompile Include="RibExport\Voxelization.cpp" />
+    <ClCompile Include="RibExport\CachedFrame.cpp" />
+    <ClCompile Include="RibExport\RenderManCacheCommand.cpp" />
     <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp" />
@@ -182,8 +183,8 @@
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshUG.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp" />
+    <ClInclude Include="HairShape\Mesh\Voxelization.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />
-    <ClInclude Include="HairShape\HairComponents\GuideHair.hpp" />
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp" />
     <ClInclude Include="HairShape\Mesh\Mesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshPoint.hpp" />
@@ -196,7 +197,8 @@
     <ClInclude Include="Primitives\Vector3D.hpp" />
     <ClInclude Include="HairShape\Generators\RandomGenerator.hpp" />
     <ClInclude Include="HairShape\Texture\Texture.hpp" />
-    <ClInclude Include="RibExport\Voxelization.hpp" />
+    <ClInclude Include="RibExport\CachedFrame.hpp" />
+    <ClInclude Include="RibExport\RenderManCacheCommand.hpp" />
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.hpp" />
     <ClInclude Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.hpp" />

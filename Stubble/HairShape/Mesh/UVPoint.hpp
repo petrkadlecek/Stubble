@@ -24,7 +24,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor
 	///----------------------------------------------------------------------------------------------------
-	inline UVPoint( Real aU, Real AV, int aTriangleID );
+	inline UVPoint( Real aU, Real AV, unsigned __int32 aTriangleID );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the U part.
@@ -39,14 +39,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets ID of the triangle.
 	///----------------------------------------------------------------------------------------------------
-	inline int getTriangleID() const;
+	inline unsigned __int32 getTriangleID() const;
 
 private:
 	Real mU; ///< The U coordinate.
 
 	Real mV; ///< The V coordinate.
 
-	int mTriangleID; ///< ID of triangle.
+	unsigned __int32 mTriangleID; ///< ID of triangle.
 };
 
 ///----------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ inline UVPoint::UVPoint()
 ///----------------------------------------------------------------------------------------------------
 /// Constructor
 ///----------------------------------------------------------------------------------------------------
-inline UVPoint::UVPoint( Real aU, Real aV, int aTriangleID ):
+inline UVPoint::UVPoint( Real aU, Real aV, unsigned __int32 aTriangleID ):
 	mU(aU),
 	mV(aV),
 	mTriangleID(aTriangleID)
@@ -85,7 +85,7 @@ inline Real UVPoint::getV() const
 ///----------------------------------------------------------------------------------------------------
 /// Gets ID of the triangle.
 ///----------------------------------------------------------------------------------------------------
-inline int UVPoint::getTriangleID() const
+inline unsigned __int32 UVPoint::getTriangleID() const
 {
 	return mTriangleID;
 }

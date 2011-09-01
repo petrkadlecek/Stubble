@@ -1,10 +1,12 @@
 #ifndef STUBBLE_VOXELIZATION_HPP
 #define STUBBLE_VOXELIZATION_HPP
 
+
+
 #include "Common\CommonTypes.hpp"
-#include "HairShape\Mesh\MayaMesh.hpp"
-#include "HairShape\Mesh\Mesh.hpp"
 #include "HairShape\Generators\UVPointGenerator.hpp"
+#include "MayaMesh.hpp"
+#include "Mesh.hpp"
 #include "Primitives\BoundingBox.hpp"
 
 #include <fstream>
@@ -14,9 +16,6 @@ namespace Stubble
 {
 
 namespace HairShape
-{
-
-namespace RibExport
 {
 
 ///-------------------------------------------------------------------------------------------------
@@ -89,7 +88,8 @@ public:
 	/// \param	aRestPoseMesh			a rest pose mesh. 
 	/// \param	aVoxelId				Identifier for a voxel. 
 	///-------------------------------------------------------------------------------------------------
-	void exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh & aRestPoseMesh, unsigned __int32 aVoxelId ) const;
+	void exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh & aRestPoseMesh, 
+		unsigned __int32 aVoxelId ) const;
 
 private:
 
@@ -134,8 +134,6 @@ inline unsigned __int32 Voxelization::getVoxelsCount() const
 {
 	return static_cast< unsigned __int32 >( mVoxels.size() );
 }
-
-} // namespace RibExport
 
 } // namespace HairShape
 

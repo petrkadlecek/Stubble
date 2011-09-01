@@ -31,7 +31,7 @@ public:
 	/// \param	aIJ	a random generator start value #1. 
 	/// \param	aKL	a random generator start value #2. 
 	///----------------------------------------------------------------------------------------------------
-	void reset( int aIJ, int aKL );
+	void reset( __int32 aIJ, __int32 aKL );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the uniform random number from [0,1]. 
@@ -58,7 +58,7 @@ public:
 	///
 	/// \return	Uniform random integer from [aMin,aMax]. 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline int randomInteger( int aMin, int aMax );
+	inline __int32 randomInteger( __int32 aMin, __int32 aMax );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -68,7 +68,7 @@ public:
 private:
 	Real u[ 97 ]; ///< Random generator data
 	Real c, cd, cm; ///< Random generator data
-	int i97, j97; ///< Random generator data
+	__int32 i97, j97; ///< Random generator data
 };
 
 // inline functions implementation
@@ -107,10 +107,10 @@ inline Real RandomGenerator::randomReal( Real aMin, Real aMax )
 			( aMin + (aMax - aMin) * uniformNumber() );
 }
 
-inline int RandomGenerator::randomInteger( int aMin, int aMax ) 
+inline __int32 RandomGenerator::randomInteger( __int32 aMin, __int32 aMax ) 
 {
 	return ( aMin >= aMax ) ? ( aMin  ) : 
-			( aMin + ( int ) ( (aMax + 1 - aMin) * uniformNumber() ) );
+			( aMin + ( __int32 ) ( (aMax + 1 - aMin) * uniformNumber() ) );
 }
 
 } // namespace HairShape

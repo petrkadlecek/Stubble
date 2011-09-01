@@ -42,7 +42,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets triangle as 3 vertices.
 	///----------------------------------------------------------------------------------------------------
-	inline const Triangle & getTriangle( int aID ) const;
+	inline const Triangle & getTriangle( unsigned __int32 aID ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
@@ -109,7 +109,7 @@ inline MeshPoint Mesh::getMeshPoint( const UVPoint &aPoint ) const
 	return MeshPoint( position, normal, tangent, textU, textV );
 }
 
-inline const Triangle & Mesh::getTriangle( int aID ) const
+inline const Triangle & Mesh::getTriangle( unsigned __int32 aID ) const
 {
 	return mTriangles[ aID ];
 }

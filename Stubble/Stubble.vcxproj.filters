@@ -67,7 +67,7 @@
     <Filter Include="HairShape\Interpolation">
       <UniqueIdentifier>{6a2b5c65-c1ef-49ae-9cbb-274af16b2d12}</UniqueIdentifier>
     </Filter>
-    <Filter Include="HairShape\RibExport">
+    <Filter Include="RibExport">
       <UniqueIdentifier>{33103871-df72-42c9-9f13-d90140cc9d10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -115,9 +115,6 @@
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\GuideHair.cpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
@@ -157,11 +154,17 @@
     <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp">
       <Filter>HairShape\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="RibExport\Voxelization.cpp">
-      <Filter>HairShape\RibExport</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\Mesh\Mesh.cpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RibExport\RenderManCacheCommand.cpp">
+      <Filter>RibExport</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Mesh\Voxelization.cpp">
+      <Filter>HairShape\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RibExport\CachedFrame.cpp">
+      <Filter>RibExport</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +230,6 @@
     </ClInclude>
     <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp">
       <Filter>HairShape\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\GuideHair.hpp">
-      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\HairGuides.hpp">
       <Filter>HairShape\HairComponents</Filter>
@@ -300,8 +300,14 @@
     <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp">
       <Filter>HairShape\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="RibExport\Voxelization.hpp">
-      <Filter>HairShape\RibExport</Filter>
+    <ClInclude Include="RibExport\RenderManCacheCommand.hpp">
+      <Filter>RibExport</Filter>
+    </ClInclude>
+    <ClInclude Include="RibExport\CachedFrame.hpp">
+      <Filter>RibExport</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Mesh\Voxelization.hpp">
+      <Filter>HairShape\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

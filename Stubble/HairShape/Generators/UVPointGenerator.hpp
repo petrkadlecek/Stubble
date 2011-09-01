@@ -46,7 +46,7 @@ public:
 	///
 	/// \return	The triangle normalized density. 
 	///----------------------------------------------------------------------------------------------------
-	inline Real getTriangleDensity( int aID ) const;
+	inline Real getTriangleDensity( unsigned __int32 aID ) const;
 
 private:
 
@@ -169,7 +169,7 @@ inline UVPointGenerator::~UVPointGenerator()
 ///
 /// \return	The triangle density. 
 ///----------------------------------------------------------------------------------------------------
-inline Real UVPointGenerator::getTriangleDensity( int aID ) const
+inline Real UVPointGenerator::getTriangleDensity( unsigned __int32 aID ) const
 {
 	return mTrianglesPDF[ aID ];
 }

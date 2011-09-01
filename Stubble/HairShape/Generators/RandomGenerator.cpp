@@ -7,11 +7,11 @@ namespace Stubble
 namespace HairShape
 {
 
-void RandomGenerator::reset( int aIJ, int aKL )
+void RandomGenerator::reset( __int32 aIJ, __int32 aKL )
 {
 	Real s, t;
-	int i, j, k, l, m;
-	int ii, jj;
+	__int32 i, j, k, l, m;
+	__int32 ii, jj;
 
 	aIJ = clamp( aIJ, 0, 31328 );
 	aKL = clamp( aKL, 0, 30081 );

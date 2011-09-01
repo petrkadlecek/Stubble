@@ -1,9 +1,9 @@
 #ifndef STUBBLE_HAIR_SHAPE_HPP
 #define STUBBLE_HAIR_SHAPE_HPP
 
-#include "HairShape\Generators\UVPointGenerator.hpp"
-#include "HairShape\HairComponents\HairGuides.hpp"
-#include "HairShape\Mesh\MayaMesh.hpp"
+#include "HairShape/Generators/UVPointGenerator.hpp"
+#include "HairShape/HairComponents/HairGuides.hpp"
+#include "HairShape/Mesh/MayaMesh.hpp"
 
 #include <maya/MStatus.h>
 #include <maya/MBoundingBox.h>
@@ -101,6 +101,15 @@ public:
 	/// This function creates a description of our node.
 	///----------------------------------------------------------------------------------------------------
     static MStatus initialize();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Sample HairShape at given time. 
+	///
+	/// \param	aSampleTime					Time of the sample. 
+	/// \param	aFileName					Filename of the file. 
+	/// \param [in,out]	aVoxelBoundingBoxes	The voxel bounding boxes. 
+	///-------------------------------------------------------------------------------------------------
+	void sampleTime( Time aSampleTime, const std::string & aFileName, BoundingBoxes & aVoxelBoundingBoxes );
 
 private:
 	

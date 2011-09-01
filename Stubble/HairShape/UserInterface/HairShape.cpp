@@ -176,6 +176,11 @@ MStatus HairShape::initialize()
 	return MS::kSuccess;
 }
 
+void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, BoundingBoxes & aVoxelBoundingBoxes )
+{
+	/* TODO */
+}
+
 } // namespace HairShape
 
 } // namespace Stubble

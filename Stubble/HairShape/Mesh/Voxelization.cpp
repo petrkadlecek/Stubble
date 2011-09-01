@@ -6,9 +6,6 @@ namespace Stubble
 namespace HairShape
 {
 
-namespace RibExport
-{
-
 Voxelization::Voxelization( const Mesh & aRestPoseMesh, const UVPointGenerator & aUVPointGenerator, 
 	const Dimensions3 & aDimensions3 )
 {
@@ -78,8 +75,6 @@ void Voxelization::exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh
 		aOutputStream << t.getVertex3();
 	}
 }
-
-} // namespace RibExport
 
 } // namespace HairShape
 

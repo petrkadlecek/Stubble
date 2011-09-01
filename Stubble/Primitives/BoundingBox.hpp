@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 namespace Stubble
 {
@@ -65,6 +66,11 @@ private:
 
 	Vector3D< Real > mMax; ///<	Maximum coordinates values.
 };
+
+///-------------------------------------------------------------------------------------------------
+/// Defines an alias representing the bounding boxes .
+///-------------------------------------------------------------------------------------------------
+typedef std::vector< BoundingBox > BoundingBoxes;
 
 // inline functions implementation
 inline BoundingBox::BoundingBox()

@@ -15,13 +15,13 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(
 {
 	MItMeshPolygon iter( aMesh ); // Polygon iterator
 	MFnMesh fnMesh( aMesh ); // Mesh functions
-	int * localVerticesIndices = new int[ fnMesh.numVertices() ]; // Global to local indices
-	int polygonID = 0;
+	unsigned __int32 * localVerticesIndices = new unsigned __int32[ fnMesh.numVertices() ]; // Global to local indices
+	unsigned __int32 polygonID = 0;
 
 	while ( !iter.isDone() )
 	{
 		// Get local vertices indices
-		for(unsigned __int32 i = 0; i < iter.polygonVertexCount(); ++i)
+		for( unsigned __int32 i = 0; i < iter.polygonVertexCount(); ++i )
 		{
 			localVerticesIndices[ iter.vertexIndex( i ) ] = i;
 		}
@@ -39,7 +39,7 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(
 
 			MeshPoint triangleMeshPoints[3];
 
-			for ( int j = 0; j < 3 ; ++j ) // For each vertex in triangle
+			for ( unsigned __int32 j = 0; j < 3 ; ++j ) // For each vertex in triangle
 			{
 				// Select texture coordinates
 				float2 uv;
@@ -147,7 +147,7 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	return MeshPoint( point, normal, tangent, textU, textV );
 }
 
-inline const Triangle MayaMesh::getTriangle(int aID) const
+inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 {
 	if(mUpdatedMesh == 0)
 	{
@@ -172,7 +172,7 @@ inline const Triangle MayaMesh::getTriangle(int aID) const
 		indices[ 1 ] = vertices[ triangle.getLocalVertex2() ];
 		indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
 
-		for(int i = 0; i < 3; ++i)
+		for( unsigned __int32 i = 0; i < 3; ++i)
 		{
 			mUpdatedMesh->getPoint( indices[ 0 ], points [ i ], MSpace::kWorld );
 			mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normals[ i ], MSpace::kWorld );

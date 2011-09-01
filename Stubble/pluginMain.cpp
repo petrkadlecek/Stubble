@@ -12,8 +12,10 @@
 
 #include <maya/MFnPlugin.h>
 
-#include "HairShape\UserInterface\HairShape.hpp"
-#include "HairShape\UserInterface\HairShapeUI.hpp"
+#include "HairShape/UserInterface/HairShape.hpp"
+#include "HairShape/UserInterface/HairShapeUI.hpp"
+
+#include "RibExport/RenderManCacheCommand.hpp"
 
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 
@@ -43,7 +45,9 @@ EXPORT MStatus initializePlugin( MObject aObj )
 
 	// check for error
 	if ( status != MS::kSuccess )
+	{
 		status.perror( "Could not register BrushToolCommand." );
+	}
 
 	status = plugin.registerShape( Stubble::HairShape::HairShape::typeName, // Node name
 								  Stubble::HairShape::HairShape::typeId, // Unique ID of our node
@@ -53,7 +57,18 @@ EXPORT MStatus initializePlugin( MObject aObj )
 
 	// check for error
 	if( status != MS::kSuccess )
+	{
 		status.perror( "could not register the HairShape node" );
+	}
+
+	// register Stubble3DelightCacheCommand command
+	status = plugin.registerCommand( "Stubble3DelightCacheCommand", Stubble::RibExport::RenderManCacheCommand::creator );
+	
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the Stubble3DelightCacheCommand command" );
+	}
 
 	return status;
 }
@@ -75,7 +90,26 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 
 	// check for error
 	if ( status != MS::kSuccess )
+	{
 		status.perror( "Could not deregister BrushToolCommand." );
+	}
+
+	// deregister the HairShape node
+	status = plugin.deregisterNode( Stubble::HairShape::HairShape::typeId );
+
+	// check for error
+	if( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the HairShape node" );
+	}
+
+	// deregister Stubble3DelightCacheCommand command
+	status = plugin.deregisterCommand( "Stubble3DelightCacheCommand" );
+	
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the Stubble3DelightCacheCommand command" );
+	}
 
 	return status;
 }

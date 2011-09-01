@@ -63,7 +63,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 			++isize;
 
 			// Calculate 2^(max division depth)
-			int twoPwrMaxDepth = isize > MAX_TRIANGLE_UV_SIZE ? MAX_TRIANGLE_UV_SIZE : isize ;
+			__int32 twoPwrMaxDepth = isize > MAX_TRIANGLE_UV_SIZE ? MAX_TRIANGLE_UV_SIZE : isize ;
 			// Put triangle on stack
 			stack->set( FIRST_VERTEX_INDEX , SECOND_VERTEX_INDEX, THIRD_VERTEX_INDEX, area, 0 );
 			++stackHead;
@@ -83,7 +83,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 						// Subdivide triangle
 						area /= 4;
 						subTriangle.mCDFValue = -1;
-						int depth = subTriangle.mTriangleSimpleID + 1;
+						unsigned __int32 depth = subTriangle.mTriangleSimpleID + 1;
 						father[ subTriangle.mTriangleSimpleID ] = stackHead;
 						// Connect middle vertices of lines
 						unsigned __int32 differentRowFix = 1 << ( ( MAX_DIVISION_DEPTH - depth ) << 1 );
