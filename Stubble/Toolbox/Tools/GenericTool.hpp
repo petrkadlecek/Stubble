@@ -28,6 +28,12 @@ public:
 	/// Draws the current tool shape on the screen by delegating the request to its ToolShape object.
 	///----------------------------------------------------------------------------------------------------
 	void drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns the tool shape.
+	/// \return The tool shape
+	///----------------------------------------------------------------------------------------------------
+	ToolShape *getToolShape();
 		
 	///----------------------------------------------------------------------------------------------------
 	/// Changes the current tool shape. Called every time the user changes

@@ -28,6 +28,11 @@ void GenericTool::drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventTy
 	mShape->draw( &mView, aScreenCoords, aEventType );
 }
 
+ToolShape *GenericTool::getToolShape()
+{
+	return mShape;
+}
+
 } // namespace Toolbox
 
 } // namespace Stubble
