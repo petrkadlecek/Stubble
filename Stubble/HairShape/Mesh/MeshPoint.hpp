@@ -5,7 +5,8 @@
 #include "Primitives\Matrix.hpp"
 #include "Primitives\Vector3D.hpp"
 
-#include <sstream>
+#include <ostream>
+#include <istream>
 
 namespace Stubble
 {
@@ -230,7 +231,7 @@ inline void MeshPoint::getWorldTransformMatrix( Matrix< Real > & aWorldTransform
 	/* TODO */
 }
 
-inline std::ostream & HairShape::operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )
+inline std::ostream & operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )
 {
 	aStreamOut << aPointOnMesh.mPosition << aPointOnMesh.mNormal << aPointOnMesh.mTangent << aPointOnMesh.mBinormal;
 	aStreamOut.write( reinterpret_cast< const char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
@@ -238,7 +239,7 @@ inline std::ostream & HairShape::operator<<( std::ostream &aStreamOut, const Mes
 	return aStreamOut;
 }
 
-inline std::istream & HairShape::operator>>( std::istream & aStreamIn, MeshPoint & aPointOnMesh )
+inline std::istream & operator>>( std::istream & aStreamIn, MeshPoint & aPointOnMesh )
 {
 	aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent >> aPointOnMesh.mBinormal;
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );

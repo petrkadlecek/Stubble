@@ -61,7 +61,7 @@ public:
 	/// \param aUpdatedMesh	updated mesh
 	/// \param aUVSet		UVSet string
 	///----------------------------------------------------------------------------------------------------
-	void meshUpdate( MObject & aUpdatedMesh, const MString * aUVSet = 0 );
+	void meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the mesh uniform grid. 
@@ -97,7 +97,7 @@ private:
 
 	MFnMesh * mUpdatedMesh; ///< The updated mesh
 	
-	const MString * mUVSet; ///< UV Set name
+	MString mUVSet; ///< UV Set name
 
 	mutable MeshUG mMeshUG; ///< The mesh uniform grid
 

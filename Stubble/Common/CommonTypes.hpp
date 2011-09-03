@@ -1,10 +1,6 @@
 #ifndef STUBBLE_COMMON_TYPES_HPP
 #define STUBBLE_COMMON_TYPES_HPP
 
-#include "CommonFunctions.hpp"
-
-#include <stdint.h>
-
 namespace Stubble 
 {
 

@@ -309,6 +309,9 @@
     <ClInclude Include="HairShape\Mesh\Voxelization.hpp">
       <Filter>HairShape\Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="Common\CommonConstants.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MEL\StubbleBrushToolProperties.mel">

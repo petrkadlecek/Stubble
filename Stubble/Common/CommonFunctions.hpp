@@ -1,8 +1,6 @@
 #ifndef STUBBLE_COMMON_FUNCTIONS_HPP
 #define STUBBLE_COMMON_FUNCTIONS_HPP
 
-#include "CommonFunctions.hpp"
-
 namespace Stubble 
 {
 

@@ -40,8 +40,8 @@ BoundingBox Voxelization::exportCurrentVoxel( std::ostream & aOutputStream, cons
 	BoundingBox bbox;
 	const TrianglesIds & trianglesIds = mVoxels[ aVoxelId ].mTrianglesIds;
 	// Export triangles count
-	aOutputStream.write( reinterpret_cast< const char *>( static_cast< unsigned __int32 >( trianglesIds.size() ) ), 
-		sizeof( unsigned __int32 ) );
+	unsigned __int32 size = static_cast< unsigned __int32 >( trianglesIds.size() );
+	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
 	// Export triangles
 	for ( TrianglesIds::const_iterator it = trianglesIds.begin(); it != trianglesIds.end(); ++it )
 	{
@@ -63,8 +63,8 @@ void Voxelization::exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh
 {
 	const TrianglesIds & trianglesIds = mVoxels[ aVoxelId ].mTrianglesIds;
 	// Export triangles count
-	aOutputStream.write( reinterpret_cast< const char *>( static_cast< unsigned __int32 >( trianglesIds.size() ) ), 
-		sizeof( unsigned __int32 ) );
+	unsigned __int32 size = static_cast< unsigned __int32 >( trianglesIds.size() );
+	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
 	// Export triangles
 	for ( TrianglesIds::const_iterator it = trianglesIds.begin(); it != trianglesIds.end(); ++it )
 	{

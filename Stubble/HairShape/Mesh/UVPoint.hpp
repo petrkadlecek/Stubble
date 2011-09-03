@@ -3,6 +3,9 @@
 
 #include "Common\CommonTypes.hpp"
 
+#include <ostream>
+#include <istream>
+
 namespace Stubble
 {
 
@@ -14,6 +17,8 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 class UVPoint
 {
+	friend inline std::ostream & operator<<( std::ostream & aStreamOut, const UVPoint & aUVPoint );
+	friend inline std::istream & operator>>( std::istream & aStreamIn, UVPoint & aUVPoint );
 public:
 
 	///----------------------------------------------------------------------------------------------------
@@ -88,6 +93,22 @@ inline Real UVPoint::getV() const
 inline unsigned __int32 UVPoint::getTriangleID() const
 {
 	return mTriangleID;
+}
+
+inline std::ostream & operator<<( std::ostream &aStreamOut, const UVPoint & aUVPoint )
+{
+	aStreamOut.write( reinterpret_cast< const char * >( &aUVPoint.mU ), sizeof( Real ) );
+	aStreamOut.write( reinterpret_cast< const char * >( &aUVPoint.mV ), sizeof( Real ) );
+	aStreamOut.write( reinterpret_cast< const char * >( &aUVPoint.mTriangleID ), sizeof( unsigned __int32 ) );
+	return aStreamOut;
+}
+
+inline std::istream & operator>>( std::istream & aStreamIn, UVPoint & aUVPoint )
+{
+	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mU ), sizeof( Real ) );
+	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mV ), sizeof( Real ) );
+	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mTriangleID ), sizeof( unsigned __int32 ) );
+	return aStreamIn;
 }
 
 } // namespace HairShape

@@ -11,7 +11,9 @@ namespace Stubble
 namespace HairShape
 {
 
-MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(0)
+MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): 
+	mUpdatedMesh(0),
+	mUVSet( aUVSet )
 {
 	MItMeshPolygon iter( aMesh ); // Polygon iterator
 	MFnMesh fnMesh( aMesh ); // Mesh functions
@@ -55,8 +57,8 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(
 				triangleMeshPoints[j] = MeshPoint( Vector3D<Real> ( trianglePoints [ j ] ), // Position
 					Vector3D< Real > ( normal ), // Normal
 					Vector3D< Real > ( tangent ), // Tangent
-					static_cast< double >( uv[ 0 ] ), // U Coordinate
-					static_cast< double >( uv[ 1 ] )); // V Coordinate
+					static_cast< Real >( uv[ 0 ] ), // U Coordinate
+					static_cast< Real >( uv[ 1 ] )); // V Coordinate
 
 				// Update bounding box
 				mRestPose.mBoundingBox.expand( Vector3D< Real > ( trianglePoints[ j ] ) );
@@ -67,7 +69,7 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): mUpdatedMesh(
 			// Set maya triangle IDs for fast access to updated triangle
 			mMeshTriangles.push_back( MeshTriangle( polygonID, localVerticesIndices[ trianglePointsIndices[ 0 ] ],
 				localVerticesIndices[ trianglePointsIndices[ 1 ] ],
-				localVerticesIndices[ trianglePointsIndices[ 2 ] ]));
+				localVerticesIndices[ trianglePointsIndices[ 2 ] ] ) );
 		}
 
 		++polygonID; // Next polygon ID
@@ -121,9 +123,9 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 
 	// Calculate tangent
 	MVector tangent1, tangent2, tangent3;
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, mUVSet );
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, mUVSet );
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, mUVSet );
+	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, &mUVSet );
+	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, &mUVSet );
+	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, &mUVSet );
 	MVector tangent = tangent1 * u + tangent2 * v + tangent3 * w;
 
 	// Orthonormalize tangent to normal
@@ -133,13 +135,13 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	// Calculate texture coordinates
 	double textU, textV;
 	float tmpU, tmpV;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, mUVSet);
+	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, &mUVSet);
 	textU = tmpU * u;
 	textV = tmpV * u;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, mUVSet);
+	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, &mUVSet);
 	textU += tmpU * v;
 	textV += tmpV * v;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, mUVSet);
+	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, &mUVSet);
 	textU += tmpU * ( 1 - u - v );
 	textV += tmpV * ( 1 - u - v );
 
@@ -176,8 +178,8 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 		{
 			mUpdatedMesh->getPoint( indices[ 0 ], points [ i ], MSpace::kWorld );
 			mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normals[ i ], MSpace::kWorld );
-			mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangents[ i ], MSpace::kWorld, mUVSet );
-			mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), textU [ i ], textV [ i ], mUVSet);
+			mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangents[ i ], MSpace::kWorld, &mUVSet );
+			mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), textU [ i ], textV [ i ], &mUVSet);
 
 			meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
 				Vector3D < Real > ( points[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
@@ -192,7 +194,7 @@ inline unsigned __int32 MayaMesh::getTriangleCount() const
 	return static_cast< unsigned __int32 >( mMeshTriangles.size() );
 }
 
-void MayaMesh::meshUpdate(MObject & aUpdatedMesh, const MString * aUVSet)
+void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 {
 	delete mUpdatedMesh;
 	mUpdatedMesh = new MFnMesh( aUpdatedMesh );

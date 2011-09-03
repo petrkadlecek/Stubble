@@ -5,6 +5,8 @@
 #include "HairShape/UserInterface/HairShape.hpp"
 #include "Primitives/BoundingBox.hpp"
 
+#include <string>
+
 namespace Stubble
 {
 
@@ -22,9 +24,10 @@ public:
 	/// Constructor. 
 	///
 	/// \param	aHairShape	The HairShape node. 
+	/// \param	aNodeName	Name of the HairShape node.
 	/// \param	aSampleTime	Time of the sample. 
 	///-------------------------------------------------------------------------------------------------
-	CachedFrame( HairShape::HairShape & aHairShape, Time aSampleTime );
+	CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -37,6 +40,23 @@ public:
 	void emit();
 
 private:
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the stubble dll file name. 
+	///
+	/// \return	The stubble dll file name. 
+	///----------------------------------------------------------------------------------------------------
+	static std::string getStubbleDLLFileName();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Generates a frame file name. 
+	///
+	/// \param	aNodeName	Name of the HairShape node. 
+	/// \param	aSampleTime	Time of the sample. 
+	///
+	/// \return	The frame file name. 
+	///----------------------------------------------------------------------------------------------------
+	static std::string generateFrameFileName( std::string aNodeName, Time aSampleTime );
 
 	bool mIsEmitted;	///< true if this object was emitted
 

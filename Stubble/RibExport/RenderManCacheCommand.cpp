@@ -79,7 +79,8 @@ MStatus RenderManCacheCommand::sampleTime( const MArgDatabase & aArgDatabase )
 		{
 			// Insert in cache
 			cache.insert( CacheItem( path.fullPathName().asChar(), 
-				new CachedFrame( *hairShape, static_cast< Time >( time ) ) ) );
+				new CachedFrame( *hairShape, path.fullPathName().asChar(), 
+					static_cast< Time >( time ) ) ) );
 		}
 	}
 	return MStatus::kSuccess;

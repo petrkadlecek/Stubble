@@ -24,8 +24,8 @@ public:
 	/// \param	localVertex2ID	identifier for the local vertex 2
 	/// \param	localVertex3ID	identifier for the local vertex 3
 	///----------------------------------------------------------------------------------------------------
-	inline MeshTriangle( const unsigned __int32 faceID, const unsigned __int32 localVertex1ID, 
-		const unsigned __int32 localVertex2ID, const unsigned __int32 localVertex3ID );
+	inline MeshTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID, 
+		const unsigned __int32 aLocalVertex2ID, const unsigned __int32 aLocalVertex3D );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the identifier for the face
@@ -78,12 +78,12 @@ typedef std::vector< MeshTriangle > MeshTriangles;
 
 // inline functions implementation
 
-inline MeshTriangle::MeshTriangle( const unsigned __int32 faceID, const unsigned __int32 localVertex1ID,
-	const unsigned __int32 localVertex2ID, const unsigned __int32 localVertex3ID):
-	mFaceID( faceID ),
-	mLocalVertex1ID ( mLocalVertex1ID ),
-	mLocalVertex2ID ( mLocalVertex2ID ),
-	mLocalVertex3ID ( mLocalVertex3ID )
+inline MeshTriangle::MeshTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID,
+	const unsigned __int32 aLocalVertex2ID, const unsigned __int32 aLocalVertex3ID ):
+	mFaceID( aFaceID ),
+	mLocalVertex1ID ( aLocalVertex1ID ),
+	mLocalVertex2ID ( aLocalVertex2ID ),
+	mLocalVertex3ID ( aLocalVertex3ID )
 {
 }
 

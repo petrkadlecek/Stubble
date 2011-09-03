@@ -94,6 +94,9 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 		status.perror( "Could not deregister BrushToolCommand." );
 	}
 
+	// remove the HairShape callbacks
+	Stubble::HairShape::HairShape::removeCallbacks();
+
 	// deregister the HairShape node
 	status = plugin.deregisterNode( Stubble::HairShape::HairShape::typeId );
 
