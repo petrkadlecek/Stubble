@@ -77,11 +77,6 @@ MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet):
 	}
 }
 
-const Mesh MayaMesh::getRestPose() const
-{
-	return mRestPose;
-}
-
 MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 {
 	if ( mUpdatedMesh == 0 )

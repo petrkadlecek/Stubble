@@ -35,9 +35,10 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor realized from stream
 	///
-	/// \param	aInStream	input file stream
+	/// \param	aInStream		input file stream
+	/// \param	aPositionsOnly	if true, only positions are stored in stream
 	///----------------------------------------------------------------------------------------------------
-	inline Triangle( std::istream & aInStream );
+	inline Triangle( std::istream & aInStream, bool aPositionsOnly = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the Vertex 1. 
@@ -91,9 +92,18 @@ inline Triangle::Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex
 	mVertices[ 2 ] = mVertex3;
 }
 
-inline Triangle::Triangle( std::istream & aInStream )
+inline Triangle::Triangle( std::istream & aInStream, bool aPositionsOnly )
 {
-	aInStream >> mVertices[ 0 ] >> mVertices[ 1 ] >> mVertices[ 2 ];
+	if ( aPositionsOnly )
+	{
+		mVertices[ 0 ].importPosition( aInStream );
+		mVertices[ 1 ].importPosition( aInStream );
+		mVertices[ 2 ].importPosition( aInStream );
+	}
+	else
+	{
+		aInStream >> mVertices[ 0 ] >> mVertices[ 1 ] >> mVertices[ 2 ];
+	}
 }
 
 inline const MeshPoint & Triangle::getVertex1() const

@@ -180,7 +180,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 			if ( restPos.mUVPoint.getTriangleID() >= 0 ) // Topology change did not destroy the guide
 			{
 				// Handle rest position
-				restPos.mPosition = aMayaMesh.getRestPose().getMeshPoint( restPos.mUVPoint );
+				restPos.mPosition = aMayaMesh.getRestPose().getIncompleteMeshPoint( restPos.mUVPoint );
 				tmpRestPositions.push_back( restPos );
 				// Handle current position
 				GuideCurrentPosition currPos;
@@ -201,14 +201,17 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		// Rest positions has changed...
 		mRestPositionsUG.setDirty();
 	}
-	// Update current positions
-	GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
-	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
-		++restPosIt, ++currPosIt )
+	else
 	{
-		currPosIt->mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
-		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
-		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
+		// Update current positions
+		GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
+		for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+			++restPosIt, ++currPosIt )
+		{
+			currPosIt->mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+			currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
+			currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
+		}
 	}
 	// Current positions has changed...
 	mDisplayedGuides.setDirty();
@@ -266,7 +269,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	{
 		// Generate rest pose position
 		restPosIt->mUVPoint = aUVPointGenerator.next();
-		restPosIt->mPosition = aMayaMesh.getRestPose().getMeshPoint( restPosIt->mUVPoint );
+		restPosIt->mPosition = aMayaMesh.getRestPose().getIncompleteMeshPoint( restPosIt->mUVPoint );
 		// Calculate current position
 		currPosIt->mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
 		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
@@ -315,7 +318,7 @@ void HairGuides::exportToFile( std::ostream & aOutputStream ) const
 	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
 	for ( GuidesRestPositions::const_iterator it = mRestPositions.begin(); it != mRestPositions.end(); ++it )
 	{
-		aOutputStream << it->mPosition;
+		aOutputStream << it->mPosition.getPosition(); // Only position is exported
 		aOutputStream << it->mUVPoint;
 	}
 	// Then export current segments of all guides

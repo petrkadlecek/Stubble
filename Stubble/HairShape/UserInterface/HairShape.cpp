@@ -11,6 +11,7 @@
 #include <maya/MTime.h>
 
 #include <fstream>
+#include <sstream>
 
 namespace Stubble
 {
@@ -292,54 +293,47 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	// Sets current time
 	setCurrentTime( aSampleTime );
 	// Open file 
-	std::ofstream file( aFileName.c_str() );
+	std::string mainFileName = aFileName;
+	mainFileName += ".FRM" ;
+	std::ofstream mainFile( mainFileName.c_str(), ios::binary );
 	// Write id
-	file.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
+	mainFile.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
 	// Refresh all textures
 	refreshTextures();
 	// Write all textures
-	exportTextures( file );
+	exportTextures( mainFile );
 	// Write all guides
-	mHairGuides->exportToFile( file );
-	// Write voxel table pos 
-	std::ofstream::pos_type voxelsTablePos, voxelsTablePointerPos = file.tellp();
+	mHairGuides->exportToFile( mainFile );
+	// Closes main file
+	mainFile.close();
 	// Prepare voxelization
 	if ( mVoxelization == 0 ) // Voxelization does not exist
 	{
 		// Creates voxelization
 		mVoxelization = new Voxelization( mMayaMesh->getRestPose(), *mUVPointGenerator, mVoxelsResolution );
 	}
-	// Prepare voxels table
-	typedef std::vector< std::ofstream::pos_type > VoxelsFilePos;
-	VoxelsFilePos voxelsFilePos;
-	voxelsFilePos.reserve( mVoxelization->getVoxelsCount() ); 
 	// For every voxel
 	for ( unsigned __int32 i = 0; i < mVoxelization->getVoxelsCount(); ++i )
 	{
 		if ( !mVoxelization->isVoxelEmpty( i ) )
 		{
-			voxelsFilePos.push_back( file.tellp() ); // Remember position
+			// Open file 
+			std::ostringstream voxelFileName; aFileName;
+			voxelFileName << aFileName << ".VX" << aVoxelBoundingBoxes.size();
+			std::ofstream voxelFile( voxelFileName.str().c_str(), ios::binary );
+			// Write id
+			voxelFile.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
 			// Write number of generated hair in current voxel
 			unsigned __int32 hairCount = mVoxelization->getVoxelHairCount( mGeneratedHairCount, i );
-			file.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
+			voxelFile.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
 			// Write rest pose mesh
-			mVoxelization->exportRestPoseVoxel( file, mMayaMesh->getRestPose(), i );
+			mVoxelization->exportRestPoseVoxel( voxelFile, mMayaMesh->getRestPose(), i );
 			// Write current mesh and store its bounding box
-			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( file, *mMayaMesh, i ) );
+			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( voxelFile, *mMayaMesh, i ) );
+			// Closes voxel file
+			voxelFile.close();
 		}
 	}
-	// Get voxels table pos
-	voxelsTablePos = file.tellp();
-	// Write voxels table (just list of voxels file positions, voxels count is not stored)
-	for ( VoxelsFilePos::const_iterator it = voxelsFilePos.begin(); it != voxelsFilePos.end(); ++it )
-	{
-		file.write( reinterpret_cast< const char * >( &( *it ) ), sizeof( std::ofstream::pos_type ) );
-	}
-	// Finally we will store voxels table pos
-	file.seekp( voxelsTablePointerPos );
-	file.write( reinterpret_cast< const char * >( &voxelsTablePos ), sizeof( std::ofstream::pos_type ) );
-	// Close the file
-	file.close();
 }
 
 void HairShape::refreshTextures()

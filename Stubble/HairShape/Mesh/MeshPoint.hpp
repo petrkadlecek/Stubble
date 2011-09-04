@@ -115,6 +115,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Import position from stream. 
+	///
+	/// \param	aInStream		input file stream
+	///----------------------------------------------------------------------------------------------------
+	inline void importPosition( std::istream & aStreamIn );
+
 private:
 
 	Vector3D< Real > mPosition; ///< The point position 
@@ -162,8 +169,8 @@ inline MeshPoint::MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< 
 	mTangent( aTangent ),
 	mUCoordinate( aUCoordinate ),
 	mVCoordinate( aVCoordinate ),
-	// Calculates binormal as normalized aTangent x aNormal
-	mBinormal( Vector3D< Real >::crossProduct( aTangent, aNormal ).normalize() )
+	// Calculates binormal as aTangent x aNormal ( already normalized )
+	mBinormal( Vector3D< Real >::crossProduct( aTangent, aNormal ) )
 {
 }
 
@@ -231,17 +238,46 @@ inline void MeshPoint::getWorldTransformMatrix( Matrix< Real > & aWorldTransform
 	/* TODO */
 }
 
+///----------------------------------------------------------------------------------------------------
+/// Import position from stream. 
+///
+/// \param	aInStream		input file stream
+///----------------------------------------------------------------------------------------------------
+inline void MeshPoint::importPosition( std::istream & aStreamIn )
+{
+	aStreamIn >> mPosition;
+}
+
+///----------------------------------------------------------------------------------------------------
+/// Adds PointOnMesh to stream.
+///
+/// \param [in,out]	aStreamOut	The stream out. 
+/// \param	aPointOnMesh		The point on mesh. 
+///
+/// \return	The modified stream.
+///----------------------------------------------------------------------------------------------------
 inline std::ostream & operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )
 {
-	aStreamOut << aPointOnMesh.mPosition << aPointOnMesh.mNormal << aPointOnMesh.mTangent << aPointOnMesh.mBinormal;
+	aStreamOut << aPointOnMesh.mPosition << aPointOnMesh.mNormal << aPointOnMesh.mTangent;
+	// Binormal is stored, it will be recalculated
 	aStreamOut.write( reinterpret_cast< const char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
 	aStreamOut.write( reinterpret_cast< const char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
 	return aStreamOut;
 }
 
+///----------------------------------------------------------------------------------------------------
+/// Pops PointOnMesh from stream.
+///
+/// \param [in,out]	aStreamIn		The stream in. 
+/// \param [in,out]	aPointOnMesh	The point on mesh. 
+///
+/// \return	The modified stream.
+///----------------------------------------------------------------------------------------------------
 inline std::istream & operator>>( std::istream & aStreamIn, MeshPoint & aPointOnMesh )
 {
-	aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent >> aPointOnMesh.mBinormal;
+	aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent; 
+	// Recalculates binormal
+	aPointOnMesh.mBinormal = Vector3D< Real >::crossProduct( aPointOnMesh.mTangent, aPointOnMesh.mNormal );
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
 	return aStreamIn;

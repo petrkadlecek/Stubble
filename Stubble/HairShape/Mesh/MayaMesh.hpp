@@ -36,12 +36,12 @@ public:
 	/// Gets rest position of mesh.
 	/// 
 	/// \return rest position of mesh
-	const Mesh getRestPose() const;
+	inline const Mesh & getRestPose() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets point on mesh interpolated from 3 vertices of given triangle
 	/// 
-	/// \param aPoint	the triangle id and barycentric coordinates
+	/// \param aPoint	The triangle id and barycentric coordinates
 	///----------------------------------------------------------------------------------------------------
 	MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
 
@@ -105,6 +105,11 @@ private:
 };
 
 // inline methods implementation
+
+inline const Mesh & MayaMesh::getRestPose() const
+{
+	return mRestPose;
+}
 
 inline const MeshUG & MayaMesh::getMeshUG() const
 {

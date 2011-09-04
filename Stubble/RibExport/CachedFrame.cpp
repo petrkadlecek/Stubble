@@ -1,9 +1,14 @@
 #include "CachedFrame.hpp"
 
+#include "Common/CommonFunctions.hpp"
+
+#include <maya/MFileObject.h>
+
 #include <ri.h>
+
 #include <sstream>
 #include <Windows.h>
-#include <maya/MFileObject.h>
+
 
 namespace Stubble
 {
@@ -19,9 +24,10 @@ void freeData(RtPointer data)
 
 CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime ):
 	mIsEmitted( false ),
-	mFileName( generateFrameFileName( aNodeName, aSampleTime ) )
+	mFileName( generateFrameFileName( aNodeName, aSampleTime ) ),
+	mFullPathFileName( getEnvironmentVariable("STUBBLE_WORKDIR") + "\\" + mFileName )
 {
-	aHairShape.sampleTime( aSampleTime, mFileName, mBoundingBoxes );
+	aHairShape.sampleTime( aSampleTime, mFullPathFileName, mBoundingBoxes );
 }
 
 CachedFrame::~CachedFrame()
@@ -58,7 +64,7 @@ void CachedFrame::emit()
 
 std::string CachedFrame::getStubbleDLLFileName()
 {
-	return getEnvironmentVariable("STUBBLE_BIN") + "\\HairVoxel.dll";
+	return "StubbleHairGen.dll";
 }
 
 std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSampleTime )
@@ -72,25 +78,9 @@ std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSam
 			aNodeName[ i ] = '-';
 		}
 	}
-	s << getEnvironmentVariable("STUBBLE_WORKDIR") << "\\" << aNodeName << "-" << aSampleTime << ".bin";
+	s << aNodeName << "-" << aSampleTime;
 	return s.str();
 }
-
-std::string CachedFrame::getEnvironmentVariable( const char * aVariableName )
-{
-	char *pValue = 0;
-	size_t len;
-	errno_t err = _dupenv_s( &pValue, &len, aVariableName );
-	if ( err || pValue == 0 )
-	{
-		free( pValue );
-		throw StubbleException( " CachedFrame::getEnvironmentVariable : variable was not found " );
-	}
-	std::string res( pValue );
-	free( pValue );
-	return res;
-}
-
 
 } // namespace RibExport
 
