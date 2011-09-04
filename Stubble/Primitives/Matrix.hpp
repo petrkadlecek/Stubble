@@ -11,8 +11,51 @@ template < typename Type >
 class Matrix
 { 
 public:
+
+	///----------------------------------------------------------------------------------------------------
+	/// Const array indexer operator. 
+	///
+	/// \param	aIndex	Zero-based index of a. 
+	///
+	/// \return	The indexed value. 
+	///----------------------------------------------------------------------------------------------------
+	inline Type operator[] ( unsigned __int32 aIndex ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Array indexer operator. 
+	///
+	/// \param	aIndex	Zero-based index of a. 
+	///
+	/// \return	The indexed value. 
+	///----------------------------------------------------------------------------------------------------
+	inline Type & operator[] ( unsigned __int32 aIndex );
+
 	Type m[ 16 ];
 };
+
+template < typename Type >
+inline Type Matrix< Type >::operator[] ( unsigned __int32 aIndex ) const
+{
+	if ( aIndex >= 16 )
+	{
+		//TODO: Exception
+		return 0;
+	}
+
+	return m[ aIndex ];
+}
+
+template < typename Type >
+inline Type & Matrix< Type >::operator[] ( unsigned __int32 aIndex )
+{
+	if ( aIndex >= 16 )
+	{
+		//TODO: Exception
+		return 0;
+	}
+
+	return m[ aIndex ];
+}
 
 } //namespace Stubble
 

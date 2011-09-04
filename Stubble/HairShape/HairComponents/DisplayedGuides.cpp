@@ -90,8 +90,8 @@ void DisplayedGuides::draw() const
 			glColor3f(0,1,0);
 			glBegin(GL_LINE_STRIP);
 			// For every segment
-			for ( Segments::const_iterator segIt = guideIt->mSegments.mSegments.begin(); 
-				segIt != guideIt->mSegments.mSegments.end(); ++segIt )
+			for ( Segments::const_iterator segIt = guideIt->mGuideSegments.mSegments.begin(); 
+				segIt != guideIt->mGuideSegments.mSegments.end(); ++segIt )
 			{
 				// Transform vertex to world
 				Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ guideIt->mGuideId ].mPosition.toWorld( *segIt );

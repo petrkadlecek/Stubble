@@ -208,7 +208,7 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 			{
 				tmpStorage->mIds.push_back( it->mGuideId ); // Store guide id
 				frame.mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
-				mCurrent.mSegments[ it->mGuideId ] = it->mSegments; // Copy modified guide segments
+				mCurrent.mSegments[ it->mGuideId ] = it->mGuideSegments; // Copy modified guide segments
 			}
 		}
 		return tmpStorage;

@@ -62,8 +62,8 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 		if ( it->mDirtyFlag )
 		{
 			// For every segment
-			for ( Segments::const_iterator segIt = it->mSegments.mSegments.begin();
-				segIt != it->mSegments.mSegments.end(); ++segIt )
+			for ( Segments::const_iterator segIt = it->mGuideSegments.mSegments.begin();
+				segIt != it->mGuideSegments.mSegments.end(); ++segIt )
 			{
 				// Transform to world and expand bbox
 				mBoundingBox.expand( mCurrentPositions[ it->mGuideId].mPosition.toWorld( *segIt ) );
@@ -127,8 +127,8 @@ void HairGuides::exportNURBS()
 	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); hairIt != mSelectedGuides.end(); hairIt++ )
 	{
 		MPointArray pointArray;				
-		for ( Segments::const_iterator segmentIt = hairIt->mSegments.mSegments.begin()
-			; segmentIt != hairIt->mSegments.mSegments.end()
+		for ( Segments::const_iterator segmentIt = hairIt->mGuideSegments.mSegments.begin()
+			; segmentIt != hairIt->mGuideSegments.mSegments.end()
 			; segmentIt++ )
 		{			
 			pointArray.append( segmentIt->toMayaPoint() );

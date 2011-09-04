@@ -173,7 +173,11 @@ void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSel
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
-	//TODO
+	HairShape::HairComponents::SelectedGuides::iterator it;
+	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	{
+		//TODO
+	}
 }
 
 } // namespace Toolbox

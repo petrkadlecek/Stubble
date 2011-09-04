@@ -42,7 +42,7 @@ struct SelectedGuide
 
 	GuideId mGuideId; ///< The guide segments id
 
-	OneGuideSegments mSegments; ///< Pointer to segments of selected guide ( represented as vertices )
+	OneGuideSegments mGuideSegments; ///< Pointer to segments of selected guide ( represented as vertices )
 
 	SegmentsAdditionalInfo mSegmentsAdditionalInfo; ///< Information describing the segments additional params
 

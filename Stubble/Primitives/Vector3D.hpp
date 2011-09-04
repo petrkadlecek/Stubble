@@ -4,6 +4,8 @@
 #include <ostream>
 #include <istream>
 
+#include "Matrix.hpp"
+
 #ifdef MAYA
 #include <maya/MVector.h>
 #include <maya/MPoint.h>
@@ -183,8 +185,16 @@ public:
 	///
 	/// \return	Normalized vector. 
 	///----------------------------------------------------------------------------------------------------
-
 	inline Vector3D & normalize(); 
+
+	///----------------------------------------------------------------------------------------------------
+	/// Given an OpenGL transform matrix it applies the transform
+	/// 
+	/// \param aTransformMatrix	Array of 16 doubles representing column matrix
+	///
+	/// \return Transformed vector
+	///----------------------------------------------------------------------------------------------------
+	inline Vector3D & transform( const Matrix< Type > & aTransformMatrix );
 	
 #ifdef MAYA
 
@@ -245,7 +255,17 @@ public:
 	///
 	/// \return	Vector. 
 	///----------------------------------------------------------------------------------------------------
-	inline static Vector3D crossProduct( const Vector3D & aVector1, const Vector3D & aVector2 ); 
+	inline static Vector3D crossProduct( const Vector3D & aVector1, const Vector3D & aVector2 );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Given a vector and an OpenGL transform matrix it applies the transform
+	/// 
+	/// \param aVector Vector to be transformed
+	/// \param aTransformMatrix	Array of 16 doubles representing column matrix
+	///
+	/// \return Transformed vector
+	///----------------------------------------------------------------------------------------------------
+	inline static Vector3D transform(const Vector3D & aVector, const Matrix< Type > & aTransformMatrix );
 
 	Type x; ///< The x coordinate
 
@@ -434,6 +454,15 @@ inline Vector3D< Type > & Vector3D< Type >::normalize()
 	return *this;
 }
 
+template < typename Type >
+inline Vector3D< Type > & Vector3D< Type >::transform( const Matrix< Type > & aTransformMatrix )
+{
+	x = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ] + aTransformMatrix[ 12 ];
+	y = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ] + aTransformMatrix[ 13 ];
+	z = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ] + aTransformMatrix[ 14 ];
+
+	return *this;
+}
 	
 #ifdef MAYA
 template < typename Type >
@@ -489,6 +518,13 @@ inline Vector3D< Type > Vector3D< Type >::crossProduct( const Vector3D & aVector
 	return Vector3D( aVector1.y * aVector2.z - aVector1.z * aVector2.y,
 					 aVector1.z * aVector2.x - aVector1.x * aVector2.z,
 					 aVector1.x * aVector2.y - aVector1.y * aVector2.x );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::transform( const Vector3D & aVector, const Matrix< Type > & aTransformMatrix )
+{
+	Vector3D v(aVector);
+	return v.transform(aTransformMatrix);
 }
 
 template < typename Type >
