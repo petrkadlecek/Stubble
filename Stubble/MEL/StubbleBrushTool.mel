@@ -1,0 +1,7 @@
+if ( !`contextInfo -exists stubbleBrushTool` )
+{
+	StubbleBrushToolCommand stubbleBrushTool;
+	print ( "Created the stubbleBrushTool context.\n" );
+}
+
+setToolTo stubbleBrushTool;

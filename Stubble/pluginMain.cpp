@@ -9,7 +9,6 @@
 		setToolTo stubbleBrushTool;
 */
 
-
 #include <maya/MFnPlugin.h>
 
 #include "HairShape/UserInterface/HairShape.hpp"
@@ -17,6 +16,7 @@
 
 #include "RibExport/RenderManCacheCommand.hpp"
 
+#include "Toolbox/Tools/HapticSettingsTool.hpp"
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 
 // Export the functions to make them visible in Maya
@@ -38,10 +38,22 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	MStatus status;
 	MFnPlugin plugin( aObj, "The Stubble Team", "0.11", "Any" );
 
-	// Add plug-in feature registration here
+	// register Stubble main menu
+	status = plugin.registerUI("StubbleCreateUI", "StubbleDeleteUI");
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register StubbleCreateUI." );
+	}
+
 	// register BrushToolCommand
 	status = plugin.registerContextCommand( Stubble::Toolbox::BrushToolCommand::sCommandName, 
 		Stubble::Toolbox::BrushToolCommand::creator );
+
+	// register HapticToolCommand
+	status = plugin.registerContextCommand( Stubble::Toolbox::HapticSettingsToolCommand::sCommandName, 
+		Stubble::Toolbox::HapticSettingsToolCommand::creator );
 
 	// check for error
 	if ( status != MS::kSuccess )

@@ -1,0 +1,6 @@
+global proc StubbleDeleteUI()
+{
+	global string $stubbleMainMenu;
+	if (`menu -exists $stubbleMainMenu`)
+	   deleteUI $stubbleMainMenu;
+}

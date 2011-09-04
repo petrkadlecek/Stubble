@@ -166,6 +166,9 @@
     <ClCompile Include="RibExport\CachedFrame.cpp">
       <Filter>RibExport</Filter>
     </ClCompile>
+    <ClCompile Include="Toolbox\Tools\HapticSettingsTool.cpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -312,6 +315,9 @@
     <ClInclude Include="Common\CommonConstants.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Toolbox\Tools\HapticSettingsTool.hpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MEL\StubbleBrushToolProperties.mel">
@@ -324,6 +330,15 @@
       <Filter>MEL</Filter>
     </None>
     <None Include="MEL\Stubble3DelightRendering.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleBrushTool.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleCreateUI.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleDeleteUI.mel">
       <Filter>MEL</Filter>
     </None>
   </ItemGroup>

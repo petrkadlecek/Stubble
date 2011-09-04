@@ -1,0 +1,84 @@
+global proc StubbleCreateUI()
+{
+	global string $gMainWindow;
+	setParent $gMainWindow;
+	global string $stubbleMainMenu = "stubbleMainMenu";
+	menu -label "Stubble" $stubbleMainMenu;
+	setParent -menu $stubbleMainMenu;
+	menuItem -label "Create Hair" -command "source StubbleCreateHair.mel;";
+	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;";
+	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
+	setParent $gMainWindow;
+
+
+	// Create Stubble brush tool
+	if ( !`contextInfo -exists stubbleBrushTool` )
+	{
+		StubbleBrushToolCommand stubbleBrushTool;
+		print ( "Created the stubbleBrushTool context.\n" );
+	}
+
+	// Create Stubble haptic settings tool
+	if ( !`contextInfo -exists stubbleHapticSettingsTool` )
+	{
+		StubbleHapticSettingsToolCommand stubbleHapticSettingsTool;
+		print ( "Created the stubbleHapticSettingsTool context.\n" );
+	}
+
+	//
+	// Shelf
+	//
+	string $StubbleShelfName = "Stubble";
+	int $StubbleShelfNameEx = `layout -q -ex $StubbleShelfName`;
+	if ($StubbleShelfNameEx == 1)
+	{
+		deleteUI -layout $StubbleShelfName;
+	}
+
+	//add shelf
+	$StubbleShelfTab = `addNewShelfTab $StubbleShelfName`;
+	
+	
+	string $shelfButtons[] = `shelfLayout -q -childArray $StubbleShelfTab`;
+
+	// delete Stubble Brush tool icons
+	for ( $button in $shelfButtons )
+	{
+	   string $label;
+
+	   // Assert that this is a shelfButton
+	   if ( `objectTypeUI -isType "shelfButton" $button` )
+	   {
+		  deleteUI $button;
+	   }
+	}
+
+	// create Stubble Brush tool icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble Brush tool"
+				-label "Stubble Brush tool"
+				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "toolPropertyWindow; setToolTo stubbleBrushTool"`;
+
+	// create Stubble Brush tool icon
+	string $hapticButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble haptic settings tool"
+				-label "Stubble haptic settings tool"
+				-image1 "hypergraph.png"
+				-style "iconOnly"
+				-command "setToolTo stubbleHapticSettingsTool"`;
+
+}

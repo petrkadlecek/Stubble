@@ -23,7 +23,7 @@ typedef void * UNKNOWN;
 /// Defines an alias representing fixed length arrays.
 ///-------------------------------------------------------------------------------------------------
 typedef Real Real3[3];
-typedef Real Real4[3];
+typedef Real Real4[4];
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the dimensions in 3D.

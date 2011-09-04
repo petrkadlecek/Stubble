@@ -1,0 +1,7 @@
+if ( !`contextInfo -exists stubbleHapticSettingsTool` )
+{
+	StubbleHapticSettingsToolCommand stubbleHapticSettingsTool;
+	print ( "Created the stubbleHapticSettingsTool context.\n" );
+}
+
+setToolTo stubbleHapticSettingsTool;
