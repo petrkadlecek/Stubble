@@ -30,10 +30,16 @@ MObject HairShape::segmentsAttr;
 MObject HairShape::densityTextureAttr;
 MObject HairShape::interpolationGroupsTextureAttr;
 MObject HairShape::voxelsResolutionAttr;
+MObject HairShape::voxelsXResolutionAttr;
+MObject HairShape::voxelsYResolutionAttr;
+MObject HairShape::voxelsZResolutionAttr;
 MObject HairShape::timeAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
+
+// Active node
+HairShape * HairShape::mActiveHairShapeNode = 0;
 
 HairShape::HairShape(): 
 	mUVPointGenerator( 0 ), 
@@ -51,11 +57,13 @@ HairShape::HairShape():
 	mIsTopologyCallbackRegistered( false )
 {
 	// Sets voxels resolution
-	memset( reinterpret_cast< void * >( mVoxelsResolution ), 0, sizeof( unsigned __int32 ) * 3 );
+	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
 	// Creates textures with default values
 	mInterpolationGroupsTexture = new Texture( 1, 1, 1 );
 	mDensityTexture = new Texture( 1 );
 	mInterpolationGroups = new Interpolation::InterpolationGroups( *mInterpolationGroupsTexture, 5 );
+	// Sets active object
+	mActiveHairShapeNode = this;
 }
 
 void HairShape::postConstructor()
@@ -98,10 +106,6 @@ MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 	if ( aPlug == surfaceChangeAttr ) // Handle mesh change
 	{
 		aDataBlock.setClean( surfaceChangeAttr );
-		if ( !mIsTopologyCallbackRegistered )
-		{
-			registerTopologyCallback();
-		}
 		meshChange( aDataBlock.inputValue(surfaceAttr).asMesh() );
 	}
 	return MS::kSuccess;
@@ -119,37 +123,65 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	{
 		mGuidesHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, *mInterpolationGroups, mGuidesHairCount, true );
+		return false;
 	}
 	if ( aPlug == genCountAttr ) // Generated hair count was changed
 	{
 		mGeneratedHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 		/* TODO */
+		return false;
 	}
 	if ( aPlug == segmentsAttr ) // Segments count changed
 	{
 		mInterpolationGroups->setGroupSegmentsCount( 0, static_cast< unsigned __int32 >( aDataHandle.asInt() ) );
 		mHairGuides->updateSegmentsCount( *mInterpolationGroups );
+		return false;
 	}
 	if ( aPlug == densityTextureAttr )
 	{
-		mDensityTexture->setDirty();
+		// TODO uncomment when resample works mDensityTexture->setDirty();
+		return false;
 	}
 	if ( root == interpolationGroupsTextureAttr )
 	{
-		mInterpolationGroupsTexture->setDirty();
+		// TODO uncomment when resample works mInterpolationGroupsTexture->setDirty();
+		return false;
 	}
 	if ( aPlug == timeAttr )
 	{
 		setCurrentTime( static_cast< Time >( aDataHandle.asTime().value() ) );
+		return false;
 	}
-	if ( root == voxelsResolutionAttr ) // Voxels resolution was changed
+	if ( aPlug == voxelsResolutionAttr ) // Voxels resolution was changed
 	{
-		// Copy values
-		for ( unsigned __int32 i = 0; i < root.numElements (); i++)
-		{
-           mVoxelsResolution[ i ] = static_cast< unsigned __int32 >( root[ i ].asInt() );
-		}
+		const int3 & res = aDataHandle.asInt3();
+        mVoxelsResolution[ 0 ] = static_cast< unsigned __int32 >( res[ 0 ] );
+		mVoxelsResolution[ 1 ] = static_cast< unsigned __int32 >( res[ 1 ] );
+		mVoxelsResolution[ 2 ] = static_cast< unsigned __int32 >( res[ 2 ] );
 		delete mVoxelization; // Throw away old voxelization
+		mVoxelization = 0;
+		return false;
+	}
+	if ( aPlug == voxelsXResolutionAttr ) // Voxels X resolution was changed
+	{
+        mVoxelsResolution[ 0 ] = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		delete mVoxelization; // Throw away old voxelization
+		mVoxelization = 0;
+		return false;
+	}
+	if ( aPlug == voxelsYResolutionAttr ) // Voxels Y resolution was changed
+	{
+        mVoxelsResolution[ 1 ] = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		delete mVoxelization; // Throw away old voxelization
+		mVoxelization = 0;
+		return false;
+	}
+	if ( aPlug == voxelsZResolutionAttr ) // Voxels Z resolution was changed
+	{
+        mVoxelsResolution[ 2 ] = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		delete mVoxelization; // Throw away old voxelization
+		mVoxelization = 0;
+		return false;
 	}
 	return false;
 }
@@ -174,6 +206,7 @@ MStatus HairShape::initialize()
 	tAttr.setDisconnectBehavior( MFnAttribute::kDelete );
 	tAttr.setWritable( true );
 	tAttr.setHidden( true );
+	tAttr.setInternal( true );
 	tAttr.setStorable( false );
 	if( !status )
 	{
@@ -185,7 +218,7 @@ MStatus HairShape::initialize()
 	MFnUnitAttribute unitAttr;
     timeAttr = unitAttr.create( "time", "tm", MFnUnitAttribute::kTime, 0.0, &status );
 	unitAttr.setInternal( true );
-	tAttr.setReadable( false );
+	//unitAttr.setHidden( true );
 	addAttribute( timeAttr );
 
 	//define count attribute
@@ -225,11 +258,23 @@ MStatus HairShape::initialize()
 	addAttribute( interpolationGroupsTextureAttr );
 
 	// define voxels dimensions attribute
-	voxelsResolutionAttr = nAttr.create( "voxels_dimensions", "vxsdim", MFnNumericData::k3Int, 1);
+	voxelsXResolutionAttr = nAttr.create("voxels_X_dimensions", "vxsxdim", MFnNumericData::kInt, 1);
+	nAttr.setKeyable( false );
+	nAttr.setInternal( true );
+	voxelsYResolutionAttr = nAttr.create("voxels_Y_dimensions", "vxsydim", MFnNumericData::kInt, 1);
+	nAttr.setKeyable( false );
+	nAttr.setInternal( true );
+	voxelsZResolutionAttr = nAttr.create("voxels_Z_dimensions", "vxszdim", MFnNumericData::kInt, 1);
+	nAttr.setKeyable( false );
+	nAttr.setInternal( true );
+	voxelsResolutionAttr = nAttr.create( "voxels_dimensions", "vxsdim", voxelsXResolutionAttr, voxelsYResolutionAttr, voxelsZResolutionAttr );
 	nAttr.setKeyable( false );
 	nAttr.setInternal( true );
 	nAttr.setMin( 1, 1, 1 );
 	nAttr.setMax( 10, 10, 10 );
+	addAttribute( voxelsXResolutionAttr );
+	addAttribute( voxelsYResolutionAttr );
+	addAttribute( voxelsZResolutionAttr );
 	addAttribute( voxelsResolutionAttr );
 
 	surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0);
@@ -279,8 +324,8 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 			file.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
 			// Write rest pose mesh
 			mVoxelization->exportRestPoseVoxel( file, mMayaMesh->getRestPose(), i );
-			// Write current mesh
-			mVoxelization->exportCurrentVoxel( file, *mMayaMesh, i );
+			// Write current mesh and store its bounding box
+			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( file, *mMayaMesh, i ) );
 		}
 	}
 	// Get voxels table pos
@@ -297,6 +342,31 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	file.close();
 }
 
+void HairShape::refreshTextures()
+{
+	if ( mInterpolationGroupsTexture->isDirty() )
+	{
+		mInterpolationGroupsTexture->resample();
+		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, 5 );
+		// TODO handle UI segments count selection
+	}
+	if ( mDensityTexture->isDirty() )
+	{
+		mDensityTexture->resample();
+		delete mUVPointGenerator;
+		delete mVoxelization;
+		mUVPointGenerator = new UVPointGenerator( Texture( 1 ),
+			mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+		// HairGuides reconstruction
+		mHairGuides->generate( *mUVPointGenerator,
+			*mMayaMesh,
+			Interpolation::InterpolationGroups( Texture( 1 ), 5 ),
+			mGuidesHairCount, true ); // Interpolates from previous hair guides
+		mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
+	}
+	/* TODO refresh all textures */
+}
+
 /************************************************************************************************************/
 /*											PRIVATE METHODS													*/
 /************************************************************************************************************/
@@ -306,6 +376,10 @@ void HairShape::meshChange( MObject aMeshObj )
 	if( aMeshObj == MObject::kNullObj ) 
 	{
 		return;
+	}
+	if ( !mIsTopologyCallbackRegistered )
+	{
+		registerTopologyCallback();
 	}
 	MFnMesh mesh = aMeshObj;
 	MString uvSetName;
@@ -325,7 +399,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			*mMayaMesh,
 			Interpolation::InterpolationGroups( Texture( 1 ), 5 ),
 			mGuidesHairCount );
-		mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
+		mHairGuides->setCurrentTime( mTime );
 	}
 	else
 	{
@@ -336,6 +410,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 			// Creates new generator
 			delete mUVPointGenerator;
+			delete mVoxelization;
 			mUVPointGenerator = new UVPointGenerator( Texture( 1 ),
 				mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
 		}
@@ -346,22 +421,26 @@ void HairShape::meshChange( MObject aMeshObj )
 		mHairGuides->meshUpdate( *mMayaMesh, mIsTopologyModified );
 		mIsTopologyModified = false;
 	}
-}
-
-void HairShape::refreshTextures()
-{
-	/* TODO refresh all textures */
+	// Calculates new bounding box
+	mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
 }
 
 void HairShape::setCurrentTime( Time aTime )
 {
 	mTime = aTime;
-	mHairGuides->setCurrentTime( aTime );
-	/* TODO set internal time for textures */	
+	if ( mHairGuides != 0 ) // Might be called before any hairguides were created
+	{
+		mHairGuides->setCurrentTime( aTime );
+	}
+	mDensityTexture->setCurrentTime( aTime );
+	mInterpolationGroupsTexture->setCurrentTime( aTime );
+	/* TODO set internal time for all textures */	
 }
 
 void HairShape::exportTextures( std::ostream & aOutputStream ) const
 {
+	mDensityTexture->exportToFile( aOutputStream );
+	mInterpolationGroupsTexture->exportToFile( aOutputStream );
 	/* TODO export all textures to file */
 }
 

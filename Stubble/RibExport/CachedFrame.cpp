@@ -3,6 +3,7 @@
 #include <ri.h>
 #include <sstream>
 #include <Windows.h>
+#include <maya/MFileObject.h>
 
 namespace Stubble
 {
@@ -40,7 +41,8 @@ void CachedFrame::emit()
 		// Prepare arguments
 		std::ostringstream s;
 		s << it - mBoundingBoxes.begin() << " " << mFileName; // Voxel id, FileName
-		RtString args[] = { getStubbleDLLFileName().c_str(), s.str().c_str() };
+		std::string arg1 = getStubbleDLLFileName(), arg2 = s.str();
+		RtString args[] = { arg1.c_str(), arg2.c_str() };
 		// Convert bounding box
 		RtBound bound = { static_cast< RtFloat >( it->min().x ), 
 			static_cast< RtFloat >( it->max().x ), 
@@ -56,17 +58,39 @@ void CachedFrame::emit()
 
 std::string CachedFrame::getStubbleDLLFileName()
 {
-	/* TODO return path to stubble dll file*/
-	return "HairVoxel.dll";
+	return getEnvironmentVariable("STUBBLE_BIN") + "\\HairVoxel.dll";
 }
 
 std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSampleTime )
 {
-	/* TODO generate frame file name */
 	std::ostringstream s;
-	s << aNodeName << aSampleTime << ".bin";
+	// Replaces | -> -
+	for ( unsigned int i = 0; i < aNodeName.size(); ++i )
+	{
+		if ( aNodeName[ i ] == '|' )
+		{
+			aNodeName[ i ] = '-';
+		}
+	}
+	s << getEnvironmentVariable("STUBBLE_WORKDIR") << "\\" << aNodeName << "-" << aSampleTime << ".bin";
 	return s.str();
 }
+
+std::string CachedFrame::getEnvironmentVariable( const char * aVariableName )
+{
+	char *pValue = 0;
+	size_t len;
+	errno_t err = _dupenv_s( &pValue, &len, aVariableName );
+	if ( err || pValue == 0 )
+	{
+		free( pValue );
+		throw StubbleException( " CachedFrame::getEnvironmentVariable : variable was not found " );
+	}
+	std::string res( pValue );
+	free( pValue );
+	return res;
+}
+
 
 } // namespace RibExport
 

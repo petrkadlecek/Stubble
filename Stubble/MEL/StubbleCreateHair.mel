@@ -9,9 +9,17 @@ for ( $obj in $selected )
 	if( `objExists ( $obj +".worldMesh" )` )
 	{
 		// Create our locator
-		$locator = `createNode "HairShape"`; 
-		// Connect selected object mesh to our locator surface
-		connectAttr ( $obj + ".worldMesh" ) ( $locator + ".surface" );
+		$shape = `createNode "HairShape"`; 
+		// Connect selected object mesh to our shape surface
+		connectAttr ( $obj + ".worldMesh" ) ( $shape + ".surface" );
+		// Connect time to our shape time
+		connectAttr "time1.outTime" ( $shape + ".time" );
+		// Lock transform attributes of shape
+		$parent = `listRelatives -p $shape`;
+		setAttr -l true ( $parent[ 0 ] + ".translate" );
+		setAttr -l true ( $parent[ 0 ] + ".rotate" );
+		setAttr -l true ( $parent[ 0 ] + ".scale" );
+		setAttr -l true ( $parent[ 0 ] + ".shear" );
 	}
 	else
 	{

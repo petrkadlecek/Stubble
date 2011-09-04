@@ -1,3 +1,6 @@
+/*
+To run RenderManCacheCommand properly, environment variables STUBBLE_WORKDIR and STUBBLE_BIN must be set !!!!
+*/
 #ifndef STUBBLE_RENDERMAN_CACHE_COMMAND_HPP
 #define STUBBLE_RENDERMAN_CACHE_COMMAND_HPP
 

@@ -58,6 +58,15 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	static std::string generateFrameFileName( std::string aNodeName, Time aSampleTime );
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets an environment variable ( utility function )
+	///
+	/// \param	aVariableName	Name of a variable. 
+	///
+	/// \return	The environment variable. 
+	///----------------------------------------------------------------------------------------------------
+	static std::string getEnvironmentVariable( const char * aVariableName );
+
 	bool mIsEmitted;	///< true if this object was emitted
 
 	BoundingBoxes mBoundingBoxes;   ///< The bounding boxes of voxels

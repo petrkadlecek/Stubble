@@ -48,6 +48,12 @@ public:
 
 	static MObject voxelsResolutionAttr; ///< The voxels resolution attribute
 
+		static MObject voxelsXResolutionAttr;   ///< The voxels x coordinate resolution attribute
+
+		static MObject voxelsYResolutionAttr;   ///< The voxels y coordinate resolution attribute
+
+		static MObject voxelsZResolutionAttr;   ///< The voxels z coordinate resolution attribute
+
 	static MObject timeAttr;	///< The time attribute
 
 	///----------------------------------------------------------------------------------------------------
@@ -127,9 +133,20 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Calling updating guides on HairGuids.
+	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
+	/// demand and it's dirty flag is never set by HairGuides class.
+	///
+	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	void updateGuides();
+	inline const HairComponents::SegmentsUG & getSelectedGuidesUG();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Updates the guides after the brush or any other tool was used. 
+	/// 
+	/// \param	aStoreUpdate	if true, stores updates of selected guides to stack, 
+	/// 						otherwise draw update only
+	///----------------------------------------------------------------------------------------------------
+	inline void updateGuides( bool aStoreUpdate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// This function creates a description of our node.
@@ -148,9 +165,28 @@ public:
 	void sampleTime( Time aSampleTime, const std::string & aFileName, BoundingBoxes & aVoxelBoundingBoxes );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Refresh all dirty textures. 
+	///----------------------------------------------------------------------------------------------------
+	void refreshTextures();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Sets this HairShape as active object. 
+	///----------------------------------------------------------------------------------------------------
+	inline void setAsActiveObject();
+
+	// Static methods
+	
+	///----------------------------------------------------------------------------------------------------
 	/// Removes the callbacks. Should be called shortly before HairShape deregistration. 
 	///----------------------------------------------------------------------------------------------------
 	static void removeCallbacks();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the active object node. 
+	///
+	/// \return	null if it fails, else the active object. 
+	///----------------------------------------------------------------------------------------------------
+	inline static HairShape * getActiveObject();
 
 private:
 	
@@ -162,11 +198,6 @@ private:
 	/// \param	aMeshObj	The mesh object.
 	///----------------------------------------------------------------------------------------------------
 	void meshChange( MObject aMeshObj );
-
-	///----------------------------------------------------------------------------------------------------
-	/// Refresh all dirty textures. 
-	///----------------------------------------------------------------------------------------------------
-	void refreshTextures();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets a current time. 
@@ -227,7 +258,32 @@ private:
 
 	static MCallbackIdArray mCallbackIds;	///< List of identifiers for the callbacks
 
+	// Active hair shape object
+
+	static HairShape * mActiveHairShapeNode;   ///< The active node
 };
+
+// inline functions implementation
+
+inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesUG()
+{
+	return mHairGuides->getSelectedGuidesUG();
+}
+
+inline void HairShape::updateGuides( bool aStoreUpdate )
+{
+	mHairGuides->updateGuides( aStoreUpdate );
+}
+
+inline void HairShape::setAsActiveObject()
+{
+	mActiveHairShapeNode = this;
+}
+
+inline HairShape * HairShape::getActiveObject()
+{
+	return mActiveHairShapeNode;
+}
 
 } // namespace HairShape
 

@@ -12,6 +12,11 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const UVPointGenerator &
 	BoundingBox bbox = aRestPoseMesh.getBoundingBox();
 	unsigned __int32 total = aDimensions3[ 0 ] * aDimensions3[ 1 ] * aDimensions3[ 2 ];
 	mVoxels.resize( total );
+	// Resets density
+	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	{
+		it->mDensity = 0;
+	}
 	Vector3D< Real > bsize = bbox.max() - bbox.min();
 	Vector3D< Real > voxelSize( bsize.x / aDimensions3[ 0 ],
 		bsize.y / aDimensions3[ 1 ],

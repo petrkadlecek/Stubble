@@ -35,11 +35,22 @@ Texture::Texture(float value, float value1, float value2, float value3): mColorC
 	mTexture[3] = value3;
 }
 
+Texture::Texture( std::istream & aIsStream )
+{
+	/* TODO */
+}
+
+Texture::~Texture()
+{
+	delete[] mTexture;
+}
+
 void Texture::init()
 {
 	mIsAnimated = false;
 	mWidth = 1;
 	mHeight = 1;
+	mDirty = false;
 
 	mTexture = new float[mWidth * mHeight * mColorComponents * sizeof(float)];
 }
@@ -58,6 +69,11 @@ Texture::Color Texture::colorAtUV( Real u, Real v ) const
 	y = y == mHeight ? mHeight - 1 :  y;
 
 	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
+}
+
+void Texture::exportToFile( std::ostream &aOutStream ) const
+{
+	/* TODO : export must also save current time value or only data for current time */
 }
 
 void Texture::setDirty()
@@ -98,12 +114,24 @@ bool Texture::isAnimated() const
 void setCurrentTime( Time aTime )
 {
 	throw StubbleException(" Texture::setCurrentTime : NOT IMPLEMENTED ");
+	}
+
+void Texture::setCurrentTime( Time aTime )
+{
+	if ( !mIsAnimated )
+	{
+		return;
+	}
+	/* TODO sets current time of texture for animated textures (should not fail for non-animated) */
 }
 
-Texture::~Texture()
-{
-	delete[] mTexture;
-}
+#ifdef MAYA
+	void Texture::resample()
+	{
+		/* TODO */
+		mDirty = false;
+	}
+#endif
 
 } // namespace HairShape
 
