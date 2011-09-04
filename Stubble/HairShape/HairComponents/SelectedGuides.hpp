@@ -5,7 +5,7 @@
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\Mesh\MeshPoint.hpp"
-//#include "Toolbox\ToolShapes\ToolShape.hpp"
+#include "Toolbox\ToolShapes\ToolShape.hpp"
 
 namespace Stubble
 {
@@ -16,9 +16,7 @@ namespace HairShape
 namespace HairComponents
 {
 
-// TODO
-//typedef Toolbox::ToolShape * SelectionMask;
-typedef void * SelectionMask;
+typedef Toolbox::ToolShape * SelectionMask;
 
 ///-------------------------------------------------------------------------------------------------
 /// Additional information about the segment for tools (brush tool, cut tool etc.) 

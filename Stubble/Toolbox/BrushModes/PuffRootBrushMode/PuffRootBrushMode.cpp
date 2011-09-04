@@ -6,7 +6,7 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void PuffRootBrushMode::doBrush ( const Vector3D< double > &aDX )
+	void PuffRootBrushMode::doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair )
 	{
 		std::cout << "PuffRootBrushMode::doBrush()" << std::endl;
 		/*TODO*/

@@ -2,6 +2,7 @@
 #define STUBBLE_BRUSH_MODE_HPP
 
 #include "../../Primitives/Vector3D.hpp"
+#include "HairShape/HairComponents/SelectedGuides.hpp"
 
 namespace Stubble
 {
@@ -20,7 +21,7 @@ public:
 	///
 	/// \param aDX Cursor change in local coordinates
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush ( const Vector3D< double > &aDX ) = 0;
+	virtual void doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair ) = 0;
 };
 
 } // namespace Toolbox

@@ -119,9 +119,15 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 	while ( run )
 	{
 		// Contains critical section
-		HairTask *task = hairTaskProcessor->getTask(); //TODO: handle null pointer?
-		hairTaskProcessor->doBrush(task);
-		hairTaskProcessor->enforceConstraints(task);
+		HairTask *task = hairTaskProcessor->getTask();
+		if (task->mValid)
+		{
+			HairShape::HairComponents::SelectedGuides selectedGuides;
+			task->mSelectedGuidesUG->select(task->mToolShape, selectedGuides);
+			
+			hairTaskProcessor->doBrush(selectedGuides, task->mDx, task->mBrushMode);
+			hairTaskProcessor->enforceConstraints(selectedGuides);
+		}
 		delete task;
 
 		// Contains critical section
@@ -157,12 +163,16 @@ HairTask *HairTaskProcessor::getTask ()
 	return task;
 }
 
-void HairTaskProcessor::doBrush (const HairTask *aTask)
+void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< double > &aDx, BrushMode *aBrushMode)
 {
-	aTask->mBrushMode->doBrush(aTask->mDx);
+	HairShape::HairComponents::SelectedGuides::iterator it;
+	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	{
+		aBrushMode->doBrush(aDx, *it);
+	}
 }
 
-void HairTaskProcessor::enforceConstraints (const HairTask *aTask)
+void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
 	//TODO
 }

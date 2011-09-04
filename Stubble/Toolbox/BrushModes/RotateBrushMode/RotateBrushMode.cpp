@@ -6,7 +6,7 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void RotateBrushMode::doBrush ( const Vector3D< double > &aDX )
+	void RotateBrushMode::doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair )
 	{
 		std::cout << "RotateBrushMode::doBrush()" << std::endl;
 		/*TODO*/
