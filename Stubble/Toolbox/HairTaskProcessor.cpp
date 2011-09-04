@@ -65,7 +65,7 @@ void HairTaskProcessor::tryCreateWorkerThread ()
 	// Contains critical section
 	if ( HairTaskProcessor::isRunning() )
 	{
-		goto end;
+		return;
 	}
 
 	MStatus status = MThreadAsync::init();
@@ -73,7 +73,7 @@ void HairTaskProcessor::tryCreateWorkerThread ()
 	{
 		status.perror( "HairTaskProcessor: Failed to acquire thread resources" );
 		//TODO: exception?
-		goto end;
+		return;
 	}
 
 	status = MThreadAsync::createTask(HairTaskProcessor::asyncWorkerLoop, 0, HairTaskProcessor::workerFinishedCB, 0);
@@ -83,7 +83,6 @@ void HairTaskProcessor::tryCreateWorkerThread ()
 		//TODO: exception?
 	}
 
-end: // To avoid multiple exit points
 	return;
 }
 
