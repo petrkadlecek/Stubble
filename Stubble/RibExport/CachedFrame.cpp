@@ -16,37 +16,71 @@ namespace Stubble
 namespace RibExport
 {
 
+std::string CachedFrame::mStubbleWorkDir = getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
+
 // Free argument data
 void freeData(RtPointer data)
 {
 	/* NOTHING TO FREE */
 }
 
-CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime ):
-	mIsEmitted( false ),
-	mFileName( generateFrameFileName( aNodeName, aSampleTime ) ),
-	mFullPathFileName( getEnvironmentVariable("STUBBLE_WORKDIR") + "\\" + mFileName )
+CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
-	aHairShape.sampleTime( aSampleTime, mFullPathFileName, mBoundingBoxes );
+	Sample s; 
+	s.mFileName = generateFrameFileName( aNodeName, aSampleTime );
+	s.mSampleTime = aSampleTime;
+	mMinTime = aSampleTime;
+	// Takes first sample
+	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, mBoundingBoxes );
+	// Store sample
+	samples.push_back( s );
 }
 
-CachedFrame::~CachedFrame()
+void CachedFrame::AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
-	if ( !mIsEmitted )
+	Sample s; 
+	s.mFileName = generateFrameFileName( aNodeName, aSampleTime );
+	s.mSampleTime = aSampleTime;
+	mMaxTime = aSampleTime;
+	BoundingBoxes tmpBoxes;
+	// Takes sample
+	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, tmpBoxes );
+	// Store sample
+	samples.push_back( s );
+	// Update bounding boxes
+	BoundingBoxes::const_iterator cIt = tmpBoxes.begin();
+	for ( BoundingBoxes::iterator it = mBoundingBoxes.begin(); it != mBoundingBoxes.end(); ++it, ++cIt )
 	{
-		// Delete voxel file
-		DeleteFile( mFileName.c_str() );
+		it->expand( cIt->min() );
+		it->expand( cIt->max() );
 	}
 }
 
 void CachedFrame::emit()
 {
+	// Generate samples part of the arguments
+	Time middle = ( mMaxTime + mMinTime ) * 0.5;
+	std::string artPart;
+	if ( samples.size() == 1 ) // No motion blur
+	{
+		artPart = " 1 0 " + samples.begin()->mFileName; // 1 sample, 0 time, filename
+	}
+	else // Motion blur
+	{
+		std::ostringstream s;
+		s << " " << samples.size(); // n samples
+		for ( Samples::const_iterator it = samples.begin(); it != samples.end(); ++it )
+		{
+			s << " " << ( it->mSampleTime - middle ) << " " << it->mFileName; // Time diff, filename
+		}
+		artPart = s.str();
+	}
 	// For each voxel
 	for( BoundingBoxes::const_iterator it = mBoundingBoxes.begin(); it != mBoundingBoxes.end(); ++it )
 	{
 		// Prepare arguments
 		std::ostringstream s;
-		s << it - mBoundingBoxes.begin() << " " << mFileName; // Voxel id, FileName
+		s << it - mBoundingBoxes.begin() << artPart; // Voxel id, samples
 		std::string arg1 = getStubbleDLLFileName(), arg2 = s.str();
 		RtString args[] = { arg1.c_str(), arg2.c_str() };
 		// Convert bounding box
@@ -59,7 +93,6 @@ void CachedFrame::emit()
 		// Write rib command
 		RiProcedural( reinterpret_cast< RtPointer >( args ), bound, RiProcDynamicLoad, freeData );
 	}
-	mIsEmitted = true;
 }
 
 std::string CachedFrame::getStubbleDLLFileName()

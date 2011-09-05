@@ -123,12 +123,12 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the cache .
 	///-------------------------------------------------------------------------------------------------
-	typedef std::map< std::string, CachedFrame *> Cache;
+	typedef std::map< std::string, CachedFrame * > Cache;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the cache item .
 	///-------------------------------------------------------------------------------------------------
-	typedef std::pair< std::string, CachedFrame *> CacheItem;
+	typedef std::pair< std::string, CachedFrame * > CacheItem;
 
 	static Cache cache; ///< The cache (must be stored for all RenderManCacheCommands)
 };

@@ -81,4 +81,6 @@ global proc StubbleCreateUI()
 				-style "iconOnly"
 				-command "setToolTo stubbleHapticSettingsTool"`;
 
+	// enable rendering with 3Delight
+	source Stubble3DelightRendering.mel;
 }

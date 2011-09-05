@@ -30,9 +30,13 @@ public:
 	CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Finaliser. 
+	/// Adds another time sample
+	///
+	/// \param	aHairShape	The HairShape node. 
+	/// \param	aNodeName	Name of the HairShape node.
+	/// \param	aSampleTime	Time of the sample. 
 	///-------------------------------------------------------------------------------------------------
-	~CachedFrame();
+	void AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Emits this object (renders stored frame).
@@ -58,13 +62,30 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	static std::string generateFrameFileName( std::string aNodeName, Time aSampleTime );
 
-	bool mIsEmitted;	///< true if this object was emitted
-
 	BoundingBoxes mBoundingBoxes;   ///< The bounding boxes of voxels
 
-	std::string mFileName;  ///< Filename of the file with HairShape time sample
+	Time mMaxTime;  ///< Max. time of sample
 
-	std::string mFullPathFileName;  ///< Filename with the full path
+	Time mMinTime;  ///< Min. time of sample
+
+	static std::string mStubbleWorkDir; ///< The stubble work dir
+
+	///-------------------------------------------------------------------------------------------------
+	/// Sample of HairShape in time. 
+	///-------------------------------------------------------------------------------------------------
+	struct Sample
+	{
+		Time mSampleTime;   ///< Time of the sample
+
+		std::string mFileName; ///< Filename of the file with HairShape time sample
+	};
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the samples .
+	///-------------------------------------------------------------------------------------------------
+	typedef std::vector< Sample > Samples;
+
+	Samples samples;	///< The samples of HairShape in different times
 };
 
 } // namespace RibExport

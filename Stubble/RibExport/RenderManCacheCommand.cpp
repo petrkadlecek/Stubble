@@ -19,12 +19,30 @@ MStatus RenderManCacheCommand::doIt( const MArgList & aArgumentsList )
 		return status;
 	}
 	// For each flag :
-	if ( argDatabase.isFlagSet("-st") && argDatabase.isFlagSet("-a") ) return sampleTime( argDatabase );
-	if ( argDatabase.isFlagSet("-r") ) return remove( argDatabase );
-	if ( argDatabase.isFlagSet("-e") ) return emit( argDatabase );
-	if ( argDatabase.isFlagSet("-f") ) return flush( argDatabase );
-	if ( argDatabase.isFlagSet("-c") ) return contains( argDatabase );
-	if ( argDatabase.isFlagSet("-l") ) return list( argDatabase );
+	if ( argDatabase.isFlagSet( "-st" ) && argDatabase.isFlagSet( "-a" ) ) 
+	{
+		return sampleTime( argDatabase );
+	}
+	if ( argDatabase.isFlagSet( "-r" ) ) 
+	{	
+		return remove( argDatabase );
+	}
+	if ( argDatabase.isFlagSet( "-e" ) ) 
+	{
+		return emit( argDatabase );
+	}
+	if ( argDatabase.isFlagSet( "-f" ) ) 
+	{
+		return flush( argDatabase );
+	}
+	if ( argDatabase.isFlagSet( "-c" ) ) 
+	{
+		return contains( argDatabase );
+	}
+	if ( argDatabase.isFlagSet( "-l" ) ) 
+	{
+		return list( argDatabase );
+	}
 	// Unknown command
 	return MStatus::kFailure;
 }
@@ -37,14 +55,14 @@ void * RenderManCacheCommand::creator()
 RenderManCacheCommand::RenderManCacheCommand()
 {
 	// Set required syntax for 3Delight renderman
-	syntax.addFlag("-st", "-sampleTime", MSyntax::kDouble);
-	syntax.addFlag("-a", "-addstep");
-	syntax.addFlag("-r", "-remove");
-	syntax.addFlag("-e", "-emit");
-	syntax.addFlag("-f", "-flush");
-	syntax.addFlag("-c", "-contains");
-	syntax.addFlag("-l", "-list");
-	syntax.setObjectType(MSyntax::kSelectionList, 0, 1);
+	syntax.addFlag( "-st", "-sampleTime", MSyntax::kDouble );
+	syntax.addFlag( "-a", "-addstep" );
+	syntax.addFlag( "-r", "-remove" );
+	syntax.addFlag( "-e", "-emit" );
+	syntax.addFlag( "-f", "-flush" );
+	syntax.addFlag( "-c", "-contains" );
+	syntax.addFlag( "-l", "-list" );
+	syntax.setObjectType( MSyntax::kSelectionList, 0, 1 );
 }
 
 MStatus RenderManCacheCommand::sampleTime( const MArgDatabase & aArgDatabase )
@@ -74,13 +92,19 @@ MStatus RenderManCacheCommand::sampleTime( const MArgDatabase & aArgDatabase )
 			continue; // not our plugin
 		}
 		HairShape::HairShape * hairShape = dynamic_cast< HairShape::HairShape * >( mpxNode );
+		// Search for node in cache
+		Cache::iterator it = cache.find( path.fullPathName().asChar() );
 		// Not yet in cache
-		if ( cache.find( path.fullPathName().asChar() ) == cache.end() )
+		if ( it == cache.end() )
 		{
 			// Insert in cache
 			cache.insert( CacheItem( path.fullPathName().asChar(), 
-				new CachedFrame( *hairShape, path.fullPathName().asChar(), 
-					static_cast< Time >( time ) ) ) );
+				new CachedFrame( *hairShape, node.name().asChar(), static_cast< Time >( time ) ) ) );
+		}
+		else
+		{
+			// Add another time sample
+			it->second->AddTimeSample( *hairShape, node.name().asChar(), static_cast< Time >( time ) );
 		}
 	}
 	return MStatus::kSuccess;
@@ -127,7 +151,6 @@ MStatus RenderManCacheCommand::emit( const MArgDatabase & aArgDatabase )
 		MDagPath path;
 		it.getDagPath( path );
 		cache.find( path.fullPathName().asChar() )->second->emit(); // Render
-		return MStatus::kSuccess;
 	}
 	return MStatus::kSuccess;
 }
