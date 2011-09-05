@@ -150,7 +150,7 @@ void SegmentsStorage::setFrame( Time aTime )
 
 void SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
 {
-	const GuidesSegments & change = aSegmentsChange.mFrames.begin()->second.mSegments;
+	const GuidesSegments & change = aSegmentsChange.mSegments;
 	// For every change
 	for ( GuidesIds::const_iterator idIt = aSegmentsChange.mIds.begin(); 
 		idIt != aSegmentsChange.mIds.end(); ++idIt )
@@ -166,16 +166,13 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 {
 	// Prepare partial storage
 	PartialStorage * tmpStorage = new PartialStorage;
-	// Prepare frame
-	tmpStorage->mFrames.insert( std::make_pair( mCurrent.mFrame, FrameSegments() ) );
-	FrameSegments & frame = tmpStorage->mFrames.begin()->second;
 	// For every selected guide
 	for( SelectedGuides::const_iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
 		if ( it->mDirtyFlag )
 		{
 			tmpStorage->mIds.push_back( it->mGuideId ); // Store guide id
-			frame.mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
+			tmpStorage->mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
 			mCurrent.mSegments[ it->mGuideId ] = it->mGuideSegments; // Copy modified guide segments
 		}
 	}

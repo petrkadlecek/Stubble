@@ -65,7 +65,7 @@ typedef std::vector< GuideId > GuidesIds;
 ///-------------------------------------------------------------------------------------------------
 struct PartialStorage
 {
-	AllFramesSegments mFrames;  ///< The frames segments of guides
+	GuidesSegments mSegments;  ///< The segments of selected guides
 
 	GuidesIds mIds; ///< The identifiers of guides
 };

@@ -236,6 +236,8 @@ MStatus HairShape::initialize()
 	nAttr.setKeyable( false );
 	nAttr.setInternal( true );
 	nAttr.setMin( 3 );
+	nAttr.setSoftMin( 3 );
+	nAttr.setSoftMax( 1000 );
 	addAttribute( countAttr );
 
 	//define gen. count attribute
@@ -243,20 +245,26 @@ MStatus HairShape::initialize()
 	nAttr.setKeyable( false );
 	nAttr.setInternal( true );
 	nAttr.setMin( 1 );
+	nAttr.setSoftMin( 1 );
+	nAttr.setSoftMax( 20000 );
 	addAttribute( genCountAttr );
 
 	//define segments attribute
 	segmentsAttr = nAttr.create("segments_count", "sgc", MFnNumericData::kInt, 5);
-	nAttr.setMin( 1 );
 	nAttr.setKeyable( false );
 	nAttr.setInternal( true );
+	nAttr.setMin( 1 );
+	nAttr.setSoftMin( 1 );
+	nAttr.setSoftMax( 10 );
 	addAttribute(segmentsAttr);
 
 	// define density texture attribute
 	densityTextureAttr = nAttr.create( "density_texture", "dtxt", MFnNumericData::kFloat, 1 );
 	nAttr.setKeyable( false );
-	nAttr.setChannelBox( true );
 	nAttr.setInternal( true );
+	nAttr.setMin( 0.0 );
+	nAttr.setSoftMin( 0.0 );
+	nAttr.setSoftMax( 1.0 );
 	addAttribute( densityTextureAttr );
 
 	// define interpolation groups texture attribute
@@ -287,7 +295,7 @@ MStatus HairShape::initialize()
 	addAttribute( voxelsResolutionAttr );
 
 	// define number of guides to interpolate from
-	numberOfGuidesToInterpolateFrom = nAttr.create("number_of_guides_to_interpolate_from", "ngif", MFnNumericData::kInt, 3 );
+	numberOfGuidesToInterpolateFrom = nAttr.create("interpolation_samples", "ints", MFnNumericData::kInt, 3 );
 	nAttr.setMin( 3 );
 	nAttr.setMax( 20 );
 	nAttr.setKeyable( false );
