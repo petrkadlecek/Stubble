@@ -106,6 +106,15 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 		status.perror( "Could not deregister BrushToolCommand." );
 	}
 
+	// deregister HapticSettingsToolCommand
+	status = plugin.deregisterContextCommand( Stubble::Toolbox::HapticSettingsToolCommand::sCommandName );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not deregister HapticSettingsToolCommand." );
+	}
+
 	// remove the HairShape callbacks
 	Stubble::HairShape::HairShape::removeCallbacks();
 
