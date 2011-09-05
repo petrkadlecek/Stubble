@@ -36,14 +36,16 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, interpolates segments from old segments in aOldStorage
 	///
-	/// \param	aOldStorage				the old segments storage. 
-	/// \param	aOldRestPositionsUG		the old rest positions uniform grid. 
-	/// \param	aRestPositions			the rest positions of guides. 
-	/// \param	aInterpolationGroups	Interpolation groups.
+	/// \param	aOldStorage							the old segments storage. 
+	/// \param	aOldRestPositionsUG					the old rest positions uniform grid. 
+	/// \param	aRestPositions						the rest positions of guides. 
+	/// \param	aInterpolationGroups				Interpolation groups.
+	/// \param	aNumberOfGuidesToInterpolateFrom	Number of guides to interpolate from
 	///-------------------------------------------------------------------------------------------------
 	SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesRestPositions & aRestPositions, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups );
+		const Interpolation::InterpolationGroups & aInterpolationGroups,
+		unsigned __int32 aNumberOfGuidesToInterpolateFrom );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, copies only selected segments from aOldStorage
@@ -120,25 +122,60 @@ public:
 		///----------------------------------------------------------------------------------------------------
 	BoundingBox getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Uniformly reposition segments with newly set count. 
+	///
+	/// \param [in,out]	aGuideSegments	The guide segments. 
+	/// \param aCount					The new number of segments;
+	///-------------------------------------------------------------------------------------------------
+	static void uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount );
+
 private:
 
 	/// ------------------------------------------------------------------------------------------
 	///  Interpolates segments from old segments
 	///
-	/// \param	aOldSegments			the old segments. 
-	/// \param	aOldRestPositionsUG		the old rest positions uniform grid. 
-	/// \param	aRestPositions			the rest positions of guides. 
-	/// \param	aInterpolationGroups	Interpolation groups. 
-	/// \param [in,out]	aOutputSegments	the output segments. 
+	/// \param	aOldSegments						the old segments. 
+	/// \param	aOldRestPositionsUG					the old rest positions uniform grid. 
+	/// \param	aRestPositions						the rest positions of guides. 
+	/// \param	aInterpolationGroups				Interpolation groups. 
+	/// \param	aNumberOfGuidesToInterpolateFrom	Number of guides to interpolate from
+	/// \param [in,out]	aOutputSegments				the output segments. 
 	///----------------------------------------------------------------------------------------------------
 	void InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,
+		unsigned __int32 aNumberOfGuidesToInterpolateFrom, 
 		FrameSegments & aOutputSegments ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Calculates how much change in one frame affects other frame.
+	///
+	/// \param	aTimeDifference	Distance between frames in time.
+	///
+	/// \return	Affect factor. 
+	///-------------------------------------------------------------------------------------------------
+	Real timeAffectFactor( Time aTimeDifference );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Propagate changes from current frame to other frames.
+	/// Must be used before segments are exported.
+	///-------------------------------------------------------------------------------------------------
+	void propagateChangesThroughTime();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Propagete changes from current frame to selected frame . 
+	///
+	/// \param [in,out]	aGuides	The guides of selected frame. 
+	/// \param	aFactor			The affect factor ( see timeAffectFactor ). 
+	///-------------------------------------------------------------------------------------------------
+	void propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor );
 
 	AllFramesSegments mSegments;  ///< The all segments (exists after the import!)
 
 	FrameSegments mCurrent; ///< The current frame segments
+
+	bool mAreCurrentSegmentsDirty;  ///< true if are current segments dirty and need to be propagated
 };
 
 // inline functions implementation
@@ -150,6 +187,7 @@ inline SegmentsStorage::~SegmentsStorage()
 inline void SegmentsStorage::importSegments( const FrameSegments & aFrameSegments )
 {
 	mSegments.insert( std::make_pair( aFrameSegments.mFrame, aFrameSegments ) );
+	mAreCurrentSegmentsDirty = false; // Signal that current frame is useless
 }
 
 inline const FrameSegments & SegmentsStorage::getCurrentSegments() const

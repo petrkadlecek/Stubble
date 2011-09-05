@@ -35,6 +35,7 @@ MObject HairShape::voxelsXResolutionAttr;
 MObject HairShape::voxelsYResolutionAttr;
 MObject HairShape::voxelsZResolutionAttr;
 MObject HairShape::timeAttr;
+MObject HairShape::numberOfGuidesToInterpolateFrom;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -55,7 +56,8 @@ HairShape::HairShape():
 	mGeneratedHairCount( 10000 ),
 	mTime( 0 ),
 	mIsTopologyModified( false ),
-	mIsTopologyCallbackRegistered( false )
+	mIsTopologyCallbackRegistered( false ),
+	mNumberOfGuidesToInterpolateFrom( 3 )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -184,6 +186,12 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mVoxelization = 0;
 		return false;
 	}
+	if ( aPlug == numberOfGuidesToInterpolateFrom ) // Number of guides to interpolate from was changed
+	{
+		mNumberOfGuidesToInterpolateFrom = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		mHairGuides->setNumberOfGuidesToInterpolateFrom( mNumberOfGuidesToInterpolateFrom );
+		return false;
+	}
 	return false;
 }
 
@@ -278,6 +286,14 @@ MStatus HairShape::initialize()
 	addAttribute( voxelsZResolutionAttr );
 	addAttribute( voxelsResolutionAttr );
 
+	// define number of guides to interpolate from
+	numberOfGuidesToInterpolateFrom = nAttr.create("number_of_guides_to_interpolate_from", "ngif", MFnNumericData::kInt, 3 );
+	nAttr.setMin( 3 );
+	nAttr.setMax( 20 );
+	nAttr.setKeyable( false );
+	nAttr.setInternal( true );
+	addAttribute( numberOfGuidesToInterpolateFrom );
+
 	surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0);
 	nAttr.setHidden( true );
 	addAttribute( surfaceChangeAttr );
@@ -298,6 +314,8 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	std::ofstream mainFile( mainFileName.c_str(), ios::binary );
 	// Write id
 	mainFile.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
+	// Write number of guides to interpolate from
+	mainFile.write( reinterpret_cast< const char * >( &mNumberOfGuidesToInterpolateFrom ), sizeof( unsigned __int32 ) );
 	// Refresh all textures
 	refreshTextures();
 	// Write all textures

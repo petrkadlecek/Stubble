@@ -56,6 +56,8 @@ public:
 
 	static MObject timeAttr;	///< The time attribute
 
+	static MObject numberOfGuidesToInterpolateFrom; ///< Number of guides to interpolate from
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------
@@ -147,6 +149,30 @@ public:
 	/// 						otherwise draw update only
 	///----------------------------------------------------------------------------------------------------
 	inline void updateGuides( bool aStoreUpdate );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Undoes changed to hair guides.
+	///----------------------------------------------------------------------------------------------------
+	void undo();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Redoes changes to hair guides.
+	///----------------------------------------------------------------------------------------------------
+	void redo();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Queries if we can undo. 
+	///
+	/// \return	true if it succeeds, false if it fails. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool canUndo() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Queries if we can redo. 
+	///
+	/// \return	true if it succeeds, false if it fails. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool canRedo() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// This function creates a description of our node.
@@ -250,6 +276,8 @@ private:
 
 	Time mTime; ///< The current time
 
+	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< Number of guides to interpolate from
+
 	// Mesh topology callback
 
 	bool mIsTopologyCallbackRegistered; ///< true if is topology callback registered
@@ -273,6 +301,26 @@ inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesUG()
 inline void HairShape::updateGuides( bool aStoreUpdate )
 {
 	mHairGuides->updateGuides( aStoreUpdate );
+}
+
+inline void HairShape::undo()
+{
+	return mHairGuides->undo();
+}
+
+inline void HairShape::redo()
+{
+	return mHairGuides->redo();
+}
+
+inline bool HairShape::canUndo() const
+{
+	return mHairGuides->canUndo();
+}
+
+inline bool HairShape::canRedo() const
+{
+	return mHairGuides->canRedo();
 }
 
 inline void HairShape::setAsActiveObject()

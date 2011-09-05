@@ -10,7 +10,6 @@ namespace HairComponents
 {
 
 const Real HAIR_LENGTH = 1.0f;
-const unsigned __int32 INTERPOLATE_FROM = 3;
 
 SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
@@ -40,7 +39,8 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 
 SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
 	const GuidesRestPositions & aRestPositions, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups )
+	const Interpolation::InterpolationGroups & aInterpolationGroups,
+	unsigned __int32 aNumberOfGuidesToInterpolateFrom )
 {
 	if ( aOldStorage.imported() )
 	{
@@ -48,17 +48,15 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Res
 		for ( AllFramesSegments::const_iterator it = aOldStorage.mSegments.begin(); 
 			it != aOldStorage.mSegments.end(); ++it )
 		{
-			InterpolateFrame( it->second, aOldRestPositionsUG, aRestPositions, aInterpolationGroups, 
+			InterpolateFrame( it->second, aOldRestPositionsUG, aRestPositions, aInterpolationGroups,
+				aNumberOfGuidesToInterpolateFrom,
 				// Create output frame
 				mSegments.insert( std::make_pair( it->first, FrameSegments() ) ).first->second );
 		}
-		// Reset current frame
-		setFrame( mCurrent.mFrame );
 	}
-	else
-	{
-		InterpolateFrame( aOldStorage.mCurrent, aOldRestPositionsUG, aRestPositions, aInterpolationGroups, mCurrent );
-	}
+	// Interpolate current segments
+	InterpolateFrame( aOldStorage.mCurrent, aOldRestPositionsUG, aRestPositions, aInterpolationGroups, 
+		aNumberOfGuidesToInterpolateFrom, mCurrent );
 }
 
 SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const GuidesIds & aRemainingGuides )
@@ -80,19 +78,15 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Gui
 				*guideIt = it->second.mSegments[ *idIt ]; // Copy guide segments
 			}
 		}
-		// Reset current frame
-		setFrame( mCurrent.mFrame );
 	}
-	else
+	// Import current segments
+	mCurrent.mSegments.resize( aRemainingGuides.size() );
+	GuidesIds::const_iterator idIt = aRemainingGuides.begin();
+	// For every guide
+	for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
+		guideIt != mCurrent.mSegments.end(); ++guideIt, ++ idIt )
 	{
-		mCurrent.mSegments.resize( aRemainingGuides.size() );
-		GuidesIds::const_iterator idIt = aRemainingGuides.begin();
-		// For every guide
-		for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
-			guideIt != mCurrent.mSegments.end(); ++guideIt, ++ idIt )
-		{
-			*guideIt = aOldStorage.mCurrent.mSegments[ *idIt ]; // Copy guide segments
-		}
+		*guideIt = aOldStorage.mCurrent.mSegments[ *idIt ]; // Copy guide segments
 	}
 }
 
@@ -102,8 +96,8 @@ void SegmentsStorage::setFrame( Time aTime )
 	{
 		return; // Ignores time
 	}
+	propagateChangesThroughTime(); // Saves current frame
 	/* TODO MAY BE SOMETHING BETTER THAN LINEAR INTERPOLATION*/
-	/* TODO PROPAGATE CHANGES */
 	mCurrent.mFrame = aTime;
 	// Get bounds first
 	AllFramesSegments::const_iterator lowerBound = mSegments.lower_bound( aTime );
@@ -146,7 +140,7 @@ void SegmentsStorage::setFrame( Time aTime )
 					// Interpolate
 					*segIt = *upSegIt * upFactor + *lowSegIt * lowFactor;
 				}
-				/* TODO RECALCULATE SEGMENTS TO HAVE SAME LENGTH */
+				uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
 			}
 
 		}
@@ -156,69 +150,67 @@ void SegmentsStorage::setFrame( Time aTime )
 
 void SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
 {
-	if ( imported() )
+	const GuidesSegments & change = aSegmentsChange.mFrames.begin()->second.mSegments;
+	// For every change
+	for ( GuidesIds::const_iterator idIt = aSegmentsChange.mIds.begin(); 
+		idIt != aSegmentsChange.mIds.end(); ++idIt )
 	{
-		// For every time
-		AllFramesSegments::iterator destIt = mSegments.begin();
-		AllFramesSegments::const_iterator sourceIt = aSegmentsChange.mFrames.begin();
-		for ( ; destIt != mSegments.end(); ++destIt, ++sourceIt )
-		{
-			// For every change
-			for ( GuidesIds::const_iterator idIt = aSegmentsChange.mIds.begin(); 
-				idIt != aSegmentsChange.mIds.end(); ++idIt )
-			{
-				// Copy segments
-				destIt->second.mSegments[ *idIt ] = sourceIt->second.mSegments[ *idIt ]; 
-			}
-		}
-		// Reset current frame
-		setFrame( mCurrent.mFrame );
+		// Copy segments
+		mCurrent.mSegments[ *idIt ] = change[ *idIt ]; 
 	}
-	else
-	{
-		const GuidesSegments & change = aSegmentsChange.mFrames.begin()->second.mSegments;
-		// For every change
-		for ( GuidesIds::const_iterator idIt = aSegmentsChange.mIds.begin(); 
-			idIt != aSegmentsChange.mIds.end(); ++idIt )
-		{
-			// Copy segments
-			mCurrent.mSegments[ *idIt ] = change[ *idIt ]; 
-		}
-	}
+	// Current segments has been changed and need to be propagated through time
+	mAreCurrentSegmentsDirty = true;
 }
 
 PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSelectedGuides )
 {
-	if ( imported() )
+	// Prepare partial storage
+	PartialStorage * tmpStorage = new PartialStorage;
+	// Prepare frame
+	tmpStorage->mFrames.insert( std::make_pair( mCurrent.mFrame, FrameSegments() ) );
+	FrameSegments & frame = tmpStorage->mFrames.begin()->second;
+	// For every selected guide
+	for( SelectedGuides::const_iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
-		/* TODO REQUIRES MATH*/
-		return 0;			
-	}
-	else
-	{
-		// Prepare partial storage
-		PartialStorage * tmpStorage = new PartialStorage;
-		// Prepare frame
-		tmpStorage->mFrames.insert( std::make_pair( mCurrent.mFrame, FrameSegments() ) );
-		FrameSegments & frame = tmpStorage->mFrames.begin()->second;
-		// For every selected guide
-		for( SelectedGuides::const_iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
+		if ( it->mDirtyFlag )
 		{
-			if ( it->mDirtyFlag )
-			{
-				tmpStorage->mIds.push_back( it->mGuideId ); // Store guide id
-				frame.mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
-				mCurrent.mSegments[ it->mGuideId ] = it->mGuideSegments; // Copy modified guide segments
-			}
+			tmpStorage->mIds.push_back( it->mGuideId ); // Store guide id
+			frame.mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
+			mCurrent.mSegments[ it->mGuideId ] = it->mGuideSegments; // Copy modified guide segments
 		}
-		return tmpStorage;
 	}
+	return tmpStorage;
 }
 
 void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	/* TODO REQUIRES MATH*/
+	if ( imported() )
+	{
+		// For every time
+		for ( AllFramesSegments::iterator frmIt = mSegments.begin(); frmIt != mSegments.end(); ++frmIt )
+		{
+			GuidesSegments & guides = frmIt->second.mSegments;
+			GuidesRestPositions::const_iterator posIt = aRestPositions.begin();
+			// For every guide
+			for ( GuidesSegments::iterator guideIt = guides.begin(); guideIt != guides.end(); ++guideIt, ++posIt )
+			{
+				uniformlyRepositionSegments( *guideIt, 
+					// Load new segments count from interpolation groups object
+					aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() ) );
+			}
+		}
+	}
+	// Set segments count for current frame
+	GuidesSegments & guides = mCurrent.mSegments;
+	GuidesRestPositions::const_iterator posIt = aRestPositions.begin();
+	// For every guide
+	for ( GuidesSegments::iterator guideIt = guides.begin(); guideIt != guides.end(); ++guideIt, ++posIt )
+	{
+		uniformlyRepositionSegments( *guideIt, 
+			// Load new segments count from interpolation groups object
+			aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() ) );
+	}
 }
 
 BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const
@@ -240,10 +232,15 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 	return bbox;
 }
 
+void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
+{
+	/* TODO + calculate new mSegmentsLength*/
+}
 
 void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,
+		unsigned __int32 aNumberOfGuidesToInterpolateFrom,
 		FrameSegments & aOutputSegments ) const
 {
 	// Prepare size
@@ -263,7 +260,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		// Now selected closest guides
 		ClosestGuidesIds guidesIds;
 		aOldRestPositionsUG.getNClosestGuides( posIt->mPosition.getPosition(), 
-			interpolationGroup, INTERPOLATE_FROM, guidesIds );
+			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
 		// First calculate cumulated distance
 		Real cumulatedDistance = 0;
 		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
@@ -272,7 +269,6 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		}
 		Real inverseCumulatedDistance = 1.0f / cumulatedDistance; 
 		// For every old guide segments to interpolate from
-		/* TODO this make create segments with different lengths in one guide */
 		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
 			// Old segments iterator
@@ -285,8 +281,59 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				*segIt += *oldSegIt * weight;
 			}
 		}
-		// Calculate segment length from first segment
-		guideIt->mSegmentLength = Vector3D< Real >( *guideIt->mSegments.begin(), *( guideIt->mSegments.begin() + 1 ) ).size(); 
+		uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
+	}
+}
+
+Real SegmentsStorage::timeAffectFactor( Time aTimeDifference )
+{
+	return static_cast< Real >( 1.0f - 5.0f / aTimeDifference ); // Hyperbolical through 10 frames
+}
+
+void SegmentsStorage::propagateChangesThroughTime()
+{
+	if ( imported() && mAreCurrentSegmentsDirty )
+	{
+		// Gets first non-less frame 
+		AllFramesSegments::iterator lowerBound = mSegments.lower_bound( mCurrent.mFrame );
+		Real factor;
+		// For every succeeding frame until change has no meaning
+		for ( AllFramesSegments::iterator it = lowerBound; 
+			it != mSegments.end() && ( factor = timeAffectFactor( it->first - mCurrent.mFrame ) ) > 0; ++it )
+		{
+			propageteChangesToFrame( it->second.mSegments, factor );
+		}
+		if ( lowerBound != mSegments.begin() ) // No predecessor
+		{
+			--lowerBound;
+			// Get reverse iterator
+			AllFramesSegments::reverse_iterator rIt( lowerBound );
+			// For every preceding frame until change has no meaning
+			for ( ; rIt != mSegments.rend() && ( factor = timeAffectFactor( mCurrent.mFrame - rIt->first ) ) > 0; 
+				++rIt )
+			{
+				propageteChangesToFrame( rIt->second.mSegments, factor );
+			}
+		}
+		
+	}
+	mAreCurrentSegmentsDirty = false;
+}
+
+void SegmentsStorage::propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor )
+{
+	GuidesSegments::const_iterator sourceIt = mCurrent.mSegments.begin();
+	// For every guide
+	for ( GuidesSegments::iterator destIt = aGuides.begin(); destIt != aGuides.end(); ++destIt, ++sourceIt )
+	{
+		Segments::const_iterator sourceSegIt = sourceIt->mSegments.begin();
+		// For every segment
+		for ( Segments::iterator destSegIt = destIt->mSegments.begin(); destSegIt != destIt->mSegments.end(); 
+			++destSegIt, ++sourceSegIt )
+		{
+			*destSegIt = *sourceSegIt * aFactor + *destSegIt * ( 1 - aFactor );
+		}
+		uniformlyRepositionSegments( *destIt, static_cast< unsigned __int32 >( destIt->mSegments.size() ) );
 	}
 }
 

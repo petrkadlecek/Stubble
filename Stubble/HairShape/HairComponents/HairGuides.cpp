@@ -11,7 +11,8 @@ namespace HairComponents
 
 HairGuides::HairGuides():
 	mSegmentsStorage( 0 ),
-	mBoundingBoxDirtyFlag( false )
+	mBoundingBoxDirtyFlag( false ),
+	mNumberOfGuidesToInterpolateFrom( 3 )
 {
 }
 
@@ -113,8 +114,10 @@ void HairGuides::importNURBS()
 		MDagPath path;
 		curveIt.getDagPath( path );
 		MFnNurbsCurve curve( path );
-		// got the curve, TODO: get it into segment storage
+		// got the curve, TODO: get it into segment storage (using mSegmentsStorage->importSegments)
 	}
+	// All nurbs has been imported, we have to recalculate for current time
+	mSegmentsStorage->setFrame( /* TODO CURRENT TIME */ 1 );
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
@@ -124,22 +127,30 @@ void HairGuides::importNURBS()
 
 void HairGuides::exportNURBS()
 {
-	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); hairIt != mSelectedGuides.end(); hairIt++ )
+	if ( mSegmentsStorage->imported() )
+	{
+		throw StubbleException( " HairGuides::exportNURBS : already used import command ! " );
+	}
+	GuidesCurrentPositions::const_iterator currPosIt = mCurrentPositions.begin();
+	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); 
+		hairIt != mSelectedGuides.end(); hairIt++, currPosIt++ )
 	{
 		MPointArray pointArray;				
 		for ( Segments::const_iterator segmentIt = hairIt->mGuideSegments.mSegments.begin()
 			; segmentIt != hairIt->mGuideSegments.mSegments.end()
 			; segmentIt++ )
 		{			
-			pointArray.append( segmentIt->toMayaPoint() );
+			// Transform to world coordinates and append
+			pointArray.append( currPosIt->mPosition.toWorld( *segmentIt ).toMayaPoint() );
 		}
 		MFnNurbsCurve nurbsCurve;
 		MStatus status;
 
-		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, false, false, true, MObject::kNullObj, &status );
+		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
+			false, false, true, MObject::kNullObj, &status );
 		if ( status != MStatus::kSuccess )
 		{
-			status.perror( "HairGuides: Failed to create NURBS curve." );			
+			throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
 		}
 	}
 }
@@ -150,6 +161,7 @@ void HairGuides::setCurrentTime( Time aTime )
 	{
 		return; // Time change has no meaning
 	}
+	mSegmentsStorage->setFrame( aTime );
 	// Everything has changed...
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
@@ -283,7 +295,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 			throw StubbleException(" HairGuides::generate : No old segments to interpolate from ! ");
 		}
 		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, getGuidesPositionsUG( aInterpolationGroups ), 
-			tmpRestPositions, aInterpolationGroups );
+			tmpRestPositions, aInterpolationGroups, mNumberOfGuidesToInterpolateFrom );
 	}
 	else
 	{

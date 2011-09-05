@@ -45,11 +45,19 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "Could not register StubbleCreateUI." );
+		return status;
 	}
 
 	// register BrushToolCommand
 	status = plugin.registerContextCommand( Stubble::Toolbox::BrushToolCommand::sCommandName, 
 		Stubble::Toolbox::BrushToolCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register BrushToolCommand." );
+		return status;
+	}
 
 	// register HapticToolCommand
 	status = plugin.registerContextCommand( Stubble::Toolbox::HapticSettingsToolCommand::sCommandName, 
@@ -58,7 +66,8 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	// check for error
 	if ( status != MS::kSuccess )
 	{
-		status.perror( "Could not register BrushToolCommand." );
+		status.perror( "Could not register HapticSettingsToolCommand." );
+		return status;
 	}
 
 	status = plugin.registerShape( Stubble::HairShape::HairShape::typeName, // Node name
@@ -71,6 +80,7 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if( status != MS::kSuccess )
 	{
 		status.perror( "could not register the HairShape node" );
+		return status;
 	}
 
 	// register Stubble3DelightCacheCommand command
@@ -80,6 +90,7 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not register the Stubble3DelightCacheCommand command" );
+		return status;
 	}
 
 	return status;

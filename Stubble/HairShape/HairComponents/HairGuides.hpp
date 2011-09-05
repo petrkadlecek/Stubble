@@ -177,6 +177,13 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void exportToFile( std::ostream & aOutputStream ) const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Sets a number of guides to interpolate from. 
+	///
+	/// \param	aNumberOfGuidesToInterpolateFrom	a number of guides to interpolate from. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setNumberOfGuidesToInterpolateFrom( unsigned __int32 aNumberOfGuidesToInterpolateFrom );
+
 private:
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid
 
@@ -199,6 +206,8 @@ private:
 	BoundingBox mBoundingBox;   ///< The bounding box of current guides
 
 	bool mBoundingBoxDirtyFlag; ///< true to bounding box dirty flag
+
+	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< The number of guides to interpolate from
 };
 
 // inline functions implementation
@@ -211,6 +220,11 @@ inline bool HairGuides::canUndo() const
 inline bool HairGuides::canRedo() const
 {
 	return mUndoStack.canRedo();
+}
+
+inline void HairGuides::setNumberOfGuidesToInterpolateFrom( unsigned __int32 aNumberOfGuidesToInterpolateFrom )
+{
+	mNumberOfGuidesToInterpolateFrom = aNumberOfGuidesToInterpolateFrom;
 }
 
 } // namespace HairComponents
