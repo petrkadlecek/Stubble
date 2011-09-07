@@ -62,6 +62,11 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	static std::string generateFrameFileName( std::string aNodeName, Time aSampleTime );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Loads the stubble work dir. 
+	///-------------------------------------------------------------------------------------------------
+	static void loadStubbleWorkDir();
+
 	BoundingBoxes mBoundingBoxes;   ///< The bounding boxes of voxels
 
 	Time mMaxTime;  ///< Max. time of sample

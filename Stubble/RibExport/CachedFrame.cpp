@@ -16,7 +16,7 @@ namespace Stubble
 namespace RibExport
 {
 
-std::string CachedFrame::mStubbleWorkDir = getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
+std::string CachedFrame::mStubbleWorkDir = "";
 
 // Free argument data
 void freeData(RtPointer data)
@@ -26,6 +26,7 @@ void freeData(RtPointer data)
 
 CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
+	loadStubbleWorkDir();
 	Sample s; 
 	s.mFileName = generateFrameFileName( aNodeName, aSampleTime );
 	s.mSampleTime = aSampleTime;
@@ -113,6 +114,14 @@ std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSam
 	}
 	s << aNodeName << "-" << aSampleTime;
 	return s.str();
+}
+
+void CachedFrame::loadStubbleWorkDir()
+{
+	if ( mStubbleWorkDir.empty() )
+	{
+		mStubbleWorkDir = getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
+	}
 }
 
 } // namespace RibExport
