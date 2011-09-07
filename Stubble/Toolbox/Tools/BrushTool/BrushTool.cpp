@@ -58,7 +58,7 @@ MStatus	BrushToolCommand::doEditFlags()
 
 	if( pars.isFlagSet( circleRadiusFlag ) )
 	{
-		pars.getFlagArgument( circleRadiusFlag, 0, ( mCurrentBrushToolObject->mCircleRadius ) );
+		pars.getFlagArgument( circleRadiusFlag, 0, ( mCurrentBrushToolObject->mRadius ) );
 		mCurrentBrushToolObject->notify();
 	}
 
@@ -73,7 +73,7 @@ MStatus	BrushToolCommand::doQueryFlags()
 		setResult( mCurrentBrushToolObject->mBrushModeChoice );
 	
 	if( pars.isFlagSet( circleRadiusFlag ) )
-		setResult( mCurrentBrushToolObject->mCircleRadius );
+		setResult( mCurrentBrushToolObject->mRadius );
 	
 	return MS::kSuccess;
 }
@@ -110,7 +110,8 @@ void BrushTool::deleteMouseMoveListener()
 	}
 }
 
-BrushTool::BrushTool()
+BrushTool::BrushTool() :
+	GenericTool(new CircleToolShape())
 {
 	setTitleString( "Stubble Brush Tool" );
 	

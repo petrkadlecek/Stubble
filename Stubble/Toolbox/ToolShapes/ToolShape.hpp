@@ -23,7 +23,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Returns shape size.
 	///----------------------------------------------------------------------------------------------------
-	virtual float getSize();
+	//Deprecated - TODO: probably remove?
+	//virtual float getSize();
+
+	// TODO: for Honza Kadlec: feel free to add/remove any other methods/members. For the time being I've
+	// commented out method for getting size of the shape. This should go to inherited shapes.
 
 	/* TODO once we have GuideHair...
 	vector< GuideHair > filterSelection() = 0;
@@ -40,8 +44,8 @@ public:
 	virtual void update( GenericTool *aTool ) = 0;
 
 protected:
-
-	float mSize; ///< Tool shape size.
+	//Deprecated - TODO: probably remove?
+	//float mSize; ///< Tool shape size.
 };
 	
 } // namespace Toolbox

@@ -7,20 +7,19 @@ namespace Stubble
 namespace Toolbox
 {
 
-GenericTool::GenericTool()
-	: mCircleRadius( 30 )
+GenericTool::GenericTool() :
+	mShape(0)
 {
-	mShape = new CircleToolShape();
+}
+
+GenericTool::GenericTool(ToolShape *aToolShape) :
+	mShape(aToolShape)
+{
 }
 
 M3dView* GenericTool::getActiveView()
 {
 	return &mView;
-}
-
-int GenericTool::getCircleRadius()
-{
-	return mCircleRadius;
 }
 
 void GenericTool::drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType )

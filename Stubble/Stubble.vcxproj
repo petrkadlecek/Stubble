@@ -245,6 +245,7 @@
     <None Include="MEL\StubbleCreateHair.mel" />
     <None Include="MEL\StubbleCreateUI.mel" />
     <None Include="MEL\StubbleDeleteUI.mel" />
+    <None Include="MEL\StubbleHapticSettingsTool.mel" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

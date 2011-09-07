@@ -18,7 +18,7 @@ CircleToolShape::CircleToolShape()
 
 void CircleToolShape::update( GenericTool *aTool )
 {
-	mRadius = aTool->getCircleRadius();
+	//mRadius = aTool->getCircleRadius(); //TODO: needs to be redone
 }
 
 void CircleToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType )

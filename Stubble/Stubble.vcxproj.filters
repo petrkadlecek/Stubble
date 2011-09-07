@@ -341,5 +341,8 @@
     <None Include="MEL\StubbleDeleteUI.mel">
       <Filter>MEL</Filter>
     </None>
+    <None Include="MEL\StubbleHapticSettingsTool.mel">
+      <Filter>MEL</Filter>
+    </None>
   </ItemGroup>
 </Project>

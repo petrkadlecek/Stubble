@@ -15,8 +15,17 @@ class GenericTool
 	: public MPxContext
 {
 public:
-    
+
+    ///----------------------------------------------------------------------------------------------------
+	/// Default constructor
+	///----------------------------------------------------------------------------------------------------
 	GenericTool();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Constructor specifying the tool shape
+	/// \param aToolShape The shape of the tool
+	///----------------------------------------------------------------------------------------------------
+	GenericTool(ToolShape *aToolShape);
 	
 	///----------------------------------------------------------------------------------------------------
 	/// The method which returns the current 3D view.
@@ -41,15 +50,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape() = 0; 
 
-	int getCircleRadius();
-
 protected:
 
 	ToolShape *mShape; ///< Current brush shape (circle, texture shape...).
 
 	M3dView mView; ///< The view in which we are currently operating.
-
-	int mCircleRadius; ///< The radius of the visual aid
 };
 
 } // namespace Toolbox

@@ -26,8 +26,7 @@
 #include "../../BrushModes/RotateBrushMode/RotateBrushMode.hpp"
 #include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
-//#include "../../ToolShapes/ToolShape.hpp"
-//#include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
+#include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
 
 namespace Stubble
@@ -132,6 +131,8 @@ protected:
 	float mSensitivity; ///< Brush sensitivity.
 
 	float mFalloff; ///< Brush falloff.
+
+	int mRadius; ///< Radius of the displayed circle, when a circle is used
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 

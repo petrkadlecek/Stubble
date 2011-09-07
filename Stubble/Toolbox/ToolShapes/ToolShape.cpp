@@ -6,10 +6,11 @@ namespace Stubble
 namespace Toolbox
 {
 
-float ToolShape::getSize()
-{
-	return mSize;
-}
+//Deprecated - TODO: probably remove?
+//float ToolShape::getSize()
+//{
+//	return mSize;
+//}
 
 } // namespace Toolbox
 
