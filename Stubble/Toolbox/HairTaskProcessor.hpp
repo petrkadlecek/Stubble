@@ -20,6 +20,8 @@ namespace Toolbox
 class HairTaskProcessor
 {
 public:
+	typedef std::deque< HairTask* > TaskAccumulator;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the instance of the class
 	///
@@ -40,13 +42,13 @@ public:
 	static inline bool isRunning ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Synchronisation barrier that waits until the thread finishes work, contains critical section
+	/// Synchronization barrier that waits until the thread finishes work, contains critical section
 	///----------------------------------------------------------------------------------------------------
 	static void waitFinishWorkerThread ();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Enqueues new hair task into the accumulator queue and creates a worker thread if there's not one
-	/// aready active. Contains two critical sections.
+	/// already active. Contains two critical sections.
 	///
 	/// \param aTask The new task to be added
 	///----------------------------------------------------------------------------------------------------
@@ -106,12 +108,13 @@ private:
 	static MThreadRetVal asyncWorkerLoop (void *aData);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns another task from the queue. If the queue is empty, returns dummy hair task object.
-	/// Contains critical section.
+	/// Method for getting task from the queue. If the queue is empty, the pointer returned is null.
+	/// Contains critical section. Returns number of remaining objects in the queue.
 	///
-	/// \return The next task object from the queue
+	/// \param aTask The task at the front of the queue
+	/// \return Number of remaining tasks in the queue
 	///----------------------------------------------------------------------------------------------------
-	HairTask *getTask ();
+	size_t getTask (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Calls doBrush method contained within the aTask object
@@ -128,7 +131,7 @@ private:
 	void enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides);
 
 	static HairTaskProcessor *sInstance; ///< The class instance
-	std::deque< HairTask* > mTaskAccumulator; ///< The task queue
+	TaskAccumulator mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
@@ -149,7 +152,8 @@ inline void HairTaskProcessor::destroyInstance ()
 {
 	if (HairTaskProcessor::sInstance)
 	{
-		//TODO
+		HairTaskProcessor::sInstance->purgeAccumulator();
+		HairTaskProcessor::waitFinishWorkerThread();
 
 		delete HairTaskProcessor::sInstance;
 	}
@@ -166,7 +170,7 @@ inline bool HairTaskProcessor::isRunning ()
 		bool result = HairTaskProcessor::sIsRunning;
 	HairTaskProcessor::sIsRunningLock.unlock();
 	// ------------------------------------
-	// End cricical section
+	// End critical section
 	// ------------------------------------
 
 	return result;
@@ -181,7 +185,7 @@ inline size_t HairTaskProcessor::getAccumulatorSize ()
 		size_t size = mTaskAccumulator.size();
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
-	// End cricical section
+	// End critical section
 	// ------------------------------------
 
 	return size;

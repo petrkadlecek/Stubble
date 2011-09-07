@@ -53,6 +53,11 @@ void HairTaskProcessor::purgeAccumulator ()
 	// Begin critical section
 	// ------------------------------------
 	mTaskAccumulatorLock.lock();
+		TaskAccumulator::iterator it;
+		for (it = mTaskAccumulator.begin(); it != mTaskAccumulator.end(); ++it)
+		{
+			delete *it;
+		}
 		mTaskAccumulator.clear();
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
@@ -113,53 +118,53 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 
 	HairTaskProcessor *hairTaskProcessor = HairTaskProcessor::getInstance();
 	size_t accumulatorSize = hairTaskProcessor->getAccumulatorSize(); // Contains critical section
-	bool run = (accumulatorSize > 0); // Loop control
 
-	while ( run )
+	while ( accumulatorSize > 0 )
 	{
 		// Contains critical section
-		HairTask *task = hairTaskProcessor->getTask();
-		if (task->mValid)
+		HairTask *task = 0;
+		accumulatorSize = hairTaskProcessor->getTask(task);
+
+		if ( 0 != task )
 		{
 			HairShape::HairComponents::SelectedGuides selectedGuides;
-			task->mSelectedGuidesUG->select(task->mToolShape, selectedGuides);
+			task->mParentHairShape->getSelectedGuidesUG().select(task->mToolShape, selectedGuides);
 			
 			hairTaskProcessor->doBrush(selectedGuides, task->mDx, task->mBrushMode);
 			hairTaskProcessor->enforceConstraints(selectedGuides);
-		}
-		delete task;
 
-		// Contains critical section
-		accumulatorSize = hairTaskProcessor->getAccumulatorSize();
-		run = (accumulatorSize > 0);
+			task->mParentHairShape->updateGuides(false);
+
+			delete task;
+		}
 	}
 
 	return 0;
 }
 
-HairTask *HairTaskProcessor::getTask ()
+size_t HairTaskProcessor::getTask (HairTask *aTask)
 {
-	HairTask *task = 0;
-
 	// ------------------------------------
 	// Begin critical section
 	// ------------------------------------
 	mTaskAccumulatorLock.lock();
-		if ( mTaskAccumulator.size() > 0 )
+		size_t queueSize = mTaskAccumulator.size();
+		if ( queueSize > 0 )
 		{
-			task = mTaskAccumulator.front();
+			aTask = mTaskAccumulator.front();
 			mTaskAccumulator.pop_front();
+			queueSize--;
 		}
 		else
 		{
-			task = new HairTask(); // Dummy object, warning contains null pointer
+			aTask = 0;
 		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
 	// End critical section
 	// ------------------------------------
 
-	return task;
+	return queueSize;
 }
 
 void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< double > &aDx, BrushMode *aBrushMode)

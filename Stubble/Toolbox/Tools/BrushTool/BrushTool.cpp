@@ -3,9 +3,7 @@
 #include <maya/MDagPath.h>
 
 #include "BrushTool.hpp"
-//#include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
-//#include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
-
+#include "../../../HairShape/UserInterface/HairShape.hpp"
 
 const char *circleRadiusFlag = "-cr", *circleRadiusLongFlag = "-circleRadius";
 const char *brushModeChoiceFlag = "-bmc", *brushModeChoiceLongFlag = "-brushModeChoice";
@@ -241,12 +239,25 @@ MStatus BrushTool::doRelease( MEvent & event )
 	// nullify selection area
 	mStartPos[ 0 ] = mStartPos[ 1 ] = mPrevPos[ 0 ] = mPrevPos[ 1 ] = mEndPos[ 0 ] = mEndPos[ 1 ] = 0;
 
+	// Put the change into the undo stack
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 != activeHairShape )
+	{
+		activeHairShape->updateGuides(true);
+	}
+
 	return MS::kSuccess;
 }
 
 void BrushTool::doBrush( Vector3D< double > aDX )
 {
 	//std::cout << "doBrush()\n" << std::flush;
+
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 == activeHairShape )
+	{
+		return;
+	}
 
 	// Transform the move vector into the eye coordinates
 	MDagPath cameraPath;
@@ -260,8 +271,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	MVector moveVector = ratio * aDX.x * right + ratio * aDX.y * up;
 
 	// Create the hair task
-	//TODO: add affected hair
-	HairTask *task = HairTask::create(this->mShape, this->mBrushMode, moveVector, new HairShape::HairComponents::SegmentsUG());
+	HairTask *task = new HairTask(activeHairShape, this->mShape, this->mBrushMode, moveVector);
 
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }

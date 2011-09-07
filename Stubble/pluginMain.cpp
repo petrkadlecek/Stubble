@@ -146,5 +146,8 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 		status.perror( "could not unregister the Stubble3DelightCacheCommand command" );
 	}
 
+	// Clean up the brush worker thread
+	Stubble::Toolbox::HairTaskProcessor::destroyInstance();
+
 	return status;
 }
