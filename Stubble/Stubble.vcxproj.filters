@@ -169,6 +169,18 @@
     <ClCompile Include="Toolbox\Tools\HapticSettingsTool.cpp">
       <Filter>Toolbox\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\MayaPositionGenerator.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\MayaOutputGenerator.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\HairProperties.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -317,6 +329,30 @@
     </ClInclude>
     <ClInclude Include="Toolbox\Tools\HapticSettingsTool.hpp">
       <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\HairGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\HairProperties.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\InterpolatedHair.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\MayaPositionGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\OutputGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\PositionGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RMPositionGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\MayaOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

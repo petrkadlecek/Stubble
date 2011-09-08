@@ -2,6 +2,7 @@
 #define STUBBLE_HAIR_SHAPE_HPP
 
 #include "HairShape/Generators/UVPointGenerator.hpp"
+#include "HairShape/Interpolation/InterpolatedHair.hpp"
 #include "HairShape/HairComponents/HairGuides.hpp"
 #include "HairShape/Mesh/MayaMesh.hpp"
 #include "HairShape/Mesh/Voxelization.hpp"
@@ -22,7 +23,7 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 /// The main class that encapsulates informations about hairs
 ///----------------------------------------------------------------------------------------------------
-class HairShape: public MPxSurfaceShape
+class HairShape: public MPxSurfaceShape, public Interpolation::HairProperties 
 {
 public:
 	
@@ -56,7 +57,13 @@ public:
 
 	static MObject timeAttr;	///< The time attribute
 
-	static MObject numberOfGuidesToInterpolateFrom; ///< Number of guides to interpolate from
+	static MObject numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
+
+	static MObject displayGuidesAttr;   ///< Should guides be displayed ? attribute
+
+	static MObject displayInterpolatedAttr; ///< Should interpolated hair be displayed ? attribute
+
+	static MObject genDisplayCountAttr;	///< The number of generated hair to be displayed attribute
 
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
@@ -262,6 +269,8 @@ private:
 
 	Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
 
+	Interpolation::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
+
 	// Stored attributes values
 
 	unsigned __int32 mGuidesHairCount;  ///< Number of guides hairs
@@ -277,6 +286,12 @@ private:
 	Time mTime; ///< The current time
 
 	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< Number of guides to interpolate from
+
+	bool mDisplayGuides;   ///< Should guides be displayed ?
+
+	bool mDisplayInterpolated; ///< Should interpolated hair be displayed ?
+
+	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed
 
 	// Mesh topology callback
 

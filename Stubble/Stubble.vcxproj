@@ -158,7 +158,11 @@
     <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp" />
+    <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp" />
+    <ClCompile Include="HairShape\Interpolation\HairProperties.cpp" />
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp" />
+    <ClCompile Include="HairShape\Interpolation\MayaOutputGenerator.cpp" />
+    <ClCompile Include="HairShape\Interpolation\MayaPositionGenerator.cpp" />
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp" />
     <ClCompile Include="HairShape\Mesh\Mesh.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshUG.cpp" />
@@ -200,7 +204,15 @@
     <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp" />
     <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\UndoStack.hpp" />
+    <ClInclude Include="HairShape\Interpolation\HairGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\HairProperties.hpp" />
+    <ClInclude Include="HairShape\Interpolation\InterpolatedHair.hpp" />
     <ClInclude Include="HairShape\Interpolation\InterpolationGroups.hpp" />
+    <ClInclude Include="HairShape\Interpolation\MayaOutputGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\MayaPositionGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\OutputGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\PositionGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\RMPositionGenerator.hpp" />
     <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshUG.hpp" />
