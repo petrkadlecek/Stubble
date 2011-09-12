@@ -43,7 +43,9 @@ protected:
 
 	short mPrevScreenCoords[ 2 ]; ///< The previous position of the cursor during moving
 
-	int mRadius; ///< The radius of the circle.
+	static const int mScaleFactor = 10; ///< The scale multiplier for calculating the circle radius.
+
+	int mRadius; ///< The radius of the displayed circle (mRadius = mScale * mScaleFactor).
 };
 	
 } // namespace Toolbox

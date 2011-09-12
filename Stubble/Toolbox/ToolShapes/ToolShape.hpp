@@ -46,6 +46,8 @@ public:
 protected:
 	//Deprecated - TODO: probably remove?
 	//float mSize; ///< Tool shape size.
+
+	int mScale; ///< The scale of the tool (passed from the UI).
 };
 	
 } // namespace Toolbox

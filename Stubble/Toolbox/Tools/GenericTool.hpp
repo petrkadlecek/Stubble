@@ -50,11 +50,18 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape() = 0; 
 
+	///----------------------------------------------------------------------------------------------------
+	/// Returns the current tool scale, as selected in the UI. 
+	///----------------------------------------------------------------------------------------------------
+	int getToolScale();
+
 protected:
 
 	ToolShape *mShape; ///< Current brush shape (circle, texture shape...).
 
 	M3dView mView; ///< The view in which we are currently operating.
+
+	int mScale; ///< The scale of the tool (passed from the UI).
 };
 
 } // namespace Toolbox

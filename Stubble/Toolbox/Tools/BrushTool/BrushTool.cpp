@@ -5,7 +5,7 @@
 #include "BrushTool.hpp"
 #include "../../../HairShape/UserInterface/HairShape.hpp"
 
-const char *circleRadiusFlag = "-cr", *circleRadiusLongFlag = "-circleRadius";
+const char *toolScaleFlag = "-ts", *toolScaleLongFlag = "-toolScale";
 const char *brushModeChoiceFlag = "-bmc", *brushModeChoiceLongFlag = "-brushModeChoice";
 
 namespace Stubble
@@ -54,9 +54,9 @@ MStatus	BrushToolCommand::doEditFlags()
 		mCurrentBrushToolObject->changeBrushMode();
 	}
 
-	if( pars.isFlagSet( circleRadiusFlag ) )
+	if( pars.isFlagSet( toolScaleFlag ) )
 	{
-		pars.getFlagArgument( circleRadiusFlag, 0, ( mCurrentBrushToolObject->mRadius ) );
+		pars.getFlagArgument( toolScaleFlag, 0, ( mCurrentBrushToolObject->mScale ) );
 		mCurrentBrushToolObject->notify();
 	}
 
@@ -70,8 +70,8 @@ MStatus	BrushToolCommand::doQueryFlags()
 	if( pars.isFlagSet( brushModeChoiceFlag ) )
 		setResult( mCurrentBrushToolObject->mBrushModeChoice );
 	
-	if( pars.isFlagSet( circleRadiusFlag ) )
-		setResult( mCurrentBrushToolObject->mRadius );
+	if( pars.isFlagSet( toolScaleFlag ) )
+		setResult( mCurrentBrushToolObject->mScale );
 	
 	return MS::kSuccess;
 }
@@ -82,7 +82,7 @@ MStatus	BrushToolCommand::appendSyntax()
 	
 	syn.addFlag( brushModeChoiceFlag, brushModeChoiceLongFlag, MSyntax::kLong );
 
-	syn.addFlag( circleRadiusFlag, circleRadiusLongFlag, MSyntax::kLong );
+	syn.addFlag( toolScaleFlag, toolScaleLongFlag, MSyntax::kLong );
 
 	return MS::kSuccess;
 }

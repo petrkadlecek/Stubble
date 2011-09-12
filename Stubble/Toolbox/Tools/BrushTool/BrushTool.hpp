@@ -132,8 +132,6 @@ protected:
 
 	float mFalloff; ///< Brush falloff.
 
-	int mRadius; ///< Radius of the displayed circle, when a circle is used
-
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 
 	static ClumpBrushMode sClumpBrushMode;

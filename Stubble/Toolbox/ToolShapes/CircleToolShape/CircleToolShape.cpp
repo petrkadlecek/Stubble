@@ -10,15 +10,19 @@ namespace Toolbox
 {
 
 CircleToolShape::CircleToolShape()
-	: mRadius( 30 ), mIsDrawn( false )
+	: mIsDrawn( false )
 {
 	mPrevScreenCoords[ 0 ] = 0;
 	mPrevScreenCoords[ 1 ] = 0;
+	mScale = 1; // initialize the value before it is first passed from the UI
+
+	mRadius = mScale * mScaleFactor;
 }
 
 void CircleToolShape::update( GenericTool *aTool )
 {
-	//mRadius = aTool->getCircleRadius(); //TODO: needs to be redone
+	mScale = aTool->getToolScale();
+	mRadius = mScaleFactor * mScale;
 }
 
 void CircleToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType )

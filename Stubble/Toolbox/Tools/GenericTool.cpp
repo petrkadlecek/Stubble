@@ -8,12 +8,12 @@ namespace Toolbox
 {
 
 GenericTool::GenericTool() :
-	mShape(0)
+	mShape(0), mScale(1)
 {
 }
 
 GenericTool::GenericTool(ToolShape *aToolShape) :
-	mShape(aToolShape)
+	mShape(aToolShape), mScale(1)
 {
 }
 
@@ -30,6 +30,11 @@ void GenericTool::drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventTy
 ToolShape *GenericTool::getToolShape()
 {
 	return mShape;
+}
+
+int GenericTool::getToolScale()
+{
+	return mScale;
 }
 
 } // namespace Toolbox
