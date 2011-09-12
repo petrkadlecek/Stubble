@@ -6,6 +6,8 @@
 #include <maya/MThreadPool.h>
 #include <maya/MSpinLock.h>
 #include <maya/MMutexLock.h>
+#include "../Common/CommonTypes.hpp"
+#include "newmat.h"
 #include "HairTask.hpp"
 
 namespace Stubble
@@ -21,6 +23,9 @@ class HairTaskProcessor
 {
 public:
 	typedef std::deque< HairTask* > TaskAccumulator;
+	typedef Vector3D< Real > Vec3;
+	typedef NEWMAT::ColumnVector RealN;
+	typedef NEWMAT::Matrix RealNxN;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the instance of the class
@@ -121,7 +126,7 @@ private:
 	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
-	void doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< double > &aDx, BrushMode *aBrushMode);
+	void doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< Real > &aDx, BrushMode *aBrushMode);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Makes sure that hair retains their properties by minimizing an error functional
@@ -136,6 +141,12 @@ private:
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 
+	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
+	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
+	static const Uint RIGID_BODY_COUPL_CONSTRAINTS; ///< Number of rigidi body coupling constraints - 3 per rigid body (in our case just the hair root)
+	static const Real INV_ROOT_SGMT_WEIGHT; ///< Inverted root segment weight (kg) - applied to the hair follicle coupling constraints
+	static const Real INV_MID_SGMT_WEIGHT; ///< Inverted middle segment weight (kg) - applied to the rest of hair segment constraints
+	static const Real DELTA_SCALE; ///< Scale factor of the delta matrix, in the article denoted as "h", square root of the dT element
 };
 
 inline HairTaskProcessor *HairTaskProcessor::getInstance ()
