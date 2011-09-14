@@ -108,13 +108,22 @@ void HairGuides::importNURBS()
 {
 	MSelectionList selection;
 	MGlobal::getActiveSelectionList( selection );	
-	MItSelectionList curveIt( selection, MFn::kNurbsCurve );	
-	for ( ; !curveIt.isDone(); curveIt.next() )
+	MItSelectionList curveIt( selection, MFn::kNurbsCurve );
+	FrameSegments frameSegments;
+	for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
 	{
 		MDagPath path;
 		curveIt.getDagPath( path );
-		MFnNurbsCurve curve( path );
-		// got the curve, TODO: get it into segment storage (using mSegmentsStorage->importSegments)
+		MFnNurbsCurve curve( path );		
+		MPointArray pointArray;
+		curve.getCVs( pointArray );
+
+		OneGuideSegments guideSegments; /* TODO should segment length be computed from NURBS curve? */
+		for ( int i = 0; i < pointArray.length(); i++ ) // over all segments
+		{
+			guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
+		}		
+		frameSegments.mSegments.push_back( guideSegments );
 	}
 	// All nurbs has been imported, we have to recalculate for current time
 	mSegmentsStorage->setFrame( /* TODO CURRENT TIME */ 1 );
