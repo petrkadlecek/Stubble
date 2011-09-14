@@ -20,6 +20,8 @@
 #include <maya/MPointArray.h>
 #include <maya/MSelectionList.h>
 #include <maya/MItSelectionList.h>
+#include <maya/MAnimControl.h>
+#include <maya/MTime.h>
 #include <maya/MGlobal.h>
 #include <maya/MDagPath.h>
 
