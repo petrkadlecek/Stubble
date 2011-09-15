@@ -66,6 +66,8 @@ private:
 	Mesh * mRestPoseMesh;   ///< The rest pose mesh
 
 	UVPointGenerator * mUVPointGenerator;   ///< The uv point generator
+
+	RandomGenerator randomGenerator;	///< The random generator
 	
 	unsigned __int32 mCount;	///< Number of the interpolated hair.
 };
@@ -94,7 +96,7 @@ inline void RMPositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3
 	aRestPosition = mRestPoseMesh->getPosition( uv );
 }
 
-inline unsigned __int32 MayaPositionGenerator::getHairCount() const
+inline unsigned __int32 RMPositionGenerator::getHairCount() const
 {
 	return mCount;
 }

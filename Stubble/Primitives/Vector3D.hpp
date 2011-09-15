@@ -188,14 +188,23 @@ public:
 	inline Vector3D & normalize(); 
 
 	///----------------------------------------------------------------------------------------------------
-	/// Given an OpenGL transform matrix it applies the transform
+	/// Given an OpenGL transform matrix it applies the transform. Handles vector as point !
 	/// 
-	/// \param aTransformMatrix	Array of 16 doubles representing column matrix
+	/// \param aTransformMatrix		Array of 16 doubles representing column matrix
 	///
-	/// \return Transformed vector
+	/// \return Transformed point.
+	///----------------------------------------------------------------------------------------------------
+	inline Vector3D & transformAsPoint( const Matrix< Type > & aTransformMatrix );
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Given an OpenGL transform matrix it applies the transform.
+	/// 
+	/// \param aTransformMatrix		Array of 16 doubles representing column matrix
+	///
+	/// \return Transformed vector.
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D & transform( const Matrix< Type > & aTransformMatrix );
-	
+
 #ifdef MAYA
 
 	///----------------------------------------------------------------------------------------------------
@@ -258,9 +267,19 @@ public:
 	inline static Vector3D crossProduct( const Vector3D & aVector1, const Vector3D & aVector2 );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Given a point represented by vector and an OpenGL transform matrix it applies the transform
+	/// 
+	/// \param aVector			Vector representing point to be transformed
+	/// \param aTransformMatrix	Array of 16 doubles representing column matrix
+	///
+	/// \return Transformed point
+	///----------------------------------------------------------------------------------------------------
+	inline static Vector3D transformPoint(const Vector3D & aPoint, const Matrix< Type > & aTransformMatrix );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Given a vector and an OpenGL transform matrix it applies the transform
 	/// 
-	/// \param aVector Vector to be transformed
+	/// \param aVector			Vector to be transformed
 	/// \param aTransformMatrix	Array of 16 doubles representing column matrix
 	///
 	/// \return Transformed vector
@@ -455,15 +474,29 @@ inline Vector3D< Type > & Vector3D< Type >::normalize()
 }
 
 template < typename Type >
-inline Vector3D< Type > & Vector3D< Type >::transform( const Matrix< Type > & aTransformMatrix )
+inline Vector3D< Type > & Vector3D< Type >::transformAsPoint( const Matrix< Type > & aTransformMatrix )
 {
-	x = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ] + aTransformMatrix[ 12 ];
-	y = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ] + aTransformMatrix[ 13 ];
-	z = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ] + aTransformMatrix[ 14 ];
-
+	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ] + aTransformMatrix[ 12 ];
+	Type ty = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ] + aTransformMatrix[ 13 ];
+	Type tz = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ] + aTransformMatrix[ 14 ];
+	x = tx;
+	y = ty;
+	z = tz;
 	return *this;
 }
-	
+
+template < typename Type >
+inline Vector3D< Type > & Vector3D< Type >::transform( const Matrix< Type > & aTransformMatrix )
+{
+	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ];
+	Type ty = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ];
+	Type tz = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ];
+	x = tx;
+	y = ty;
+	z = tz;
+	return *this;
+}
+
 #ifdef MAYA
 template < typename Type >
 inline Vector3D< Type >::Vector3D( const MVector & aMayaVector ):
@@ -521,10 +554,19 @@ inline Vector3D< Type > Vector3D< Type >::crossProduct( const Vector3D & aVector
 }
 
 template < typename Type >
-inline Vector3D< Type > Vector3D< Type >::transform( const Vector3D & aVector, const Matrix< Type > & aTransformMatrix )
+inline Vector3D< Type > Vector3D< Type >::transformPoint( const Vector3D & aPoint, 
+	const Matrix< Type > & aTransformMatrix )
 {
-	Vector3D v(aVector);
-	return v.transform(aTransformMatrix);
+	Vector3D p( aVector );
+	return p.transformAsPoint( aTransformMatrix );
+}
+
+template < typename Type >
+inline Vector3D< Type > Vector3D< Type >::transform( const Vector3D & aVector, 
+	const Matrix< Type > & aTransformMatrix )
+{
+	Vector3D v( aVector );
+	return v.transform( aTransformMatrix );
 }
 
 template < typename Type >

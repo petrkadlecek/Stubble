@@ -27,15 +27,11 @@ MObject HairShape::countAttr;
 MObject HairShape::genCountAttr;
 MObject HairShape::surfaceAttr;
 MObject HairShape::surfaceChangeAttr;
-MObject HairShape::segmentsAttr;
-MObject HairShape::densityTextureAttr;
-MObject HairShape::interpolationGroupsTextureAttr;
 MObject HairShape::voxelsResolutionAttr;
 MObject HairShape::voxelsXResolutionAttr;
 MObject HairShape::voxelsYResolutionAttr;
 MObject HairShape::voxelsZResolutionAttr;
 MObject HairShape::timeAttr;
-MObject HairShape::numberOfGuidesToInterpolateFromAttr;
 MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
@@ -50,27 +46,18 @@ HairShape::HairShape():
 	mUVPointGenerator( 0 ), 
 	mMayaMesh( 0 ), 
 	mHairGuides( 0 ), 
-	mInterpolatedHairs( 0 ), 
 	mVoxelization( 0 ),
-	mDensityTexture( 0 ),
-	mInterpolationGroupsTexture( 0 ),
-	mInterpolationGroups( 0 ),
 	mGuidesHairCount( 100 ),
 	mGeneratedHairCount( 10000 ),
 	mTime( 0 ),
 	mIsTopologyModified( false ),
 	mIsTopologyCallbackRegistered( false ),
-	mNumberOfGuidesToInterpolateFrom( 3 ),
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
-	// Creates textures with default values
-	mInterpolationGroupsTexture = new Texture( 1, 1, 1 );
-	mDensityTexture = new Texture( 1 );
-	mInterpolationGroups = new Interpolation::InterpolationGroups( *mInterpolationGroupsTexture, 5 );
 	// Sets active object
 	mActiveHairShapeNode = this;
 }
@@ -85,11 +72,7 @@ HairShape::~HairShape()
 	delete mUVPointGenerator;
 	delete mMayaMesh;
 	delete mHairGuides;
-	delete mInterpolatedHairs;
 	delete mVoxelization;
-	delete mInterpolationGroups;
-	delete mDensityTexture;
-	delete mInterpolationGroupsTexture;
 }
 
 bool HairShape::isBounded() const
@@ -131,7 +114,9 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	if ( aPlug == countAttr ) // Guides hair count was changed
 	{
 		mGuidesHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, *mInterpolationGroups, mGuidesHairCount, true );
+		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
+			mGuidesHairCount, true );
+		refreshPointersToGuidesForInterpolation();
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.propertiesUpdate( *this );
@@ -141,26 +126,6 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	if ( aPlug == genCountAttr ) // Generated hair count was changed
 	{
 		mGeneratedHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		return false;
-	}
-	if ( aPlug == segmentsAttr ) // Segments count changed
-	{
-		mInterpolationGroups->setGroupSegmentsCount( 0, static_cast< unsigned __int32 >( aDataHandle.asInt() ) );
-		mHairGuides->updateSegmentsCount( *mInterpolationGroups );
-		if ( mDisplayInterpolated )
-		{
-			mInterpolatedHair.propertiesUpdate( *this );
-		}
-		return false;
-	}
-	if ( aPlug == densityTextureAttr )
-	{
-		// TODO uncomment when resample works mDensityTexture->setDirty();
-		return false;
-	}
-	if ( root == interpolationGroupsTextureAttr )
-	{
-		// TODO uncomment when resample works mInterpolationGroupsTexture->setDirty();
 		return false;
 	}
 	if ( aPlug == timeAttr )
@@ -199,12 +164,6 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mVoxelization = 0;
 		return false;
 	}
-	if ( aPlug == numberOfGuidesToInterpolateFromAttr ) // Number of guides to interpolate from was changed
-	{
-		mNumberOfGuidesToInterpolateFrom = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		mHairGuides->setNumberOfGuidesToInterpolateFrom( mNumberOfGuidesToInterpolateFrom );
-		return false;
-	}
 	if ( aPlug == genDisplayCountAttr ) // Number of interpolated hair to be displayed
 	{
 		mGenDisplayCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
@@ -222,11 +181,39 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	if ( aPlug == displayInterpolatedAttr ) // Interpolated have been hidden/shown
 	{
-		/*mDisplayGuides = aDataHandle.asBool(); TODO UNCOMMENT WHEN READY*/
+		/*mDisplayInterpolated = aDataHandle.asBool(); TODO UNCOMMENT WHEN READY*/
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+		}
+		return false;
+	}
+	// Set hair properties values
+	bool segmentsCountChanged;
+	bool hairPropertiesChanged;
+	MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, hairPropertiesChanged );
+	// Calls this always, it cost nothing..
+	if ( mHairGuides != 0 )
+	{
+		mHairGuides->setNumberOfGuidesToInterpolateFrom( MayaHairProperties::getNumberOfGuidesToInterpolateFrom() );
+	}
+	if ( segmentsCountChanged )
+	{
+		mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
+		refreshPointersToGuidesForInterpolation();
+		if ( mDisplayInterpolated )
+		{
+			mInterpolatedHair.propertiesUpdate( *this );
+			hairPropertiesChanged = false; // Already handled
+		}
+		return false;
+	}
+	if ( hairPropertiesChanged )
+	{
+		if ( mDisplayInterpolated )
+		{
+			mInterpolatedHair.propertiesUpdate( *this );
 		}
 		return false;
 	}
@@ -294,31 +281,6 @@ MStatus HairShape::initialize()
 	nAttr.setSoftMax( 20000 );
 	addAttribute( genCountAttr );
 
-	//define segments attribute
-	segmentsAttr = nAttr.create("segments_count", "sgc", MFnNumericData::kInt, 5);
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 1 );
-	nAttr.setSoftMin( 1 );
-	nAttr.setSoftMax( 10 );
-	addAttribute(segmentsAttr);
-
-	// define density texture attribute
-	densityTextureAttr = nAttr.create( "density_texture", "dtxt", MFnNumericData::kFloat, 1 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 0.0 );
-	nAttr.setSoftMin( 0.0 );
-	nAttr.setSoftMax( 1.0 );
-	addAttribute( densityTextureAttr );
-
-	// define interpolation groups texture attribute
-	interpolationGroupsTextureAttr = nAttr.createColor( "interpolation_groups_texture", "itxt");
-	nAttr.setDefault( 1, 1, 1 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	addAttribute( interpolationGroupsTextureAttr );
-
 	// define voxels dimensions attribute
 	voxelsXResolutionAttr = nAttr.create("voxels_X_dimensions", "vxsxdim", MFnNumericData::kInt, 1);
 	nAttr.setKeyable( false );
@@ -338,14 +300,6 @@ MStatus HairShape::initialize()
 	addAttribute( voxelsYResolutionAttr );
 	addAttribute( voxelsZResolutionAttr );
 	addAttribute( voxelsResolutionAttr );
-
-	// define number of guides to interpolate from
-	numberOfGuidesToInterpolateFromAttr = nAttr.create("interpolation_samples", "ints", MFnNumericData::kInt, 3 );
-	nAttr.setMin( 3 );
-	nAttr.setMax( 20 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	addAttribute( numberOfGuidesToInterpolateFromAttr );
 
 	//define gen. display count attribute
 	genDisplayCountAttr = nAttr.create( "displayed_hair_count", "dhc", MFnNumericData::kInt, 1000 );
@@ -376,11 +330,13 @@ MStatus HairShape::initialize()
 	// I have to check surface attr all the time
 	attributeAffects( surfaceAttr, surfaceChangeAttr );
 
-	return MS::kSuccess;
+	return MayaHairProperties::initializeAttributes();
 }
 
 void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, BoundingBoxes & aVoxelBoundingBoxes )
 {
+	// Refresh all textures
+	refreshTextures();
 	// Sets current time
 	setCurrentTime( aSampleTime );
 	// Open file 
@@ -389,14 +345,8 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	std::ofstream mainFile( mainFileName.c_str(), ios::binary );
 	// Write id
 	mainFile.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
-	// Write number of guides to interpolate from
-	mainFile.write( reinterpret_cast< const char * >( &mNumberOfGuidesToInterpolateFrom ), sizeof( unsigned __int32 ) );
-	// Refresh all textures
-	refreshTextures();
-	// Write all textures
-	exportTextures( mainFile );
-	// Write all guides
-	mHairGuides->exportToFile( mainFile );
+	// Write all hair properties ( textures, guides ... )
+	MayaHairProperties::exportToFile( mainFile );
 	// Closes main file
 	mainFile.close();
 	// Prepare voxelization
@@ -431,41 +381,51 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 
 void HairShape::refreshTextures()
 {
-	if ( mInterpolationGroupsTexture->isDirty() )
+	bool densityChanged, interpolationGroupsChanged, hairPropertiesChanged;
+	// Actual refresh textures
+	MayaHairProperties::refreshTextures( densityChanged, interpolationGroupsChanged, hairPropertiesChanged );
+	// React on refreshed textures
+	if ( interpolationGroupsChanged )
 	{
-		mInterpolationGroupsTexture->resample();
-		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, 5 );
 		// Update segments count of hair guides
-		mHairGuides->updateSegmentsCount( *mInterpolationGroups );
+		mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
+		refreshPointersToGuidesForInterpolation();
 		// Update hair properties
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.propertiesUpdate( *this );
+			hairPropertiesChanged = false; // Already handled
 		}
-		// TODO handle UI segments count selection
 	}
-	if ( mDensityTexture->isDirty() )
+	if ( densityChanged )
 	{
-		mDensityTexture->resample();
 		delete mUVPointGenerator;
 		delete mVoxelization;
-		mUVPointGenerator = new UVPointGenerator( Texture( 1 ),
+		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
 		// HairGuides reconstruction
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
-			Interpolation::InterpolationGroups( Texture( 1 ), 5 ),
+			MayaHairProperties::getInterpolationGroups(),
 			mGuidesHairCount, true ); // Interpolates from previous hair guides
 		mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
+		refreshPointersToGuidesForInterpolation();
 		// Interpolated hair reconstruction
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+			hairPropertiesChanged = false; // Already handled
 		}
 	}
-	/* TODO refresh all textures and do mInterpolatedHair.propertiesUpdate */
-
+	if ( hairPropertiesChanged )
+	{
+		// Update hair properties
+		if ( mDisplayInterpolated )
+		{
+			mInterpolatedHair.propertiesUpdate( *this );
+		}
+	}
 }
 
 /************************************************************************************************************/
@@ -491,16 +451,17 @@ void HairShape::meshChange( MObject aMeshObj )
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 
-		mUVPointGenerator = new UVPointGenerator( Texture( 1 ),
+		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
 
 		// HairGuides construction
 		mHairGuides = new HairComponents::HairGuides();
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
-			Interpolation::InterpolationGroups( Texture( 1 ), 5 ),
+			MayaHairProperties::getInterpolationGroups(),
 			mGuidesHairCount );
 		mHairGuides->setCurrentTime( mTime );
+		refreshPointersToGuidesForInterpolation();
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )
 		{
@@ -518,8 +479,10 @@ void HairShape::meshChange( MObject aMeshObj )
 			// Creates new generator
 			delete mUVPointGenerator;
 			delete mVoxelization;
-			mUVPointGenerator = new UVPointGenerator( Texture( 1 ),
+			mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 				mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+			mHairGuides->meshUpdate( *mMayaMesh, true );
+			refreshPointersToGuidesForInterpolation();
 			// Interpolated hair construction
 			if ( mDisplayInterpolated )
 			{
@@ -530,13 +493,13 @@ void HairShape::meshChange( MObject aMeshObj )
 		else
 		{
 			mMayaMesh->meshUpdate( aMeshObj, uvSetName );
+			mHairGuides->meshUpdate( *mMayaMesh, false );
 			// Interpolated hair positions recalculation
 			if ( mDisplayInterpolated )
 			{
 				mInterpolatedHair.meshUpdate( *mMayaMesh );
 			}
 		}
-		mHairGuides->meshUpdate( *mMayaMesh, mIsTopologyModified );
 		mIsTopologyModified = false;
 	}
 	// Calculates new bounding box
@@ -549,21 +512,20 @@ void HairShape::setCurrentTime( Time aTime )
 	if ( mHairGuides != 0 ) // Might be called before any hairguides were created
 	{
 		mHairGuides->setCurrentTime( aTime );
+		refreshPointersToGuidesForInterpolation();
 	}
-	mDensityTexture->setCurrentTime( aTime );
-	mInterpolationGroupsTexture->setCurrentTime( aTime );
-	/* TODO set internal time for all textures */	
+	MayaHairProperties::setTexturesTime( aTime );
 	if ( mDisplayInterpolated )
 	{
 		mInterpolatedHair.propertiesUpdate( *this );
 	}
 }
 
-void HairShape::exportTextures( std::ostream & aOutputStream ) const
+// Inline, but only called inside HairGuides.cpp
+inline void HairShape::refreshPointersToGuidesForInterpolation()
 {
-	mDensityTexture->exportToFile( aOutputStream );
-	mInterpolationGroupsTexture->exportToFile( aOutputStream );
-	/* TODO export all textures to file */
+	MayaHairProperties::refreshPointersToGuides( & mHairGuides->getCurrentFrameSegments().mSegments,
+		& mHairGuides->getGuidesPositionsUG( getInterpolationGroups() ) );
 }
 
 /************************************************************************************************************/

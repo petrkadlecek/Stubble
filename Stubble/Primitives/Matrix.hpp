@@ -36,24 +36,12 @@ public:
 template < typename Type >
 inline Type Matrix< Type >::operator[] ( unsigned __int32 aIndex ) const
 {
-	if ( aIndex >= 16 )
-	{
-		//TODO: Exception
-		return 0;
-	}
-
 	return m[ aIndex ];
 }
 
 template < typename Type >
 inline Type & Matrix< Type >::operator[] ( unsigned __int32 aIndex )
 {
-	if ( aIndex >= 16 )
-	{
-		//TODO: Exception
-		return 0;
-	}
-
 	return m[ aIndex ];
 }
 

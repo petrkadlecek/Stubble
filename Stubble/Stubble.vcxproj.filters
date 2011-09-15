@@ -181,6 +181,15 @@
     <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\MayaHairProperties.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RMHairProperties.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RMPositionGenerator.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -352,6 +361,15 @@
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\Interpolation\MayaOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\MayaHairProperties.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RMHairProperties.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RMOutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,9 +1,10 @@
 #ifndef STUBBLE_MESH_HPP
 #define STUBBLE_MESH_HPP
 
-#include "HairShape\Mesh\TriangleConstIterator.hpp"
-#include "HairShape\Mesh\UVPoint.hpp"
-#include "Primitives\BoundingBox.hpp"
+#include "HairShape/Mesh/TriangleConstIterator.hpp"
+#include "HairShape/Mesh/UVPoint.hpp"
+#include "HairShape/Texture/Texture.hpp"
+#include "Primitives/BoundingBox.hpp"
 
 #include <fstream>
 
@@ -35,7 +36,7 @@ public:
 	///
 	/// \param	aMeshWithTextureCoordinates	The mesh with texture coordinates. 
 	///----------------------------------------------------------------------------------------------------
-	void CopyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates );
+	void copyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets const triangle iterator.
@@ -46,6 +47,8 @@ public:
 	/// Gets point on mesh interpolated from 3 vertices of given triangle
 	/// 
 	/// \param	aPoint	The triangle id and barycentric coordinates
+	/// 				
+	/// \return	The mesh point.
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
 
@@ -54,6 +57,8 @@ public:
 	/// Only position and texture coordinates are interpolated.
 	/// 
 	/// \param	aPoint	The triangle id and barycentric coordinates
+	/// 				
+	/// \return	The position and texture coordinates.
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint getIncompleteMeshPoint( const UVPoint &aPoint ) const;
 
@@ -62,8 +67,20 @@ public:
 	/// Only position is interpolated.
 	/// 
 	/// \param	aPoint	The triangle id and barycentric coordinates
+	/// 				
+	/// \return	The position.
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D< Real > getPosition( const UVPoint &aPoint ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets point on displaced mesh interpolated from 3 vertices of given triangle
+	///
+	/// \param	aPoint					The triangle id and barycentric coordinates
+	/// \param	aDisplacementTexture	The mesh displacement texture. 
+	///
+	/// \return	The displaced mesh point. 
+	///----------------------------------------------------------------------------------------------------
+	inline MeshPoint getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets triangle as 3 vertices.
@@ -172,6 +189,12 @@ inline Vector3D< Real > Mesh::getPosition( const UVPoint &aPoint ) const
 
 	// Calculate interpolation
 	return p0.getPosition() * u + p1.getPosition() * v + p2.getPosition() * w;
+}
+
+inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture ) const
+{
+	/* TODO */
+	return getMeshPoint( aPoint );
 }
 
 inline const Triangle & Mesh::getTriangle( unsigned __int32 aID ) const

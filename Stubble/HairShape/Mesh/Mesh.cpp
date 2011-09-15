@@ -8,11 +8,11 @@ namespace Stubble
 namespace HairShape
 {
 
-inline Mesh::Mesh( std::istream & aInStream, bool aPositionsOnly )
+Mesh::Mesh( std::istream & aInStream, bool aPositionsOnly )
 {
 	// Load triangles count
 	unsigned __int32 trianglesCount;
-	aInStream.read( reinterpret_cast< char * >( trianglesCount ), sizeof( unsigned __int32 ) );
+	aInStream.read( reinterpret_cast< char * >( &trianglesCount ), sizeof( unsigned __int32 ) );
 	mTriangles.resize( trianglesCount );
 	// Load all triangles
 	for ( Triangles::iterator it = mTriangles.begin(); it != mTriangles.end(); ++it )
@@ -22,7 +22,7 @@ inline Mesh::Mesh( std::istream & aInStream, bool aPositionsOnly )
 	// Bounding box will not be calculated, it is not required in 3Delight
 }
 
-void Mesh::CopyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates )
+void Mesh::copyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates )
 {
 	if ( aMeshWithTextureCoordinates.mTriangles.size() != mTriangles.size() )
 	{

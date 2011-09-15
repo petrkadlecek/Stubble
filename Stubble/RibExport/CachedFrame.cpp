@@ -98,7 +98,7 @@ void CachedFrame::emit()
 
 std::string CachedFrame::getStubbleDLLFileName()
 {
-	return "StubbleHairGen.dll";
+	return "StubbleHairGenerator.dll";
 }
 
 std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSampleTime )

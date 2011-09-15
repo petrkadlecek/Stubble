@@ -3,6 +3,7 @@
 
 #include "HairShape/Generators/UVPointGenerator.hpp"
 #include "HairShape/Interpolation/InterpolatedHair.hpp"
+#include "HairShape/Interpolation/MayaHairProperties.hpp"
 #include "HairShape/HairComponents/HairGuides.hpp"
 #include "HairShape/Mesh/MayaMesh.hpp"
 #include "HairShape/Mesh/Voxelization.hpp"
@@ -23,7 +24,7 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 /// The main class that encapsulates informations about hairs
 ///----------------------------------------------------------------------------------------------------
-class HairShape: public MPxSurfaceShape, public Interpolation::HairProperties 
+class HairShape: public MPxSurfaceShape, public Interpolation::MayaHairProperties 
 {
 public:
 	
@@ -39,13 +40,7 @@ public:
 
 	static MObject surfaceAttr; ///< The connected surface attribute
 
-	static MObject segmentsAttr; ///< The segments attribute
-
 	static MObject surfaceChangeAttr; ///< The surface changed attribute
-
-	static MObject densityTextureAttr; ///< The density texture attribute
-
-	static MObject interpolationGroupsTextureAttr; ///< The interpolation groups texture attribute
 
 	static MObject voxelsResolutionAttr; ///< The voxels resolution attribute
 
@@ -56,8 +51,6 @@ public:
 		static MObject voxelsZResolutionAttr;   ///< The voxels z coordinate resolution attribute
 
 	static MObject timeAttr;	///< The time attribute
-
-	static MObject numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 
 	static MObject displayGuidesAttr;   ///< Should guides be displayed ? attribute
 
@@ -240,11 +233,9 @@ private:
 	void setCurrentTime( Time aTime );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Export textures to file. 
-	///
-	/// \param [in,out]	aOutputStream	The output stream. 
+	/// Refresh pointers to guides for interpolation class. 
 	///----------------------------------------------------------------------------------------------------
-	void exportTextures( std::ostream & aOutputStream ) const;
+	inline void refreshPointersToGuidesForInterpolation();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Registers the topology callback. 
@@ -263,10 +254,6 @@ private:
 
 	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
 
-	UNKNOWN *mInterpolatedHairs; ///< Interpolated hairs
-
-	Interpolation::InterpolationGroups * mInterpolationGroups;  ///< Interpolation groups object
-
 	Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
 
 	Interpolation::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
@@ -277,15 +264,9 @@ private:
 
 	unsigned __int32 mGeneratedHairCount;	///< Number of generated hair
 
-	Texture * mDensityTexture;  ///< The density texture
-
-	Texture * mInterpolationGroupsTexture;  ///< The interpolation groups texture
-
 	Dimensions3 mVoxelsResolution;  ///< The voxels resolution
 
 	Time mTime; ///< The current time
-
-	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< Number of guides to interpolate from
 
 	bool mDisplayGuides;   ///< Should guides be displayed ?
 

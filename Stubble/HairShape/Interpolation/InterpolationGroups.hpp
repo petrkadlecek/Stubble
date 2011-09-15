@@ -105,6 +105,20 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline Texture::Color getColorOfGroup( unsigned __int32 aGroupId ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Export segments count to file. 
+	///
+	/// \param [in,out]	aOutputStream	a output stream. 
+	///----------------------------------------------------------------------------------------------------
+	void exportSegmentsCountToFile( std::ostream & aOutputStream ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Import segments count from file. 
+	///
+	/// \param [in,out]	aInputStream	a input stream. 
+	///----------------------------------------------------------------------------------------------------
+	void importSegmentsCountFromFile( std::istream & aInputStream );
+
 private:
 
 	///----------------------------------------------------------------------------------------------------

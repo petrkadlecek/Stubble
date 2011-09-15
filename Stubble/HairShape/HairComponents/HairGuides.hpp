@@ -173,18 +173,18 @@ public:
 	void updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Export to file.
-	///
-	/// \param [in,out]	aOutputStream	the output stream. 
-	///-------------------------------------------------------------------------------------------------
-	void exportToFile( std::ostream & aOutputStream ) const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Sets a number of guides to interpolate from. 
 	///
 	/// \param	aNumberOfGuidesToInterpolateFrom	a number of guides to interpolate from. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setNumberOfGuidesToInterpolateFrom( unsigned __int32 aNumberOfGuidesToInterpolateFrom );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the current frame segments. 
+	///
+	/// \return	The current frame segments. 
+	///----------------------------------------------------------------------------------------------------
+	inline const FrameSegments & getCurrentFrameSegments() const;
 
 private:
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid
@@ -227,6 +227,16 @@ inline bool HairGuides::canRedo() const
 inline void HairGuides::setNumberOfGuidesToInterpolateFrom( unsigned __int32 aNumberOfGuidesToInterpolateFrom )
 {
 	mNumberOfGuidesToInterpolateFrom = aNumberOfGuidesToInterpolateFrom;
+}
+
+inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
+{
+	if ( mSegmentsStorage == 0 )
+	{
+		throw StubbleException( " HairGuides::getCurrentFrameSegments : \
+								method can not be called before segments generation " );
+	}
+	return mSegmentsStorage->getCurrentSegments();
 }
 
 } // namespace HairComponents

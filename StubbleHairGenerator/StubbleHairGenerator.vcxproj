@@ -113,6 +113,15 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Stubble\HairShape\Generators\RandomGenerator.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Generators\UVPointGenerator.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsUG.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\HairProperties.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\InterpolationGroups.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMHairProperties.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMPositionGenerator.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Mesh\Mesh.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Texture\Texture.cpp" />
     <ClCompile Include="dllEntryPoint.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -3,7 +3,6 @@
 
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
-#include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
 
 #include <fstream>
@@ -52,9 +51,6 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid. 
 	///
-	/// \author	Sr 4ck 0cuc
-	/// \date	26.7.2011
-	///
 	/// \param	aGuidesRestPositions	The guides rest positions. 
 	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
@@ -87,19 +83,36 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Export to file. 
 	///
-	/// \param [in,out]	aOutputStream	the output stream. 
+	/// \param [in,out]	aOutputStream	The output stream. 
 	///-------------------------------------------------------------------------------------------------
 	void exportToFile( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Import from file. 
+	/// Import rest positions from file and builds the uniform grid.
 	///
-	/// \param [in,out]	aInputStream	the input stream. 
+	/// \param [in,out]	aInputStream	The input stream. 
+	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
-	void importFromFile( std::istream & aInputStream );
+	void importFromFile( std::istream & aInputStream,
+		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 private:
+
+	///-------------------------------------------------------------------------------------------------
+	/// Builds the uniform grid from already stored guides rest position. 
+	///
+	/// \param	aInterpolationGroups	The interpolation groups.
+	///-------------------------------------------------------------------------------------------------
+	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups );
+
 	bool mDirtyBit; ///< true to dirty bit
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the positions .
+	///----------------------------------------------------------------------------------------------------
+	typedef std::vector< Vector3D< Real > > Positions;
+
+	Positions mGuidesRestPositions;   ///< The guides rest positions
 };
 
 // inline functions implementation

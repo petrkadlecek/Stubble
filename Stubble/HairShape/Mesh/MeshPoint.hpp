@@ -230,12 +230,42 @@ inline Real MeshPoint::getVCoordinate() const
 
 inline void MeshPoint::getLocalTransformMatrix( Matrix< Real > & aLocalTransformMatrix ) const
 {
-	/* TODO */
+	aLocalTransformMatrix[ 0  ] = mBinormal.x;
+	aLocalTransformMatrix[ 4  ] = mBinormal.y;
+	aLocalTransformMatrix[ 8  ] = mBinormal.z;
+	aLocalTransformMatrix[ 3  ] = 0;
+	aLocalTransformMatrix[ 1  ] = mTangent.x;
+	aLocalTransformMatrix[ 5  ] = mTangent.y;
+	aLocalTransformMatrix[ 9  ] = mTangent.z;
+	aLocalTransformMatrix[ 7  ] = 0;
+	aLocalTransformMatrix[ 2  ] = mNormal.x;
+	aLocalTransformMatrix[ 6  ] = mNormal.y;
+	aLocalTransformMatrix[ 10 ] = mNormal.z;
+	aLocalTransformMatrix[ 11 ] = 0;
+	aLocalTransformMatrix[ 12 ] = Vector3D< Real >::dotProduct( mPosition, mBinormal );
+	aLocalTransformMatrix[ 13 ] = Vector3D< Real >::dotProduct( mPosition, mTangent );
+	aLocalTransformMatrix[ 14 ] = Vector3D< Real >::dotProduct( mPosition, mNormal );
+	aLocalTransformMatrix[ 15 ] = 1;
 }
 
 inline void MeshPoint::getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const
 {
-	/* TODO */
+	aWorldTransformMatrix[ 0  ] = mBinormal.x;
+	aWorldTransformMatrix[ 1  ] = mBinormal.y;
+	aWorldTransformMatrix[ 2  ] = mBinormal.z;
+	aWorldTransformMatrix[ 3  ] = 0;
+	aWorldTransformMatrix[ 4  ] = mTangent.x;
+	aWorldTransformMatrix[ 5  ] = mTangent.y;
+	aWorldTransformMatrix[ 6  ] = mTangent.z;
+	aWorldTransformMatrix[ 7  ] = 0;
+	aWorldTransformMatrix[ 8  ] = mNormal.x;
+	aWorldTransformMatrix[ 9  ] = mNormal.y;
+	aWorldTransformMatrix[ 10 ] = mNormal.z;
+	aWorldTransformMatrix[ 11 ] = 0;
+	aWorldTransformMatrix[ 12 ] = mPosition.x;
+	aWorldTransformMatrix[ 13 ] = mPosition.y;
+	aWorldTransformMatrix[ 14 ] = mPosition.z;
+	aWorldTransformMatrix[ 15 ] = 1;
 }
 
 ///----------------------------------------------------------------------------------------------------

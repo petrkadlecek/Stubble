@@ -9,12 +9,23 @@ namespace HairShape
 namespace Interpolation
 {
 
-HairProperties::HairProperties( const std::string & aFrameFileName )
+HairProperties::HairProperties():
+	mDensityTexture( 0 ),
+	mInterpolationGroups( 0 ),
+	mInterpolationGroupsTexture( 0 ),
+	mNumberOfGuidesToInterpolateFrom( 3 ),
+	mGuidesRestPositionsUG( 0 ),
+	mGuidesSegments( 0 )
 {
 }
 
 HairProperties::~HairProperties()
 {
+	delete mDensityTexture;
+
+	delete mInterpolationGroups;
+
+	delete mInterpolationGroupsTexture;
 }
 
 } // namespace Interpolation

@@ -87,6 +87,34 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 	}
 }
 
+void InterpolationGroups::exportSegmentsCountToFile( std::ostream & aOutputStream ) const
+{
+	// Export number of groups
+	unsigned __int32 count = static_cast< unsigned __int32 >( mInterpolationGroupsSegmentsCount.size() );
+	aOutputStream.write( reinterpret_cast< const char * >( & count ), sizeof( unsigned __int32 ) );
+	// For every segments group
+	for ( InterpolationGroupsSegmentsCount::const_iterator it = mInterpolationGroupsSegmentsCount.begin();
+		it != mInterpolationGroupsSegmentsCount.end(); ++it )
+	{
+		// Write segments count
+		aOutputStream.write( reinterpret_cast< const char * >( & *it ), sizeof( unsigned __int32 ) );
+	}
+}
+
+void InterpolationGroups::importSegmentsCountFromFile( std::istream & aInputStream )
+{
+	// Load saved number of groups
+	unsigned __int32 count, i = 0;
+	aInputStream.read( reinterpret_cast< char * >( & count ), sizeof( unsigned __int32 ) );
+	// For every segments group ( number of saved groups may differ from current count )
+	for ( InterpolationGroupsSegmentsCount::iterator it = mInterpolationGroupsSegmentsCount.begin();
+		it != mInterpolationGroupsSegmentsCount.end() && i < count ; ++it, ++i )
+	{
+		// Read segments count
+		aInputStream.read( reinterpret_cast< char * >( & *it ), sizeof( unsigned __int32 ) );
+	}
+}
+
 } // namespace Interpolation
 
 } // namespace HairShape

@@ -25,18 +25,23 @@ public:
 			NormalType		-	type used to store one component of the 3 components of the normal
 			WidthType		-	type used to store width
 	 */
-
+	
 	///-------------------------------------------------------------------------------------------------
 	/// Begins an output of interpolated hair. 
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseColors		true to a use colors. 
-	/// \param	aUseNormals		true to a use normals. 
-	/// \param	aUseWidths		true to a use widths. 
+	/// \param	aUseColors		Colors will be outputed
+	/// \param	aUseNormals		Normals will be outputed
+	/// \param	aUseWidths		Widths will be outputed
 	///-------------------------------------------------------------------------------------------------
-	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
+	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
 		bool aUseColors, bool aUseNormals, bool aUseWidths );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Ends an output.
+	///----------------------------------------------------------------------------------------------------
+	inline void endOutput();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Begins an output of single interpolated hair. 
@@ -91,11 +96,18 @@ protected:
 
 template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
 inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::beginOutput
-	( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, bool aUseColors, 
-	bool aUseNormals, bool aUseWidths )
+	( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
+	bool aUseColors, bool aUseNormals, bool aUseWidths )
 {
 	throw StubbleException( "OutputGenerator::beginOutput : this method is not implemented !" ); 
 }
+
+template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
+inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::endOutput()
+{
+	throw StubbleException( "OutputGenerator::endOutput : this method is not implemented !" ); 
+}
+
 
 template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
 inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::beginHair

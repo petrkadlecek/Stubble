@@ -62,12 +62,17 @@ public:
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseColors		true to a use colors. 
-	/// \param	aUseNormals		true to a use normals. 
-	/// \param	aUseWidths		true to a use widths. 
+	/// \param	aUseColors		Colors will be outputed
+	/// \param	aUseNormals		Normals will be outputed
+	/// \param	aUseWidths		Widths will be outputed
 	///-------------------------------------------------------------------------------------------------
-	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
+	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
 		bool aUseColors, bool aUseNormals, bool aUseWidths );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Ends an output.
+	///----------------------------------------------------------------------------------------------------
+	inline void endOutput();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Begins an output of single interpolated hair. 
@@ -187,16 +192,17 @@ inline void MayaOutputGenerator::clear()
 	mColorPointer = 0;
 }
 
-inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
-	bool aUseColors, bool aUseNormals, bool aUseWidths )
+inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
+		bool aUseColors, bool aUseNormals, bool aUseWidths )
 {
+	/* IGNORES aUse*** */
 	// Free all memory
 	clear();
 	// We will ignore all aUse***
 	try 
 	{
 		mHairCount = aMaxHairCount;
-		unsigned __int32 totalSize = aMaxHairCount * aMaxPointsCount;
+		unsigned __int32 totalSize = aMaxHairCount * aMaxPointsCount * 3;
 		// Allocate memory for color and position data
 		mPositionData = new PositionType[ totalSize ];
 		mColorData = new ColorType[ totalSize ];
@@ -214,6 +220,11 @@ inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, un
 	}
 }
 
+inline void MayaOutputGenerator::endOutput()
+{
+	/* EMPTY */
+}
+
 inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 {
 	/* EMPTY */
@@ -222,8 +233,8 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
 	// Move position pointer
-	mPositionPointer += aPointsCount; 
-	mColorPointer += aPointsCount;
+	mPositionPointer += aPointsCount * 3; 
+	mColorPointer += aPointsCount * 3;
 	++mHairPointer; // Next hair pointer
 	// Remember index to data
 	*mHairPointer = static_cast< unsigned __int32 >( mPositionData - mPositionPointer );

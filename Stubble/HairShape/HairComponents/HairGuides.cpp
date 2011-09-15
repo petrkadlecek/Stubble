@@ -120,7 +120,7 @@ void HairGuides::importNURBS()
 
 		OneGuideSegments guideSegments;		
 		/* TODO compute segment length (from curve CV distances?) */
-		for ( int i = 0; i < pointArray.length(); i++ ) // over all segments
+		for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
 		{
 			guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
 		}		
@@ -338,35 +338,6 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 	mBoundingBoxDirtyFlag = true;
-}
-
-void HairGuides::exportToFile( std::ostream & aOutputStream ) const
-{
-	// First export rest positions
-	unsigned __int32 size = static_cast< unsigned __int32 >( mRestPositions.size() );
-	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
-	for ( GuidesRestPositions::const_iterator it = mRestPositions.begin(); it != mRestPositions.end(); ++it )
-	{
-		aOutputStream << it->mPosition.getPosition(); // Only position is exported
-		aOutputStream << it->mUVPoint;
-	}
-	// Then export current segments of all guides
-	const GuidesSegments & currentSegments = mSegmentsStorage->getCurrentSegments().mSegments;
-	// Export guides count
-	size = static_cast< unsigned __int32 >( currentSegments.size() );
-	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
-	// For each guide
-	for ( GuidesSegments::const_iterator it = currentSegments.begin(); it != currentSegments.end(); ++it )
-	{
-		// Export vertices count
-		size = static_cast< unsigned __int32 >( it->mSegments.size() );
-		aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
-		// For each hair vertex
-		for ( Segments::const_iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); ++segIt )
-		{
-			aOutputStream << *segIt;
-		}
-	}
 }
 
 } // namespace HairComponents
