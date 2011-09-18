@@ -37,7 +37,10 @@ Texture::Texture(float value, float value1, float value2, float value3): mColorC
 
 Texture::Texture( std::istream & aIsStream )
 {
-	/* TODO */
+	mColorComponents = 1;
+	init();
+	mTexture[ 0 ] = 1;
+	/* TODO : Proper load */
 }
 
 Texture::~Texture()

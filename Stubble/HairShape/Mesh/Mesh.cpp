@@ -36,12 +36,12 @@ void Mesh::copyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates )
 		*destIt = Triangle( MeshPoint( destIt->getVertex1().getPosition(), 
 										sourceIt->getVertex1().getUCoordinate(), 
 										sourceIt->getVertex1().getVCoordinate() ),
-							MeshPoint( destIt->getVertex1().getPosition(), 
-										sourceIt->getVertex1().getUCoordinate(), 
-										sourceIt->getVertex1().getVCoordinate() ),
-							MeshPoint( destIt->getVertex1().getPosition(), 
-										sourceIt->getVertex1().getUCoordinate(), 
-										sourceIt->getVertex1().getVCoordinate() ) );
+							MeshPoint( destIt->getVertex2().getPosition(), 
+										sourceIt->getVertex2().getUCoordinate(), 
+										sourceIt->getVertex2().getVCoordinate() ),
+							MeshPoint( destIt->getVertex3().getPosition(), 
+										sourceIt->getVertex3().getUCoordinate(), 
+										sourceIt->getVertex3().getVCoordinate() ) );
 	}
 }
 

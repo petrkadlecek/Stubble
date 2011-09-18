@@ -1,4 +1,10 @@
+#include "Common\CommonConstants.hpp"
+
 #include "RMHairProperties.hpp"
+
+#include <bzip2stream.hpp>
+
+using namespace std;
 
 namespace Stubble
 {
@@ -13,20 +19,29 @@ namespace Interpolation
 RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 {
 	std::ifstream file( aFrameFileName.c_str(), std::ios::binary );
-	mDensityTexture = new Texture( file );
-	mInterpolationGroupsTexture = new Texture( file );
+	bzip2_stream::bzip2_istream unzipper( file );
+	char fileid[20];
+	// Read file id
+	unzipper.read( fileid, FRAME_FILE_ID_SIZE );
+	if ( memcmp( reinterpret_cast< const void * >( fileid ), reinterpret_cast< const void * >( FRAME_FILE_ID ), 
+		FRAME_FILE_ID_SIZE ) != 0 )
+	{
+		throw StubbleException(" RMHairProperties::RMHairProperties : wrong file format ! ");
+	}
+	mDensityTexture = new Texture( unzipper );
+	mInterpolationGroupsTexture = new Texture( unzipper );
 	mInterpolationGroups = new InterpolationGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
-	mInterpolationGroups->importSegmentsCountFromFile( file );
+	mInterpolationGroups->importSegmentsCountFromFile( unzipper );
 	// Read number of guides to interpolate from
-	file.read( reinterpret_cast< char * >( &mNumberOfGuidesToInterpolateFrom ), 
+	unzipper.read( reinterpret_cast< char * >( &mNumberOfGuidesToInterpolateFrom ), 
 		sizeof( unsigned __int32 ) );
 	// Read rest positions of guides
 	mGuidesRestPositionsUGMutable = new HairComponents::RestPositionsUG();
 	mGuidesRestPositionsUG = mGuidesRestPositionsUGMutable;
-	mGuidesRestPositionsUGMutable->importFromFile( file, *mInterpolationGroups );
+	mGuidesRestPositionsUGMutable->importFromFile( unzipper, *mInterpolationGroups );
 	// Import guides count
 	unsigned __int32 size;
-	file.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
+	unzipper.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
 	mGuidesSegmentsMutable = new HairComponents::GuidesSegments( size );
 	mGuidesSegments = mGuidesSegmentsMutable;
 	// For each guide
@@ -34,12 +49,12 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 		it != mGuidesSegmentsMutable->end(); ++it )
 	{
 		// Import vertices count
-		file.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
+		unzipper.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
 		it->mSegments.resize( size );
 		// For each hair vertex
 		for ( HairComponents::Segments::iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); ++segIt )
 		{
-			file >> *segIt;
+			unzipper >> *segIt;
 		}
 	}
 	// TODO : import all other properties

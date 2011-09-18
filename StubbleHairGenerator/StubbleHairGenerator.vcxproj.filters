@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="dllEntryPoint.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\HairProperties.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\InterpolationGroups.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Mesh\Mesh.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Generators\RandomGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsUG.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMHairProperties.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMPositionGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Texture\Texture.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Generators\UVPointGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Stubble CPP files">
+      <UniqueIdentifier>{e49f2803-427b-4657-83eb-9ddc846ad23d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

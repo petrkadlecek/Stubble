@@ -74,10 +74,10 @@ void Voxelization::exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh
 	for ( TrianglesIds::const_iterator it = trianglesIds.begin(); it != trianglesIds.end(); ++it )
 	{
 		const Triangle & t = aRestPoseMesh.getTriangle( *it );
-		// Export vertices (only their position)
-		aOutputStream << t.getVertex1().getPosition();
-		aOutputStream << t.getVertex2().getPosition();
-		aOutputStream << t.getVertex3().getPosition();
+		// Export vertices
+		aOutputStream << t.getVertex1();
+		aOutputStream << t.getVertex2();
+		aOutputStream << t.getVertex3();
 	}
 }
 

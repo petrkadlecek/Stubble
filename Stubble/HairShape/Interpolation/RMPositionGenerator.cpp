@@ -1,6 +1,11 @@
+#include "Common\CommonConstants.hpp"
+
 #include "RMPositionGenerator.hpp"
 
 #include <fstream>
+#include <bzip2stream.hpp>
+
+using namespace std;
 
 namespace Stubble
 {
@@ -18,14 +23,21 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 {
 	try {
 		std::ifstream file( aVoxelFileName.c_str(), std::ios::binary );
+		bzip2_stream::bzip2_istream unzipper( file );
+		char fileid[20];
+		// Read file id
+		unzipper.read( fileid, VOXEL_FILE_ID_SIZE );
+		if ( memcmp( reinterpret_cast< const void * >( fileid ), reinterpret_cast< const void * >( VOXEL_FILE_ID ), 
+			VOXEL_FILE_ID_SIZE ) != 0 )
+		{
+			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : wrong file format ! ");
+		}
 		// Read hair count
-		file.read( reinterpret_cast< char * >( &mCount ), sizeof( unsigned __int32 ) );
+		unzipper.read( reinterpret_cast< char * >( &mCount ), sizeof( unsigned __int32 ) );
 		// Read rest pose mesh
-		mRestPoseMesh = new Mesh( file, true );
+		mRestPoseMesh = new Mesh( unzipper, false );
 		// Read current mesh
-		mCurrentMesh = new Mesh( file, false );
-		// Copy texture coordinates
-		mRestPoseMesh->copyTextureCoordinates( * mCurrentMesh );
+		mCurrentMesh = new Mesh( unzipper, false );
 		// Create uv point generator
 		mUVPointGenerator = new UVPointGenerator( aDensityTexture, mRestPoseMesh->getTriangleConstIterator(), randomGenerator );
 		// Close file

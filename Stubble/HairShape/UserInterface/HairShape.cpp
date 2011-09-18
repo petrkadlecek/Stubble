@@ -12,6 +12,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <bzip2stream.hpp>
 
 namespace Stubble
 {
@@ -343,10 +344,13 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	std::string mainFileName = aFileName;
 	mainFileName += ".FRM" ;
 	std::ofstream mainFile( mainFileName.c_str(), ios::binary );
+	bzip2_stream::bzip2_ostream bzipper( mainFile );
 	// Write id
-	mainFile.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
+	bzipper.write( FRAME_FILE_ID, FRAME_FILE_ID_SIZE );
 	// Write all hair properties ( textures, guides ... )
-	MayaHairProperties::exportToFile( mainFile );
+	MayaHairProperties::exportToFile( bzipper );
+	// Flush bzipper
+	bzipper.zflush();
 	// Closes main file
 	mainFile.close();
 	// Prepare voxelization
@@ -364,15 +368,18 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 			std::ostringstream voxelFileName; aFileName;
 			voxelFileName << aFileName << ".VX" << aVoxelBoundingBoxes.size();
 			std::ofstream voxelFile( voxelFileName.str().c_str(), ios::binary );
+			bzip2_stream::bzip2_ostream bzipper( voxelFile );
 			// Write id
-			voxelFile.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
+			bzipper.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
 			// Write number of generated hair in current voxel
 			unsigned __int32 hairCount = mVoxelization->getVoxelHairCount( mGeneratedHairCount, i );
-			voxelFile.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
+			bzipper.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
 			// Write rest pose mesh
-			mVoxelization->exportRestPoseVoxel( voxelFile, mMayaMesh->getRestPose(), i );
+			mVoxelization->exportRestPoseVoxel( bzipper, mMayaMesh->getRestPose(), i );
 			// Write current mesh and store its bounding box
-			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( voxelFile, *mMayaMesh, i ) );
+			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( bzipper, *mMayaMesh, i ) );
+			// Flush bzipper
+			bzipper.zflush();
 			// Closes voxel file
 			voxelFile.close();
 		}
