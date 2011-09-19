@@ -29,6 +29,9 @@
     <ClCompile Include="..\Stubble\HairShape\Generators\UVPointGenerator.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMOutputGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Stubble CPP files">

@@ -82,6 +82,13 @@ public:
 	inline unsigned __int32 getHairCount() const;
 
 	///-------------------------------------------------------------------------------------------------
+	/// Gets the hair start index. 
+	///
+	/// \return	The hair start index. 
+	///-------------------------------------------------------------------------------------------------
+	inline unsigned __int32 getHairStartIndex() const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Gets the pre-generated positions in raw format. 
 	///
 	/// \return	null if it fails, else the pre-generated positions. 
@@ -133,6 +140,11 @@ inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, Vecto
 inline unsigned __int32 MayaPositionGenerator::getHairCount() const
 {
 	return mCount;
+}
+
+inline unsigned __int32 MayaPositionGenerator::getHairStartIndex() const
+{
+	return 0;
 }
 
 inline const MayaPositionGenerator::GeneratedPosition * MayaPositionGenerator::getPreGeneratedPositions() const

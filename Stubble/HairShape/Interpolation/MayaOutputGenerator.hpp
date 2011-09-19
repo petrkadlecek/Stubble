@@ -14,12 +14,10 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Generator of finished interpolated hair used in Maya plugin.
+/// Maya output generator types. 
 ///-------------------------------------------------------------------------------------------------
-class MayaOutputGenerator : public OutputGenerator< float, float, float, float >
+struct MayaTypes
 {
-public:
-
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one component of the 3 components of 
 	/// the 3D position.
@@ -43,6 +41,30 @@ public:
 	typedef float WidthType;
 
 	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing type used to store one component of the 3 components of 
+	/// the opacity.
+	///-------------------------------------------------------------------------------------------------
+	typedef float OpacityType;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing type used to store one of the 2 u v coordinates.
+	///-------------------------------------------------------------------------------------------------
+	typedef float UVCoordinateType;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing type used to store hair and strand index.
+	///-------------------------------------------------------------------------------------------------
+	typedef float IndexType;
+};
+
+///-------------------------------------------------------------------------------------------------
+/// Generator of finished interpolated hair used in Maya plugin.
+///-------------------------------------------------------------------------------------------------
+class MayaOutputGenerator : public OutputGenerator< MayaTypes >
+{
+public:
+
+	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///-------------------------------------------------------------------------------------------------
 	inline MayaOutputGenerator();
@@ -62,12 +84,10 @@ public:
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseColors		Colors will be outputed
-	/// \param	aUseNormals		Normals will be outputed
-	/// \param	aUseWidths		Widths will be outputed
+	/// \param	aUseNormals		Ignored, used only to have same interface as any OutputGenerator.
 	///-------------------------------------------------------------------------------------------------
 	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseColors, bool aUseNormals, bool aUseWidths );
+		bool aUseNormals );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
@@ -93,28 +113,63 @@ public:
 	///
 	/// \return	null if it fails, else return position pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline PositionType * positionPointer();
+	inline MayaTypes::PositionType * positionPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points colors. 
 	///
 	/// \return	null if it fails, else return color pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline ColorType * colorPointer();
+	inline MayaTypes::ColorType * colorPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair points normals. 
+	/// Gets the null pointer. Hair points normals are not supported. 
 	///
-	/// \return	null if it fails, else return normal pointer. 
+	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline NormalType * normalPointer();
+	inline MayaTypes::NormalType * normalPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair points widths. 
+	/// Gets the null pointer. Hair points widths are not supported. 
 	///
-	/// \return	null if it fails, else return width pointer. 
+	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline WidthType * widthPointer();
+	inline MayaTypes::WidthType * widthPointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to hair points opacity. 
+	///
+	/// \return	null if it fails, else return opacity pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline MayaTypes::OpacityType * opacityPointer();
+	
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the null pointer. Hair uv coordinates are not supported. 
+	///
+	/// \return	null
+	///-------------------------------------------------------------------------------------------------
+	inline MayaTypes::UVCoordinateType * hairUVCoordinatePointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the null pointer. Strand uv coordinate are not supported. 
+	///
+	/// \return	null
+	///-------------------------------------------------------------------------------------------------
+	inline MayaTypes::UVCoordinateType * strandUVCoordinatePointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the null pointer. Hair indices are not supported. 
+	///
+	/// \return	null
+	///-------------------------------------------------------------------------------------------------
+	inline MayaTypes::IndexType * hairIndexPointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the null pointer. Strand indices are not supported. 
+	///
+	/// \return	null
+	///-------------------------------------------------------------------------------------------------
+	inline MayaTypes::IndexType * strandIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Draws outputed hair.
@@ -148,15 +203,19 @@ private:
 
 	unsigned __int32 * mHairData; ///< Indices for each hair to aPositionData and aColorData
 
-	PositionType * mPositionData;   ///< Information describing a position of the hair
+	MayaTypes::PositionType * mPositionData;   ///< Information describing a position of the hair
 
-	ColorType * mColorData; ///< Information describing a color of the hair
+	MayaTypes::ColorType * mColorData; ///< Information describing a color of the hair
+
+	MayaTypes::OpacityType * mOpacityData; ///< Information describing a opacity of the hair
 
 	unsigned __int32 * mHairPointer;	///< The current hair pointer
 
-	PositionType * mPositionPointer;	///< The current position data pointer
+	MayaTypes::PositionType * mPositionPointer;	///< The current position data pointer
 
-	ColorType * mColorPointer;  ///< The current color data pointer
+	MayaTypes::ColorType * mColorPointer;  ///< The current color data pointer
+
+	MayaTypes::OpacityType * mOpacityPointer;  ///< The current opacity data pointer
 };
 
 // inline functions implementation
@@ -166,9 +225,11 @@ inline MayaOutputGenerator::MayaOutputGenerator():
 	mHairData( 0 ),
 	mPositionData( 0 ),
 	mColorData( 0 ),
+	mOpacityData( 0 ),
 	mHairPointer( 0 ),
 	mPositionPointer( 0 ),
-	mColorPointer( 0 )
+	mColorPointer( 0 ),
+	mOpacityPointer( 0 )
 {
 	
 }
@@ -187,15 +248,17 @@ inline void MayaOutputGenerator::clear()
 	mHairData = 0;
 	mPositionData = 0;
 	mColorData = 0;
+	mOpacityData = 0;
 	mHairPointer = 0;
 	mPositionPointer = 0;
 	mColorPointer = 0;
+	mOpacityPointer = 0;
 }
 
 inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseColors, bool aUseNormals, bool aUseWidths )
+		bool aUseNormals )
 {
-	/* IGNORES aUse*** */
+	/* Ignores aUseNormals since it never uses them */
 	// Free all memory
 	clear();
 	// We will ignore all aUse***
@@ -203,14 +266,16 @@ inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, un
 	{
 		mHairCount = aMaxHairCount;
 		unsigned __int32 totalSize = aMaxHairCount * aMaxPointsCount * 3;
-		// Allocate memory for color and position data
-		mPositionData = new PositionType[ totalSize ];
-		mColorData = new ColorType[ totalSize ];
+		// Allocate memory for color, opacity and position data
+		mPositionData = new MayaTypes::PositionType[ totalSize ];
+		mColorData = new MayaTypes::ColorType[ totalSize ];
+		mOpacityData = new MayaTypes::OpacityType[ totalSize ];
 		// Allocate memory for indices
 		mHairData = new unsigned __int32[ aMaxHairCount + 1 ];
 		// Set pointers and index to start
 		mPositionPointer = mPositionData;
 		mColorPointer = mColorData;
+		mOpacityPointer = mOpacityData;
 		*mHairData = 0;
 	}
 	catch ( ... )
@@ -235,29 +300,55 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 	// Move position pointer
 	mPositionPointer += aPointsCount * 3; 
 	mColorPointer += aPointsCount * 3;
+	mOpacityPointer += aPointsCount * 3;
 	++mHairPointer; // Next hair pointer
 	// Remember index to data
 	*mHairPointer = static_cast< unsigned __int32 >( mPositionData - mPositionPointer );
 }
 
-inline MayaOutputGenerator::PositionType * MayaOutputGenerator::positionPointer()
+inline MayaTypes::PositionType * MayaOutputGenerator::positionPointer()
 {
 	return mPositionPointer;
 }
 
-inline MayaOutputGenerator::ColorType * MayaOutputGenerator::colorPointer()
+inline MayaTypes::ColorType * MayaOutputGenerator::colorPointer()
 {
 	return mColorPointer;
 }
 
-inline MayaOutputGenerator::NormalType * MayaOutputGenerator::normalPointer()
+inline MayaTypes::NormalType * MayaOutputGenerator::normalPointer()
 {
-	throw StubbleException( "MayaOutputGenerator::normalPointer : this method is not implemented !" ); 
+	return 0; /* NOT SUPPORTED */
 }
 
-inline MayaOutputGenerator::WidthType * MayaOutputGenerator::widthPointer()
+inline MayaTypes::WidthType * MayaOutputGenerator::widthPointer()
 {
-	throw StubbleException( "MayaOutputGenerator::widthPointer : this method is not implemented !" ); 
+	return 0; /* NOT SUPPORTED */
+}
+
+inline MayaTypes::OpacityType * MayaOutputGenerator::opacityPointer()
+{
+	return mOpacityPointer;
+}
+
+inline MayaTypes::UVCoordinateType * MayaOutputGenerator::hairUVCoordinatePointer()
+{
+	return 0; /* NOT SUPPORTED */
+}
+
+inline MayaTypes::UVCoordinateType * MayaOutputGenerator::strandUVCoordinatePointer()
+{
+	return 0; /* NOT SUPPORTED */
+}
+
+inline MayaTypes::IndexType * MayaOutputGenerator::hairIndexPointer()
+{
+	return 0; /* NOT SUPPORTED */
+}
+
+inline MayaTypes::IndexType * MayaOutputGenerator::strandIndexPointer()
+{
+	return 0; /* NOT SUPPORTED */
 }
 
 } // namespace Interpolation

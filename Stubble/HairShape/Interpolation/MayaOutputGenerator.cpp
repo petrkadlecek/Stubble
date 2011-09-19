@@ -18,7 +18,7 @@ void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::
 {
 	// For all hair
 	const MayaPositionGenerator::GeneratedPosition * rootPosIt = aHairSpace; // Root positions
-	PositionType * posIt = mPositionData, * endPos; // Points positions
+	MayaTypes::PositionType * posIt = mPositionData, * endPos; // Points positions
 	Matrix< Real > transform;
 	for ( const unsigned __int32 * hairIt = mHairData + 1, * hairEnd = mHairData + mHairCount + 1; 
 		hairIt != hairEnd; ++hairIt, ++rootPosIt )
@@ -34,9 +34,9 @@ void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::
 			// Transform point
 			pos.transformAsPoint( transform );
 			// Copy data from vector to posIt
-			*posIt = static_cast< PositionType >( pos.x );
-			*( ++posIt ) = static_cast< PositionType >( pos.y );
-			*( ++posIt ) = static_cast< PositionType >( pos.z );
+			*posIt = static_cast< MayaTypes::PositionType >( pos.x );
+			*( ++posIt ) = static_cast< MayaTypes::PositionType >( pos.y );
+			*( ++posIt ) = static_cast< MayaTypes::PositionType >( pos.z );
 		}
 	}
 }
@@ -45,7 +45,7 @@ void MayaOutputGenerator::recalculateToWorldSpace( const MayaPositionGenerator::
 {
 	// For all hair
 	const MayaPositionGenerator::GeneratedPosition * rootPosIt = aHairSpace; // Root positions
-	PositionType * posIt = mPositionData, * endPos; // Points positions
+	MayaTypes::PositionType * posIt = mPositionData, * endPos; // Points positions
 	Matrix< Real > transform;
 	for ( const unsigned __int32 * hairIt = mHairData + 1, * hairEnd = mHairData + mHairCount + 1; 
 		hairIt != hairEnd; ++hairIt, ++rootPosIt )
@@ -61,9 +61,9 @@ void MayaOutputGenerator::recalculateToWorldSpace( const MayaPositionGenerator::
 			// Transform point
 			pos.transformAsPoint( transform );
 			// Copy data from vector to posIt
-			*posIt = static_cast< PositionType >( pos.x );
-			*( ++posIt ) = static_cast< PositionType >( pos.y );
-			*( ++posIt ) = static_cast< PositionType >( pos.z );
+			*posIt = static_cast< MayaTypes::PositionType >( pos.x );
+			*( ++posIt ) = static_cast< MayaTypes::PositionType >( pos.y );
+			*( ++posIt ) = static_cast< MayaTypes::PositionType >( pos.z );
 		}
 	}
 }

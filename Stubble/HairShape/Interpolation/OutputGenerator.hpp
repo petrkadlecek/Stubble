@@ -13,9 +13,10 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Interface of generator of finished interpolated hair. No virtual functions are used !
+/// Interface of generator of finished interpolated hair. No virtual functions are used, this class
+/// here only represents the interface for classes used as HairGenerator template argument.
 ///-------------------------------------------------------------------------------------------------
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
+template< typename tOutputGeneratorTypes >
 class OutputGenerator
 {
 public:
@@ -24,6 +25,9 @@ public:
 			ColorType		-	type used to store one component of the 3 components of the color
 			NormalType		-	type used to store one component of the 3 components of the normal
 			WidthType		-	type used to store width
+			OpacityType		-	type used to store opacity
+			UVCoordinateType-	type used to store u or v coordinate
+			IndexType		-	type used to store hair and strand index
 	 */
 	
 	///-------------------------------------------------------------------------------------------------
@@ -31,12 +35,10 @@ public:
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseColors		Colors will be outputed
-	/// \param	aUseNormals		Normals will be outputed
-	/// \param	aUseWidths		Widths will be outputed
+	/// \param	aUseNormals		True if explicit normals should be stored
 	///-------------------------------------------------------------------------------------------------
 	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseColors, bool aUseNormals, bool aUseWidths );
+		 bool aUseNormals );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
@@ -60,31 +62,66 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
 	///
-	/// \return	null if it fails, else return position pointer. 
+	/// \return	null if positions are not supported, else return position pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline tPositionType * positionPointer();
+	inline typename tOutputGeneratorTypes::PositionType * positionPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points colors. 
 	///
-	/// \return	null if it fails, else return color pointer. 
+	/// \return	null if colors are not supported, else return color pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline tColorType * colorPointer();
+	inline typename tOutputGeneratorTypes::ColorType * colorPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points normals. 
 	///
-	/// \return	null if it fails, else return normal pointer. 
+	/// \return	null if normals are not supported, else return normal pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline tNormalType * normalPointer();
+	inline typename tOutputGeneratorTypes::NormalType * normalPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points widths. 
 	///
-	/// \return	null if it fails, else return width pointer. 
+	/// \return	null if widths are not supported, else return width pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline tWidthType * widthPointer();
+	inline typename tOutputGeneratorTypes::WidthType * widthPointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to hair points opacities. 
+	///
+	/// \return	null if opacities are not supported, else return opacity pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline typename tOutputGeneratorTypes::OpacityType * opacityPointer();
 	
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to hair UV coordinates. 
+	///
+	/// \return	null if UV coordinates are not supported, else return UV coordinate pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline typename tOutputGeneratorTypes::UVCoordinateType * hairUVCoordinatePointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to hair strand UV coordinates. 
+	///
+	/// \return	null if UV coordinates are not supported, else return strand UV coordinate pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline typename tOutputGeneratorTypes::UVCoordinateType * strandUVCoordinatePointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to hair indices. 
+	///
+	/// \return	null if hair indices are not supported, else return hair index pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline typename tOutputGeneratorTypes::IndexType * hairIndexPointer();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the pointer to strand indices.
+	///
+	/// \return	null if strand indices are not supported, else return strand index pointer. 
+	///-------------------------------------------------------------------------------------------------
+	inline typename tOutputGeneratorTypes::IndexType * strandIndexPointer();
+
 protected:
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
@@ -94,61 +131,100 @@ protected:
 
 // inline functions implementation
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::beginOutput
+template< typename tOutputGeneratorTypes >
+inline void OutputGenerator< tOutputGeneratorTypes >::beginOutput
 	( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
-	bool aUseColors, bool aUseNormals, bool aUseWidths )
+	bool aUseNormals )
 {
 	throw StubbleException( "OutputGenerator::beginOutput : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::endOutput()
+template< typename tOutputGeneratorTypes >
+inline void OutputGenerator< tOutputGeneratorTypes >::endOutput()
 {
 	throw StubbleException( "OutputGenerator::endOutput : this method is not implemented !" ); 
 }
 
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::beginHair
+template< typename tOutputGeneratorTypes >
+inline void OutputGenerator< tOutputGeneratorTypes >::beginHair
 	( unsigned __int32 aMaxPointsCount )
 {
 	throw StubbleException( "OutputGenerator::beginHair : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline void OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::endHair
+template< typename tOutputGeneratorTypes >
+inline void OutputGenerator< tOutputGeneratorTypes >::endHair
 	( unsigned __int32 aPointsCount )
 {
 	throw StubbleException( "OutputGenerator::endHair : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline tPositionType * OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::positionPointer()
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::PositionType * 
+	OutputGenerator< tOutputGeneratorTypes >::positionPointer()
 {
 	throw StubbleException( "OutputGenerator::positionPointer : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline tColorType * OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::colorPointer()
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::ColorType * 
+	OutputGenerator< tOutputGeneratorTypes >::colorPointer()
 {
 	throw StubbleException( "OutputGenerator::colorPointer : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline tNormalType * OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::normalPointer()
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::NormalType * 
+	OutputGenerator< tOutputGeneratorTypes >::normalPointer()
 {
 	throw StubbleException( "OutputGenerator::normalPointer : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline tWidthType * OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::widthPointer()
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::WidthType * 
+	OutputGenerator< tOutputGeneratorTypes >::widthPointer()
 {
 	throw StubbleException( "OutputGenerator::widthPointer : this method is not implemented !" ); 
 }
 
-template< typename tPositionType, typename tColorType, typename tNormalType, typename tWidthType >
-inline OutputGenerator< tPositionType, tColorType, tNormalType, tWidthType >::OutputGenerator()
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::OpacityType * 
+	OutputGenerator< tOutputGeneratorTypes >::opacityPointer()
+{
+	throw StubbleException( "OutputGenerator::opacityPointer : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::UVCoordinateType * 
+	OutputGenerator< tOutputGeneratorTypes >::hairUVCoordinatePointer()
+{
+	throw StubbleException( "OutputGenerator::hairUVCoordinatePointer : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::UVCoordinateType * 
+	OutputGenerator< tOutputGeneratorTypes >::strandUVCoordinatePointer()
+{
+	throw StubbleException( "OutputGenerator::strandUVCoordinatePointer : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::IndexType * 
+	OutputGenerator< tOutputGeneratorTypes >::hairIndexPointer()
+{
+	throw StubbleException( "OutputGenerator::hairIndexPointer : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline typename tOutputGeneratorTypes::IndexType * 
+	OutputGenerator< tOutputGeneratorTypes >::strandIndexPointer()
+{
+	throw StubbleException( "OutputGenerator::strandIndexPointer : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline OutputGenerator< tOutputGeneratorTypes >::OutputGenerator()
 {
 }
 

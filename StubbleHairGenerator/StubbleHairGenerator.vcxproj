@@ -123,6 +123,7 @@
     <ClCompile Include="..\Stubble\HairShape\Interpolation\HairProperties.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\InterpolationGroups.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\RMHairProperties.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMOutputGenerator.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\RMPositionGenerator.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Texture\Texture.cpp" />

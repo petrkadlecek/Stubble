@@ -59,6 +59,13 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getHairCount() const;
 	
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the hair start index. 
+	///
+	/// \return	The hair start index. 
+	///-------------------------------------------------------------------------------------------------
+	inline unsigned __int32 getHairStartIndex() const;
+
 private:
 
 	Mesh * mCurrentMesh;	///< The current mesh
@@ -70,6 +77,8 @@ private:
 	RandomGenerator randomGenerator;	///< The random generator
 	
 	unsigned __int32 mCount;	///< Number of the interpolated hair.
+
+	unsigned __int32 mStartIndex;   ///< The start index of hair
 };
 
 // inline functions implementation
@@ -99,6 +108,11 @@ inline void RMPositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3
 inline unsigned __int32 RMPositionGenerator::getHairCount() const
 {
 	return mCount;
+}
+
+inline unsigned __int32 RMPositionGenerator::getHairStartIndex() const
+{
+	return mStartIndex;
 }
 
 } // namespace Interpolation

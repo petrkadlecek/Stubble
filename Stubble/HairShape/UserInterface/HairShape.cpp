@@ -11,6 +11,7 @@
 #include <maya/MTime.h>
 
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <bzip2stream.hpp>
 
@@ -240,97 +241,65 @@ void HairShape::draw()
 
 MStatus HairShape::initialize()
 {	
-	MStatus status;
-
-	//define surface attribute
-	MFnTypedAttribute tAttr;
-	surfaceAttr = tAttr.create( "surface", "srf", MFnData::kMesh, MObject::kNullObj, &status );
-	tAttr.setDisconnectBehavior( MFnAttribute::kDelete );
-	tAttr.setWritable( true );
-	tAttr.setHidden( true );
-	tAttr.setInternal( true );
-	tAttr.setStorable( false );
-	if( !status )
+	try 
 	{
-		status.perror( "Creation of a mesh has failed" );
-		return status;
+		MStatus status;
+		//define surface attribute
+		MFnTypedAttribute tAttr;
+		surfaceAttr = tAttr.create( "surface", "srf", MFnData::kMesh, MObject::kNullObj, &status );
+		tAttr.setDisconnectBehavior( MFnAttribute::kDelete );
+		tAttr.setWritable( true );
+		tAttr.setHidden( true );
+		tAttr.setInternal( true );
+		tAttr.setStorable( false );
+		if( !addAttribute( surfaceAttr ) )
+		{
+			status.perror( "Creation of a mesh has failed" );
+			return status;
+		}
+		// I have to check surface attr all the time
+		MFnNumericAttribute nAttr;
+		surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0);
+		nAttr.setHidden( true );
+		if( !addAttribute( surfaceChangeAttr ) )
+		{
+			status.perror( "Creation of a mesh has failed" );
+			return status;
+		}
+		attributeAffects( surfaceAttr, surfaceChangeAttr );
+		// define time attribute
+		MFnUnitAttribute unitAttr;
+		timeAttr = unitAttr.create( "time", "tm", MFnUnitAttribute::kTime, 0.0, &status );
+		unitAttr.setInternal( true );
+		if( !addAttribute( timeAttr ) )
+		{
+			status.perror( "Adding time attr has failed" );
+			return status;
+		}
+		//define count attribute
+		addIntAttribute( "guides_count", "cnt", countAttr, 100, 3, 1000000, 3, 1000 );
+		//define gen. count attribute
+		addIntAttribute( "interpolated_hair_count", "gcnt", genCountAttr, 10000, 1, 
+			std::numeric_limits< int >::max(), 1, 20000 );
+		// define voxels dimensions attribute
+		addIntAttribute( "voxels_X_dimensions", "vxsxdim", voxelsXResolutionAttr, 1, 1, 10, 1, 10 );
+		addIntAttribute( "voxels_Y_dimensions", "vxsydim", voxelsYResolutionAttr, 1, 1, 10, 1, 10 );
+		addIntAttribute( "voxels_Z_dimensions", "vxszdim", voxelsZResolutionAttr, 1, 1, 10, 1, 10 );
+		addParentAttribute( "voxels_dimensions", "vxsdim", voxelsResolutionAttr, voxelsXResolutionAttr, 
+			voxelsYResolutionAttr, voxelsZResolutionAttr );
+		//define gen. display count attribute
+		addIntAttribute( "displayed_hair_count", "dhc", genDisplayCountAttr, 1000, 1, 50000, 1, 10000 );
+		//define display guides attribute
+		addBoolAttribute( "display_guides", "digu", displayGuidesAttr, true );
+		//define display interpolated hair attribute
+		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
 	}
-	addAttribute( surfaceAttr );
-
-	MFnUnitAttribute unitAttr;
-    timeAttr = unitAttr.create( "time", "tm", MFnUnitAttribute::kTime, 0.0, &status );
-	unitAttr.setInternal( true );
-	//unitAttr.setHidden( true );
-	addAttribute( timeAttr );
-
-	//define count attribute
-	MFnNumericAttribute nAttr;
-	countAttr = nAttr.create( "guides_count", "cnt", MFnNumericData::kInt, 100 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 3 );
-	nAttr.setSoftMin( 3 );
-	nAttr.setSoftMax( 1000 );
-	addAttribute( countAttr );
-
-	//define gen. count attribute
-	genCountAttr = nAttr.create( "interpolated_hair_count", "gcnt", MFnNumericData::kInt, 10000 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 1 );
-	nAttr.setSoftMin( 1 );
-	nAttr.setSoftMax( 20000 );
-	addAttribute( genCountAttr );
-
-	// define voxels dimensions attribute
-	voxelsXResolutionAttr = nAttr.create("voxels_X_dimensions", "vxsxdim", MFnNumericData::kInt, 1);
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	voxelsYResolutionAttr = nAttr.create("voxels_Y_dimensions", "vxsydim", MFnNumericData::kInt, 1);
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	voxelsZResolutionAttr = nAttr.create("voxels_Z_dimensions", "vxszdim", MFnNumericData::kInt, 1);
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	voxelsResolutionAttr = nAttr.create( "voxels_dimensions", "vxsdim", voxelsXResolutionAttr, voxelsYResolutionAttr, voxelsZResolutionAttr );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 1, 1, 1 );
-	nAttr.setMax( 10, 10, 10 );
-	addAttribute( voxelsXResolutionAttr );
-	addAttribute( voxelsYResolutionAttr );
-	addAttribute( voxelsZResolutionAttr );
-	addAttribute( voxelsResolutionAttr );
-
-	//define gen. display count attribute
-	genDisplayCountAttr = nAttr.create( "displayed_hair_count", "dhc", MFnNumericData::kInt, 1000 );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	nAttr.setMin( 1 );
-	nAttr.setSoftMin( 1 );
-	nAttr.setSoftMax( 10000 );
-	nAttr.setMax( 50000 );
-	addAttribute( genDisplayCountAttr );
-
-	//define display guides attribute
-	displayGuidesAttr = nAttr.create( "display_guides", "digu", MFnNumericData::kBoolean, true );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	addAttribute( displayGuidesAttr );
-
-	//define display interpolated hair attribute
-	displayInterpolatedAttr = nAttr.create( "display_hair", "diha", MFnNumericData::kBoolean, false );
-	nAttr.setKeyable( false );
-	nAttr.setInternal( true );
-	addAttribute( displayInterpolatedAttr );
-
-	surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0);
-	nAttr.setHidden( true );
-	addAttribute( surfaceChangeAttr );
-
-	// I have to check surface attr all the time
-	attributeAffects( surfaceAttr, surfaceChangeAttr );
-
+	catch( const StubbleException & ex )
+	{
+		MStatus s;
+		s.perror( ex.what() );
+		return s;
+	}
 	return MayaHairProperties::initializeAttributes();
 }
 
@@ -360,7 +329,7 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 		mVoxelization = new Voxelization( mMayaMesh->getRestPose(), *mUVPointGenerator, mVoxelsResolution );
 	}
 	// For every voxel
-	for ( unsigned __int32 i = 0; i < mVoxelization->getVoxelsCount(); ++i )
+	for ( unsigned __int32 i = 0, hairCountTotal = 0; i < mVoxelization->getVoxelsCount(); ++i )
 	{
 		if ( !mVoxelization->isVoxelEmpty( i ) )
 		{
@@ -371,9 +340,13 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 			bzip2_stream::bzip2_ostream bzipper( voxelFile );
 			// Write id
 			bzipper.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
+			// Write start hair index
+			bzipper.write( reinterpret_cast< const char * >( &hairCountTotal ), sizeof( unsigned __int32 ) );
 			// Write number of generated hair in current voxel
 			unsigned __int32 hairCount = mVoxelization->getVoxelHairCount( mGeneratedHairCount, i );
 			bzipper.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
+			// Increase hair count total
+			hairCountTotal += hairCount;
 			// Write rest pose mesh
 			mVoxelization->exportRestPoseVoxel( bzipper, mMayaMesh->getRestPose(), i );
 			// Write current mesh and store its bounding box

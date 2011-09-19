@@ -32,6 +32,8 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 		{
 			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : wrong file format ! ");
 		}
+		// Read hair start index
+		unzipper.read( reinterpret_cast< char * >( &mStartIndex ), sizeof( unsigned __int32 ) );
 		// Read hair count
 		unzipper.read( reinterpret_cast< char * >( &mCount ), sizeof( unsigned __int32 ) );
 		// Read rest pose mesh

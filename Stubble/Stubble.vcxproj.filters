@@ -190,6 +190,9 @@
     <ClCompile Include="HairShape\Interpolation\RMPositionGenerator.cpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RMOutputGenerator.cpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">

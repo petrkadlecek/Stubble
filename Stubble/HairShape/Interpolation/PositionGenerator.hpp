@@ -17,7 +17,8 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Interface of position generator of interpolated hair. No virtual functions are used !
+/// Interface of position generator of interpolated hair. No virtual functions are used, this class
+/// here only represents the interface for classes used as HairGenerator template argument.
 ///-------------------------------------------------------------------------------------------------
 class PositionGenerator
 {
@@ -47,7 +48,14 @@ public:
 	/// \return	The hair count. 
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getHairCount() const;
-	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the hair start index. 
+	///
+	/// \return	The hair start index. 
+	///-------------------------------------------------------------------------------------------------
+	inline unsigned __int32 getHairStartIndex() const;
+
 protected:
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
@@ -65,12 +73,17 @@ inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D<
 inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition,
 	const Texture & aDisplacementTexture )
 {
-throw StubbleException( "PositionGenerator::generate : this method is not implemented !" );
+	throw StubbleException( "PositionGenerator::generate : this method is not implemented !" );
 }
 
 inline unsigned __int32 PositionGenerator::getHairCount() const
 {
-throw StubbleException( "PositionGenerator::getHairCount : this method is not implemented !" );
+	throw StubbleException( "PositionGenerator::getHairCount : this method is not implemented !" );
+}
+
+inline unsigned __int32 PositionGenerator::getHairStartIndex() const
+{
+	throw StubbleException( "PositionGenerator::getHairStartIndex : this method is not implemented !" );
 }
 
 inline PositionGenerator::PositionGenerator()

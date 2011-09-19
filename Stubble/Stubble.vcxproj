@@ -165,6 +165,7 @@
     <ClCompile Include="HairShape\Interpolation\MayaOutputGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\MayaPositionGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\RMHairProperties.cpp" />
+    <ClCompile Include="HairShape\Interpolation\RMOutputGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\RMPositionGenerator.cpp" />
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp" />
     <ClCompile Include="HairShape\Mesh\Mesh.cpp" />
