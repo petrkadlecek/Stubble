@@ -30,7 +30,7 @@ public:
 	{
 		MeshPoint mCurrentPosition; ///< The current position of the hair
 
-		Vector3D< Real > mRestPosition; ///< The rest position of the hair
+		MeshPoint mRestPosition; ///< The rest position of the hair
 
 		UVPoint mUVPoint;   ///< The uv point, stored for recalculation of current position
 	};
@@ -62,7 +62,7 @@ public:
 	/// \param [in,out]	aCurrentPosition	The current position of hair on mesh. 
 	/// \param [in,out]	aRestPosition		The rest position of hair in 3D space. 
 	///-------------------------------------------------------------------------------------------------
-	inline void generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition );
+	inline void generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition );
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Generates position of interpolated hair on displaced mesh. Pre-generate must be called first.
@@ -71,7 +71,7 @@ public:
 	/// \param [in,out]	aRestPosition		The rest position of hair in 3D space. 
 	/// \param aDisplacementTexture			The texture defining displacement of mesh.
 	///-------------------------------------------------------------------------------------------------
-	inline void generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition,
+	inline void generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
 		const Texture & aDisplacementTexture );
 
 	///-------------------------------------------------------------------------------------------------
@@ -124,14 +124,14 @@ inline MayaPositionGenerator::~MayaPositionGenerator()
 	delete [] mGeneratedPositions;
 }
 
-inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition )
+inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition )
 {
 	aCurrentPosition = mCurrentPosition->mCurrentPosition;
 	aRestPosition = mCurrentPosition->mRestPosition;
 	++mCurrentPosition; // Move to next generated position
 }
 
-inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition,
+inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
 	const Texture & aDisplacementTexture )
 {
 	generate( aCurrentPosition, aRestPosition ); // Displacement will not be used

@@ -63,7 +63,7 @@ struct RMTypes
 ///-------------------------------------------------------------------------------------------------
 /// Generator of finished interpolated hair used in RenderMan plugin.
 ///-------------------------------------------------------------------------------------------------
-class RMOutputGenerator : public OutputGenerator< RMTypes >
+class RMOutputGenerator : public OutputGenerator< RMTypes >, public RMTypes
 {
 public:
 
@@ -335,8 +335,8 @@ inline void RMOutputGenerator::endHair( unsigned __int32 aPointsCount )
 	++mHairIndexDataPointer;
 	++mStrandIndexDataPointer;
 	// Store segments count and move pointer
-	* mSegmentsCount = static_cast< RtInt >( aPointsCount );
-	++mSegmentsCount; 
+	* mSegmentsCountPointer = static_cast< RtInt >( aPointsCount );
+	++mSegmentsCountPointer; 
 	// Increase current size
 
 }

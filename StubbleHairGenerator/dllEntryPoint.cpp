@@ -109,8 +109,11 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 	RiBasis( RiCatmullRomBasis, RI_CATMULLROMSTEP, RiCatmullRomBasis, RI_CATMULLROMSTEP );
 	// Declare output variables
 	RMOutputGenerator::declareVariables();
-	// Start motion blur
-	RiMotionBeginV( static_cast< RtInt >( bp.mSamplesCount ), bp.mTimeSamples );
+	if ( bp.mSamplesCount > 1 )
+	{
+		// Start motion blur
+		RiMotionBeginV( static_cast< RtInt >( bp.mSamplesCount ), bp.mTimeSamples );
+	}
 	// Create output generator
 	RMOutputGenerator outputGenerator( 1000000 ); // One million segments max. for each commit
 	// For every sample
@@ -130,8 +133,11 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		// Finally begin generating hair
 		hairGenerator.generate( hairProperties );
 	}
-	// End motion blur
-	RiMotionEnd();
+	if ( bp.mSamplesCount > 1 )
+	{
+		// End motion blur
+		RiMotionEnd();
+	}
 }
 
 ///-------------------------------------------------------------------------------------------------

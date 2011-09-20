@@ -60,7 +60,7 @@ struct MayaTypes
 ///-------------------------------------------------------------------------------------------------
 /// Generator of finished interpolated hair used in Maya plugin.
 ///-------------------------------------------------------------------------------------------------
-class MayaOutputGenerator : public OutputGenerator< MayaTypes >
+class MayaOutputGenerator : public OutputGenerator< MayaTypes >, public MayaTypes
 {
 public:
 

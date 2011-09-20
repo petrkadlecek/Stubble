@@ -3,7 +3,7 @@
 #include "RMPositionGenerator.hpp"
 
 #include <fstream>
-#include <bzip2stream.hpp>
+#include <zipstream.hpp>
 
 using namespace std;
 
@@ -23,7 +23,7 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 {
 	try {
 		std::ifstream file( aVoxelFileName.c_str(), std::ios::binary );
-		bzip2_stream::bzip2_istream unzipper( file );
+		zlib_stream::zip_istream unzipper( file, 15, BUFFER_SIZE, BUFFER_SIZE );
 		char fileid[20];
 		// Read file id
 		unzipper.read( fileid, VOXEL_FILE_ID_SIZE );

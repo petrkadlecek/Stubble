@@ -137,7 +137,40 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	// Write segments count
 	mInterpolationGroups->exportSegmentsCountToFile( aOutputStream );
 	// Write non-texture hair properties
-	aOutputStream.write( reinterpret_cast< const char * >( & mScale ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mRandScale ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mRootThickness ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTipThickness ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mDisplacement ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mRootOpacity ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTipOpacity ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( mRootColor ), 3 * sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( mTipColor ), 3 * sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mHueVariation ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mValueVariation ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( mMutantHairColor ), 3 * sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mPercentMutantHair ), sizeof( Real ) );	aOutputStream.write( reinterpret_cast< const char * >( & mRootFrizz ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTipFrizz ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mFrizzXFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mFrizzYFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mFrizzZFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mFrizzAnim ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mFrizzAnimSpeed ), sizeof( Real ) );		aOutputStream << mFrizzAnimDirection;	aOutputStream.write( reinterpret_cast< const char * >( & mRootKink ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTipKink ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mKinkXFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mKinkYFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mKinkZFrequency ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mMultiStrandCount ), sizeof( unsigned __int32 ) );		aOutputStream.write( reinterpret_cast< const char * >( & mRootSplay ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTipSplay ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mCenterSplay ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mTwist ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mOffset ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mAspect ), sizeof( Real ) );		aOutputStream.write( reinterpret_cast< const char * >( & mRandomizeStrand ), sizeof( Real ) );
+	aOutputStream.write( reinterpret_cast< const char * >( & mScale ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mRandScale ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mRootThickness ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTipThickness ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mDisplacement ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mRootOpacity ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTipOpacity ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( mRootColor ), 3 * sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( mTipColor ), 3 * sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mHueVariation ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mValueVariation ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( mMutantHairColor ), 3 * sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mPercentMutantHair ), sizeof( Real ) );
+	aOutputStream.write( reinterpret_cast< const char * >( & mRootFrizz ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTipFrizz ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mFrizzXFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mFrizzYFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mFrizzZFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mFrizzAnim ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mFrizzAnimSpeed ), sizeof( Real ) );	
+	aOutputStream << mFrizzAnimDirection;
+	aOutputStream.write( reinterpret_cast< const char * >( & mRootKink ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTipKink ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mKinkXFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mKinkYFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mKinkZFrequency ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mMultiStrandCount ), sizeof( unsigned __int32 ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mRootSplay ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTipSplay ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mCenterSplay ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mTwist ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mOffset ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mAspect ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mRandomizeStrand ), sizeof( Real ) );
 	// Write number of guides to interpolate from
 	aOutputStream.write( reinterpret_cast< const char * >( &mNumberOfGuidesToInterpolateFrom ), 
 		sizeof( unsigned __int32 ) );
@@ -1004,7 +1037,7 @@ void MayaHairProperties::addBoolAttribute( const MString & aFullName, const MStr
 	MObject & aAttribute, bool aDefault )
 {
 	MFnNumericAttribute nAttr;
-	aAttribute = nAttr.create( aFullName, aBriefName, MFnNumericData::kInt, aDefault );
+	aAttribute = nAttr.create( aFullName, aBriefName, MFnNumericData::kBoolean, aDefault );
 	nAttr.setKeyable( false );
 	nAttr.setInternal( true );
 	if ( MPxSurfaceShape::addAttribute( aAttribute ) != MStatus::kSuccess )

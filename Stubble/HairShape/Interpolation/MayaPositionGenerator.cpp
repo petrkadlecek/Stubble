@@ -28,7 +28,7 @@ void MayaPositionGenerator::preGenerate( UVPointGenerator & aUVPointGenerator, c
 		it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos
 		// Calculate positions
 		it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
-		it->mRestPosition = aRestPoseMesh.getPosition( it->mUVPoint );
+		it->mRestPosition = aRestPoseMesh.getMeshPoint( it->mUVPoint );
 	}
 }
 

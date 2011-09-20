@@ -157,6 +157,7 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 
 		// points store variables
 		int3 indices;
+		int3 local_indices;
 		float3 textU, textV;
 		MPoint points[ 3 ];
 		MVector normals[ 3 ];
@@ -168,13 +169,16 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 		indices[ 0 ] = vertices[ triangle.getLocalVertex1() ];
 		indices[ 1 ] = vertices[ triangle.getLocalVertex2() ];
 		indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
+		local_indices[ 0 ] = triangle.getLocalVertex1();
+		local_indices[ 1 ] = triangle.getLocalVertex2();
+		local_indices[ 2 ] = triangle.getLocalVertex3();
 
 		for( unsigned __int32 i = 0; i < 3; ++i)
 		{
-			mUpdatedMesh->getPoint( indices[ 0 ], points [ i ], MSpace::kWorld );
-			mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normals[ i ], MSpace::kWorld );
-			mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangents[ i ], MSpace::kWorld, &mUVSet );
-			mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), textU [ i ], textV [ i ], &mUVSet);
+			mUpdatedMesh->getPoint( indices[ i ], points [ i ], MSpace::kWorld );
+			mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ i ], normals[ i ], MSpace::kWorld );
+			mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ i ], tangents[ i ], MSpace::kWorld, &mUVSet );
+			mUpdatedMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet);
 
 			meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
 				Vector3D < Real > ( points[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));

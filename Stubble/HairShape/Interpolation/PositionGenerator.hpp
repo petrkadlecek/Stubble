@@ -30,7 +30,7 @@ public:
 	/// \param [in,out]	aCurrentPosition	The current position of hair on mesh. 
 	/// \param [in,out]	aRestPosition		The rest position of hair in 3D space. 
 	///-------------------------------------------------------------------------------------------------
-	inline void generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition );
+	inline void generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition );
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Generates position of interpolated hair on displaced mesh. 
@@ -39,7 +39,7 @@ public:
 	/// \param [in,out]	aRestPosition		The rest position of hair in 3D space. 
 	/// \param aDisplacementTexture			The texture defining displacement of mesh.
 	///-------------------------------------------------------------------------------------------------
-	inline void generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition,
+	inline void generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
 		const Texture & aDisplacementTexture );
 
 	///-------------------------------------------------------------------------------------------------
@@ -65,12 +65,12 @@ protected:
 
 // inline functions implementation
 
-inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition )
+inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition )
 {
 	throw StubbleException( "PositionGenerator::generate : this method is not implemented !" ); 
 }
 
-inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, Vector3D< Real > & aRestPosition,
+inline void PositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
 	const Texture & aDisplacementTexture )
 {
 	throw StubbleException( "PositionGenerator::generate : this method is not implemented !" );

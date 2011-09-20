@@ -2,7 +2,7 @@
 
 #include "RMHairProperties.hpp"
 
-#include <bzip2stream.hpp>
+#include <zipstream.hpp>
 
 using namespace std;
 
@@ -19,7 +19,7 @@ namespace Interpolation
 RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 {
 	std::ifstream file( aFrameFileName.c_str(), std::ios::binary );
-	bzip2_stream::bzip2_istream unzipper( file );
+	zlib_stream::zip_istream unzipper( file, 15, BUFFER_SIZE, BUFFER_SIZE );
 	char fileid[20];
 	// Read file id
 	unzipper.read( fileid, FRAME_FILE_ID_SIZE );
@@ -66,7 +66,40 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	mInterpolationGroups = new InterpolationGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
 	mInterpolationGroups->importSegmentsCountFromFile( unzipper );
 	// Read non-texture hair properties
-	unzipper.read( reinterpret_cast< char * >( & mScale ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mRandScale ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mRootThickness ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTipThickness ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mDisplacement ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mRootOpacity ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTipOpacity ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( mRootColor ), 3 * sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( mTipColor ), 3 * sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mHueVariation ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mValueVariation ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( mMutantHairColor ), 3 * sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mPercentMutantHair ), sizeof( Real ) );	unzipper.read( reinterpret_cast< char * >( & mRootFrizz ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTipFrizz ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mFrizzXFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mFrizzYFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mFrizzZFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mFrizzAnim ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mFrizzAnimSpeed ), sizeof( Real ) );		unzipper >> mFrizzAnimDirection;	unzipper.read( reinterpret_cast< char * >( & mRootKink ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTipKink ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mKinkXFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mKinkYFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mKinkZFrequency ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mMultiStrandCount ), sizeof( unsigned __int32 ) );		unzipper.read( reinterpret_cast< char * >( & mRootSplay ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTipSplay ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mCenterSplay ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mTwist ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mOffset ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mAspect ), sizeof( Real ) );		unzipper.read( reinterpret_cast< char * >( & mRandomizeStrand ), sizeof( Real ) );
+	unzipper.read( reinterpret_cast< char * >( & mScale ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mRandScale ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mRootThickness ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTipThickness ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mDisplacement ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mRootOpacity ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTipOpacity ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( mRootColor ), 3 * sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( mTipColor ), 3 * sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mHueVariation ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mValueVariation ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( mMutantHairColor ), 3 * sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mPercentMutantHair ), sizeof( Real ) );
+	unzipper.read( reinterpret_cast< char * >( & mRootFrizz ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTipFrizz ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mFrizzXFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mFrizzYFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mFrizzZFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mFrizzAnim ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mFrizzAnimSpeed ), sizeof( Real ) );	
+	unzipper >> mFrizzAnimDirection;
+	unzipper.read( reinterpret_cast< char * >( & mRootKink ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTipKink ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mKinkXFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mKinkYFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mKinkZFrequency ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mMultiStrandCount ), sizeof( unsigned __int32 ) );	
+	unzipper.read( reinterpret_cast< char * >( & mRootSplay ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTipSplay ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mCenterSplay ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mTwist ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mOffset ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mAspect ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mRandomizeStrand ), sizeof( Real ) );
 	// Read number of guides to interpolate from
 	unzipper.read( reinterpret_cast< char * >( &mNumberOfGuidesToInterpolateFrom ), 
 		sizeof( unsigned __int32 ) );

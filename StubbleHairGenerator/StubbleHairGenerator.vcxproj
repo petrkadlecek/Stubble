@@ -89,13 +89,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\bzlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3DelightFor3dfm.lib;BzLib-debug.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>3DelightFor3dfm.lib;ZLib-debug.lib;</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\bzlib\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -105,13 +105,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\bzlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3DelightFor3dfm.lib;BzLib.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>3DelightFor3dfm.lib;ZLib.lib;</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\bzlib\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
