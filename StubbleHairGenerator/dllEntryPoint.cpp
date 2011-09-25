@@ -130,6 +130,8 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
 		// Create hair generator
 		HairGenerator< RMPositionGenerator, RMOutputGenerator > hairGenerator( positionGenerator, outputGenerator );
+		// Should normals be outputed ?
+		outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
 		// Finally begin generating hair
 		hairGenerator.generate( hairProperties );
 	}

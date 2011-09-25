@@ -152,6 +152,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\GLExtensions.cpp" />
     <ClCompile Include="HairShape\Generators\RandomGenerator.cpp" />
     <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp" />
     <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="Common\CommonConstants.hpp" />
     <ClInclude Include="Common\CommonFunctions.hpp" />
     <ClInclude Include="Common\CommonTypes.hpp" />
+    <ClInclude Include="Common\GLExtensions.hpp" />
     <ClInclude Include="Common\StubbleException.hpp" />
     <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
     <ClInclude Include="HairShape\HairComponents\DisplayedGuides.hpp" />

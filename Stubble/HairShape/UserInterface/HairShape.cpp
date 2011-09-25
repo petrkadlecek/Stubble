@@ -1,5 +1,6 @@
 #include "HairShape.hpp"
 
+#include "Common/GLExtensions.hpp"
 #include "Common/CommonConstants.hpp"
 
 #include <maya/MFnNumericAttribute.h>
@@ -229,6 +230,12 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
+	// First init gl extensions
+	if ( !GLExt::isInited() )
+	{
+		GLExt::init();
+	}
+	// Display guides & interpolated hair
 	if ( mDisplayGuides )
 	{
 		mHairGuides->draw();

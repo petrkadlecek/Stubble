@@ -29,16 +29,14 @@ public:
 			UVCoordinateType-	type used to store u or v coordinate
 			IndexType		-	type used to store hair and strand index
 	 */
-	
+
 	///-------------------------------------------------------------------------------------------------
 	/// Begins an output of interpolated hair. 
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseNormals		True if explicit normals should be stored
 	///-------------------------------------------------------------------------------------------------
-	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		 bool aUseNormals );
+	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
@@ -58,6 +56,13 @@ public:
 	/// \param	aPointsCount	Number of points on finished hair. 
 	///-------------------------------------------------------------------------------------------------
 	inline void endHair( unsigned __int32 aPointsCount );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Return true, if hair generator should duplicate border points (root, tip)
+	///
+	/// \return	true if border points should be duplicated
+	///-------------------------------------------------------------------------------------------------
+	inline bool getDuplicateBorderPoints() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
@@ -133,8 +138,7 @@ protected:
 
 template< typename tOutputGeneratorTypes >
 inline void OutputGenerator< tOutputGeneratorTypes >::beginOutput
-	( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount, 
-	bool aUseNormals )
+	( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
 {
 	throw StubbleException( "OutputGenerator::beginOutput : this method is not implemented !" ); 
 }
@@ -158,6 +162,12 @@ inline void OutputGenerator< tOutputGeneratorTypes >::endHair
 	( unsigned __int32 aPointsCount )
 {
 	throw StubbleException( "OutputGenerator::endHair : this method is not implemented !" ); 
+}
+
+template< typename tOutputGeneratorTypes >
+inline bool OutputGenerator< tOutputGeneratorTypes >::getDuplicateBorderPoints() const
+{
+	throw StubbleException( "OutputGenerator::getDuplicateBorderPoints : this method is not implemented !" ); 
 }
 
 template< typename tOutputGeneratorTypes >

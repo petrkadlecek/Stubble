@@ -17,7 +17,7 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 {
 	/* TODO */
 	// Testing version only
-	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount(), aHairProperties.getInterpolationGroups().getGroupSegmentsCount( 0 ),false );
+	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount(), aHairProperties.getInterpolationGroups().getGroupSegmentsCount( 0 ) );
 	for ( unsigned __int32 i = 0; i < mPositionGenerator.getHairCount(); ++i )
 	{
 		// Generate position

@@ -80,14 +80,19 @@ public:
 	inline ~RMOutputGenerator();
 
 	///-------------------------------------------------------------------------------------------------
+	/// Sets whether to output normals. 
+	///
+	/// \param	aOutputNormals	true to an output normals. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setOutputNormals( bool aOutputNormals );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Begins an output of interpolated hair. 
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseNormals		Normals will be outputed
 	///-------------------------------------------------------------------------------------------------
-	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseNormals );
+	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
@@ -107,6 +112,13 @@ public:
 	/// \param	aPointsCount	Number of points on finished hair. 
 	///-------------------------------------------------------------------------------------------------
 	inline void endHair( unsigned __int32 aPointsCount );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Return true, if hair generator should duplicate border points (root, tip)
+	///
+	/// \return	true, RMOutputGenerator always requires border points duplication.
+	///-------------------------------------------------------------------------------------------------
+	inline bool getDuplicateBorderPoints() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
@@ -243,7 +255,7 @@ private:
 
 	RMTypes::IndexType * mStrandIndexDataPointer; ///<  The index of current strand
 
-	bool mUseNormals;   ///< true to use normals
+	bool mOutputNormals;   ///< true to output normals
 };
 
 // inline functions implementation
@@ -299,10 +311,13 @@ inline RMOutputGenerator::~RMOutputGenerator()
 	freeMemory();
 }
 
-inline void RMOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseNormals )
+inline void RMOutputGenerator::setOutputNormals( bool aOutputNormals )
 {
-	mUseNormals = aUseNormals;
+	mOutputNormals = aOutputNormals;
+}
+
+inline void RMOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
+{
 	reset();
 }
 
@@ -341,6 +356,11 @@ inline void RMOutputGenerator::endHair( unsigned __int32 aPointsCount )
 
 }
 
+inline bool RMOutputGenerator::getDuplicateBorderPoints() const
+{
+	return true;
+}
+
 inline RMTypes::PositionType * RMOutputGenerator::positionPointer()
 {
 	return mPositionDataPointer;
@@ -353,7 +373,7 @@ inline RMTypes::ColorType * RMOutputGenerator::colorPointer()
 
 inline RMTypes::NormalType * RMOutputGenerator::normalPointer()
 {
-	return mUseNormals ? mNormalDataPointer : 0;
+	return mOutputNormals ? mNormalDataPointer : 0;
 }
 
 inline RMTypes::WidthType * RMOutputGenerator::widthPointer()
@@ -418,7 +438,7 @@ inline void RMOutputGenerator::commit()
 	// Get hair count
 	RtInt hairCount = static_cast< RtInt >( mSegmentsCountPointer - mSegmentsCount );
 	// Distinct different options
-	if ( mUseNormals )
+	if ( mOutputNormals )
 	{
 		RiCurves( RI_CUBIC, hairCount, mSegmentsCount , RI_NONPERIODIC, RI_P, mPositionData, RI_CS, mColorData, 
 			RI_N, mNormalData, RI_WIDTH, mWidthData, HAIR_UV_COORDINATE_TOKEN, mHairUVCoordinateData, 

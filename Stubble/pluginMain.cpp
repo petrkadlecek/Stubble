@@ -36,6 +36,7 @@
 EXPORT MStatus initializePlugin( MObject aObj )
 { 
 	MStatus status;
+
 	MFnPlugin plugin( aObj, "The Stubble Team", "0.11", "Any" );
 
 	// register Stubble main menu

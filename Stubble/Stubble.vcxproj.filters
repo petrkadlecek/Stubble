@@ -193,6 +193,9 @@
     <ClCompile Include="HairShape\Interpolation\RMOutputGenerator.cpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
+    <ClCompile Include="Common\GLExtensions.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -374,6 +377,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\Interpolation\RMOutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GLExtensions.hpp">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

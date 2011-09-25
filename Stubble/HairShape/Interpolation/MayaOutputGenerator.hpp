@@ -4,6 +4,8 @@
 #include "MayaPositionGenerator.hpp"
 #include "OutputGenerator.hpp"
 
+#include "Common/GLExtensions.hpp"
+
 namespace Stubble
 {
 
@@ -84,10 +86,8 @@ public:
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
-	/// \param	aUseNormals		Ignored, used only to have same interface as any OutputGenerator.
 	///-------------------------------------------------------------------------------------------------
-	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseNormals );
+	inline void beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
@@ -109,72 +109,79 @@ public:
 	inline void endHair( unsigned __int32 aPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Return true, if hair generator should duplicate border points (root, tip)
+	///
+	/// \return	false, MayaOutputGenerator does not require border points duplication.
+	///-------------------------------------------------------------------------------------------------
+	inline bool getDuplicateBorderPoints() const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
 	///
 	/// \return	null if it fails, else return position pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::PositionType * positionPointer();
+	inline PositionType * positionPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points colors. 
 	///
 	/// \return	null if it fails, else return color pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::ColorType * colorPointer();
+	inline ColorType * colorPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Hair points normals are not supported. 
+	/// Gets the pointer to hair points normals. 
 	///
-	/// \return	null
+	/// \return	null if it fails, else return normal pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::NormalType * normalPointer();
+	inline NormalType * normalPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Hair points widths are not supported. 
+	/// Gets the pointer to hair points widths. 
 	///
-	/// \return	null
+	/// \return	null if it fails, else return width pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::WidthType * widthPointer();
+	inline WidthType * widthPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points opacity. 
 	///
 	/// \return	null if it fails, else return opacity pointer. 
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::OpacityType * opacityPointer();
+	inline OpacityType * opacityPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the null pointer. Hair uv coordinates are not supported. 
 	///
 	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::UVCoordinateType * hairUVCoordinatePointer();
+	inline UVCoordinateType * hairUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the null pointer. Strand uv coordinate are not supported. 
 	///
 	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::UVCoordinateType * strandUVCoordinatePointer();
+	inline UVCoordinateType * strandUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the null pointer. Hair indices are not supported. 
 	///
 	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::IndexType * hairIndexPointer();
+	inline IndexType * hairIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the null pointer. Strand indices are not supported. 
 	///
 	/// \return	null
 	///-------------------------------------------------------------------------------------------------
-	inline MayaTypes::IndexType * strandIndexPointer();
+	inline IndexType * strandIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Draws outputed hair.
 	///-------------------------------------------------------------------------------------------------
-	void draw();
+	void draw() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Recalculates all hair positions data to local space. 
@@ -199,9 +206,25 @@ public:
 
 private:
 
-	unsigned __int32 mHairCount;	///< Number of the hairs
+	///-------------------------------------------------------------------------------------------------
+	/// Rebuilds vertex buffer objects. 
+	///-------------------------------------------------------------------------------------------------
+	inline void rebuildVBO();
 
-	unsigned __int32 * mHairData; ///< Indices for each hair to aPositionData and aColorData
+	///-------------------------------------------------------------------------------------------------
+	/// Kills vertex buffer objects. 
+	///-------------------------------------------------------------------------------------------------
+	inline void killVBO();
+
+	unsigned __int32 mMaxHairCount;	///< Maximum number of the hair
+
+	unsigned __int32 mHairCount;	///< Number of the hair
+
+	unsigned __int32 mMaxPointsCount; ///< Number of maximum points per hair
+
+	unsigned __int32 * mPointsCount;  ///< Number of points for each hair
+
+	unsigned __int32 * mPointsCountPointer;	///< The pointer to current hair points count
 
 	MayaTypes::PositionType * mPositionData;   ///< Information describing a position of the hair
 
@@ -209,85 +232,127 @@ private:
 
 	MayaTypes::OpacityType * mOpacityData; ///< Information describing a opacity of the hair
 
-	unsigned __int32 * mHairPointer;	///< The current hair pointer
+	MayaTypes::NormalType * mNormalData; ///< Information describing a normals of the hair points
 
-	MayaTypes::PositionType * mPositionPointer;	///< The current position data pointer
+	MayaTypes::WidthType * mWidthData;  ///< Information describing the width of the hair
 
-	MayaTypes::ColorType * mColorPointer;  ///< The current color data pointer
+	/* GL structures */
 
-	MayaTypes::OpacityType * mOpacityPointer;  ///< The current opacity data pointer
+	GLfloat * mVertices;	///< The vertices for GL drawing
+
+	GLfloat * mVerticesPointer; ///< The vertices current pointer
+
+	GLuint * mIndices;  ///< The indices for GL drawing
+
+	GLuint * mIndicesPointer;   ///< The indices current pointer
+
+	GLuint mVertexBO;  ///< The vertex bo handle
+
+	GLuint mIndexBO;   ///< The index bo handle
 };
 
 // inline functions implementation
 
 inline MayaOutputGenerator::MayaOutputGenerator():
-	mHairCount( 0 ),
-	mHairData( 0 ),
-	mPositionData( 0 ),
-	mColorData( 0 ),
-	mOpacityData( 0 ),
-	mHairPointer( 0 ),
-	mPositionPointer( 0 ),
-	mColorPointer( 0 ),
-	mOpacityPointer( 0 )
+	mMaxHairCount( 0 ),
+	mHairCount( 0 ),	
+	mMaxPointsCount( 0 ),
+	mPointsCount( 0 ),  
+	mPointsCountPointer( 0 ),	
+	mPositionData( 0 ),   
+	mColorData( 0 ), 
+	mOpacityData( 0 ), 
+	mNormalData( 0 ), 
+	mWidthData( 0 ),
+	mVertices( 0 ),	
+	mVerticesPointer( 0 ),
+	mIndices( 0 ),  
+	mIndicesPointer( 0 ),
+	mVertexBO( 0 ),  
+	mIndexBO( 0 )  
 {
-	
 }
 
 inline MayaOutputGenerator::~MayaOutputGenerator()
 {
+	killVBO();
 	clear();
 }
 
 inline void MayaOutputGenerator::clear()
 {
-	delete mHairData;
-	delete mPositionData;
-	delete mColorData;
-	mHairCount = 0;
-	mHairData = 0;
-	mPositionData = 0;
-	mColorData = 0;
-	mOpacityData = 0;
-	mHairPointer = 0;
-	mPositionPointer = 0;
-	mColorPointer = 0;
-	mOpacityPointer = 0;
+	delete [] mPointsCount;
+	delete [] mPositionData;
+	delete [] mColorData;
+	delete [] mOpacityData;
+	delete [] mNormalData;
+	delete [] mWidthData;
+	delete [] mVertices;
+	delete [] mIndices;
+	mMaxHairCount = 0;
+	mHairCount = 0;	
+	mMaxPointsCount = 0;
+	mPointsCount = 0;  
+	mPointsCountPointer = 0;	
+	mPositionData = 0;   
+	mColorData = 0; 
+	mOpacityData = 0; 
+	mNormalData = 0; 
+	mWidthData = 0;  
+	mVertices = 0;	
+	mVerticesPointer = 0;
+	mIndices = 0;  
+	mIndicesPointer = 0;
+	mVertexBO = 0;  
+	mIndexBO = 0;  
 }
 
-inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount,
-		bool aUseNormals )
+inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
 {
-	/* Ignores aUseNormals since it never uses them */
-	// Free all memory
-	clear();
-	// We will ignore all aUse***
-	try 
+	// Old vbo is not necessary
+	killVBO();
+	// Memory is not sufficient
+	if ( mMaxPointsCount < aMaxPointsCount || aMaxHairCount > mMaxHairCount )
 	{
-		mHairCount = aMaxHairCount;
-		unsigned __int32 totalSize = aMaxHairCount * aMaxPointsCount * 3;
-		// Allocate memory for color, opacity and position data
-		mPositionData = new MayaTypes::PositionType[ totalSize ];
-		mColorData = new MayaTypes::ColorType[ totalSize ];
-		mOpacityData = new MayaTypes::OpacityType[ totalSize ];
-		// Allocate memory for indices
-		mHairData = new unsigned __int32[ aMaxHairCount + 1 ];
-		// Set pointers and index to start
-		mPositionPointer = mPositionData;
-		mColorPointer = mColorData;
-		mOpacityPointer = mOpacityData;
-		*mHairData = 0;
+		try
+		{
+			// Free all memory
+			clear();
+			// Sets new limits
+			mMaxPointsCount = aMaxPointsCount;
+			mMaxHairCount = aMaxHairCount;
+			//		( XYZ + RGBA ) * totalPoints * 2 vertices for each point
+			unsigned __int32 verticesCount =  7 * mMaxHairCount * aMaxPointsCount * 2; 
+			//		2 triangles for each hair segment
+			unsigned __int32 indicesCount = 6 * mMaxHairCount * ( aMaxPointsCount - 1 );	
+			// Allocate sufficient memory for GL drawing
+			mVertices = new GLfloat[ verticesCount ];
+			mIndices = new GLuint[ indicesCount ];
+			// Allocate memory for points count
+			mPointsCount = new unsigned __int32[ aMaxHairCount ];
+			// Allocate memory for color, opacity and position data
+			mPositionData = new PositionType[ mMaxPointsCount * 3 ];
+			mColorData = new ColorType[ mMaxPointsCount * 3 ];
+			mOpacityData = new OpacityType[ mMaxPointsCount * 3 ];
+			mNormalData = new NormalType[ mMaxPointsCount * 3 ];
+			mWidthData = new WidthType[ mMaxPointsCount ];
+		}
+		catch( ... )
+		{
+			clear();
+			throw;
+		}
 	}
-	catch ( ... )
-	{
-		clear();
-		throw;
-	}
+	// Reset
+	mVerticesPointer = mVertices;
+	mIndicesPointer = mIndices;
+	mHairCount = 0;
+	mPointsCountPointer = mPointsCount;
 }
 
 inline void MayaOutputGenerator::endOutput()
 {
-	/* EMPTY */
+	rebuildVBO();
 }
 
 inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
@@ -297,58 +362,122 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
-	// Move position pointer
-	mPositionPointer += aPointsCount * 3; 
-	mColorPointer += aPointsCount * 3;
-	mOpacityPointer += aPointsCount * 3;
-	++mHairPointer; // Next hair pointer
-	// Remember index to data
-	*mHairPointer = static_cast< unsigned __int32 >( mPositionData - mPositionPointer );
+	// We will calculate triangles from hair points
+	for ( unsigned __int32 i = 0; i < aPointsCount; ++i )
+	{
+		// 2 points will be generated for each 1 point of hair
+		// Color of first point
+		*( mVerticesPointer++ ) = mColorData[ i * 3 ]; // R
+		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
+		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
+		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
+		// Position of first point
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ];
+		// Color of second point will be the same as first point
+		*( mVerticesPointer++ ) = mColorData[ i * 3 ]; // R
+		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
+		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
+		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
+		// Position of second point ( displaced in opposite direction )
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ];
+	}
+	// Calculate indices ( for each segment 2 )
+	GLuint startIndex = mIndicesPointer == mIndices ? 0 : *( mIndicesPointer - 1 ) + 1;
+	for ( unsigned __int32 i = 0; i < ( aPointsCount - 1 ); ++i )
+	{
+		// First triangle
+		*( mIndicesPointer++ ) = startIndex + 3;
+		*( mIndicesPointer++ ) = startIndex + 2;
+		*( mIndicesPointer++ ) = startIndex;
+		// Second triangle
+		*( mIndicesPointer++ ) = startIndex;
+		*( mIndicesPointer++ ) = startIndex + 1;
+		*( mIndicesPointer++ ) = startIndex + 3;
+		// Moves start index to next 2 vertices
+		startIndex += 2;
+	}
+	// Increase hair count
+	++mHairCount;
+	// Store points count
+	*( mPointsCountPointer++ ) = aPointsCount * 2; // 2 vertices for each original point
 }
 
-inline MayaTypes::PositionType * MayaOutputGenerator::positionPointer()
+inline bool MayaOutputGenerator::getDuplicateBorderPoints() const
 {
-	return mPositionPointer;
+	return false;
 }
 
-inline MayaTypes::ColorType * MayaOutputGenerator::colorPointer()
+inline MayaOutputGenerator::PositionType * MayaOutputGenerator::positionPointer()
 {
-	return mColorPointer;
+	return mPositionData;
 }
 
-inline MayaTypes::NormalType * MayaOutputGenerator::normalPointer()
+inline MayaOutputGenerator::ColorType * MayaOutputGenerator::colorPointer()
+{
+	return mColorData;
+}
+
+inline MayaOutputGenerator::NormalType * MayaOutputGenerator::normalPointer()
+{
+	return mNormalData;
+}
+
+inline MayaOutputGenerator::WidthType * MayaOutputGenerator::widthPointer()
+{
+	return mWidthData;
+}
+
+inline MayaOutputGenerator::OpacityType * MayaOutputGenerator::opacityPointer()
+{
+	return mOpacityData;
+}
+
+inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::hairUVCoordinatePointer()
 {
 	return 0; /* NOT SUPPORTED */
 }
 
-inline MayaTypes::WidthType * MayaOutputGenerator::widthPointer()
+inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::strandUVCoordinatePointer()
 {
 	return 0; /* NOT SUPPORTED */
 }
 
-inline MayaTypes::OpacityType * MayaOutputGenerator::opacityPointer()
-{
-	return mOpacityPointer;
-}
-
-inline MayaTypes::UVCoordinateType * MayaOutputGenerator::hairUVCoordinatePointer()
+inline MayaOutputGenerator::IndexType * MayaOutputGenerator::hairIndexPointer()
 {
 	return 0; /* NOT SUPPORTED */
 }
 
-inline MayaTypes::UVCoordinateType * MayaOutputGenerator::strandUVCoordinatePointer()
+inline MayaOutputGenerator::IndexType * MayaOutputGenerator::strandIndexPointer()
 {
 	return 0; /* NOT SUPPORTED */
 }
 
-inline MayaTypes::IndexType * MayaOutputGenerator::hairIndexPointer()
+inline void MayaOutputGenerator::rebuildVBO()
 {
-	return 0; /* NOT SUPPORTED */
+	// Upload vertices BO
+    GLExt::glGenBuffers( 1, &mVertexBO );
+    GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, mVertexBO );
+    GLExt::glBufferData( GL_ARRAY_BUFFER_ARB, ( mVerticesPointer - mVertices ) * sizeof( GLfloat ), 
+		mVertices, GL_STATIC_DRAW_ARB );
+
+	// Upload indices BO
+	GLExt::glGenBuffers( 1, &mIndexBO );
+    GLExt::glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBO );
+    GLExt::glBufferData( GL_ELEMENT_ARRAY_BUFFER_ARB, ( mIndicesPointer - mIndices ) * sizeof( GLuint ),
+		mIndices, GL_STATIC_DRAW_ARB );
 }
 
-inline MayaTypes::IndexType * MayaOutputGenerator::strandIndexPointer()
+inline void MayaOutputGenerator::killVBO()
 {
-	return 0; /* NOT SUPPORTED */
+	// Delete buffers
+	GLExt::glDeleteBuffers( 1, &mVertexBO );
+	GLExt::glDeleteBuffers( 1, &mIndexBO );
+	mVertexBO = 0;
+	mIndexBO = 0;
 }
 
 } // namespace Interpolation
