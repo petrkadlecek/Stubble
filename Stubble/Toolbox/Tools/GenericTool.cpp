@@ -1,6 +1,9 @@
 #include "GenericTool.hpp"
 #include "../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
+const char *toolScaleFlag = "-ts", *toolScaleLongFlag = "-toolScale";
+const char *brushModeChoiceFlag = "-bmc", *brushModeChoiceLongFlag = "-brushModeChoice";
+
 namespace Stubble
 {
 
@@ -35,6 +38,26 @@ ToolShape *GenericTool::getToolShape()
 int GenericTool::getToolScale()
 {
 	return mScale;
+}
+
+
+GenericToolCommand::GenericToolCommand()
+{
+}
+
+GenericToolCommand::~GenericToolCommand()
+{
+}
+
+MStatus	GenericToolCommand::appendSyntax()
+{
+	MSyntax syn = syntax();
+	
+	syn.addFlag( brushModeChoiceFlag, brushModeChoiceLongFlag, MSyntax::kLong );
+
+	syn.addFlag( toolScaleFlag, toolScaleLongFlag, MSyntax::kLong );
+
+	return MS::kSuccess;
 }
 
 } // namespace Toolbox

@@ -172,7 +172,7 @@ private:
 /// an instance of the Context class.
 ///----------------------------------------------------------------------------------------------------
 class BrushToolCommand : 
-	public MPxContextCommand
+	public GenericToolCommand
 {
 public:
 	///----------------------------------------------------------------------------------------------------
@@ -201,7 +201,6 @@ public:
 	// the methods that are necessary for the user interface to communicate with the internals
 	virtual	MStatus	doEditFlags();
 	virtual MStatus	doQueryFlags();
-	virtual MStatus	appendSyntax();
 
 	static const MString sCommandName;
 

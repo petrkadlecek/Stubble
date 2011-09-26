@@ -5,8 +5,13 @@
 #include "BrushTool.hpp"
 #include "../../../HairShape/UserInterface/HairShape.hpp"
 
-const char *toolScaleFlag = "-ts", *toolScaleLongFlag = "-toolScale";
-const char *brushModeChoiceFlag = "-bmc", *brushModeChoiceLongFlag = "-brushModeChoice";
+// parameters that can be passed from the UI,
+// inherited from GenericTool
+extern const char *toolScaleFlag;
+extern const char *toolScaleLongFlag;
+extern const char *brushModeChoiceFlag;
+extern const char *brushModeChoiceLongFlag;
+
 
 namespace Stubble
 {
@@ -76,16 +81,6 @@ MStatus	BrushToolCommand::doQueryFlags()
 	return MS::kSuccess;
 }
 
-MStatus	BrushToolCommand::appendSyntax()
-{
-	MSyntax syn = syntax();
-	
-	syn.addFlag( brushModeChoiceFlag, brushModeChoiceLongFlag, MSyntax::kLong );
-
-	syn.addFlag( toolScaleFlag, toolScaleLongFlag, MSyntax::kLong );
-
-	return MS::kSuccess;
-}
 
 //----------------------------------------------------------------------------------------------------
 // BrushTool

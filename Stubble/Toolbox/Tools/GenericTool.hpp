@@ -3,6 +3,7 @@
 
 #include <maya/M3dView.h>
 #include <maya/MPxContext.h>
+#include "maya/MPxContextCommand.h"
 #include "../ToolShapes/ToolShape.hpp"
 
 namespace Stubble
@@ -63,6 +64,32 @@ protected:
 
 	int mScale; ///< The scale of the tool (passed from the UI).
 };
+
+
+
+///----------------------------------------------------------------------------------------------------
+/// This class represents a simple mel command that will allow
+/// the user to enter a context for our tool. It simply has to return
+/// an instance of the Context class.
+///----------------------------------------------------------------------------------------------------
+class GenericToolCommand : 
+	public MPxContextCommand
+{
+public:
+	///----------------------------------------------------------------------------------------------------
+	/// Class constructor.
+	///----------------------------------------------------------------------------------------------------
+	GenericToolCommand();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Class destructor.
+	///----------------------------------------------------------------------------------------------------
+	virtual ~GenericToolCommand();
+
+	virtual MStatus	appendSyntax();
+};
+
+
 
 } // namespace Toolbox
 
