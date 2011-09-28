@@ -63,18 +63,19 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
+		// Apply scale to points 
+		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Get local to rest pose transform matrix
 		restPos.getWorldTransformMatrix( localToRest );
 		// Convert positions to rest pose world space
 		transformPoints( pointsPlusOne, ptsCountAfterCut, localToRest );
-		// Apply scale, frizz and kink to points 
-		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
+		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		applyKink( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Calculate rest pose world space to current world space transform
 		restPos.getLocalTransformMatrix( restToLocal );
 		currPos.getWorldTransformMatrix( localToCurr );
-		restToCurr = restToLocal * localToCurr;
+		restToCurr = localToCurr * restToLocal;
 		// Select hair color, opacity and width
 		selectHairColorOpacityWidth( restPos );
 		// Convert positions to current world space
@@ -223,14 +224,15 @@ inline typename HairGenerator< tPositionGenerator, tOutputGenerator >::Vector
 	calculateNormal( const Point * aPoints, const Vector * aTangents,
 		const Vector & aPreviousNormal )
 {
-	// The double reflection normal calculation
+	/*// The double reflection normal calculation
 	Vector v1 = *aPoints - *( aPoints - 1 );
 	NormalType c1 = v1.sizePwr2();
 	Vector rL = aPreviousNormal - v1 * ( 2 / c1 ) * ( Vector::dotProduct( v1, aPreviousNormal ) ); 
 	Vector tL = *( aTangents - 1 ) - v1 * ( 2 / c1 ) * ( Vector::dotProduct( v1, *( aTangents - 1 ) ) ); 
 	Vector v2 = *aTangents - tL;
 	NormalType c2 = v2.sizePwr2();
-	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) ); 
+	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) );*/
+	return aPreviousNormal;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -298,6 +300,7 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 							static_cast< NormalType >( aRestPosition.getTangent().z ) ); 
 	unsigned __int32 count = 0;
 	// Select parameter step and iteration end
+	--aCount; // Points count -> segments count
 	PositionType step = 1.0f / aCount;
 	bool iterationEnd = false;
 	// We have to ensure that cut procedure is only executed if needed
@@ -313,8 +316,8 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 			catmullRomEval( newPos, aPoints - 2, ( t - aCutFactor ) * aCount );
 			t = aCutFactor;
 			iterationEnd = true;
-			// Move current point & tangent to next
-			aTangents[ 1 ] = *aTangents;
+			// Move current point to next and calculate tangent
+			aTangents[ 1 ] = ( aPoints[ 2 ] - newPos ) * 0.5;
 			aPoints[ 1 ] = *aPoints;
 			// Set current point and calculate tangent
 			*aPoints = newPos;
@@ -330,12 +333,12 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 		// Begin output
 		// Output position
-		memcpy( reinterpret_cast< void * >( aPoints ), reinterpret_cast< const void * >( posOutIt ), 
+		memcpy( reinterpret_cast< void * >( posOutIt ), reinterpret_cast< const void * >( aPoints  ), 
 			sizeof( PositionType ) * 3 );
 		posOutIt += 3;
 		// Output normal
 		normal = calculateNormal( aPoints, aTangents, normal );
-		memcpy( reinterpret_cast< void * >( &normal ), reinterpret_cast< const void * >( normalOutIt ),
+		memcpy( reinterpret_cast< void * >( normalOutIt ), reinterpret_cast< const void * >( &normal ),
 				sizeof( NormalType ) * 3 );
 		normalOutIt += 3;
 		// Finally output color, opacity, width
@@ -348,7 +351,9 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Increase segments count
 		++count;
 	}
+
 	// Finally duplicates first & last hair points
+	count += 2;
 	copyToLastAndFirst< PositionType, 3 > ( mOutputGenerator.positionPointer(), count );
 	copyToLastAndFirst< NormalType, 3 > ( mOutputGenerator.normalPointer(), count );
 	copyToLastAndFirst< ColorType, 3 > ( mOutputGenerator.colorPointer(), count );

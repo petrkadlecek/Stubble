@@ -97,6 +97,7 @@ inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh )
 
 inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProperties )
 {
+	mPositionGenerator.reset();
 	mHairGenerator.generate( aHairProperties );
 }
 

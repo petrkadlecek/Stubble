@@ -102,6 +102,10 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void recalculateCurrentPositions( const MayaMesh & aCurrentMesh );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Resets returning generated values.
+	///-------------------------------------------------------------------------------------------------
+	inline void reset();
 private:
 
 	GeneratedPosition * mGeneratedPositions;	///< The generated positions
@@ -150,6 +154,11 @@ inline unsigned __int32 MayaPositionGenerator::getHairStartIndex() const
 inline const MayaPositionGenerator::GeneratedPosition * MayaPositionGenerator::getPreGeneratedPositions() const
 {
 	return mGeneratedPositions;
+}
+
+inline void MayaPositionGenerator::reset()
+{
+	mCurrentPosition = mGeneratedPositions;
 }
 
 } // namespace Interpolation
