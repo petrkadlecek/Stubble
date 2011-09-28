@@ -42,10 +42,44 @@ public:
 	
 private:
 
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the point.
+	///-------------------------------------------------------------------------------------------------
+	typedef Vector3D< typename tOutputGenerator::PositionType > Point;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the vector.
+	///-------------------------------------------------------------------------------------------------
+	typedef Vector3D< typename tOutputGenerator::NormalType > Normal;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the matrix .
+	///-------------------------------------------------------------------------------------------------
+	typedef Matrix< typename tOutputGenerator::PositionType > Matrix;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Applies the scale to hair points. 
+	///
+	/// \param [in,out]	aPoints	If non-null, a hair points. 
+	/// \param	aCount			Number of hair points. 
+	/// \param	aRestPosition	The rest position of hair. 
+	///-------------------------------------------------------------------------------------------------
+	inline void applyScale( Point * aPoints, unsigned __int32 aCount, const MeshPoint &aRestPosition );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Transforms points. 
+	///
+	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param	aCount				Number of points. 
+	/// \param	aTransformMatrix	The transform matrix. 
+	///-------------------------------------------------------------------------------------------------
+	inline void transformPoints( Point * aPoints, unsigned __int32 aCount, const Matrix & aTransformMatrix );
+
 	tPositionGenerator & mPositionGenerator;	///< The position generator
 
 	tOutputGenerator & mOutputGenerator;	///< The output generator
-		
+
+	const HairProperties * mHairProperties; ///< The hair properties
 };
 
 // inline functions implementation

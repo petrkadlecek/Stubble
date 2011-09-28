@@ -248,6 +248,8 @@ private:
 
 	MBoundingBox mBoundingBox; ///< The bounding box of our node
 
+	RandomGenerator mRandom;	///< The random generator
+
 	UVPointGenerator *mUVPointGenerator; ///< UV point generator
 
 	MayaMesh *mMayaMesh; ///< Maya mesh

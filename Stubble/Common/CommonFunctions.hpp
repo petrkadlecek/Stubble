@@ -25,6 +25,14 @@ inline Type clamp( Type value, Type min, Type max )
 	return value < min ? min : value > max ? max : value;
 }
 
+///-------------------------------------------------------------------------------------------------
+/// Gets an environment variable. 
+///
+/// \param	aVariableName	Name of a variable. 
+///
+/// \return	The environment variable value. 
+///-------------------------------------------------------------------------------------------------
+
 inline std::string getEnvironmentVariable( const char * aVariableName )
 {
 	char *pValue = 0;
@@ -38,6 +46,45 @@ inline std::string getEnvironmentVariable( const char * aVariableName )
 	std::string res( pValue );
 	free( pValue );
 	return res;
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Copies data from second entry to first, from last but one to last.
+///
+/// \typeparam	tCompounds	Number of the compounds for array entry. 
+/// \typeparam	tType		Type of the one compound in array entry. 
+/// \param [in,out]	aData	Array data. 
+/// \param	aCount			Number of entries in aData. 
+///-------------------------------------------------------------------------------------------------
+template< typename tType, unsigned __int32 tCompounds >
+inline void copyToLastAndFirst( tType * aData, unsigned __int32 aCount )
+{
+  // Second to first
+  memcpy( reinterpret_cast< void * >( aData ),
+          reinterpret_cast< const void * >( aData + tCompounds ),
+          sizeof( tType ) * tCompounds );
+  // Last but one to last
+  size_t jmp = tCompounds * ( aCount - 2 );
+  memcpy( reinterpret_cast< void * >( aData + jmp + tCompounds ),
+          reinterpret_cast< const void * >( aData + jmp ),
+          sizeof( tType ) * tCompounds ); 
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Copies data from second entry to first, from last but one to last. Works only for 1 compound 
+/// array entries.
+///
+/// \typeparam	tType		Type of the one entry in array. 
+/// \param [in,out]	aData	Array data. 
+/// \param	aCount			Number of entries in aData. 
+///-------------------------------------------------------------------------------------------------
+template< typename tType >
+inline void copyToLastAndFirst( tType * aData, unsigned __int32 aCount )
+{
+  // Second to first
+  *aData = *( aData + 1 );
+  // Last but one to last
+  *( aData + aCount - 1 ) = *( aData + aCount - 2 ); 
 }
 
 } // namespace Stubble

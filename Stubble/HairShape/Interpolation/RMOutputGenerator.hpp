@@ -373,7 +373,7 @@ inline RMTypes::ColorType * RMOutputGenerator::colorPointer()
 
 inline RMTypes::NormalType * RMOutputGenerator::normalPointer()
 {
-	return mOutputNormals ? mNormalDataPointer : 0;
+	return mNormalDataPointer;
 }
 
 inline RMTypes::WidthType * RMOutputGenerator::widthPointer()
@@ -440,15 +440,15 @@ inline void RMOutputGenerator::commit()
 	// Distinct different options
 	if ( mOutputNormals )
 	{
-		RiCurves( RI_CUBIC, hairCount, mSegmentsCount , RI_NONPERIODIC, RI_P, mPositionData, RI_CS, mColorData, 
-			RI_N, mNormalData, RI_WIDTH, mWidthData, HAIR_UV_COORDINATE_TOKEN, mHairUVCoordinateData, 
+		RiCurves( RI_CUBIC, hairCount, mSegmentsCount , RI_NONPERIODIC, RI_P, mPositionData, RI_CS, mColorData,
+			RI_OS, mOpacityData, RI_N, mNormalData, RI_WIDTH, mWidthData, HAIR_UV_COORDINATE_TOKEN, mHairUVCoordinateData, 
 			STRAND_UV_COORDINATE_TOKEN, mStrandUVCoordinateData, HAIR_INDEX_TOKEN, mHairIndexData, 
 			STRAND_INDEX_TOKEN, mStrandIndexData, RI_NULL );
 	}
 	else
 	{
 		RiCurves( RI_CUBIC, hairCount, mSegmentsCount , RI_NONPERIODIC, RI_P, mPositionData, RI_CS, mColorData, 
-			RI_WIDTH, mWidthData, HAIR_UV_COORDINATE_TOKEN, mHairUVCoordinateData, 
+			RI_OS, mOpacityData, RI_WIDTH, mWidthData, HAIR_UV_COORDINATE_TOKEN, mHairUVCoordinateData, 
 			STRAND_UV_COORDINATE_TOKEN, mStrandUVCoordinateData, HAIR_INDEX_TOKEN, mHairIndexData, 
 			STRAND_INDEX_TOKEN, mStrandIndexData, RI_NULL );
 	}

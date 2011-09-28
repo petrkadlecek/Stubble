@@ -242,9 +242,9 @@ inline void MeshPoint::getLocalTransformMatrix( Matrix< Real > & aLocalTransform
 	aLocalTransformMatrix[ 6  ] = mNormal.y;
 	aLocalTransformMatrix[ 10 ] = mNormal.z;
 	aLocalTransformMatrix[ 11 ] = 0;
-	aLocalTransformMatrix[ 12 ] = Vector3D< Real >::dotProduct( mPosition, mBinormal );
-	aLocalTransformMatrix[ 13 ] = Vector3D< Real >::dotProduct( mPosition, mTangent );
-	aLocalTransformMatrix[ 14 ] = Vector3D< Real >::dotProduct( mPosition, mNormal );
+	aLocalTransformMatrix[ 12 ] = - Vector3D< Real >::dotProduct( mPosition, mBinormal );
+	aLocalTransformMatrix[ 13 ] = - Vector3D< Real >::dotProduct( mPosition, mTangent );
+	aLocalTransformMatrix[ 14 ] = - Vector3D< Real >::dotProduct( mPosition, mNormal );
 	aLocalTransformMatrix[ 15 ] = 1;
 }
 

@@ -181,7 +181,7 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Draws outputed hair.
 	///-------------------------------------------------------------------------------------------------
-	void draw() const;
+	void draw();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Recalculates all hair positions data to local space. 
@@ -249,6 +249,8 @@ private:
 	GLuint mVertexBO;  ///< The vertex bo handle
 
 	GLuint mIndexBO;   ///< The index bo handle
+
+	bool mDirty;	///< true if VBO should be rebuild
 };
 
 // inline functions implementation
@@ -309,8 +311,7 @@ inline void MayaOutputGenerator::clear()
 
 inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
 {
-	// Old vbo is not necessary
-	killVBO();
+	mDirty = true;
 	// Memory is not sufficient
 	if ( mMaxPointsCount < aMaxPointsCount || aMaxHairCount > mMaxHairCount )
 	{
@@ -352,7 +353,7 @@ inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, un
 
 inline void MayaOutputGenerator::endOutput()
 {
-	rebuildVBO();
+	/* EMPTY */
 }
 
 inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
@@ -362,6 +363,8 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
+	// Width multiplier constant
+	const GLfloat wm = 0.05f;
 	// We will calculate triangles from hair points
 	for ( unsigned __int32 i = 0; i < aPointsCount; ++i )
 	{
@@ -372,18 +375,18 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
 		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
 		// Position of first point
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ];
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ];
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
 		// Color of second point will be the same as first point
 		*( mVerticesPointer++ ) = mColorData[ i * 3 ]; // R
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
 		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
 		// Position of second point ( displaced in opposite direction )
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ];
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ];
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ];
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
 	}
 	// Calculate indices ( for each segment 2 )
 	GLuint startIndex = mIndicesPointer == mIndices ? 0 : *( mIndicesPointer - 1 ) + 1;
@@ -458,6 +461,7 @@ inline MayaOutputGenerator::IndexType * MayaOutputGenerator::strandIndexPointer(
 
 inline void MayaOutputGenerator::rebuildVBO()
 {
+	killVBO(); // Kills old VBO
 	// Upload vertices BO
     GLExt::glGenBuffers( 1, &mVertexBO );
     GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, mVertexBO );
@@ -469,6 +473,7 @@ inline void MayaOutputGenerator::rebuildVBO()
     GLExt::glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, mIndexBO );
     GLExt::glBufferData( GL_ELEMENT_ARRAY_BUFFER_ARB, ( mIndicesPointer - mIndices ) * sizeof( GLuint ),
 		mIndices, GL_STATIC_DRAW_ARB );
+	mDirty = false;
 }
 
 inline void MayaOutputGenerator::killVBO()

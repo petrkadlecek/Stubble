@@ -294,6 +294,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	// Start generating positions
 	GuidesRestPositions::iterator restPosIt = tmpRestPositions.begin();
 	GuidesCurrentPositions::iterator currPosIt = mCurrentPositions.begin();
+	aUVPointGenerator.reset();
 	for ( unsigned __int32 i = 0; i < aCount; ++i, ++restPosIt, ++currPosIt )
 	{
 		// Generate rest pose position

@@ -297,7 +297,7 @@ MStatus MayaHairProperties::initializeAttributes()
 			-float_min, float_max );
 		addFloatAttribute( "frizz_anim_direction_Y", "adYfzz", frizzAnimDirectionYAttr, 1, -float_min, float_max, 
 			-float_min, float_max );
-		addFloatAttribute( "frizz_anim_direction_X", "adXfzz", frizzAnimDirectionXAttr, 1, -float_min, float_max, 
+		addFloatAttribute( "frizz_anim_direction_Z", "adXfzz", frizzAnimDirectionZAttr, 1, -float_min, float_max, 
 			-float_min, float_max );
 		addParentAttribute( "frizz_anim_direction", "adfzz", frizzAnimDirectionAttr, frizzAnimDirectionXAttr, 
 			frizzAnimDirectionYAttr, frizzAnimDirectionZAttr );

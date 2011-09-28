@@ -23,6 +23,7 @@ void MayaPositionGenerator::preGenerate( UVPointGenerator & aUVPointGenerator, c
 	mCurrentPosition = mGeneratedPositions;
 	// Iterates over all positions
 	const GeneratedPosition * endIteration = mGeneratedPositions + mCount;
+	aUVPointGenerator.reset();
 	for ( GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
 	{
 		it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos

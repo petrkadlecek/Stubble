@@ -184,7 +184,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	if ( aPlug == displayInterpolatedAttr ) // Interpolated have been hidden/shown
 	{
-		/*mDisplayInterpolated = aDataHandle.asBool(); TODO UNCOMMENT WHEN READY*/
+		mDisplayInterpolated = aDataHandle.asBool();
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
@@ -391,7 +391,7 @@ void HairShape::refreshTextures()
 		delete mUVPointGenerator;
 		delete mVoxelization;
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
-			mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 		// HairGuides reconstruction
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
@@ -441,7 +441,7 @@ void HairShape::meshChange( MObject aMeshObj )
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
-			mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 
 		// HairGuides construction
 		mHairGuides = new HairComponents::HairGuides();
@@ -469,7 +469,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			delete mUVPointGenerator;
 			delete mVoxelization;
 			mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
-				mMayaMesh->getRestPose().getTriangleConstIterator(), RandomGenerator());
+				mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 			mHairGuides->meshUpdate( *mMayaMesh, true );
 			refreshPointersToGuidesForInterpolation();
 			// Interpolated hair construction

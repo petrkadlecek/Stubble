@@ -39,6 +39,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	UVPoint next();
 
+	///-------------------------------------------------------------------------------------------------
+	/// Resets generator. 
+	///-------------------------------------------------------------------------------------------------
+	inline void reset();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets a triangle normalized density. 
 	///
@@ -161,14 +166,12 @@ private:
 inline UVPointGenerator::~UVPointGenerator()
 {
 }
+	
+inline void UVPointGenerator::reset()
+{
+	mRandomNumberGenerator.reset();
+}
 
-///----------------------------------------------------------------------------------------------------
-/// Gets a triangle density. 
-///
-/// \param	aID	Identifier for a triangle. 
-///
-/// \return	The triangle density. 
-///----------------------------------------------------------------------------------------------------
 inline Real UVPointGenerator::getTriangleDensity( unsigned __int32 aID ) const
 {
 	return mTrianglesPDF[ aID ];
