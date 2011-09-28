@@ -196,6 +196,7 @@
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\CatmullRomUtilities.hpp" />
     <ClInclude Include="Common\CommonConstants.hpp" />
     <ClInclude Include="Common\CommonFunctions.hpp" />
     <ClInclude Include="Common\CommonTypes.hpp" />

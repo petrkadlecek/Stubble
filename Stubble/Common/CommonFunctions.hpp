@@ -51,8 +51,6 @@ inline std::string getEnvironmentVariable( const char * aVariableName )
 ///-------------------------------------------------------------------------------------------------
 /// Copies data from second entry to first, from last but one to last.
 ///
-/// \typeparam	tCompounds	Number of the compounds for array entry. 
-/// \typeparam	tType		Type of the one compound in array entry. 
 /// \param [in,out]	aData	Array data. 
 /// \param	aCount			Number of entries in aData. 
 ///-------------------------------------------------------------------------------------------------
@@ -74,7 +72,6 @@ inline void copyToLastAndFirst( tType * aData, unsigned __int32 aCount )
 /// Copies data from second entry to first, from last but one to last. Works only for 1 compound 
 /// array entries.
 ///
-/// \typeparam	tType		Type of the one entry in array. 
 /// \param [in,out]	aData	Array data. 
 /// \param	aCount			Number of entries in aData. 
 ///-------------------------------------------------------------------------------------------------
@@ -85,6 +82,21 @@ inline void copyToLastAndFirst( tType * aData, unsigned __int32 aCount )
   *aData = *( aData + 1 );
   // Last but one to last
   *( aData + aCount - 1 ) = *( aData + aCount - 2 ); 
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Mix 2 colors. 
+///
+/// \param [in,out]	aResult	The result color. 
+/// \param	aColor1			The first color. 
+/// \param	aColor2			The second color. 
+///-------------------------------------------------------------------------------------------------
+template< typename tOutType, typename tInType1, typename tInType2 >
+inline void mixColor( tOutType * aResult, const tInType1 & aColor1, const tInType2 & aColor2 )
+{
+	aResult[ 0 ] = static_cast< tOutType >( aColor1[ 0 ] * aColor2[ 0 ] );
+	aResult[ 1 ] = static_cast< tOutType >( aColor1[ 1 ] * aColor2[ 1 ] );
+	aResult[ 2 ] = static_cast< tOutType >( aColor1[ 2 ] * aColor2[ 2 ] );
 }
 
 } // namespace Stubble

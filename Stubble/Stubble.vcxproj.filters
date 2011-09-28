@@ -381,6 +381,9 @@
     <ClInclude Include="Common\GLExtensions.hpp">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Common\CatmullRomUtilities.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MEL\StubbleBrushToolProperties.mel">

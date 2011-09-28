@@ -105,6 +105,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline Texture::Color getColorOfGroup( unsigned __int32 aGroupId ) const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the maximum segments count. 
+	///
+	/// \return	The maximum segments count. 
+	///-------------------------------------------------------------------------------------------------
+	inline unsigned __int32 getMaxSegmentsCount() const;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Export segments count to file. 
 	///
@@ -197,6 +204,22 @@ inline Texture::Color InterpolationGroups::getColorOfGroup( unsigned __int32 aGr
 {
 	return mInterpolationGroupsColors + aGroupId * mColorComponentCount;
 }
+
+inline unsigned __int32 InterpolationGroups::getMaxSegmentsCount() const
+{
+	unsigned __int32 max = 0;
+	// For every interpolation group
+	for ( InterpolationGroupsSegmentsCount::const_iterator it = mInterpolationGroupsSegmentsCount.begin();
+		it != mInterpolationGroupsSegmentsCount.end(); ++it )
+	{
+		if ( max < *it )
+		{
+			max = *it;
+		}
+	}
+	return max;
+}
+
 
 } // namespace Interpolation
 

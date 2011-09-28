@@ -101,19 +101,21 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	Vector3D< Real > toWorld( const Vector3D< Real > aLocalVector ) const;
 
-	///----------------------------------------------------------------------------------------------------
+	///-------------------------------------------------------------------------------------------------
 	/// Gets a local transform matrix. 
 	///
-	/// \param [out]	aLocalTransformMatrix	a local transform matrix. 
-	///----------------------------------------------------------------------------------------------------
-	inline void getLocalTransformMatrix( Matrix< Real > & aLocalTransformMatrix ) const;
+	/// \param [in,out]	aLocalTransformMatrix	a local transform matrix. 
+	///-------------------------------------------------------------------------------------------------
+	template< typename tMatrixType >
+	inline void getLocalTransformMatrix( Matrix< tMatrixType > & aLocalTransformMatrix ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets a world transform matrix. 
 	///
 	/// \param [out]	aWorldTransformMatrix	a world transform matrix. 
 	///----------------------------------------------------------------------------------------------------
-	inline void getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const;
+	template< typename tMatrixType >
+	inline void getWorldTransformMatrix( Matrix< tMatrixType > & aWorldTransformMatrix ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import position from stream. 
@@ -228,43 +230,45 @@ inline Real MeshPoint::getVCoordinate() const
 	return mVCoordinate;
 }
 
-inline void MeshPoint::getLocalTransformMatrix( Matrix< Real > & aLocalTransformMatrix ) const
+template< typename tMatrixType >
+inline void MeshPoint::getLocalTransformMatrix( Matrix< tMatrixType > & aLocalTransformMatrix ) const
 {
-	aLocalTransformMatrix[ 0  ] = mBinormal.x;
-	aLocalTransformMatrix[ 4  ] = mBinormal.y;
-	aLocalTransformMatrix[ 8  ] = mBinormal.z;
+	aLocalTransformMatrix[ 0  ] = static_cast< tMatrixType >( mBinormal.x );
+	aLocalTransformMatrix[ 4  ] = static_cast< tMatrixType >( mBinormal.y );
+	aLocalTransformMatrix[ 8  ] = static_cast< tMatrixType >( mBinormal.z );
 	aLocalTransformMatrix[ 3  ] = 0;
-	aLocalTransformMatrix[ 1  ] = mTangent.x;
-	aLocalTransformMatrix[ 5  ] = mTangent.y;
-	aLocalTransformMatrix[ 9  ] = mTangent.z;
+	aLocalTransformMatrix[ 1  ] = static_cast< tMatrixType >( mTangent.x );
+	aLocalTransformMatrix[ 5  ] = static_cast< tMatrixType >( mTangent.y );
+	aLocalTransformMatrix[ 9  ] = static_cast< tMatrixType >( mTangent.z );
 	aLocalTransformMatrix[ 7  ] = 0;
-	aLocalTransformMatrix[ 2  ] = mNormal.x;
-	aLocalTransformMatrix[ 6  ] = mNormal.y;
-	aLocalTransformMatrix[ 10 ] = mNormal.z;
+	aLocalTransformMatrix[ 2  ] = static_cast< tMatrixType >( mNormal.x );
+	aLocalTransformMatrix[ 6  ] = static_cast< tMatrixType >( mNormal.y );
+	aLocalTransformMatrix[ 10 ] = static_cast< tMatrixType >( mNormal.z );
 	aLocalTransformMatrix[ 11 ] = 0;
-	aLocalTransformMatrix[ 12 ] = - Vector3D< Real >::dotProduct( mPosition, mBinormal );
-	aLocalTransformMatrix[ 13 ] = - Vector3D< Real >::dotProduct( mPosition, mTangent );
-	aLocalTransformMatrix[ 14 ] = - Vector3D< Real >::dotProduct( mPosition, mNormal );
+	aLocalTransformMatrix[ 12 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mBinormal ) );
+	aLocalTransformMatrix[ 13 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mTangent ) );
+	aLocalTransformMatrix[ 14 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mNormal ) );
 	aLocalTransformMatrix[ 15 ] = 1;
 }
 
-inline void MeshPoint::getWorldTransformMatrix( Matrix< Real > & aWorldTransformMatrix ) const
+template< typename tMatrixType >
+inline void MeshPoint::getWorldTransformMatrix( Matrix< tMatrixType > & aWorldTransformMatrix ) const
 {
-	aWorldTransformMatrix[ 0  ] = mBinormal.x;
-	aWorldTransformMatrix[ 1  ] = mBinormal.y;
-	aWorldTransformMatrix[ 2  ] = mBinormal.z;
+	aWorldTransformMatrix[ 0  ] = static_cast< tMatrixType >( mBinormal.x );
+	aWorldTransformMatrix[ 1  ] = static_cast< tMatrixType >( mBinormal.y );
+	aWorldTransformMatrix[ 2  ] = static_cast< tMatrixType >( mBinormal.z );
 	aWorldTransformMatrix[ 3  ] = 0;
-	aWorldTransformMatrix[ 4  ] = mTangent.x;
-	aWorldTransformMatrix[ 5  ] = mTangent.y;
-	aWorldTransformMatrix[ 6  ] = mTangent.z;
+	aWorldTransformMatrix[ 4  ] = static_cast< tMatrixType >( mTangent.x );
+	aWorldTransformMatrix[ 5  ] = static_cast< tMatrixType >( mTangent.y );
+	aWorldTransformMatrix[ 6  ] = static_cast< tMatrixType >( mTangent.z );
 	aWorldTransformMatrix[ 7  ] = 0;
-	aWorldTransformMatrix[ 8  ] = mNormal.x;
-	aWorldTransformMatrix[ 9  ] = mNormal.y;
-	aWorldTransformMatrix[ 10 ] = mNormal.z;
+	aWorldTransformMatrix[ 8  ] = static_cast< tMatrixType >( mNormal.x );
+	aWorldTransformMatrix[ 9  ] = static_cast< tMatrixType >( mNormal.y );
+	aWorldTransformMatrix[ 10 ] = static_cast< tMatrixType >( mNormal.z );
 	aWorldTransformMatrix[ 11 ] = 0;
-	aWorldTransformMatrix[ 12 ] = mPosition.x;
-	aWorldTransformMatrix[ 13 ] = mPosition.y;
-	aWorldTransformMatrix[ 14 ] = mPosition.z;
+	aWorldTransformMatrix[ 12 ] = static_cast< tMatrixType >( mPosition.x );
+	aWorldTransformMatrix[ 13 ] = static_cast< tMatrixType >( mPosition.y );
+	aWorldTransformMatrix[ 14 ] = static_cast< tMatrixType >( mPosition.z );
 	aWorldTransformMatrix[ 15 ] = 1;
 }
 
