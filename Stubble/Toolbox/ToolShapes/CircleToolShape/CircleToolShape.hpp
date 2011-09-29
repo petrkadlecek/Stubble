@@ -27,10 +27,26 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Manages the tool shape drawing.
+	///
+	/// \param	aView	Viewport information
+	/// \param	aScreenCoords	Screen coordinates [x, y]
+	/// \param	aEventType	Info about the event that triggered draw
 	///----------------------------------------------------------------------------------------------------
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
+	///----------------------------------------------------------------------------------------------------
+	/// Manages tool shape attribute update - called whenever the user changes something in the UI
+	///
+	/// \param	aTool	Parent of this object.
+	///----------------------------------------------------------------------------------------------------
 	virtual void update( GenericTool *aTool );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns circle radius of the current tool.
+	/// 
+	/// \return Tool shape radius
+	///----------------------------------------------------------------------------------------------------
+	inline int getRadius() const;
 
 protected:
 
@@ -47,6 +63,11 @@ protected:
 
 	int mRadius; ///< The radius of the displayed circle (mRadius = mScale * mScaleFactor).
 };
+
+inline int CircleToolShape::getRadius() const
+{
+	return mRadius;
+}
 	
 } // namespace Toolbox
 
