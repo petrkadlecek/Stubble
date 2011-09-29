@@ -56,7 +56,7 @@ public:
 	///
 	/// \param		the selection mask. 
 	///----------------------------------------------------------------------------------------------------
-	void applySelection( const SelectionMask & aSelectionMask );
+	void applySelection( const SelectionMask & aSelectionMask ); //TODO: redo interface?
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the bounding box. 

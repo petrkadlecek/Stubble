@@ -135,7 +135,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		if ( 0 != task )
 		{
 			HairShape::HairComponents::SelectedGuides selectedGuides;
-			task->mParentHairShape->getSelectedGuidesUG().select(task->mToolShape, selectedGuides);
+			//task->mParentHairShape->getSelectedGuidesUG().select(task->mToolShape, selectedGuides);
 			
 			hairTaskProcessor->doBrush(selectedGuides, task->mDx, task->mBrushMode);
 			hairTaskProcessor->enforceConstraints(selectedGuides);

@@ -49,12 +49,25 @@ public:
 	void build( const SelectedGuides & aSelectedGuides, bool aFullBuild );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Selects the guides using rectangle
+	///
+	/// \param	aX	X screen coordinate of the top left corner
+	/// \param	aY	Y screen coordinate of the top right corner
+	/// \param	aW	Width of the rectangle
+	/// \param	aH	Height of the rectangle
+	/// \param	[in,out]	aResult	The selected guides.
+	///-------------------------------------------------------------------------------------------------
+	void select( short aX, short aY, short aW, short aH, SelectedGuides &aResult ) const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Selects the guides using selection mask. 
 	///
-	/// \param	aSelectionMask	the selection mask. 
-	/// \param [in,out]	aResult	the selected guides. 
+	/// \param	aSelectionMask	The selection mask. 
+	/// \param	aX	X screen coordinate of the selection mask
+	/// \param	aY	Y screen coordinate of the selection mask
+	/// \param	[in,out]	aResult	The selected guides.
 	///-------------------------------------------------------------------------------------------------
-	void select( const SelectionMask & aSelectionMask, SelectedGuides & aResult ) const;
+	void select( const Stubble::Toolbox::CircleToolShape &aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
@@ -70,6 +83,8 @@ public:
 
 private:
 	bool mDirtyBit; ///< true to dirty bit
+
+	SelectedGuides mStoredGuides; ///< Testing data storage, TODO: remove me
 };
 
 // inline functions implementation

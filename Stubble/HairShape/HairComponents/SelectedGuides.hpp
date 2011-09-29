@@ -6,6 +6,7 @@
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\Mesh\MeshPoint.hpp"
 #include "Toolbox\ToolShapes\ToolShape.hpp"
+#include "Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp"
 
 namespace Stubble
 {
