@@ -72,7 +72,7 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		transformPoints( pointsPlusOne, ptsCountAfterCut, localToRest );
 		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
-		applyKink( pointsPlusOne, ptsCountAfterCut, restPos );
+		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		// Calculate rest pose world space to current world space transform
 		restPos.getLocalTransformMatrix( restToLocal );
 		currPos.getWorldTransformMatrix( localToCurr );
@@ -153,7 +153,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 
 template< typename tPositionGenerator, typename tOutputGenerator >
 inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
-	applyKink( Point * aPoints, unsigned __int32 aCount, const MeshPoint &aRestPosition )
+	applyKink( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
+	const MeshPoint &aRestPosition )
 {
 	/* TODO */
 }
@@ -204,11 +205,37 @@ inline typename HairGenerator< tPositionGenerator, tOutputGenerator >::Vector
 
 template< typename tPositionGenerator, typename tOutputGenerator >
 inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
-	selectHairColorOpacityWidth( const MeshPoint &aRestPosition )
+	applyHueValueShift( ColorType * mColor, ColorType aValueShift, ColorType aHueShift )
+{
+	// Create tmp
+	ColorType tmp[ 3 ];
+	memcpy( reinterpret_cast< void * >( tmp ), reinterpret_cast< const void * >( mColor ), 
+			sizeof( ColorType ) * 3 );
+	// RGB -> HSV
+	RGBtoHSV( tmp, mColor );
+	// Apply hue shift
+	tmp[ 0 ] = circleValue( tmp[ 0 ] - aHueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 360 ) );
+	// Apply value shift
+	tmp[ 2 ] = circleValue( tmp[ 2 ] - aValueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 1 ) );
+	// HSV -> RGB
+	HSVtoRGB( mColor, tmp );
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	selectHairColorOpacityWidth( const MeshPoint & aRestPosition )
 {
 	// Store uv coordinates
 	const Real u = aRestPosition.getUCoordinate();
 	const Real v = aRestPosition.getVCoordinate();
+	// Calculate hue shift
+	Real hueVar = mHairProperties->getHueVariation() * 
+		mHairProperties->getHueVariationTexture().realAtUV( u, v ) * 0.5f;
+	ColorType hueShift = static_cast< ColorType >( mRandom.randomReal( -hueVar, hueVar ) );
+	// Calculate value shift
+	Real valueVar = mHairProperties->getValueVariation() * 
+		mHairProperties->getValueVariationTexture().realAtUV( u, v ) * 0.5f;
+	ColorType valueShift = static_cast< ColorType >( mRandom.randomReal( -valueVar, valueVar ) );
 	// Determine whether the hair is mutant
 	if ( mRandom.uniformNumber() < 
 		mHairProperties->getPercentMutantHair() * mHairProperties->getPercentMutantHairTexture().realAtUV( u, v ) )
@@ -216,6 +243,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Select mutant hair color as root color
 		mixColor( mRootColor, mHairProperties->getMutantHairColor(),
 			mHairProperties->getMutantHairColorTexture().colorAtUV( u, v ) );
+		// Applies hue-value shift
+		applyHueValueShift( mRootColor, valueShift, hueShift );
 		// Copy it to tip color
 		memcpy( reinterpret_cast< void * >( mTipColor ), reinterpret_cast< const void * >( mRootColor ), 
 			sizeof( ColorType ) * 3 );
@@ -228,6 +257,9 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Select tip color
 		mixColor( mTipColor, mHairProperties->getTipColor(),
 			mHairProperties->getTipColorTexture().colorAtUV( u, v ) );
+		// Applies hue-value shift
+		applyHueValueShift( mRootColor, valueShift, hueShift );
+		applyHueValueShift( mTipColor, valueShift, hueShift );
 	}
 	// Handle opacity
 	mRootOpacity[ 2 ] = mRootOpacity[ 1 ] = mRootOpacity[ 0 ] = static_cast< OpacityType >( 

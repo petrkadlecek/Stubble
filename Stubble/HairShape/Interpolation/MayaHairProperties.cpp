@@ -271,9 +271,9 @@ MStatus MayaHairProperties::initializeAttributes()
 		addColorAttribute( "tip_color_texture", "tcoltxt", tipColorTextureAttr, 1, 1, 1);
 		addColorAttribute( "tip_color", "tcol", tipColorAttr, 1, 1, 1);
 		addFloatAttribute( "hue_variation_texture", "huetxt", hueVariationTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "hue_variation", "hue", hueVariationAttr, 0, 0, 100, 0, 100 );
+		addFloatAttribute( "hue_variation", "hue", hueVariationAttr, 0, 0, 360, 0, 360 );
 		addFloatAttribute( "value_variation_texture", "valuetxt", valueVariationTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "value_variation", "value", valueVariationAttr, 0, 0, 100, 0, 100 );
+		addFloatAttribute( "value_variation", "value", valueVariationAttr, 0, 0, 1, 0, 1 );
 		addColorAttribute( "mutant_hair_color_texture", "mcoltxt", mutantHairColorTextureAttr, 1, 1, 1);
 		addColorAttribute( "mutant_hair_color", "mcol", mutantHairColorAttr, 1, 1, 1);
 		addFloatAttribute( "percent_mutant_hair_texture", "pmhtxt", percentMutantHairTextureAttr, 1, 0, 1, 0, 1 );

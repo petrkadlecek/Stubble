@@ -109,13 +109,6 @@ public:
 	inline void endHair( unsigned __int32 aPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Return true, if hair generator should duplicate border points (root, tip)
-	///
-	/// \return	false, MayaOutputGenerator does not require border points duplication.
-	///-------------------------------------------------------------------------------------------------
-	inline bool getDuplicateBorderPoints() const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
 	///
 	/// \return	null if it fails, else return position pointer. 
@@ -151,30 +144,30 @@ public:
 	inline OpacityType * opacityPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Hair uv coordinates are not supported. 
+	/// Gets the ignored pointer. Hair uv coordinates are not supported. 
 	///
-	/// \return	null
+	/// \return	pointer to ignored variable
 	///-------------------------------------------------------------------------------------------------
 	inline UVCoordinateType * hairUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Strand uv coordinate are not supported. 
+	/// Gets the ignored pointer. Strand uv coordinate are not supported. 
 	///
-	/// \return	null
+	/// \return	pointer to ignored variable
 	///-------------------------------------------------------------------------------------------------
 	inline UVCoordinateType * strandUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Hair indices are not supported. 
+	/// Gets the ignored pointer. Hair indices are not supported. 
 	///
-	/// \return	null
+	/// \return	pointer to ignored variable
 	///-------------------------------------------------------------------------------------------------
 	inline IndexType * hairIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the null pointer. Strand indices are not supported. 
+	/// Gets the ignored pointer. Strand indices are not supported. 
 	///
-	/// \return	null
+	/// \return	pointer to ignored variable
 	///-------------------------------------------------------------------------------------------------
 	inline IndexType * strandIndexPointer();
 
@@ -235,6 +228,10 @@ private:
 	MayaTypes::NormalType * mNormalData; ///< Information describing a normals of the hair points
 
 	MayaTypes::WidthType * mWidthData;  ///< Information describing the width of the hair
+
+	MayaTypes::IndexType mTmpIndex; ///< Temporary variable for storing outputed index ( ignored during render )
+
+	MayaTypes::UVCoordinateType mTmpUV; ///< Temporary variable for storing outputed uv coord ( ignored during render )
 
 	/* GL structures */
 
@@ -409,11 +406,6 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 	*( mPointsCountPointer++ ) = aPointsCount * 2; // 2 vertices for each original point
 }
 
-inline bool MayaOutputGenerator::getDuplicateBorderPoints() const
-{
-	return false;
-}
-
 inline MayaOutputGenerator::PositionType * MayaOutputGenerator::positionPointer()
 {
 	return mPositionData;
@@ -441,22 +433,22 @@ inline MayaOutputGenerator::OpacityType * MayaOutputGenerator::opacityPointer()
 
 inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::hairUVCoordinatePointer()
 {
-	return 0; /* NOT SUPPORTED */
+	return &mTmpUV; /* NOT SUPPORTED */
 }
 
 inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::strandUVCoordinatePointer()
 {
-	return 0; /* NOT SUPPORTED */
+	return &mTmpUV; /* NOT SUPPORTED */
 }
 
 inline MayaOutputGenerator::IndexType * MayaOutputGenerator::hairIndexPointer()
 {
-	return 0; /* NOT SUPPORTED */
+	return &mTmpIndex; /* NOT SUPPORTED */
 }
 
 inline MayaOutputGenerator::IndexType * MayaOutputGenerator::strandIndexPointer()
 {
-	return 0; /* NOT SUPPORTED */
+	return &mTmpIndex; /* NOT SUPPORTED */
 }
 
 inline void MayaOutputGenerator::rebuildVBO()

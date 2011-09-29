@@ -58,13 +58,6 @@ public:
 	inline void endHair( unsigned __int32 aPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Return true, if hair generator should duplicate border points (root, tip)
-	///
-	/// \return	true if border points should be duplicated
-	///-------------------------------------------------------------------------------------------------
-	inline bool getDuplicateBorderPoints() const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
 	///
 	/// \return	null if positions are not supported, else return position pointer. 
@@ -162,12 +155,6 @@ inline void OutputGenerator< tOutputGeneratorTypes >::endHair
 	( unsigned __int32 aPointsCount )
 {
 	throw StubbleException( "OutputGenerator::endHair : this method is not implemented !" ); 
-}
-
-template< typename tOutputGeneratorTypes >
-inline bool OutputGenerator< tOutputGeneratorTypes >::getDuplicateBorderPoints() const
-{
-	throw StubbleException( "OutputGenerator::getDuplicateBorderPoints : this method is not implemented !" ); 
 }
 
 template< typename tOutputGeneratorTypes >

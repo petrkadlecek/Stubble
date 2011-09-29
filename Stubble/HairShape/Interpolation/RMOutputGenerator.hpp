@@ -114,13 +114,6 @@ public:
 	inline void endHair( unsigned __int32 aPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Return true, if hair generator should duplicate border points (root, tip)
-	///
-	/// \return	true, RMOutputGenerator always requires border points duplication.
-	///-------------------------------------------------------------------------------------------------
-	inline bool getDuplicateBorderPoints() const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
 	///
 	/// \return	null if it fails, else return position pointer. 
@@ -354,11 +347,6 @@ inline void RMOutputGenerator::endHair( unsigned __int32 aPointsCount )
 	++mSegmentsCountPointer; 
 	// Increase current size
 
-}
-
-inline bool RMOutputGenerator::getDuplicateBorderPoints() const
-{
-	return true;
 }
 
 inline RMTypes::PositionType * RMOutputGenerator::positionPointer()

@@ -25,6 +25,21 @@ inline Type clamp( Type value, Type min, Type max )
 	return value < min ? min : value > max ? max : value;
 }
 
+///----------------------------------------------------------------------------------------------------
+/// Circle the given value around min, max interval.
+///
+/// \param	value	The value. 
+/// \param	min		The minimum. 
+/// \param	max		The maximum. 
+///
+/// \return	circled value. 
+///----------------------------------------------------------------------------------------------------
+template < typename Type >
+inline Type circleValue( Type value, Type min, Type max )
+{
+	return value < min ? max - ( min - value ) : value > max ? ( value - max ) + min : value;
+}
+
 ///-------------------------------------------------------------------------------------------------
 /// Gets an environment variable. 
 ///
@@ -142,9 +157,9 @@ inline void RGBtoHSV( tType * aHSV, const tType * aRGB )
 	}
 	// Normalize value to 1
 	tType valueInverse = 1 / aHSV[ 2 ];
-	aRGB[ 0 ] *= valueInverse;
-	aRGB[ 1 ] *= valueInverse;
-	aRGB[ 2 ] *= valueInverse;
+	rgb_r *= valueInverse;
+	rgb_g *= valueInverse;
+	rgb_b *= valueInverse;
 	rgb_min = MIN3( rgb_r, rgb_g, rgb_b );
 	rgb_max = MAX3( rgb_r, rgb_g, rgb_b );
 	// Compute saturation
@@ -164,23 +179,24 @@ inline void RGBtoHSV( tType * aHSV, const tType * aRGB )
 	// Compute hue
 	if ( rgb_max == rgb_r ) 
 	{
-		aHSV[ 0 ] = 0.0 + 60.0 * ( rgb_g - rgb_b );
-		if ( aHSV[ 0 ] < 0.0 ) 
+		aHSV[ 0 ] = 0 + 60 * ( rgb_g - rgb_b );
+		if ( aHSV[ 0 ] < 0 ) 
 		{
-			aHSV[ 0 ] += 360.0;
+			aHSV[ 0 ] += 360;
 		}
 	} 
 	else 
 	{
 		if ( rgb_max == rgb_g ) 
 		{
-			aHSV[ 0 ] = 120.0 + 60.0 * ( rgb_b - rgb_r );
+			aHSV[ 0 ] = 120 + 60 * ( rgb_b - rgb_r );
+		}
+		else // rgb_max == rgb_b 
+		{
+			aHSV[ 0 ] = 240 + 60 * ( rgb_r - rgb_g );
 		}
 	} 
-	else // rgb_max == rgb_b 
-	{
-		aHSV[ 0 ] = 240.0 + 60.0 * ( rgb_r - rgb_g );
-	}
+	
 }
 
 ///-------------------------------------------------------------------------------------------------
@@ -192,9 +208,21 @@ inline void RGBtoHSV( tType * aHSV, const tType * aRGB )
 template< typename tType >
 inline void HSVtoRGB( tType * aRGB, const tType * aHSV )
 {
-	/* TODO */
+	unsigned __int8 hi = static_cast< unsigned __int8 >( std::floor( aHSV[ 0 ] / 60 ) ) % 6;
+	tType f = aHSV[ 0 ] / 60 - hi;
+	tType p = aHSV[ 2 ] * ( 1 - aHSV[ 1 ] );
+	tType q = aHSV[ 2 ] * ( 1 - f * aHSV[ 1 ] );
+	tType t = aHSV[ 2 ] * ( 1 - ( 1 - f ) * aHSV[ 1 ] );
+	switch( hi )
+	{
+		case 0 : aRGB[ 0 ] = aHSV[ 2 ]; aRGB[ 1 ] = t; aRGB[ 2 ] = p; break;
+		case 1 : aRGB[ 0 ] = q; aRGB[ 1 ] = aHSV[ 2 ]; aRGB[ 2 ] = p; break;
+		case 2 : aRGB[ 0 ] = p; aRGB[ 1 ] = aHSV[ 2 ]; aRGB[ 2 ] = t; break;
+		case 3 : aRGB[ 0 ] = p; aRGB[ 1 ] = q; aRGB[ 2 ] = aHSV[ 2 ]; break;
+		case 4 : aRGB[ 0 ] = t; aRGB[ 1 ] = p; aRGB[ 2 ] = aHSV[ 2 ]; break;
+		case 5 : aRGB[ 0 ] = aHSV[ 2 ]; aRGB[ 1 ] = p; aRGB[ 2 ] = q; break;
+	}
 }
-
 
 } // namespace Stubble
 

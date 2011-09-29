@@ -129,11 +129,13 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the kink to hair points. 
 	///
-	/// \param [in,out]	aPoints	If non-null, a hair points. 
-	/// \param	aCount			Number of hair points. 
-	/// \param	aRestPosition	The rest position of hair. 
+	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param	aCount				Number of points. 
+	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
+	/// \param	aRestPosition		The rest position of hair. 
 	///-------------------------------------------------------------------------------------------------
-	inline void applyKink( Point * aPoints, unsigned __int32 aCount, const MeshPoint &aRestPosition );
+	inline void applyKink( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
+		const MeshPoint &aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Transforms points. 
@@ -167,11 +169,20 @@ private:
 		const Vector & aPreviousNormal );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Applies the hue value shift described to selected color in RGB. 
+	///
+	/// \param [in,out]	mColor	Selected color in RGB, will be shifted. 
+	/// \param	aValueShift		The value shift of color.
+	/// \param	aHueShift		The hue shift of color.
+	///-------------------------------------------------------------------------------------------------
+	inline void applyHueValueShift( ColorType * mColor, ColorType aValueShift, ColorType aHueShift );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Select hair color, opacity and width. Result is stored in HairGenerator object variables.
 	///
-	/// \param	aRestPosition	The rest position. 
+	/// \param	aRestPosition	The rest position of hair. 
 	///-------------------------------------------------------------------------------------------------
-	inline void selectHairColorOpacityWidth( const MeshPoint &aRestPosition );
+	inline void selectHairColorOpacityWidth( const MeshPoint & aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Skips point if it is not necessary to output it ( it can be interpolated in render from
