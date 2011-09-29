@@ -45,7 +45,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		MeshPoint restPos;
 		mPositionGenerator.generate( currPos, restPos );
 		// Determine cut factor
-		PositionType cutFactor = aHairProperties.getCutTexture().realAtUV( restPos.getUCoordinate(), restPos.getVCoordinate() );
+		PositionType cutFactor = static_cast< PositionType >( 
+			aHairProperties.getCutTexture().realAtUV( restPos.getUCoordinate(), restPos.getVCoordinate() ) );
 		if ( cutFactor == 0 )
 		{
 			continue; // The hair has been cut at root
@@ -103,42 +104,6 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 			// End hair generation
 			mOutputGenerator.endHair( pointsCount );
 		}
-		/*// Begin hair
-		mOutputGenerator.beginHair( segc );
-		// Prepare iterators
-		typename tOutputGenerator::PositionType * tp = mOutputGenerator.positionPointer();
-		typename tOutputGenerator::NormalType * np = mOutputGenerator.normalPointer();
-		typename tOutputGenerator::ColorType * cp = mOutputGenerator.colorPointer();
-		typename tOutputGenerator::OpacityType * op = mOutputGenerator.opacityPointer();
-		typename tOutputGenerator::WidthType * wp = mOutputGenerator.widthPointer();
-		Real z = 0;
-		Stubble::Matrix< Real > transform;
-		currPos.getWorldTransformMatrix( transform );
-		for ( unsigned __int32 j = 0; j < segc; ++j )
-		{
-			// Handle positions
-			Vector3D< Real > seg = Vector3D< Real >( 0, 0, z ).transformAsPoint( transform );
-			*(tp++) = static_cast< typename tOutputGenerator::PositionType >( seg.x );
-			*(tp++) = static_cast< typename tOutputGenerator::PositionType >( seg.y );
-			*(tp++) = static_cast< typename tOutputGenerator::PositionType >( seg.z );
-			z += 0.5f;
-			// Handle color
-			*(cp++) = static_cast< typename tOutputGenerator::ColorType >( 1.0f );
-			*(cp++) = static_cast< typename tOutputGenerator::ColorType >( 0.0f );
-			*(cp++) = static_cast< typename tOutputGenerator::ColorType >( 0.0f );
-			// Handle opacity
-			*(op++) = static_cast< typename tOutputGenerator::OpacityType >( 0.5f );
-			*(op++) = static_cast< typename tOutputGenerator::OpacityType >( 0.5f );
-			*(op++) = static_cast< typename tOutputGenerator::OpacityType >( 0.5f );
-			// Handle widths
-			*(wp++) = 0.075f;
-			// Handle normals
-			Vector3D< Real > n = Vector3D< Real >( 1, 0, 0 ).transformAsPoint( transform );
-			*(np++) = static_cast< typename tOutputGenerator::NormalType >( n.x );
-			*(np++) = static_cast< typename tOutputGenerator::NormalType >( n.y );
-			*(np++) = static_cast< typename tOutputGenerator::NormalType >( n.z );
-		}
-		mOutputGenerator.endHair( segc );*/
 	}
 	mOutputGenerator.endOutput();
 	// Release memory of local buffers
@@ -165,10 +130,12 @@ template< typename tPositionGenerator, typename tOutputGenerator >
 inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	applyScale( Point * aPoints, unsigned __int32 aCount, const MeshPoint &aRestPosition )
 {
-	// Get the scale factor
+	// Get the scale factor = scale * scaleTexture * ( 1 - randScale * randScaleTexture * random )
 	PositionType scale = static_cast< PositionType >( 
 		mHairProperties->getScale() * mHairProperties->getScaleTexture().
-		realAtUV( aRestPosition.getUCoordinate(), aRestPosition.getVCoordinate() ) );
+		realAtUV( aRestPosition.getUCoordinate(), aRestPosition.getVCoordinate() ) *
+		( 1 - mHairProperties->getRandScale() * mHairProperties->getRandScaleTexture().
+		realAtUV( aRestPosition.getUCoordinate(), aRestPosition.getVCoordinate() ) * mRandom.uniformNumber() ) );
 	// Scale every point
 	for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
 	{
@@ -224,15 +191,15 @@ inline typename HairGenerator< tPositionGenerator, tOutputGenerator >::Vector
 	calculateNormal( const Point * aPoints, const Vector * aTangents,
 		const Vector & aPreviousNormal )
 {
-	/*// The double reflection normal calculation
+	// The double reflection normal calculation
 	Vector v1 = *aPoints - *( aPoints - 1 );
 	NormalType c1 = v1.sizePwr2();
 	Vector rL = aPreviousNormal - v1 * ( 2 / c1 ) * ( Vector::dotProduct( v1, aPreviousNormal ) ); 
 	Vector tL = *( aTangents - 1 ) - v1 * ( 2 / c1 ) * ( Vector::dotProduct( v1, *( aTangents - 1 ) ) ); 
 	Vector v2 = *aTangents - tL;
 	NormalType c2 = v2.sizePwr2();
-	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) );*/
-	return aPreviousNormal;
+	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) );
+	//return aPreviousNormal;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -313,7 +280,7 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		{
 			// Calculate new point position
 			Point newPos;
-			catmullRomEval( newPos, aPoints - 2, ( t - aCutFactor ) * aCount );
+			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
 			t = aCutFactor;
 			iterationEnd = true;
 			// Move current point to next and calculate tangent
@@ -337,7 +304,10 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 			sizeof( PositionType ) * 3 );
 		posOutIt += 3;
 		// Output normal
-		normal = calculateNormal( aPoints, aTangents, normal );
+		if ( t != 0 )
+		{
+			normal = calculateNormal( aPoints, aTangents, normal );
+		}
 		memcpy( reinterpret_cast< void * >( normalOutIt ), reinterpret_cast< const void * >( &normal ),
 				sizeof( NormalType ) * 3 );
 		normalOutIt += 3;

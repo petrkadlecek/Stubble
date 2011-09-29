@@ -15,6 +15,9 @@ void MayaOutputGenerator::draw()
 	{
 		rebuildVBO();
 	}
+	// Enable blending
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	// Bind vertex buffer 
 	GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, mVertexBO ); // For vertices data
 	// Enable vertex arrays
@@ -29,6 +32,8 @@ void MayaOutputGenerator::draw()
 	// Disable vertex arrays
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
+	// Disable blending
+	glEnable( GL_BLEND );
 	// Unbind buffers
 	GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, 0 ); // For vertices data
 	GLExt::glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 ); // For indices data

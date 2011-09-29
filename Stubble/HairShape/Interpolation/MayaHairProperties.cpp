@@ -341,6 +341,7 @@ MStatus MayaHairProperties::initializeAttributes()
 void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
 		bool & aSegmentsCountChanged, bool & aHairPropertiesChanged )
 {
+	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	aSegmentsCountChanged = aHairPropertiesChanged = false;
 	if ( aPlug == segmentsCountAttr )
 	{
@@ -353,7 +354,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		// TODO uncomment when resample works mDensityTexture->setDirty();
 		return;
 	}
-	if ( aPlug == interpolationGroupsTextureAttr )
+	if ( aPlug == interpolationGroupsTextureAttr || root == interpolationGroupsTextureAttr )
 	{
 		// TODO uncomment when resample works mInterpolationGroupsTexture->setDirty();
 		return;
@@ -546,7 +547,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		aHairPropertiesChanged = true;
 		return;
 	}
-	if ( aPlug == mutantHairColorTextureAttr )
+	if ( aPlug == mutantHairColorTextureAttr || root == mutantHairColorTextureAttr )
 	{
 		mMutantHairColorTexture->setDirty();
 		return;
@@ -603,7 +604,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		aHairPropertiesChanged = true;
 		return;
 	}
-	if ( aPlug == rootColorTextureAttr )
+	if ( aPlug == rootColorTextureAttr || root == rootColorTextureAttr )
 	{
 		mRootColorTexture->setDirty();
 		return;
@@ -682,7 +683,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		aHairPropertiesChanged = true;
 		return;
 	}
-	if ( aPlug == tipColorTextureAttr )
+	if ( aPlug == tipColorTextureAttr || root == tipColorTextureAttr  )
 	{
 		mTipColorTexture->setDirty();
 		return;
