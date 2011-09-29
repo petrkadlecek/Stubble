@@ -557,7 +557,7 @@ template < typename Type >
 inline Vector3D< Type > Vector3D< Type >::transformPoint( const Vector3D & aPoint, 
 	const Matrix< Type > & aTransformMatrix )
 {
-	Vector3D p( aVector );
+	Vector3D p( aPoint );
 	return p.transformAsPoint( aTransformMatrix );
 }
 
