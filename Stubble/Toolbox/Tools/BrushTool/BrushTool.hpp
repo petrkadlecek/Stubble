@@ -5,6 +5,9 @@
 #include <maya/MGlobal.h>
 #include <maya/MPxContext.h>
 #include <maya/MPxContextCommand.h>
+#include <maya/MCursor.h>
+#include <maya/MFnCamera.h>
+#include <maya/MDagPath.h>
 
 #include <maya/MQtUtil.h>
 #include <QtCore/QPointer>
@@ -13,6 +16,8 @@
 #include <QtGui/QMouseEvent>
 
 #include "../../../Primitives/Vector3D.hpp"
+
+#include "../../../HairShape/UserInterface/HairShape.hpp"
 
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
@@ -126,6 +131,12 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	void changeBrushMode();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Takes currently selected guides and filters them against current hair shape. Stores it inside
+	/// mAffectedGuides for further processing.
+	///----------------------------------------------------------------------------------------------------
+	void filterAffectedGuides();
+
 	virtual void changeToolShape();
 
 	float mSensitivity; ///< Brush sensitivity.
@@ -158,7 +169,10 @@ private:
 	MGlobal::MSelectionMode mPrevSelMode; ///< Previous selection mode, used when undoing the command.
 	
 	MSelectionMask mPrevCompMask; ///< Previous component selection mask, used when undoing the command.
+
 	MSelectionMask mPrevObjMask; ///< Previous object selection mask, used when undoing the command.
+
+	Stubble::HairShape::HairComponents::SelectedGuides mAffectedGuides; ///< Guides currently affected by present operation
 
 	int mClickBoxSize; ///< GUI click box size.
 

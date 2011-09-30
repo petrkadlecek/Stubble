@@ -19,16 +19,20 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 struct HairTask
 {
-	inline HairTask (HairShape::HairShape *aParentHairShape, ToolShape *aToolShape, BrushMode *aBrushMode, const Vector3D< double > &aDx);
+	inline HairTask (HairShape::HairShape *aParentHairShape, HairShape::HairComponents::SelectedGuides *aAffectedGuides,
+		ToolShape *aToolShape, BrushMode *aBrushMode, const Vector3D< double > &aDx);
 
 	HairShape::HairShape *mParentHairShape; ///< The fluffy object the changes will be made upon
+	HairShape::HairComponents::SelectedGuides *mAffectedGuides; ///< Selection of guides affected by this operation
 	ToolShape *mToolShape; ///< Tool shape for selecting guides affected by this operation
 	BrushMode *mBrushMode; ///< Brush state containing the brush operation method - points to an effective singleton, no deletion takes place!
 	Vector3D< double > mDx; ///< Cursor change projected into the eye coordinates
 };
 
-inline HairTask::HairTask (HairShape::HairShape *aParentHairShape, ToolShape *aToolShape, BrushMode *aBrushMode, const Vector3D< double > &aDx) :
+inline HairTask::HairTask (HairShape::HairShape *aParentHairShape, HairShape::HairComponents::SelectedGuides *aAffectedGuides,
+	ToolShape *aToolShape, BrushMode *aBrushMode, const Vector3D< double > &aDx) :
 	mParentHairShape(aParentHairShape),
+	mAffectedGuides(aAffectedGuides),
 	mToolShape(aToolShape),
 	mBrushMode(aBrushMode),
 	mDx(aDx)

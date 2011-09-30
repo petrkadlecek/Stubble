@@ -67,7 +67,7 @@ public:
 	/// \param	aY	Y screen coordinate of the selection mask
 	/// \param	[in,out]	aResult	The selected guides.
 	///-------------------------------------------------------------------------------------------------
-	void select( const Stubble::Toolbox::CircleToolShape &aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const;
+	void select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 

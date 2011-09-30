@@ -1,9 +1,4 @@
-#include <maya/MCursor.h>
-#include <maya/MFnCamera.h>
-#include <maya/MDagPath.h>
-
 #include "BrushTool.hpp"
-#include "../../../HairShape/UserInterface/HairShape.hpp"
 
 // parameters that can be passed from the UI,
 // inherited from GenericTool
@@ -188,6 +183,8 @@ MStatus BrushTool::doPress( MEvent &event )
 			mEndPos[ 0 ] = mPrevPos[ 0 ] = mStartPos[ 0 ];
 			mEndPos[ 1 ] = mPrevPos[ 1 ] = mStartPos[ 1 ];
 
+			filterAffectedGuides();
+
 			return MS::kSuccess;
 		}
 	}
@@ -266,8 +263,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	MVector moveVector = ratio * aDX.x * right + ratio * aDX.y * up;
 
 	// Create the hair task
-	HairTask *task = new HairTask(activeHairShape, this->mShape, this->mBrushMode, moveVector);
-
+	HairTask *task = new HairTask(activeHairShape, &mAffectedGuides, mShape, mBrushMode, moveVector);
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
 
@@ -305,6 +301,18 @@ void BrushTool::changeBrushMode()
 		mBrushMode = &BrushTool::sTranslateBrushMode;
 		mBrushModeChoice = 1;
 	}
+}
+
+void BrushTool::filterAffectedGuides()
+{
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 == activeHairShape )
+	{
+		return;
+	}
+
+	//FIXME: remove dynamic_cast - do it somehow better
+	activeHairShape->getSelectedGuidesUG().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
 }
 
 void BrushTool::changeToolShape()

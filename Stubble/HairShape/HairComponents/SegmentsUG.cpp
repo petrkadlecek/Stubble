@@ -105,7 +105,7 @@ void SegmentsUG::select( short aX, short aY, short aW, short aH, SelectedGuides 
 	// ------------------------------------------
 }
 
-void SegmentsUG::select( const Stubble::Toolbox::CircleToolShape &aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
+void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
 {
 	// ------------------------------------------
 	//TODO: rewrite testing code with actual code
@@ -134,7 +134,7 @@ void SegmentsUG::select( const Stubble::Toolbox::CircleToolShape &aSelectionMask
 			short dx = aX - px;
 			short dy = aY - py;
 			float distSq = dx * dx + dy * dy;
-			float radiusSq = aSelectionMask.getRadius() * aSelectionMask.getRadius();
+			float radiusSq = aSelectionMask->getRadius() * aSelectionMask->getRadius();
 
 			if (distSq <= radiusSq)
 			{
