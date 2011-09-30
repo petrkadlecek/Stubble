@@ -7,6 +7,7 @@
 #include "HairGenerator.hpp"
 
 #include <cmath>
+#include <rx.h>
 
 namespace Stubble
 {
@@ -32,7 +33,7 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 	Vector * tangents = new Vector[ maxPointsCount ];
 	Vector * tangentsPlusOne = tangents + 1; 
 	// Prepare matrices
-	Matrix localToRest, restToCurr, localToCurr, restToLocal;
+	Matrix localToCurr;//localToRest, restToCurr, localToCurr, restToLocal;
 	// Resets random generator
 	mRandom.reset();
 	// Start output
@@ -67,20 +68,20 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Get local to rest pose transform matrix
-		restPos.getWorldTransformMatrix( localToRest );
+//		restPos.getWorldTransformMatrix( localToRest );
 		// Convert positions to rest pose world space
-		transformPoints( pointsPlusOne, ptsCountAfterCut, localToRest );
+		//transformPoints( pointsPlusOne, ptsCountAfterCut, localToRest );
 		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		// Calculate rest pose world space to current world space transform
-		restPos.getLocalTransformMatrix( restToLocal );
+		//restPos.getLocalTransformMatrix( restToLocal );
 		currPos.getWorldTransformMatrix( localToCurr );
-		restToCurr = localToCurr * restToLocal;
+		//restToCurr = localToCurr * restToLocal;
 		// Select hair color, opacity and width
 		selectHairColorOpacityWidth( restPos );
 		// Convert positions to current world space
-		transformPoints( pointsPlusOne, ptsCountAfterCut, restToCurr );
+		transformPoints( pointsPlusOne, ptsCountAfterCut, localToCurr );
 		// Duplicate first and last point ( last points need to be duplicated, 
 		// only if cut has not decreased points count, so we will use total points count )
 		// These duplicated points are used for curve points calculation at any given param t
@@ -156,7 +157,36 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	applyKink( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
 	const MeshPoint &aRestPosition )
 {
-	/* TODO */
+	// Gather kink properties for this hair
+	Real u = aRestPosition.getUCoordinate();
+	Real v = aRestPosition.getVCoordinate();
+	Real freqX = mHairProperties->getKinkXFrequency() * mHairProperties->getKinkXFrequencyTexture().
+		realAtUV( u, v );
+	Real freqY = mHairProperties->getKinkYFrequency() * mHairProperties->getKinkYFrequencyTexture().
+		realAtUV( u, v );
+	Real freqZ = mHairProperties->getKinkZFrequency() * mHairProperties->getKinkZFrequencyTexture().
+		realAtUV( u, v );
+	Real rootDisplaceFactor = mHairProperties->getRootKink() * mHairProperties->getRootKinkTexture().
+		realAtUV( u, v );
+	Real tipDisplaceFactor = mHairProperties->getTipKink() * mHairProperties->getTipKinkTexture().
+		realAtUV( u, v );
+	// Curve t param
+	Real step = 1.0f / ( aCurvePointsCount - 1 ), t = step, oneMinusT = 1 - step;
+	// For every point on cut curve except the first one
+	for( Point * it = aPoints + 1, * end = aPoints + aCount; it != end; t += step, ++it, oneMinusT = 1 - t )
+	{
+		Point rest = aRestPosition.toWorld( *it );
+		RtFloat in[ 3 ] = { static_cast< RtFloat >( freqX * rest.x ),
+			static_cast< RtFloat >( freqY * rest.y ), 
+			static_cast< RtFloat >( freqZ * rest.z ) }, 
+			out[ 3 ];
+		// Remember to shift noise from <0,1> to <-1,1> (factor *= 2; and out[ i ] -=0.5 solves that )
+		RxNoise( 3, in, 3, out );
+		Real factor = 2 * ( t * tipDisplaceFactor + oneMinusT * rootDisplaceFactor );
+		it->x += static_cast< PositionType >( ( out[ 0 ] - 0.5 ) * factor );
+		it->y += static_cast< PositionType >( ( out[ 1 ] - 0.5 ) * factor );
+		it->z += static_cast< PositionType >( ( out[ 2 ] - 0.5 ) * factor );
+	} 
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -238,7 +268,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	ColorType valueShift = static_cast< ColorType >( mRandom.randomReal( -valueVar, valueVar ) );
 	// Determine whether the hair is mutant
 	if ( mRandom.uniformNumber() < 
-		mHairProperties->getPercentMutantHair() * mHairProperties->getPercentMutantHairTexture().realAtUV( u, v ) )
+		mHairProperties->getPercentMutantHair() * mHairProperties->getPercentMutantHairTexture().realAtUV( u, v ) / 100 )
 	{
 		// Select mutant hair color as root color
 		mixColor( mRootColor, mHairProperties->getMutantHairColor(),
@@ -346,8 +376,8 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Finally output color, opacity, width
 		for ( unsigned __int32 j = 0; j < 3; ++j )
 		{
-			* ( colorIt++ ) = t * mTipColor[ j ] + oneMinusT * mRootColor[ j ];
-			* ( opacityIt++ ) = t * mTipOpacity[ j ] + oneMinusT * mRootOpacity[ j ];      
+			* ( colorIt++ ) = clamp( t * mTipColor[ j ] + oneMinusT * mRootColor[ j ], 0.0f, 1.0f );
+			* ( opacityIt++ ) = clamp( t * mTipOpacity[ j ] + oneMinusT * mRootOpacity[ j ], 0.0f, 1.0f );      
 		}
 		* ( widthIt++ ) = t * mTipWidth + oneMinusT * mRootWidth; 
 		// Increase segments count

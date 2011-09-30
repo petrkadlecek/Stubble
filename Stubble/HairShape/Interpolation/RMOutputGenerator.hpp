@@ -46,17 +46,17 @@ struct RMTypes
 	/// Defines an alias representing type used to store one component of the 3 components of 
 	/// the opacity.
 	///-------------------------------------------------------------------------------------------------
-	typedef float OpacityType;
+	typedef RtFloat OpacityType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one of the 2 u v coordinates.
 	///-------------------------------------------------------------------------------------------------
-	typedef float UVCoordinateType;
+	typedef RtFloat UVCoordinateType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store hair and strand index.
 	///-------------------------------------------------------------------------------------------------
-	typedef float IndexType;
+	typedef RtInt IndexType;
 
 };
 

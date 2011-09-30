@@ -99,7 +99,8 @@ public:
 	///
 	/// \return	world vector
 	///----------------------------------------------------------------------------------------------------
-	Vector3D< Real > toWorld( const Vector3D< Real > aLocalVector ) const;
+	template< typename tType >
+	Vector3D< tType > toWorld( const Vector3D< tType > aLocalVector ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets a local transform matrix. 
@@ -183,6 +184,28 @@ mVCoordinate( aVCoordinate )
 {
 }
 
+template< typename tType >
+inline Vector3D< tType > MeshPoint::toWorld( const Vector3D< tType > aLocalVector ) const
+{
+	return Vector3D< tType >( 
+		static_cast< tType >(
+		aLocalVector.x * mBinormal.x +
+		aLocalVector.y * mTangent.x +
+		aLocalVector.z * mNormal.x +
+		mPosition.x ),
+		static_cast< tType >(
+		aLocalVector.x * mBinormal.y +
+		aLocalVector.y * mTangent.y +
+		aLocalVector.z * mNormal.y +
+		mPosition.y ),
+		static_cast< tType >(
+		aLocalVector.x * mBinormal.z +
+		aLocalVector.y * mTangent.z +
+		aLocalVector.z * mNormal.z +
+		mPosition.z ) );
+}
+
+template<>
 inline Vector3D< Real > MeshPoint::toWorld( const Vector3D< Real > aLocalVector ) const
 {
 	return Vector3D< Real >( 

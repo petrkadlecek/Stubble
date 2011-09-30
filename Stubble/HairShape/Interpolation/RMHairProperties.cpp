@@ -51,6 +51,7 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	mFrizzZFrequencyTexture = new Texture( unzipper );
 	mFrizzAnimTexture = new Texture( unzipper );
 	mFrizzAnimSpeedTexture = new Texture( unzipper );
+	mRootKinkTexture = new Texture( unzipper );
 	mTipKinkTexture = new Texture( unzipper );
 	mKinkXFrequencyTexture = new Texture( unzipper );
 	mKinkYFrequencyTexture = new Texture( unzipper );
