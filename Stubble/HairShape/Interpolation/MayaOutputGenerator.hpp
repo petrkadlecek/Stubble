@@ -56,7 +56,7 @@ struct MayaTypes
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store hair and strand index.
 	///-------------------------------------------------------------------------------------------------
-	typedef float IndexType;
+	typedef unsigned __int32 IndexType;
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ private:
 
 	MayaTypes::IndexType mTmpIndex; ///< Temporary variable for storing outputed index ( ignored during render )
 
-	MayaTypes::UVCoordinateType mTmpUV; ///< Temporary variable for storing outputed uv coord ( ignored during render )
+	MayaTypes::UVCoordinateType mTmpUV[ 2 ]; ///< Temporary variable for storing outputed uv coord ( ignored during render )
 
 	/* GL structures */
 
@@ -361,7 +361,7 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
 	// Width multiplier constant
-	const GLfloat wm = 0.05f;
+	const GLfloat wm = 0.5f;
 	// We will calculate triangles from hair points
 	for ( unsigned __int32 i = 0; i < aPointsCount; ++i )
 	{
@@ -433,12 +433,12 @@ inline MayaOutputGenerator::OpacityType * MayaOutputGenerator::opacityPointer()
 
 inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::hairUVCoordinatePointer()
 {
-	return &mTmpUV; /* NOT SUPPORTED */
+	return mTmpUV; /* NOT SUPPORTED */
 }
 
 inline MayaOutputGenerator::UVCoordinateType * MayaOutputGenerator::strandUVCoordinatePointer()
 {
-	return &mTmpUV; /* NOT SUPPORTED */
+	return mTmpUV; /* NOT SUPPORTED */
 }
 
 inline MayaOutputGenerator::IndexType * MayaOutputGenerator::hairIndexPointer()

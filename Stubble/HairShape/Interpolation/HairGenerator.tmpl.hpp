@@ -6,8 +6,12 @@
 
 #include "HairGenerator.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <rx.h>
+
+#undef min
+#undef max
 
 namespace Stubble
 {
@@ -36,10 +40,14 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 	Matrix localToCurr;//localToRest, restToCurr, localToCurr, restToLocal;
 	// Resets random generator
 	mRandom.reset();
+	// Indices
+	IndexType hairIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() * 
+		mHairProperties->getMultiStrandCount() );
+	IndexType strandIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() );
 	// Start output
 	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount(), maxPointsCount );
 	// For every main hair
-	for ( unsigned __int32 i = 0; i < mPositionGenerator.getHairCount(); ++i )
+	for ( unsigned __int32 i = 0; i < mPositionGenerator.getHairCount(); ++i, ++strandIndex )
 	{
 		// Generate position
 		MeshPoint currPos;
@@ -98,6 +106,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		{
 			// Finally begin hair output ( first and last points are duplicated )
 			mOutputGenerator.beginHair( ptsCountAfterCut + 2 );
+			// Output indices and uv coordinates
+			outputHairIndexAndUVs( ++hairIndex, strandIndex, restPos );
 			// Generate final hair : calculates normals, colors, opacity, width and may reject some points,
 			// so final points count is returned ( including two duplicated points : first and last )
 			unsigned __int32 pointsCount = generateHair( pointsPlusOne, tangentsPlusOne, ptsCountAfterCut, 
@@ -149,7 +159,59 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	applyFrizz( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
 	const MeshPoint &aRestPosition )
 {
-	/* TODO */
+	// Gather Frizz properties for this hair
+	Real u = aRestPosition.getUCoordinate();
+	Real v = aRestPosition.getVCoordinate();
+	Real freqX = mHairProperties->getFrizzXFrequency() * mHairProperties->getFrizzXFrequencyTexture().
+		realAtUV( u, v );
+	Real freqY = mHairProperties->getFrizzYFrequency() * mHairProperties->getFrizzYFrequencyTexture().
+		realAtUV( u, v );
+	Real freqZ = mHairProperties->getFrizzZFrequency() * mHairProperties->getFrizzZFrequencyTexture().
+		realAtUV( u, v );
+	Real rootDisplaceFactor = mHairProperties->getRootFrizz() * mHairProperties->getRootFrizzTexture().
+		realAtUV( u, v );
+	Real tipDisplaceFactor = mHairProperties->getTipFrizz() * mHairProperties->getTipFrizzTexture().
+		realAtUV( u, v );
+	Real frizzAnimFactor = mHairProperties->getFrizzAnim() * mHairProperties->getFrizzAnimTexture().
+		realAtUV( u, v );
+	Real frizzStaticFactor = 1 - frizzAnimFactor;
+	Real frizzTimeFactor = mHairProperties->getFrizzAnimSpeed() * mHairProperties->getFrizzAnimSpeedTexture().
+		realAtUV( u, v ) * mHairProperties->getCurrentTime(); 
+	RtFloat in[ 3 ], staticNoise[ 3 ], animNoise[ 3 ], displace[ 3 ];
+	// Calculate static noise at root
+	Vector3D< Real > root = aRestPosition.getPosition();
+	in[ 0 ] = static_cast< RtFloat >( freqX * root.x );
+	in[ 1 ] = static_cast< RtFloat >( freqY * root.y );
+	in[ 2 ] = static_cast< RtFloat >( freqZ * root.z );
+	RxNoise( 3, in, 3, staticNoise );
+	// Calculate anim noise at root
+	in[ 0 ] = static_cast< RtFloat >( freqX * root.x + mHairProperties->getFrizzAnimDirection().x * frizzTimeFactor );
+	in[ 1 ] = static_cast< RtFloat >( freqY * root.y + mHairProperties->getFrizzAnimDirection().y * frizzTimeFactor );
+	in[ 2 ] = static_cast< RtFloat >( freqZ * root.z + mHairProperties->getFrizzAnimDirection().z * frizzTimeFactor );
+	RxNoise( 3, in, 3, animNoise );
+	// Combine anim and static noise to final displace vector, also transform noise from <0,1> -> <-1,1>
+	displace[ 0 ] = 2 * static_cast< RtFloat >( frizzStaticFactor * ( staticNoise[ 0 ] - 0.5f ) + 
+		frizzAnimFactor * ( animNoise[ 0 ] - 0.5f ) );
+	displace[ 1 ] = 2 * static_cast< RtFloat >( frizzStaticFactor * ( staticNoise[ 1 ] - 0.5f ) + 
+		frizzAnimFactor * ( animNoise[ 1 ] - 0.5f ) );
+	displace[ 2 ] = 2 * static_cast< RtFloat >( frizzStaticFactor * ( staticNoise[ 2 ] - 0.5f ) + 
+		frizzAnimFactor * ( animNoise[ 2 ] - 0.5f ) );
+	// Calculate max displace factor
+	Real maxFactor = std::max( rootDisplaceFactor, tipDisplaceFactor );  
+	// Curve t param
+	RtFloat step = 1.0f / ( aCurvePointsCount - 1 ), t = step;
+	// For every point on cut curve except the first one
+	for( Point * it = aPoints + 1, * end = aPoints + aCount; it != end; t += step, ++it )
+	{
+		// Calculate displace factor
+		RtFloat t2 = t * t; 
+		RtFloat tipT = t2, rootT = 4 * ( t - t2 );
+		Real displaceFactor = std::min( rootDisplaceFactor * rootT + tipDisplaceFactor * tipT, maxFactor );
+		// Apply displace
+		it->x += static_cast< PositionType >( displaceFactor * displace[ 0 ] );
+		it->y += static_cast< PositionType >( displaceFactor * displace[ 1 ] );
+		it->z += static_cast< PositionType >( displaceFactor * displace[ 2 ] );
+	} 
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -246,7 +308,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Apply hue shift
 	tmp[ 0 ] = circleValue( tmp[ 0 ] - aHueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 360 ) );
 	// Apply value shift
-	tmp[ 2 ] = circleValue( tmp[ 2 ] - aValueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 1 ) );
+	tmp[ 2 ] = clamp( tmp[ 2 ] - aValueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 1 ) );
 	// HSV -> RGB
 	HSVtoRGB( mColor, tmp );
 }
@@ -394,6 +456,24 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Return number of outputed hair points
 	return count;
 }
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	outputHairIndexAndUVs( IndexType aHairIndex, IndexType aStrandIndex, const MeshPoint &aRestPosition )
+{
+	// Store uv coordinates
+	const UVCoordinateType u = static_cast< UVCoordinateType >( aRestPosition.getUCoordinate() );
+	const UVCoordinateType v = static_cast< UVCoordinateType >( aRestPosition.getVCoordinate() );
+	// Output indices
+	* mOutputGenerator.hairIndexPointer() = aHairIndex;
+	* mOutputGenerator.strandIndexPointer() = aStrandIndex;
+	// Output uv coordinates
+	* mOutputGenerator.hairUVCoordinatePointer() = u;
+	* ( mOutputGenerator.hairUVCoordinatePointer() + 1 ) = v;
+	* mOutputGenerator.strandUVCoordinatePointer() = u;
+	* ( mOutputGenerator.strandUVCoordinatePointer() + 1 ) = v;
+}
+
 
 } // namespace Interpolation
 

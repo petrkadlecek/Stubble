@@ -2,8 +2,8 @@
 #define STUBBLE_GL_EXTENSIONS_HPP
 
 #ifdef _MSC_VER
-#  define WIN32_LEAN_AND_MEAN 1
-#  include <windows.h>
+#	define WIN32_LEAN_AND_MEAN 1
+#	include <windows.h>
 #endif
 
 #include <gl/gl.h>

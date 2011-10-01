@@ -229,11 +229,11 @@ protected:
 		bool & aHairPropertiesChanged );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets the textures time. 
+	/// Sets the current time. 
 	///
-	/// \param	aTime	The curren time.
+	/// \param	aTime	The current time.
 	///----------------------------------------------------------------------------------------------------
-	void setTexturesTime( Time aTime );
+	void setCurrentTime( Time aTime );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh pointers to guides. 

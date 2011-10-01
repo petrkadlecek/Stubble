@@ -503,7 +503,7 @@ void HairShape::setCurrentTime( Time aTime )
 		mHairGuides->setCurrentTime( aTime );
 		refreshPointersToGuidesForInterpolation();
 	}
-	MayaHairProperties::setTexturesTime( aTime );
+	MayaHairProperties::setCurrentTime( aTime );
 	if ( mDisplayInterpolated )
 	{
 		mInterpolatedHair.propertiesUpdate( *this );

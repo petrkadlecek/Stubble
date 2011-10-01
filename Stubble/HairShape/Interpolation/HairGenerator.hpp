@@ -211,6 +211,15 @@ private:
 	inline unsigned __int32 generateHair( Point * aPoints, Vector * aTangents, unsigned __int32 aCount, 
 		unsigned __int32 aCurvePointsCount, const MeshPoint &aRestPosition, PositionType aCutFactor  );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Output hair index and u v coordinates. 
+	///
+	/// \param	aHairIndex		Zero-based index of a hair. 
+	/// \param	aStrandIndex	Zero-based index of a strand. 
+	/// \param	aRestPosition	The hair rest position. 
+	///-------------------------------------------------------------------------------------------------
+	inline void outputHairIndexAndUVs( IndexType aHairIndex, IndexType aStrandIndex, const MeshPoint &aRestPosition );
+
 	tPositionGenerator & mPositionGenerator;	///< The position generator
 
 	tOutputGenerator & mOutputGenerator;	///< The output generator

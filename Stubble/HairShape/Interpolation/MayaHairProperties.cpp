@@ -948,8 +948,9 @@ void MayaHairProperties::refreshTextures( bool & aDensityChanged, bool & aInterp
 	}
 }
 
-void MayaHairProperties::setTexturesTime( Time aTime )
+void MayaHairProperties::setCurrentTime( Time aTime )
 {
+	mCurrentTime = aTime;
 	/* Density and Interpolation groups texture are not animated !!! */
 	mCutTexture->setCurrentTime( aTime );
 	mScaleTexture->setCurrentTime( aTime );

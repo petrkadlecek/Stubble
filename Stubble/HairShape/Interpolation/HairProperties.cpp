@@ -10,6 +10,7 @@ namespace Interpolation
 {
 
 HairProperties::HairProperties():
+	mCurrentTime( 0 ),
 	mDensityTexture( 0 ),
 	mInterpolationGroups( 0 ),
 	mInterpolationGroupsTexture( 0 ),

@@ -29,6 +29,13 @@ public:
 
 	/* HERE WILL BE ALL HAIR PROPERTIES ACCESSIBLE BY GETTER */
 
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the current time. 
+	///
+	/// \return	The current time. 
+	///-------------------------------------------------------------------------------------------------
+	inline Time getCurrentTime() const;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the density texture. 
 	///
@@ -551,6 +558,8 @@ protected:
 
 	/* HERE WILL BE STORED ALL HAIR PROPERTIES */
 
+	Time mCurrentTime;  ///< The current time
+
 	Texture * mDensityTexture;  ///< The density texture
 
 	Texture * mInterpolationGroupsTexture;  ///< The interpolation groups texture
@@ -701,6 +710,11 @@ protected:
 };
 
 // inline functions implementation
+
+inline Time HairProperties::getCurrentTime() const
+{
+	return mCurrentTime;
+}
 
 inline const Texture & HairProperties::getDensityTexture() const
 {
