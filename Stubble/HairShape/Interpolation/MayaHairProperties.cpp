@@ -2,6 +2,7 @@
 
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnNumericData.h>
+#include <maya/MFnCompoundAttribute.h>
 #include <maya/MPxSurfaceShape.h>
 
 namespace Stubble
@@ -245,9 +246,11 @@ MStatus MayaHairProperties::initializeAttributes()
 		int int_max = std::numeric_limits< int >::max();
 		float float_max = std::numeric_limits< float >::max();
 		float float_min = std::numeric_limits< float >::min();
+
 		/* MAYA BASIC PROPERTIES */
-		// TODO handle segments count for each group 
-		addIntAttribute( "segments_count", "sgc", segmentsCountAttr, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 7, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		//updateIntArrayComponentsCount( segmentsCountAttr, 3, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+
 		addFloatAttribute( "density_texture", "dtxt", densityTextureAttr, 1, 0, 1, 0, 1 );
 		addColorAttribute( "interpolation_groups_texture", "itxt", interpolationGroupsTextureAttr, 1, 1, 1 );
 		addIntAttribute( "interpolation_samples", "ints", numberOfGuidesToInterpolateFromAttr, 3, 3, 20, 3, 20 );
@@ -1018,6 +1021,45 @@ void MayaHairProperties::addFloatAttribute( const MString & aFullName, const MSt
 		throw StubbleException( ( " MayaHairProperties::addFloatAttribute : adding attribute " 
 			+ aFullName + " failed " ).asChar() );
 	}
+}
+
+void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const MString & aBriefName,
+	MObject & aAttribute, int aComponentsCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
+{
+	MFnCompoundAttribute nAttr;
+	aAttribute = nAttr.create(aFullName, aBriefName);
+
+	for(int i = 0; i < aComponentsCount; ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "group_";
+		s += i;
+
+		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, aDefault );
+		numericAttribute.setMin( aMin );
+		numericAttribute.setMax( aMax );
+		numericAttribute.setSoftMin( aSoftMin );
+		numericAttribute.setSoftMax( aSoftMax );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setInternal( true );
+
+		nAttr.addChild(c);
+	}
+
+	// TODO - find how to delete items during PlugIn's life
+	nAttr.removeChild(nAttr.child(nAttr.numChildren() - 1));
+
+	if ( MPxSurfaceShape::addAttribute( aAttribute ) != MStatus::kSuccess )
+	{
+		throw StubbleException( ( " MayaHairProperties::addIntArrayAttribute : adding attribute " 
+			+ aFullName + " failed " ).asChar() );
+	}
+}
+
+void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, int aComponentsCount, int aDefault,
+	int aMin, int aMax, int aSoftMin, int aSoftMax )
+{
+	// TODO - implement
 }
 
 void MayaHairProperties::addIntAttribute( const MString & aFullName, const MString & aBriefName,

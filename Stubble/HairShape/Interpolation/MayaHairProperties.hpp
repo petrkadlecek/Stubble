@@ -288,6 +288,36 @@ protected:
 		MObject & aAttribute, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Adds an int array attribute. 
+	///
+	/// \param	aFullName			Full name.
+	/// \param	aBriefName			Brief name.
+	/// \param [in,out]	aAttribute	The attribute object. 
+	/// \param	aComponentsCount	The component count.
+	/// \param	aDefault			The default value. 
+	/// \param	aMin				The minimum value. 
+	/// \param	aMax				The maximum value. 
+	/// \param	aSoftMin			The soft minimum value. 
+	/// \param	aSoftMax			The soft maximum value. 
+	///-------------------------------------------------------------------------------------------------
+	static void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const MString & aBriefName,
+	MObject & aAttribute, int aComponentsCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Updates components count for an int array attribute. 
+	///
+	/// \param [in,out]	aAttribute	The attribute object.
+	/// \param	aComponentsCount	The component count.
+	/// \param	aDefault			The default value. 
+	/// \param	aMin				The minimum value. 
+	/// \param	aMax				The maximum value. 
+	/// \param	aSoftMin			The soft minimum value. 
+	/// \param	aSoftMax			The soft maximum value. 
+	///-------------------------------------------------------------------------------------------------
+	static void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, int aComponentsCount, int aDefault,
+	int aMin, int aMax, int aSoftMin, int aSoftMax );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Adds a bool attribute. 
 	///
 	/// \param	aFullName			Full name.
