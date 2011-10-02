@@ -1,0 +1,342 @@
+global proc AEHairShapeTemplate( string $nodeName )
+{
+	// Put our attributes into a scrolled layout field
+	editorTemplate -beginScrollLayout;
+
+	// Create the "General" section
+	editorTemplate -beginLayout "General Properties" -collapse false;
+
+	   // Add a "special" control for the scale attribute that allow
+	   // "quick set" options for scales of 5, 10, and 15.
+	   //editorTemplate -callCustom "transCircleScaleNew"
+	   //				  "transCircleScaleReplace"
+	   //			  "scale";
+
+		// Add the general controls
+		editorTemplate -addControl "guides_count";
+		editorTemplate -addControl "interpolated_hair_count";
+		editorTemplate -addControl "displayed_hair_count";
+		//TODO
+		//editorTemplate -addControl "segments_count";
+		editorTemplate -addControl "display_guides";
+		editorTemplate -addControl "display_hair";
+		editorTemplate -callCustom "AEstubbleCutTextureNew"
+				"AEstubbleCutTextureReplace" "cut_texture";
+		editorTemplate -callCustom "AEstubbleDensityTextureNew"
+				"AEstubbleDensityTextureReplace" "density_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "interpolation_groups_texture";
+		editorTemplate -addControl "interpolation_samples";
+		editorTemplate -addControl "calculate_normals";
+		AEstubbleSpacer();
+		editorTemplate -addControl "scale";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "scale_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "random_scale";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "rand_scale_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "root_thickness";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_thickness_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_thickness";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_thickness_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "displacement";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "displacement_texture";
+		
+	editorTemplate -endLayout;
+	
+	// Create the "Color" section
+	editorTemplate -beginLayout "Color Properties" -collapse true;
+	
+		editorTemplate -addControl "root_opacity";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_opacity_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_opacity";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_opacity_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "root_color";
+		//editorTemplate -callCustom "AEstubbleTextureNew"
+		//		"AEstubbleTextureReplace" "root_color_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_color";
+		//editorTemplate -callCustom "AEstubbleTextureNew"
+		//		"AEstubbleTextureReplace" "tip_color_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "hue_variation";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "hue_variation_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "value_variation";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "value_variation_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "mutant_hair_color";
+		//editorTemplate -callCustom "AEstubbleTextureNew"
+		//		"AEstubbleTextureReplace" "mutant_hair_color_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "percent_mutant_hair";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "percent_mutant_hair_texture";		
+	
+	editorTemplate -endLayout;
+	
+	// Create the "Frizz" section
+	editorTemplate -beginLayout "Frizz Properties" -collapse true;
+	
+		editorTemplate -addControl "root_frizz";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_frizz_texture";	
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_frizz";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_frizz_texture";	
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_X_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "frizz_X_freq_texture";	
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_Y_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "frizz_Y_freq_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_Z_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "frizz_Z_freq_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_anim";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "frizz_anim_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_anim_speed";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "frizz_anim_speed_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "frizz_anim_direction";				
+	
+	editorTemplate -endLayout;
+	
+	
+	// Create the "Kink" section
+	editorTemplate -beginLayout "Kink Properties" -collapse true;
+	
+		editorTemplate -addControl "root_kink";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_kink_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_kink";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_kink_texture";	
+		AEstubbleSpacer();
+		editorTemplate -addControl "kink_X_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "kink_X_freq_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "kink_Y_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "kink_Y_freq_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "kink_Z_frequency";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "kink_Z_freq_texture";		
+	
+	editorTemplate -endLayout;
+	
+	
+	// Create the "Multi Strand" section
+	editorTemplate -beginLayout "Multi Strand Properties" -collapse true;
+	
+		editorTemplate -addControl "multi_strand_count";
+		AEstubbleSpacer();
+		editorTemplate -addControl "root_splay";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_splay_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "tip_splay";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_splay_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "center_splay";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "center_splay_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "twist";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "twist_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "offset";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "offset_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "aspect";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "aspect_texture";
+		AEstubbleSpacer();
+		editorTemplate -addControl "randomize_strand";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "randomize_strand_texture";
+	
+	editorTemplate -endLayout;
+	
+	
+	// Tell the attribute editor not to display the attributes we
+	// don't care about.
+	editorTemplate -suppress "surface";
+	editorTemplate -suppress "surface_change";
+	editorTemplate -suppress "time";
+	editorTemplate -suppress "voxels_dimensions";
+	editorTemplate -suppress "segments_count";
+	editorTemplate -suppress "root_color_texture";
+	editorTemplate -suppress "tip_color_texture";
+	editorTemplate -suppress "mutant_hair_color_texture";
+	
+	// We don't want to see these inherited attributes, either.
+	editorTemplate -suppress "collisionDepthVelocityIncrement";
+	editorTemplate -suppress "collisionDepthVelocityMultiplier";
+	editorTemplate -suppress "collisionOffsetVelocityIncrement";
+	editorTemplate -suppress "collisionOffsetVelocityMultiplier";
+	editorTemplate -suppress "motionBlur";
+	editorTemplate -suppress "renderLayerInfo";
+	editorTemplate -suppress "primaryVisibility";
+	editorTemplate -suppress "visibleInReflections";
+	editorTemplate -suppress "visibleInRefractions";
+	editorTemplate -suppress "castsShadows";
+	editorTemplate -suppress "receiveShadows";
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "depthJitter";
+	editorTemplate -suppress "ignoreSelfShadowing";
+	editorTemplate -suppress "compInstObjGroups";
+	editorTemplate -suppress "tweak";
+	editorTemplate -suppress "relativeTweak";
+	editorTemplate -suppress "controlPoints";
+	editorTemplate -suppress "weights";
+	editorTemplate -suppress "uvSet";
+	editorTemplate -suppress "currentUVSet";
+	editorTemplate -suppress "displayImmediate";
+	editorTemplate -suppress "displayColors";
+	editorTemplate -suppress "displayColorChannel";
+	editorTemplate -suppress "currentColorSet";
+	editorTemplate -suppress "colorSet";
+	editorTemplate -suppress "doubleSided";
+	editorTemplate -suppress "opposite";
+	editorTemplate -suppress "smoothShading";
+	editorTemplate -suppress "boundingBoxScale";
+	editorTemplate -suppress "featureDisplacement";
+	editorTemplate -suppress "initialSampleRate";
+	editorTemplate -suppress "extraSampleRate";
+	editorTemplate -suppress "textureThreshold";
+	editorTemplate -suppress "normalThreshold";
+	
+	
+	// Handle the standard node attributes.
+	AEshapeTemplate $nodeName;
+	
+	// Create an "Extras" section for all the
+	// attributes that we have not explicitly mentioned.
+	editorTemplate -addExtraControls;
+
+	editorTemplate -endScrollLayout;
+}
+
+global proc AEstubbleSpacer()
+{
+	editorTemplate -callCustom "AEstubbleSeparator" "AEstubbleDummy";
+}
+
+
+global proc AEstubbleSeparator()
+{
+	separator -style "none";
+}
+
+global proc AEstubbleDummy()
+{
+}
+
+global proc AEstubbleTextureNew (string $attrName)
+{
+	string $buffer[];
+	string $grpNam;
+	int $numTokens = `tokenize $attrName "." $buffer`;
+	$grpNam = $buffer[1];
+	$grpNam = $grpNam + "_grp";
+	
+	setUITemplate -pst attributeEditorTemplate;
+	
+	attrNavigationControlGrp
+		-l ""
+		-at $attrName
+		$grpNam;
+		
+	setUITemplate -ppt;
+}
+
+global proc AEstubbleTextureReplace (string $attrName)
+{
+	string $buffer[];
+	string $grpNam;
+	int $numTokens = `tokenize $attrName "." $buffer`;
+	$grpNam = $buffer[1];
+	$grpNam = $grpNam + "_grp";
+	
+	setUITemplate -pst attributeEditorTemplate;
+	
+	attrNavigationControlGrp -edit
+		-at $attrName
+		$grpNam;
+		
+	setUITemplate -ppt;
+}
+
+global proc AEstubbleDensityTextureNew (string $attrName)
+{
+	setUITemplate -pst attributeEditorTemplate;
+	
+	attrNavigationControlGrp
+		-l "Density Map"
+		-at $attrName
+		"density_texture";
+		
+	setUITemplate -ppt;
+}
+
+global proc AEstubbleDensityTextureReplace (string $attrName)
+{
+	attrNavigationControlGrp -edit
+		-at $attrName
+		"density_texture";
+}
+
+global proc AEstubbleCutTextureNew (string $attrName)
+{
+	setUITemplate -pst attributeEditorTemplate;
+	
+	attrNavigationControlGrp
+		-l "Cut Map"
+		-at $attrName
+		"cut_texture";
+		
+	setUITemplate -ppt;
+}
+
+global proc AEstubbleCutTextureReplace (string $attrName)
+{
+	attrNavigationControlGrp -edit
+		-at $attrName
+		"cut_texture";
+}
