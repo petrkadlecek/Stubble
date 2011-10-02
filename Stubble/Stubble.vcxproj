@@ -86,7 +86,7 @@
       <AdditionalOptions>/GR /GS /EHsc /Zi /I "." /D "WIN32" /D "_DEBUG" /RTC1 /c /MP %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaRender.lib;OpenGL32.lib;glu32.lib;3DelightFor3dfm.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtSvg4.lib;QtTest4.lib;QtUiTools.lib;QtXml4.lib;QtXmlPatterns4.lib;QtOpenGL4.lib;chai3d-debug.lib;newmat-double-x64-debug.lib;ZLib-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaRender.lib;OpenGL32.lib;glu32.lib;3Delight.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtSvg4.lib;QtTest4.lib;QtUiTools.lib;QtXml4.lib;QtXmlPatterns4.lib;QtOpenGL4.lib;chai3d-debug.lib;newmat-double-x64-debug.lib;ZLib-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(MAYA_LOCATION)\lib;$(DELIGHT)\lib;$(QT_LOCATION)\lib;$(SolutionDir)..\external\chai3d\lib;$(SolutionDir)..\external\opengl\lib;$(SolutionDir)..\external\newmat\lib;$(SolutionDir)..\external\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(Platform)\$(Configuration)\Stubble.mll</OutputFile>
       <ImportLibrary>$(Configuration)/Stubble.lib</ImportLibrary>
@@ -127,7 +127,7 @@
       <AdditionalOptions>/GR /GS /EHsc /I "."  /c %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaRender.lib;OpenGL32.lib;glu32.lib;3DelightFor3dfm.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtSvg4.lib;QtTest4.lib;QtUiTools.lib;QtXml4.lib;QtXmlPatterns4.lib;QtOpenGL4.lib;chai3d-release.lib;newmat-double-x64.lib;ZLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaRender.lib;OpenGL32.lib;glu32.lib;3Delight.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtSvg4.lib;QtTest4.lib;QtUiTools.lib;QtXml4.lib;QtXmlPatterns4.lib;QtOpenGL4.lib;chai3d-release.lib;newmat-double-x64.lib;ZLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(MAYA_LOCATION)\lib;$(DELIGHT)\lib;$(QT_LOCATION)\lib;$(SolutionDir)..\external\chai3d\lib;$(SolutionDir)..\external\opengl\lib;$(SolutionDir)..\external\newmat\lib;$(SolutionDir)..\external\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(Platform)\$(Configuration)\Stubble.mll</OutputFile>
       <ImportLibrary>$(Configuration)/Stubble.lib</ImportLibrary>

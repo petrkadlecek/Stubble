@@ -90,7 +90,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <Link>
       <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3DelightFor3dfm.lib;ZLib-debug.lib;</AdditionalDependencies>
+      <AdditionalDependencies>3Delight.lib;ZLib-debug.lib;</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -106,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|x64'">
     <Link>
       <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3DelightFor3dfm.lib;ZLib.lib;</AdditionalDependencies>
+      <AdditionalDependencies>3Delight.lib;ZLib.lib;</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>

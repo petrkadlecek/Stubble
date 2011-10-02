@@ -323,7 +323,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "center_splay_texture", "cspltxt", centerSplayTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "center_splay", "cspl", centerSplayAttr, 0, 0, float_max, 0, 5 );
 		addFloatAttribute( "twist_texture", "twtxt", twistTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "twist", "tw", twistAttr, 0, 0, float_max, 0, 5 );
+		addFloatAttribute( "twist", "twst", twistAttr, 0, 0, float_max, 0, 5 );
 		addFloatAttribute( "offset_texture", "offtxt", offsetTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "offset", "off", offsetAttr, 0, 0, float_max, 0, 5 );
 		addFloatAttribute( "aspect_texture", "asptxt", aspectTextureAttr, 1, 0, 1, 0, 1 );
