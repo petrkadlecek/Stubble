@@ -56,22 +56,8 @@ void Texture::init()
 	mDirty = false;
 
 	mTexture = new float[mWidth * mHeight * mColorComponents * sizeof(float)];
-}
-
-float Texture::realAtUV( Real u, Real v ) const
-{
-	return colorAtUV(u, v)[0];
-}
-
-Texture::Color Texture::colorAtUV( Real u, Real v ) const
-{
-	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(u * mWidth) );
-	x = x == mWidth ? mWidth - 1 : x;
-
-	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(v * mHeight) );
-	y = y == mHeight ? mHeight - 1 :  y;
-
-	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
+	mInverseWidth = 1.0f / mWidth;
+	mInverseHeight = 1.0f / mHeight;
 }
 
 void Texture::exportToFile( std::ostream &aOutStream ) const

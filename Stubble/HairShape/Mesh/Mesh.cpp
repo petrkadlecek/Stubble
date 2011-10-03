@@ -8,7 +8,7 @@ namespace Stubble
 namespace HairShape
 {
 
-Mesh::Mesh( std::istream & aInStream, bool aPositionsOnly )
+Mesh::Mesh( std::istream & aInStream, bool aCalculateDerivatives )
 {
 	// Load triangles count
 	unsigned __int32 trianglesCount;
@@ -17,32 +17,9 @@ Mesh::Mesh( std::istream & aInStream, bool aPositionsOnly )
 	// Load all triangles
 	for ( Triangles::iterator it = mTriangles.begin(); it != mTriangles.end(); ++it )
 	{
-		*it = Triangle( aInStream, aPositionsOnly );
+		*it = Triangle( aInStream, aCalculateDerivatives );
 	}
 	// Bounding box will not be calculated, it is not required in 3Delight
-}
-
-void Mesh::copyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates )
-{
-	if ( aMeshWithTextureCoordinates.mTriangles.size() != mTriangles.size() )
-	{
-		throw StubbleException( " Mesh::CopyTextureCoordinates : input mesh must have same size ! " );
-	}
-	// For every triangle
-	Triangles::const_iterator sourceIt = aMeshWithTextureCoordinates.mTriangles.begin();
-	for ( Triangles::iterator destIt = mTriangles.begin(); destIt != mTriangles.end(); ++destIt, ++sourceIt )
-	{
-		// Copies texture coordinates from aMeshWithTextureCoordinates, but keeps original position
-		*destIt = Triangle( MeshPoint( destIt->getVertex1().getPosition(), 
-										sourceIt->getVertex1().getUCoordinate(), 
-										sourceIt->getVertex1().getVCoordinate() ),
-							MeshPoint( destIt->getVertex2().getPosition(), 
-										sourceIt->getVertex2().getUCoordinate(), 
-										sourceIt->getVertex2().getVCoordinate() ),
-							MeshPoint( destIt->getVertex3().getPosition(), 
-										sourceIt->getVertex3().getUCoordinate(), 
-										sourceIt->getVertex3().getVCoordinate() ) );
-	}
 }
 
 } // namespace HairShape

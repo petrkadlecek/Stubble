@@ -36,8 +36,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 	Point * pointsStrand = new Point[ maxPointsCount ];
 	Vector * tangents = new Vector[ maxPointsCount ];
 	Vector * tangentsPlusOne = tangents + 1; 
-	// Prepare matrices
-	Matrix localToCurr;//localToRest, restToCurr, localToCurr, restToLocal;
+	// Prepare matrix
+	Matrix localToCurr;
 	// Resets random generator
 	mRandom.reset();
 	// Indices
@@ -52,7 +52,16 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		// Generate position
 		MeshPoint currPos;
 		MeshPoint restPos;
-		mPositionGenerator.generate( currPos, restPos );
+		Real displaceFactor = mHairProperties->getDisplacement();
+		if ( displaceFactor == 0 )
+		{
+			mPositionGenerator.generate( currPos, restPos );
+		}
+		else
+		{
+			mPositionGenerator.generate( currPos, restPos, mHairProperties->getDisplacementTexture(), 
+				mHairProperties->getDisplacement() );
+		}
 		// Determine cut factor
 		PositionType cutFactor = static_cast< PositionType >( 
 			aHairProperties.getCutTexture().realAtUV( restPos.getUCoordinate(), restPos.getVCoordinate() ) );
@@ -75,17 +84,11 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
-		// Get local to rest pose transform matrix
-//		restPos.getWorldTransformMatrix( localToRest );
-		// Convert positions to rest pose world space
-		//transformPoints( pointsPlusOne, ptsCountAfterCut, localToRest );
 		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
-		// Calculate rest pose world space to current world space transform
-		//restPos.getLocalTransformMatrix( restToLocal );
+		// Calculate local space to current world space transform
 		currPos.getWorldTransformMatrix( localToCurr );
-		//restToCurr = localToCurr * restToLocal;
 		// Select hair color, opacity and width
 		selectHairColorOpacityWidth( restPos );
 		// Convert positions to current world space

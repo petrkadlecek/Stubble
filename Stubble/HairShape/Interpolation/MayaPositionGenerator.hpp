@@ -70,9 +70,10 @@ public:
 	/// \param [in,out]	aCurrentPosition	The current position of hair on displaced mesh. 
 	/// \param [in,out]	aRestPosition		The rest position of hair in 3D space. 
 	/// \param aDisplacementTexture			The texture defining displacement of mesh.
+	///	\param aDisplacementFactor			The displacement texture will be mutliplied by this factor.
 	///-------------------------------------------------------------------------------------------------
 	inline void generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
-		const Texture & aDisplacementTexture );
+		const Texture & aDisplacementTexture, Real aDisplacementFactor );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the number of the hair to be interpolated. Pre-generate must be called first.
@@ -136,7 +137,7 @@ inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, MeshP
 }
 
 inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition,
-	const Texture & aDisplacementTexture )
+	const Texture & aDisplacementTexture, Real aDisplacementFactor )
 {
 	generate( aCurrentPosition, aRestPosition ); // Displacement will not be used
 }

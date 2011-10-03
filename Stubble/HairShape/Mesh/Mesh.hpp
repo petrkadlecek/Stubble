@@ -26,17 +26,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor realized from stream
 	///
-	/// \param	aInStream		input file stream
-	/// \param	aPositionsOnly	if true, only positions are stored in stream
+	/// \param	aInStream				input file stream
+	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
+	/// 								calculated ( used for surface displacement )
 	///----------------------------------------------------------------------------------------------------
-	Mesh( std::istream & aInStream, bool aPositionsOnly = false );
-
-	///----------------------------------------------------------------------------------------------------
-	/// Copies the texture coordinates from aMeshWithTextureCoordinates. 
-	///
-	/// \param	aMeshWithTextureCoordinates	The mesh with texture coordinates. 
-	///----------------------------------------------------------------------------------------------------
-	void copyTextureCoordinates( const Mesh & aMeshWithTextureCoordinates );
+	Mesh( std::istream & aInStream, bool aCalculateDerivatives = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets const triangle iterator.
@@ -77,10 +71,12 @@ public:
 	///
 	/// \param	aPoint					The triangle id and barycentric coordinates
 	/// \param	aDisplacementTexture	The mesh displacement texture. 
+	/// \param	aDisplacementFactor		The displacement texture will be mutliplied by this factor.
 	///
 	/// \return	The displaced mesh point. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture ) const;
+	inline MeshPoint getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture, 
+		Real aDisplacementFactor ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets triangle as 3 vertices.
@@ -139,8 +135,11 @@ inline MeshPoint Mesh::getMeshPoint( const UVPoint &aPoint ) const
 
 	// Calculate interpolation
 	const Vector3D< Real > position = p0.getPosition() * u + p1.getPosition() * v + p2.getPosition() * w;
-	const Vector3D< Real > normal = p0.getNormal() * u + p1.getNormal() * v + p2.getNormal() * w;
+	Vector3D< Real > normal = p0.getNormal() * u + p1.getNormal() * v + p2.getNormal() * w;
 	Vector3D< Real > tangent = p0.getTangent() * u + p1.getTangent() * v + p2.getTangent() * w;
+
+	// Normalize normal
+	normal.normalize();
 
 	// Orthonormalize tangent to normal
 	tangent -= normal * ( Vector3D< Real >::dotProduct( tangent, normal ) ); 
@@ -191,10 +190,49 @@ inline Vector3D< Real > Mesh::getPosition( const UVPoint &aPoint ) const
 	return p0.getPosition() * u + p1.getPosition() * v + p2.getPosition() * w;
 }
 
-inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture ) const
+inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture, 
+	Real aDisplacementFactor ) const
 {
-	/* TODO */
-	return getMeshPoint( aPoint );
+	const double u = aPoint.getU();
+	const double v = aPoint.getV();
+	const double w = 1 - u - v;
+
+	// Get triangle
+	const Triangle &triangle = mTriangles[ aPoint.getTriangleID() ];
+
+	const MeshPoint & p0 = triangle.getVertex1();
+	const MeshPoint & p1 = triangle.getVertex2();
+	const MeshPoint & p2 = triangle.getVertex3();
+
+	// Calculate interpolation
+	Vector3D< Real > position = p0.getPosition() * u + p1.getPosition() * v + p2.getPosition() * w;
+	Vector3D< Real > normal = p0.getNormal() * u + p1.getNormal() * v + p2.getNormal() * w;
+	Vector3D< Real > tangent = p0.getTangent() * u + p1.getTangent() * v + p2.getTangent() * w;
+
+	Real textU = static_cast< Real >( u * p0.getUCoordinate() + v * p1.getUCoordinate() + w * p2.getUCoordinate() );
+	Real textV = static_cast< Real >( u * p0.getVCoordinate() + v * p1.getVCoordinate() + w * p2.getVCoordinate() );
+
+	// Select displace and its derivatives
+	Real displace = aDisplacementTexture.realAtUV( u, v ) * aDisplacementFactor;
+	Real displaceDU = aDisplacementTexture.derivativeByUAtUV( u, v );
+	Real displaceDV = aDisplacementTexture.derivativeByVAtUV( u, v );
+
+	// Normalize normal
+	normal.normalize();
+
+	// Now displace position
+	position += normal * displace;
+
+	// Recalculate normal 
+	Vector3D< Real > dpdu = triangle.getDPDU() + normal * displaceDU + triangle.getDNDU() * displace;
+	Vector3D< Real > dpdv = triangle.getDPDV() + normal * displaceDV + triangle.getDNDV() * displace;
+	normal = Vector3D< Real >::crossProduct( dpdu, dpdv );
+	normal.normalize();
+
+	// Orthonormalize tangent to normal
+	tangent -= normal * ( Vector3D< Real >::dotProduct( tangent, normal ) ); 
+	tangent.normalize();
+	return MeshPoint( position, normal, tangent, textU, textV );
 }
 
 inline const Triangle & Mesh::getTriangle( unsigned __int32 aID ) const

@@ -39,7 +39,7 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 		// Read rest pose mesh
 		mRestPoseMesh = new Mesh( unzipper, false );
 		// Read current mesh
-		mCurrentMesh = new Mesh( unzipper, false );
+		mCurrentMesh = new Mesh( unzipper, true );
 		// Create uv point generator
 		mUVPointGenerator = new UVPointGenerator( aDensityTexture, mRestPoseMesh->getTriangleConstIterator(), randomGenerator );
 		// Close file

@@ -17,7 +17,7 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const UVPointGenerator &
 	{
 		it->mDensity = 0;
 	}
-	Vector3D< Real > bsize = bbox.max() - bbox.min();
+	Vector3D< Real > bsize = ( bbox.max() - bbox.min() ) * 1.001f;
 	Vector3D< Real > voxelSize( bsize.x / aDimensions3[ 0 ],
 		bsize.y / aDimensions3[ 1 ],
 		bsize.z / aDimensions3[ 2 ] );

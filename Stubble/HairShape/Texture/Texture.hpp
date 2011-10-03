@@ -7,7 +7,11 @@
 
 #include "HairShape\Mesh\UVPoint.hpp"
 
+#include <algorithm>
 #include <fstream>
+
+#undef min
+#undef max
 
 namespace Stubble
 {
@@ -97,7 +101,27 @@ public:
 	///
 	/// \return	float texture value
 	///----------------------------------------------------------------------------------------------------
-	float realAtUV( Real u, Real v ) const;
+	inline float realAtUV( Real u, Real v ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Derivative by u at given UV coordinates. 
+	///
+	/// \param	u	u coordinate
+	/// \param	v	v coordinate
+	///
+	/// \return	derivative value. 
+	///-------------------------------------------------------------------------------------------------
+	inline float derivativeByUAtUV( Real u, Real v ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Derivative by v at given UV coordinates. 
+	///
+	/// \param	u	u coordinate
+	/// \param	v	v coordinate
+	///
+	/// \return	derivative value. 
+	///-------------------------------------------------------------------------------------------------
+	inline float derivativeByVAtUV( Real u, Real v ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets texture value at the given UV coordinates.
@@ -107,7 +131,7 @@ public:
 	///
 	/// \return	float texture value
 	///----------------------------------------------------------------------------------------------------
-	Color colorAtUV( Real u, Real v ) const;
+	inline Color colorAtUV( Real u, Real v ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Puts texture in stream, exports only current time frame.
@@ -179,6 +203,10 @@ private:
 	unsigned __int32 mColorComponents;	///< Color component count
 
 	bool mIsAnimated;	///< Identification of texture type
+
+	float mInverseWidth;  ///< The inverse value of texture width
+
+	float mInverseHeight;  ///< The inverse value of texture height
 };
 
 // inline functions implementation
@@ -207,6 +235,34 @@ inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor
 		// Components equal so far -> continue
 	}
 	return false; // color1 equals color2
+}
+
+inline float Texture::realAtUV( Real u, Real v ) const
+{
+	return colorAtUV(u, v)[0];
+}
+
+inline float Texture::derivativeByUAtUV( Real u, Real v ) const
+{
+	return ( realAtUV( std::max( u + mInverseWidth, static_cast< Real >( 1.0f ) ), v ) -
+		realAtUV( u, v ) ) * mWidth;
+}
+
+inline float Texture::derivativeByVAtUV( Real u, Real v ) const
+{
+	return ( realAtUV( u, std::max( v + mInverseHeight, static_cast< Real >( 1.0f ) ) ) -
+		realAtUV( u, v ) ) * mHeight;
+}
+
+inline Texture::Color Texture::colorAtUV( Real u, Real v ) const
+{
+	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(u * mWidth) );
+	x = x == mWidth ? mWidth - 1 : x;
+
+	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(v * mHeight) );
+	y = y == mHeight ? mHeight - 1 :  y;
+
+	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
 }
 
 } // namespace HairShape

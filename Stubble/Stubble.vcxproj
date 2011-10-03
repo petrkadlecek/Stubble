@@ -260,6 +260,7 @@
     <ClInclude Include="Toolbox\Tools\MouseMoveListener.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MEL\AEHairShapeTemplate.mel" />
     <None Include="MEL\Stubble3DelightRendering.mel" />
     <None Include="MEL\StubbleBrushTool.mel" />
     <None Include="MEL\StubbleBrushToolProperties.mel" />
