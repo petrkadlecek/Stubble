@@ -372,8 +372,12 @@ template< typename tPositionGenerator, typename tOutputGenerator >
 inline bool HairGenerator< tPositionGenerator, tOutputGenerator >::
 	skipPoint( const Point * aPoints, const Vector * aTangents )
 {
-	/* TODO */
-	return false;
+	static NormalType skipTreshold = 0.1f;
+	// Differnces between tangents
+	Vector dt1 = aTangents[ 0 ] - aTangents[ - 1 ],
+		   dt2 = aTangents[ 1 ] - aTangents[ 0 ];
+	// may not pass certain treshold inorder to skip current point
+	return dt1.sizePwr2() < skipTreshold && dt2.sizePwr2() < skipTreshold;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
