@@ -20,6 +20,7 @@
 
 #include "Toolbox/Tools/HapticSettingsTool.hpp"
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
+#include "Toolbox/Tools/CutTool/CutTool.hpp"
 
 // Export the functions to make them visible in Maya
 #ifdef WIN32
@@ -59,6 +60,17 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "Could not register BrushToolCommand." );
+		return status;
+	}
+
+	// register CutToolCommand
+	status = plugin.registerContextCommand( Stubble::Toolbox::CutToolCommand::sCommandName, 
+		Stubble::Toolbox::CutToolCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register CutToolCommand." );
 		return status;
 	}
 
@@ -138,6 +150,15 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "Could not deregister BrushToolCommand." );
+	}
+
+	// deregister CutToolCommand
+	status = plugin.deregisterContextCommand( Stubble::Toolbox::CutToolCommand::sCommandName );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not deregister CutToolCommand." );
 	}
 
 	// deregister HapticSettingsToolCommand
