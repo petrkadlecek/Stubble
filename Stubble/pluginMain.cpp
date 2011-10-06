@@ -14,6 +14,8 @@
 #include "HairShape/UserInterface/HairShape.hpp"
 #include "HairShape/UserInterface/HairShapeUI.hpp"
 
+#include "HairShape\HairComponents\CommandsNURBS.hpp"
+
 #include "RibExport/RenderManCacheCommand.hpp"
 
 #include "Toolbox/Tools/HapticSettingsTool.hpp"
@@ -91,6 +93,26 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not register the Stubble3DelightCacheCommand command" );
+		return status;
+	}
+
+	// register StubbleImportNURBS command
+	status = plugin.registerCommand( "StubbleImportNURBS", Stubble::HairShape::HairComponents::ImportNURBSCommand::creator );
+	
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleImportNURBS command" );
+		return status;
+	}
+
+	// register StubbleExportToNURBS command
+	status = plugin.registerCommand( "StubbleExportToNURBS", Stubble::HairShape::HairComponents::ExportToNURBSCommand::creator );
+	
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleExportToNURBS command" );
 		return status;
 	}
 

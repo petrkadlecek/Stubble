@@ -214,6 +214,16 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline static HairShape * getActiveObject();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Import NURBS.
+	///----------------------------------------------------------------------------------------------------
+	inline void importNURBS();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Export to NURBS.
+	///----------------------------------------------------------------------------------------------------
+	inline void exportToNURBS();
+
 private:
 	
 	// Private methods
@@ -329,6 +339,16 @@ inline void HairShape::setAsActiveObject()
 inline HairShape * HairShape::getActiveObject()
 {
 	return mActiveHairShapeNode;
+}
+
+inline void HairShape::importNURBS()
+{
+	mHairGuides->importNURBS();
+}
+
+inline void HairShape::exportToNURBS()
+{
+	mHairGuides->exportToNURBS();
 }
 
 } // namespace HairShape

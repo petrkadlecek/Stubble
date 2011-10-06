@@ -6,10 +6,20 @@ global proc StubbleCreateUI()
 	menu -label "Stubble" $stubbleMainMenu;
 	setParent -menu $stubbleMainMenu;
 	menuItem -label "Create Hair" -command "source StubbleCreateHair.mel;";
+	menuItem -label "Cut Tool" -command "source StubbleCutTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
+	menuItem -label "Export selection to NURBS" -command "StubbleExportToNURBS;";
+	menuItem -label "Import selected NURBS" -command "StubbleImportNURBS;";
 	setParent $gMainWindow;
 
+
+	// Create Stubble cut tool
+	if ( !`contextInfo -exists stubbleCutTool` )
+	{
+		StubbleCutToolCommand stubbleCutTool;
+		print ( "Created the stubbleCutTool context.\n" );
+	}
 
 	// Create Stubble brush tool
 	if ( !`contextInfo -exists stubbleBrushTool` )
@@ -67,7 +77,21 @@ global proc StubbleCreateUI()
 				-style "iconOnly"
 				-command "toolPropertyWindow; setToolTo stubbleBrushTool"`;
 
-	// create Stubble Brush tool icon
+	// create Stubble Cut tool icon
+	string $cutButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble Cut tool"
+				-label "Stubble Cut tool"
+// TODO scissors				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "toolPropertyWindow; setToolTo stubbleCutTool"`;
+
+	// create Stubble haptic tool icon
 	string $hapticButton = 	`shelfButton
 				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
 				-enable 1

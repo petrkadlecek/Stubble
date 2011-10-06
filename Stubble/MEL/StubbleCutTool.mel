@@ -1,0 +1,7 @@
+if ( !`contextInfo -exists stubbleCutTool` )
+{
+	StubbleCutToolCommand stubbleCutTool;
+	print ( "Created the stubbleCutTool context.\n" );
+}
+
+setToolTo stubbleCutTool;

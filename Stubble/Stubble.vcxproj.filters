@@ -70,6 +70,9 @@
     <Filter Include="RibExport">
       <UniqueIdentifier>{33103871-df72-42c9-9f13-d90140cc9d10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Toolbox\Tools\CutTool">
+      <UniqueIdentifier>{e0a64e58-686b-4998-b25e-388035731f3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -195,6 +198,12 @@
     </ClCompile>
     <ClCompile Include="Common\GLExtensions.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp">
+      <Filter>Toolbox\Tools\CutTool</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\CommandsNURBS.cpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -383,6 +392,12 @@
     </ClInclude>
     <ClInclude Include="Common\CatmullRomUtilities.hpp">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\Tools\CutTool\CutTool.hpp">
+      <Filter>Toolbox\Tools\CutTool</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

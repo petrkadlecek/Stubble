@@ -155,6 +155,7 @@
     <ClCompile Include="Common\GLExtensions.cpp" />
     <ClCompile Include="HairShape\Generators\RandomGenerator.cpp" />
     <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp" />
+    <ClCompile Include="HairShape\HairComponents\CommandsNURBS.cpp" />
     <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp" />
     <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
@@ -191,6 +192,7 @@
     <ClCompile Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\ToolShape.cpp" />
     <ClCompile Include="Toolbox\Tools\BrushTool\BrushTool.cpp" />
+    <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp" />
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp" />
     <ClCompile Include="Toolbox\Tools\HapticSettingsTool.cpp" />
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
@@ -203,6 +205,7 @@
     <ClInclude Include="Common\GLExtensions.hpp" />
     <ClInclude Include="Common\StubbleException.hpp" />
     <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
+    <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp" />
     <ClInclude Include="HairShape\HairComponents\DisplayedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuidePosition.hpp" />
     <ClInclude Include="HairShape\HairComponents\RestPositionsUG.hpp" />
@@ -255,6 +258,7 @@
     <ClInclude Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\ToolShape.hpp" />
     <ClInclude Include="Toolbox\Tools\BrushTool\BrushTool.hpp" />
+    <ClInclude Include="Toolbox\Tools\CutTool\CutTool.hpp" />
     <ClInclude Include="Toolbox\Tools\GenericTool.hpp" />
     <ClInclude Include="Toolbox\Tools\HapticSettingsTool.hpp" />
     <ClInclude Include="Toolbox\Tools\MouseMoveListener.hpp" />

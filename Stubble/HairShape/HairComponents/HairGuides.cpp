@@ -138,7 +138,7 @@ void HairGuides::importNURBS()
 	mBoundingBoxDirtyFlag = true;
 }
 
-void HairGuides::exportNURBS()
+void HairGuides::exportToNURBS()
 {
 	if ( mSegmentsStorage->imported() )
 	{
