@@ -17,7 +17,7 @@ namespace Toolbox
 		// and should not move)
 		for (size_t i = 1; i < segmentCount; ++i)
 		{
-			if ( aGuideHair.mSegmentsAdditionalInfo[ i ].mActive )
+			if ( aGuideHair.mSegmentsAdditionalInfo[ i ].mInsideBrush )
 			{
 				aGuideHair.mGuideSegments.mSegments[ i ] += dX * aGuideHair.mSegmentsAdditionalInfo[ i ].mFallOff;
 			}

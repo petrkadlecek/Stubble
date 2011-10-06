@@ -80,13 +80,16 @@ void HairShapeUI::draw( const MDrawRequest & request, M3dView & view ) const
 
 bool HairShapeUI::select( MSelectInfo &selectInfo, MSelectionList &selectionList, MPointArray &worldSpaceSelectPts ) const
 {
-	// Select function. Gets called when the bbox for the object is selected.
-	// This function just selects the object without doing any intersection tests.
+	// Tell Maya that the object has been selected
     MSelectionMask priorityMask( MSelectionMask::kSelectHairSystems );
     MSelectionList item;
     item.add( selectInfo.selectPath() );
     MPoint xformedPt;
     selectInfo.addSelection( item, xformedPt, selectionList, worldSpaceSelectPts, priorityMask, false );
+
+	// Select hair guides
+	HairShape *hairShape = (HairShape *)surfaceShape();
+	hairShape->mHairGuides->applySelection(selectInfo, selectionList, worldSpaceSelectPts);
 
     return true;
 }

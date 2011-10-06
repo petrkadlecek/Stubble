@@ -21,22 +21,18 @@ HairGuides::~HairGuides()
 	delete mSegmentsStorage;
 }
 
-void HairGuides::applySelection( const SelectionMask & aSelectionMask )
+void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
 {
-	//TODO: revise according to the new intefrace of SegmentsUG
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
 		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
 	}
-	//// Hide old selection
-	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
-	//// Apply selection
-	//mAllSegmentsUG.select( aSelectionMask, mSelectedGuides ); //FIXME
-	//// Rebuild selected segments UG
-	//mSelectedSegmentsUG.build( mSelectedGuides, true );
-	//// Display selection
-	//mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
-	mSelectedSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
+	// Hide old selection
+	mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
+	// Rebuild selected segments UG
+	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides);
+	// Display selection
+	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }
 
 BoundingBox HairGuides::getBoundingBox()

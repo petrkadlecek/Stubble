@@ -24,9 +24,11 @@ typedef Toolbox::ToolShape * SelectionMask;
 ///-------------------------------------------------------------------------------------------------
 struct OneSegmentAdditionalInfo
 {
-	bool mActive;	///< true to active
+	bool mSelected;	///< True if the vertex can be selected and is selected via a selection tool
 
-	Real mFallOff;	///< The fall off
+	bool mInsideBrush;	///< True if the vertex is selected and inside a brush
+
+	Real mFallOff;	///< The fall off of brushing transformation
 };
 
 ///-------------------------------------------------------------------------------------------------

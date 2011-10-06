@@ -19,6 +19,7 @@
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MPointArray.h>
 #include <maya/MSelectionList.h>
+#include <maya/MSelectInfo.h>
 #include <maya/MItSelectionList.h>
 #include <maya/MAnimControl.h>
 #include <maya/MTime.h>
@@ -54,9 +55,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Applies the selection described by aSelectionMask. 
 	///
-	/// \param		the selection mask. 
+	/// \param	aSelectInfo				structure containing selection region and various other information
+	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
 	///----------------------------------------------------------------------------------------------------
-	void applySelection( const SelectionMask & aSelectionMask ); //TODO: redo interface?
+	void applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the bounding box. 

@@ -41,6 +41,11 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Selection method called when selection has been detected.
+	///
+	/// \param	aSelectInfo				structure containing selection region and various other information
+	///	\param	aSelectionList			out parameter for returning selected components list
+	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list
+	/// \return	True if the object was selected
 	///----------------------------------------------------------------------------------------------------
     virtual bool select( MSelectInfo &selectInfo, MSelectionList &selectionList,  MPointArray &worldSpaceSelectPts ) const;
 

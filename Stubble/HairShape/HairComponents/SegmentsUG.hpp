@@ -5,6 +5,10 @@
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 
+#include <maya/MPointArray.h>
+#include <maya/MSelectionList.h>
+#include <maya/MSelectInfo.h>
+
 namespace Stubble
 {
 
@@ -32,6 +36,24 @@ public:
 	~SegmentsUG();
 
 	///-------------------------------------------------------------------------------------------------
+	/// Builds the uniform grid using selection information, the end product is a grid built using only
+	/// selected guides. TODO: add selection filter support
+	///
+	/// \param	aGuidesCurrentPositions	the guides current positions. 
+	/// \param	aFrameSegments			the guides segments in current frame. 
+	/// \param	aSelectInfo				structure containing selection region and various other information
+	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aSelectedGuides			out parameter for returning currently selected guides.
+	///-------------------------------------------------------------------------------------------------
+	void build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+		const FrameSegments & aFrameSegments,
+		MSelectInfo & aSelectInfo,
+		MSelectionList & aSelectionList,
+		MPointArray & aWorldSpaceSelectedPts,
+		SelectedGuides & aSelectedGuides);
+
+	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid. 
 	///
 	/// \param	aGuidesCurrentPositions	the guides current positions. 
@@ -41,7 +63,7 @@ public:
 		const FrameSegments & aFrameSegments );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Builds the part of uniform grid holding the selected guides. 
+	/// Builds the part of uniform grid holding the selected guides.
 	///
 	/// \param	aSelectedGuides	the selected guides.
 	/// \param	aFullBuild	if false, only updates "dirty" selected guides 
@@ -49,7 +71,7 @@ public:
 	void build( const SelectedGuides & aSelectedGuides, bool aFullBuild );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Selects the guides using rectangle
+	/// Selects the guides using rectangle - deprecated!
 	///
 	/// \param	aX	X screen coordinate of the top left corner
 	/// \param	aY	Y screen coordinate of the top right corner

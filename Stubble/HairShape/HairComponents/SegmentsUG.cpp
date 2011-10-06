@@ -21,6 +21,63 @@ SegmentsUG::~SegmentsUG()
 	/* TODO */
 }
 
+void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+	const FrameSegments & aFrameSegments,
+	MSelectInfo & aSelectInfo,
+	MSelectionList & aSelectionList,
+	MPointArray & aWorldSpaceSelectedPts,
+	SelectedGuides & aSelectedGuides)
+{
+	assert(aGuidesCurrentPositions.size() == aFrameSegments.mSegments.size());
+	aSelectedGuides.clear();
+	M3dView view = aSelectInfo.view(); // Selection view
+	
+	// for each guide
+	GuideId gId = 0;
+	GuidesCurrentPositions::const_iterator posIt = aGuidesCurrentPositions.begin();
+	for (GuidesSegments::const_iterator guideIt = aFrameSegments.mSegments.begin();
+		guideIt != aFrameSegments.mSegments.end(); ++guideIt, ++posIt, ++gId)
+	{
+		bool selected = false; // Denotes whether the current guide is selected or not
+		SegmentsAdditionalInfo additionalInfo;
+		
+		// for each guide segment (vertex)
+		for (Segments::const_iterator segIt = guideIt->mSegments.begin();
+			segIt != guideIt->mSegments.end(); ++segIt)
+		{
+			Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
+			view.beginSelect();
+			glBegin(GL_POINTS);
+			glVertex3d(pos.x, pos.y, pos.z);
+			glEnd();
+			// If a hit has been recorded
+			if (view.endSelect() > 0)
+			{
+				OneSegmentAdditionalInfo sgmtInfo;
+				sgmtInfo.mSelected = true; //TODO: use selection filter
+				selected = true;
+
+				additionalInfo.push_back(sgmtInfo);
+			}
+		}
+
+		if (selected)
+		{
+			SelectedGuide guide;
+			guide.mDirtyFlag = false;
+			guide.mDirtyRedrawFlag = false;
+			guide.mGuideId = gId;
+			guide.mGuideSegments.mSegmentLength = guideIt->mSegmentLength;
+			guide.mGuideSegments.mSegments = Segments(guideIt->mSegments);
+			guide.mSegmentsAdditionalInfo = additionalInfo;
+
+			aSelectedGuides.push_back(guide);
+		}
+	} // for each guide
+
+	build(aSelectedGuides, true);
+}
+
 void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
 	const FrameSegments & aFrameSegments )
 {
@@ -39,7 +96,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		guide.mGuideSegments = aFrameSegments.mSegments[ i ];
 		
 		OneSegmentAdditionalInfo sgmtInfo;
-		sgmtInfo.mActive = true;
+		sgmtInfo.mInsideBrush = true;
 		sgmtInfo.mFallOff = 1.0;
 		guide.mSegmentsAdditionalInfo = SegmentsAdditionalInfo(guide.mGuideSegments.mSegments.size(), sgmtInfo);
 
@@ -53,6 +110,9 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 
 void SegmentsUG::build( const SelectedGuides & aSelectedGuides, bool aFullBuild )
 {
+	// Should not copy contents once again - just use information obtained via aSelectedGuides parameter
+	// see usage in the first method
+
 	// ------------------------------------------
 	//TODO: rewrite testing code with actual code
 	mStoredGuides = SelectedGuides(aSelectedGuides);
@@ -91,7 +151,7 @@ void SegmentsUG::select( short aX, short aY, short aW, short aH, SelectedGuides 
 			{
 				selected = true;
 
-				guide.mSegmentsAdditionalInfo[ i ].mActive = true;
+				guide.mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
 				guide.mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;  //TODO: add actual code
 			}
 		}
@@ -140,7 +200,7 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			{
 				selected = true;
 
-				guide.mSegmentsAdditionalInfo[ i ].mActive = true;
+				guide.mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
 				guide.mSegmentsAdditionalInfo[ i ].mFallOff = 0.0; //TODO: add actual code
 			}
 		}
