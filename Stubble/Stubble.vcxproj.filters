@@ -428,5 +428,8 @@
     <None Include="MEL\AEHairShapeTemplate.mel">
       <Filter>MEL</Filter>
     </None>
+    <None Include="MEL\StubbleRebuildSelectMenu.mel">
+      <Filter>MEL</Filter>
+    </None>
   </ItemGroup>
 </Project>

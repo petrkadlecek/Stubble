@@ -273,6 +273,7 @@
     <None Include="MEL\StubbleCreateUI.mel" />
     <None Include="MEL\StubbleDeleteUI.mel" />
     <None Include="MEL\StubbleHapticSettingsTool.mel" />
+    <None Include="MEL\StubbleRebuildSelectMenu.mel" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

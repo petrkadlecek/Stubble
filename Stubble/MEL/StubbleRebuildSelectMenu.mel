@@ -1,0 +1,22 @@
+string $stubbleNodeType = "HairShape";
+string $stubbleNodes[] = `ls -type $stubbleNodeType`;
+string $stubbleSelectedNodes[] = `ls -sl -type $stubbleNodeType`;
+global string $gMainWindow;
+global string $stubbleSelectMenu;
+menu -edit -deleteAllItems $stubbleSelectMenu;
+setParent -menu $stubbleSelectMenu;
+
+for ($node in $stubbleNodes)
+{
+	$radioButtonValue = off;
+	for ($selectedNode in $stubbleSelectedNodes)
+	{
+		if ($node == $selectedNode)
+		{
+			$radioButtonValue = on;
+			break;
+		}
+	}
+	menuItem -label $node -command ("select -r " + $node + ";") -checkBox $radioButtonValue $node;
+}
+setParent $gMainWindow;

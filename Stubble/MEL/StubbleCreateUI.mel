@@ -1,5 +1,6 @@
 global proc StubbleCreateUI()
 {
+	// Create Stubble menu
 	global string $gMainWindow;
 	setParent $gMainWindow;
 	global string $stubbleMainMenu = "stubbleMainMenu";
@@ -11,8 +12,12 @@ global proc StubbleCreateUI()
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
 	menuItem -label "Export selection to NURBS" -command "StubbleExportToNURBS;";
 	menuItem -label "Import selected NURBS" -command "StubbleImportNURBS;";
+	// Create Stubble select menu
 	setParent $gMainWindow;
+	global string $stubbleSelectMenu = "stubbleSelectMenu";
+	menu -label "Stubble select" -postMenuCommand "source StubbleRebuildSelectMenu.mel;" $stubbleSelectMenu;
 
+	setParent $gMainWindow;
 
 	// Create Stubble cut tool
 	if ( !`contextInfo -exists stubbleCutTool` )
