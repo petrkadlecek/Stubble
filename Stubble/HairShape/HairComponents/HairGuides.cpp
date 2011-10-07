@@ -28,7 +28,7 @@ void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
 	}
 	// Hide old selection
-	mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
+	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides);
 	// Display selection

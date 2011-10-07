@@ -52,7 +52,7 @@ public:
 	void selectionRebuild( const SelectedGuides & aSelectedGuides, bool aHighlight );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Draws the guides.
+	/// Draws the guides using additional info - selection filter, hide/unhide non-selected guides, etc.
 	///-------------------------------------------------------------------------------------------------
 	void draw() const;
 
@@ -69,9 +69,22 @@ public:
 	inline bool isDirty() const;
 
 private:
+
+	///-------------------------------------------------------------------------------------------------
+	/// Draws guides as coloured poly-lines
+	///-------------------------------------------------------------------------------------------------
+	void drawPolyline() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Draws guides as coloured vertices
+	///-------------------------------------------------------------------------------------------------
+	void drawVertices() const;
+
 	bool mDirtyBit; ///< true to dirty bit
 
 	bool mHighLightSelected;	///< true to high light selected
+
+	bool mHideNonSelected;		///< True if the user wants to hide non-selected guides
 
 	const FrameSegments * mFrameSegments;   ///< The frame segments
 

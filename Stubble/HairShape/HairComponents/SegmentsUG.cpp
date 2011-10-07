@@ -45,6 +45,9 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		for (Segments::const_iterator segIt = guideIt->mSegments.begin();
 			segIt != guideIt->mSegments.end(); ++segIt)
 		{
+			OneSegmentAdditionalInfo sgmtInfo;
+			sgmtInfo.mSelected = false;
+			
 			Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
 			view.beginSelect();
 			glBegin(GL_POINTS);
@@ -53,12 +56,10 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			// If a hit has been recorded
 			if (view.endSelect() > 0)
 			{
-				OneSegmentAdditionalInfo sgmtInfo;
 				sgmtInfo.mSelected = true; //TODO: use selection filter
 				selected = true;
-
-				additionalInfo.push_back(sgmtInfo);
 			}
+			additionalInfo.push_back(sgmtInfo);
 		}
 
 		if (selected)
