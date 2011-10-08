@@ -180,7 +180,7 @@ private:
 		const Vector & aPreviousNormal );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Calculates normals and binormals of selected hair. The first normal must be already set
+	/// Calculates normals and binormals of selected hair.
 	///
 	/// \param [in,out]	aNormals	The calculated normals. 
 	/// \param [in,out]	aBinormals	The calculated binormals. 

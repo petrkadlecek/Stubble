@@ -105,12 +105,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 			calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
 			// Duplicate tangents ( same reason as with points duplication )
 			copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
-			// Select first hair point normal
-			* normals = Vector( static_cast< NormalType >( restPos.getTangent().x ),
-							static_cast< NormalType >( restPos.getTangent().y ),
-							static_cast< NormalType >( restPos.getTangent().z ) ); 
 			// Create full rotation minimizing frame for main hair
-			calculateNormalsAndBinormals( normals, binormals, points, tangents, ptsCountAfterCut );
+			calculateNormalsAndBinormals( normals, binormals, pointsPlusOne, tangentsPlusOne, ptsCountAfterCut );
 			// Get multi-strands properties
 			selectMultiStrandProperties( restPos, ptsCountBeforeCut );
 			// Generate all hair in strand
@@ -352,8 +348,13 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	calculateNormalsAndBinormals( Vector * aNormals, Vector * aBinormals, const Point * aPoints, 
 		const Vector * aTangents, unsigned __int32 aCount )
 {
-	// Calculates first binormal ( first normal must exist ! )
+	// Select first hair point normal
+	* aNormals = Vector( 0, 1, 0 );
+	// Calculates first binormal
 	*aBinormals = Vector::crossProduct( *aTangents, *aNormals );
+	// Skip first point and tangent
+	++aTangents;
+	++aPoints;
 	// For every point
 	for ( Vector * end = aNormals + aCount, *n = aNormals + 1, *b = aBinormals + 1;
 		n != end; ++n, ++b, ++aTangents, ++aPoints )
