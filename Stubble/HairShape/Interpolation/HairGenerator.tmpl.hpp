@@ -34,8 +34,11 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 	// The first point always equals the second one, so it will not be included in many calculations
 	Point * pointsPlusOne = points + 1; 
 	Point * pointsStrand = new Point[ maxPointsCount ];
+	Point * pointsStrandPlusOne = pointsStrand + 1; 
 	Vector * tangents = new Vector[ maxPointsCount ];
 	Vector * tangentsPlusOne = tangents + 1; 
+	Vector * normals = new Vector[ maxPointsCount ];
+	Vector * binormals = new Vector[ maxPointsCount ];
 	// Prepare matrix
 	Matrix localToCurr;
 	// Resets random generator
@@ -45,7 +48,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		mHairProperties->getMultiStrandCount() );
 	IndexType strandIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() );
 	// Start output
-	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount(), maxPointsCount );
+	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount() * 
+		std::max( aHairProperties.getMultiStrandCount(), static_cast< unsigned __int32 >( 1 ) ), maxPointsCount );
 	// For every main hair
 	for ( unsigned __int32 i = 0; i < mPositionGenerator.getHairCount(); ++i, ++strandIndex )
 	{
@@ -91,22 +95,64 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		currPos.getWorldTransformMatrix( localToCurr );
 		// Select hair color, opacity and width
 		selectHairColorOpacityWidth( restPos );
-		// Convert positions to current world space
-		transformPoints( pointsPlusOne, ptsCountAfterCut, localToCurr );
-		// Duplicate first and last point ( last points need to be duplicated, 
-		// only if cut has not decreased points count, so we will use total points count )
-		// These duplicated points are used for curve points calculation at any given param t
-		copyToLastAndFirst( points, ptsCountBeforeCut + 2 );
-		// Calculate tangents
-		calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
-		// Duplicate tangents ( same reason as with points duplication )
-		copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 		if ( aHairProperties.getMultiStrandCount() ) // Uses multi strands ?
 		{
-			/* TODO handle multi strands */
+			// Duplicate first and last point ( last points need to be duplicated, 
+			// only if cut has not decreased points count, so we will use total points count )
+			// These duplicated points are used for curve points calculation at any given param t
+			copyToLastAndFirst( points, ptsCountBeforeCut + 2 );
+			// Calculate tangents
+			calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
+			// Duplicate tangents ( same reason as with points duplication )
+			copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
+			// Select first hair point normal
+			* normals = Vector( static_cast< NormalType >( restPos.getTangent().x ),
+							static_cast< NormalType >( restPos.getTangent().y ),
+							static_cast< NormalType >( restPos.getTangent().z ) ); 
+			// Create full rotation minimizing frame for main hair
+			calculateNormalsAndBinormals( normals, binormals, points, tangents, ptsCountAfterCut );
+			// Get multi-strands properties
+			selectMultiStrandProperties( restPos, ptsCountBeforeCut );
+			// Generate all hair in strand
+			for ( unsigned __int32 j = 0; j < aHairProperties.getMultiStrandCount(); ++j )
+			{
+				// First generate points
+				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, pointsPlusOne,
+					normals, binormals );
+				// Convert positions to current world space
+				transformPoints( pointsStrandPlusOne, ptsCountAfterCut, localToCurr );
+				// Duplicate first and last point ( last points need to be duplicated, 
+				// only if cut has not decreased points count, so we will use total points count )
+				// These duplicated points are used for curve points calculation at any given param t
+				copyToLastAndFirst( pointsStrand, ptsCountBeforeCut + 2 );
+				// Calculate tangents
+				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterCut );
+				// Duplicate tangents ( same reason as with points duplication )
+				copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
+				// Finally begin hair output ( first and last points are duplicated )
+				mOutputGenerator.beginHair( ptsCountAfterCut + 2 );
+				// Output indices and uv coordinates
+				outputHairIndexAndUVs( ++hairIndex, strandIndex, restPos );
+				// Generate final hair : calculates normals, colors, opacity, width and may reject some points,
+				// so final points count is returned ( including two duplicated points : first and last )
+				unsigned __int32 pointsCount = generateHair( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterCut, 
+					ptsCountBeforeCut, restPos, cutFactor );
+				// End hair generation
+				mOutputGenerator.endHair( pointsCount );
+			}
 		}
 		else // Single hair only
 		{
+			// Convert positions to current world space
+			transformPoints( pointsPlusOne, ptsCountAfterCut, localToCurr );
+			// Duplicate first and last point ( last points need to be duplicated, 
+			// only if cut has not decreased points count, so we will use total points count )
+			// These duplicated points are used for curve points calculation at any given param t
+			copyToLastAndFirst( points, ptsCountBeforeCut + 2 );
+			// Calculate tangents
+			calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
+			// Duplicate tangents ( same reason as with points duplication )
+			copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 			// Finally begin hair output ( first and last points are duplicated )
 			mOutputGenerator.beginHair( ptsCountAfterCut + 2 );
 			// Output indices and uv coordinates
@@ -124,6 +170,8 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 	delete [] points;
 	delete [] pointsStrand;
 	delete [] tangents;
+	delete [] normals;
+	delete [] binormals;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -278,6 +326,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	{
 		// Catmull-rom tangent calculation
 		*it = ( *succ - *pre ) * 0.5;
+		it->normalize();
 	}
 }
 
@@ -296,6 +345,24 @@ inline typename HairGenerator< tPositionGenerator, tOutputGenerator >::Vector
 	NormalType c2 = v2.sizePwr2();
 	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) );
 	//return aPreviousNormal;
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	calculateNormalsAndBinormals( Vector * aNormals, Vector * aBinormals, const Point * aPoints, 
+		const Vector * aTangents, unsigned __int32 aCount )
+{
+	// Calculates first binormal ( first normal must exist ! )
+	*aBinormals = Vector::crossProduct( *aTangents, *aNormals );
+	// For every point
+	for ( Vector * end = aNormals + aCount, *n = aNormals + 1, *b = aBinormals + 1;
+		n != end; ++n, ++b, ++aTangents, ++aPoints )
+	{
+		// Calculate rotation minimazing frame
+		*n = calculateNormal( aPoints, aTangents, * ( n - 1 ) );
+		// Calculate binormal
+		*b = Vector::crossProduct( *aTangents, *n );
+	}
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -372,12 +439,10 @@ template< typename tPositionGenerator, typename tOutputGenerator >
 inline bool HairGenerator< tPositionGenerator, tOutputGenerator >::
 	skipPoint( const Point * aPoints, const Vector * aTangents )
 {
-	static NormalType skipTreshold = 0.1f;
-	// Differnces between tangents
-	Vector dt1 = aTangents[ 0 ] - aTangents[ - 1 ],
-		   dt2 = aTangents[ 1 ] - aTangents[ 0 ];
+	static const NormalType skipTreshold = 0.1f;
 	// may not pass certain treshold inorder to skip current point
-	return dt1.sizePwr2() < skipTreshold && dt2.sizePwr2() < skipTreshold;
+	return Vector::dotProduct( aTangents[ 0 ], aTangents[ - 1 ] ) < skipTreshold 
+		&& Vector::dotProduct( aTangents[ 0 ], aTangents[ 1 ] ) < skipTreshold;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -481,6 +546,98 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	* ( mOutputGenerator.strandUVCoordinatePointer() + 1 ) = v;
 }
 
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	sampleDisk( PositionType aSampleX, PositionType aSampleY, PositionType & aCosPhi, 
+	PositionType & aSinPhi, PositionType & aRadius )
+{
+	static const PositionType PI = 3.14159265f;
+	static const PositionType PI_4 = PI / 4;
+	static const PositionType PI_2 = PI / 2;
+	// Transform [0-1]^2 to [-1,1]^2
+	PositionType a = 2 * aSampleX - 1;
+	PositionType b = 2 * aSampleY - 1;
+	PositionType phi; // Angle
+	// use squares instead of absolute values
+	if ( a * a > b * b ) 
+	{ 
+		aRadius = a;
+		phi = PI_4 * ( b / a );
+	} 
+	else 
+	{
+ 		aRadius = b;
+		phi = PI_2 - PI_4 * ( a / b );
+	}
+	// Calculate cos, sin
+	aCosPhi = static_cast< PositionType >( cos( phi ) );
+	aSinPhi = static_cast< PositionType >( sin( phi ) );
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	selectMultiStrandProperties( const MeshPoint &aRestPosition, unsigned __int32 aCurvePointsCount )
+{
+	// Store uv coordinates
+	const Real u = aRestPosition.getUCoordinate();
+	const Real v = aRestPosition.getVCoordinate();
+	// Select twist and divide it by aCurvePointsCount - 1 to get twist angle for each hair point
+	PositionType twist = static_cast< PositionType >( mHairProperties->getTwist() * 
+		mHairProperties->getTwistTexture().realAtUV( u, v ) ) / ( aCurvePointsCount - 1 );
+	// Calculate cos, sin
+	mCosTwist = static_cast< PositionType >( cos( twist ) );
+	mSinTwist = static_cast< PositionType >( sin( twist ) );
+	// Select tip splay
+	mTipSplay = static_cast< PositionType >( mHairProperties->getTipSplay() * 
+		mHairProperties->getTipSplayTexture().realAtUV( u, v ) );
+	// Select center splay
+	mCenterSplay = static_cast< PositionType >( mHairProperties->getCenterSplay() * 
+		mHairProperties->getCenterSplayTexture().realAtUV( u, v ) );
+	// Select root splay
+	mRootSplay = static_cast< PositionType >( mHairProperties->getRootSplay() * 
+		mHairProperties->getRootSplayTexture().realAtUV( u, v ) );
+	// Select randomize scale
+	mRandomizeScale = static_cast< PositionType >( mHairProperties->getRandomizeStrand() * 
+		mHairProperties->getRandomizeStrandTexture().realAtUV( u, v ) );
+	// Select offset of tips
+	mOffset = static_cast< PositionType >( mHairProperties->getOffset() * 
+		mHairProperties->getOffsetTexture().realAtUV( u, v ) );
+	// Select aspect ratio of disk samples
+	mAspect = static_cast< PositionType >( mHairProperties->getAspect() * 
+		mHairProperties->getAspectTexture().realAtUV( u, v ) );
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount,
+	const Point * aMainHairPoints, const Vector * aMainHairNormals, const Vector * aMainHairBinormals )
+{
+	// First generate relative position on disk
+	PositionType cosPhi, sinPhi, radius;
+	sampleDisk( static_cast< PositionType >( mRandom.uniformNumber() ), 
+		static_cast< PositionType >( mRandom.uniformNumber() * mAspect ), cosPhi, sinPhi, radius );
+	// Generate random scale
+	PositionType scale = static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
+	// Curve t param
+	PositionType step = 1.0f / ( aCurvePointsCount - 1 ), t = step;
+	// For every point on cut curve
+	for( Point * it = aPoints, * end = aPoints + aCount; it != end; 
+		t += step, ++it, ++aMainHairPoints, ++aMainHairNormals, ++aMainHairBinormals )
+	{
+		// Calculate radius and offset
+		PositionType currRadius = radius, offset = mOffset;
+		// Calculate final position :
+		// mainHairPos + position on plane defined by normal and binormal * radius + offset in direction of normal
+		// and finally scale whole thing by scale factor
+		*it = ( *aMainHairPoints + ( *aMainHairNormals * cosPhi + *aMainHairBinormals * sinPhi ) * currRadius +
+			*aMainHairNormals * offset ) * scale;
+		// Add twist to cosPhi and sinPhi using trigonometric formulas
+		PositionType newSinPhi = sinPhi * mCosTwist + mSinTwist * cosPhi;
+		cosPhi *= mCosTwist;
+		cosPhi -= mSinTwist * sinPhi;
+		sinPhi = newSinPhi;
+	} 
+}
 
 } // namespace Interpolation
 

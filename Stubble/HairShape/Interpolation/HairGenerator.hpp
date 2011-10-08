@@ -138,6 +138,17 @@ private:
 		const MeshPoint &aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Applies the frizz to hair points. 
+	///
+	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param	aCount				Number of points. 
+	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
+	/// \param	aRestPosition		The rest position of hair. 
+	///-------------------------------------------------------------------------------------------------
+	inline void generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
+		const MeshPoint &aRestPosition );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Transforms points. 
 	///
 	/// \param [in,out]	aPoints		If non-null, a points. 
@@ -167,6 +178,18 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline Vector calculateNormal( const Point * aPoints, const Vector * aTangents,
 		const Vector & aPreviousNormal );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Calculates normals and binormals of selected hair. The first normal must be already set
+	///
+	/// \param [in,out]	aNormals	The calculated normals. 
+	/// \param [in,out]	aBinormals	The calculated binormals. 
+	/// \param	aPoints				The hair points. 
+	/// \param	aTangents			The hair tangents. 
+	/// \param	aCount				Number of hair points. 
+	///-------------------------------------------------------------------------------------------------
+	inline void calculateNormalsAndBinormals( Vector * aNormals, Vector * aBinormals, const Point * aPoints, 
+		const Vector * aTangents, unsigned __int32 aCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the hue value shift described to selected color in RGB. 
@@ -220,6 +243,39 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline void outputHairIndexAndUVs( IndexType aHairIndex, IndexType aStrandIndex, const MeshPoint &aRestPosition );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Samples disk. Uses two samples from [0-1]^2 to sample disk and returns phi angle and radius.
+	///
+	/// \param	aSampleX		The sample x coordinate. 
+	/// \param	aSampleY		The sample y coordinate. 
+	/// \param [in,out]	aCosPhi	The cosine phi. 
+	/// \param [in,out]	aSinPhi	The sine phi. 
+	/// \param [in,out]	aRadius	The sample radius.
+	///-------------------------------------------------------------------------------------------------
+	inline void sampleDisk( PositionType aSampleX, PositionType aSampleY, PositionType & aCosPhi, 
+		PositionType & aSinPhi, PositionType & aRadius );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Selects multi strand properties. 
+	///
+	/// \param	aRestPosition		The hair rest position.
+	/// \param	aCurvePointsCount	Number of curve points, used for twist calculation.  
+	///-------------------------------------------------------------------------------------------------
+	inline void selectMultiStrandProperties( const MeshPoint &aRestPosition, unsigned __int32 aCurvePointsCount );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Generates a hair positions in strand local space. 
+	///
+	/// \param [in,out]	aPoints		The new hair points. 
+	/// \param	aCount				Number of points. 
+	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
+	/// \param	aMainHairPoints		The main hair points. 
+	/// \param	aMainHairNormals	The main hair normals. 
+	/// \param	aMainHairBinormals	The main hair binormals. 
+	///-------------------------------------------------------------------------------------------------
+	inline void generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount,
+		const Point * aMainHairPoints, const Vector * aMainHairNormals, const Vector * aMainHairBinormals );
+
 	tPositionGenerator & mPositionGenerator;	///< The position generator
 
 	tOutputGenerator & mOutputGenerator;	///< The output generator
@@ -241,6 +297,24 @@ private:
 	WidthType mRootWidth;   ///< Width of the root
 
 	WidthType mTipWidth;	///< Width of the tip
+
+	// Multi-strands properties
+
+	PositionType mCosTwist; ///< The cosine of twist angle
+
+	PositionType mSinTwist; ///< The sine of twist angle
+
+	PositionType mTipSplay; ///< The tip splay
+
+	PositionType mCenterSplay; ///< The center splay
+
+	PositionType mRootSplay; ///< The root splay
+
+	PositionType mRandomizeScale;	///< The randomize scale factor
+
+	PositionType mOffset;   ///< The offset of tips
+
+	PositionType mAspect;   ///< The aspect ratio of disk samples
 };
 
 // inline functions implementation
