@@ -1,6 +1,8 @@
 #ifndef STUBBLE_MATRIX_HPP
 #define STUBBLE_MATRIX_HPP
 
+#include <memory>
+
 namespace Stubble
 {
 
@@ -11,6 +13,12 @@ template < typename Type >
 class Matrix
 { 
 public:
+
+	inline Matrix();
+
+	inline Matrix( const Matrix< Type > &aM );
+
+	inline Matrix< Type > & operator= ( const Matrix< Type > &aM );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Const array indexer operator. 
@@ -39,8 +47,30 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline Matrix< Type > operator* ( const Matrix< Type > & aMat ) const;
 
+private:
+
 	Type m[ 16 ];   ///< The matrix data
 };
+
+template < typename Type >
+inline Matrix< Type >::Matrix()
+{
+	std::uninitialized_fill_n(m, 16, 0);
+}
+
+template < typename Type >
+inline Matrix< Type >::Matrix( const Matrix< Type > &aM )
+{
+	std::uninitialized_copy(aM.m, aM.m + 16, m);
+}
+
+template < typename Type >
+inline Matrix< Type > & Matrix< Type >::operator= ( const Matrix< Type > &aM )
+{
+	std::uninitialized_copy(aM.m, aM.m + 16, m);
+
+	return *this;
+}
 
 template < typename Type >
 inline Type Matrix< Type >::operator[] ( unsigned __int32 aIndex ) const

@@ -24,12 +24,22 @@ typedef Toolbox::ToolShape * SelectionMask;
 ///-------------------------------------------------------------------------------------------------
 struct OneSegmentAdditionalInfo
 {
+	inline OneSegmentAdditionalInfo();
+
 	bool mSelected;	///< True if the vertex can be selected and is selected via a selection tool
 
 	bool mInsideBrush;	///< True if the vertex is selected and inside a brush
 
 	Real mFallOff;	///< The fall off of brushing transformation
 };
+
+inline OneSegmentAdditionalInfo::OneSegmentAdditionalInfo() :
+	mSelected(false),
+	mInsideBrush(false),
+	mFallOff(0)
+{
+	// empty
+}
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the segments additional info .

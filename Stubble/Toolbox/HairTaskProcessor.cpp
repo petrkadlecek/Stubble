@@ -146,7 +146,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 	return 0;
 }
 
-size_t HairTaskProcessor::getTask (HairTask *aTask)
+size_t HairTaskProcessor::getTask (HairTask *&aTask)
 {
 	// ------------------------------------
 	// Begin critical section
@@ -158,10 +158,6 @@ size_t HairTaskProcessor::getTask (HairTask *aTask)
 			aTask = mTaskAccumulator.front();
 			mTaskAccumulator.pop_front();
 			queueSize--;
-		}
-		else
-		{
-			aTask = 0;
 		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
@@ -190,7 +186,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		const Uint VERTEX_COUNT = ( Uint )hairVertices.size();
 		Vec3 folliclePosition(0.0, 0.0, 0.0); // Virtual follicle position, ideally this shouldn't move, but that makes the equation system below unstable
 
-		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT;
+		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT - 1;
 		const Uint DERIVATIVES_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT;
 
 		RealN C(CONSTRAINTS_COUNT);
@@ -216,6 +212,16 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				Vec3 e = hairVertices[ i + 1 ] - hairVertices[ i ];
 				C[ RIGID_BODY_COUPL_CONSTRAINTS + i ] = Vec3::dotProduct(e, e) - SEGMENT_LENGTH_SQ;
 			}
+
+			//TODO: debug - remove me
+			/*std::cout << "C = ";
+			for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
+			{
+				std::cout << C[ i ] << " ";
+			}
+			std::cout << std::endl << std::flush;*/
+			//break;
+			// ------------------------
 
 			// Convergence condition:
 			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)

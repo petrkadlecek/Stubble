@@ -70,12 +70,13 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			guide.mGuideId = gId;
 			guide.mGuideSegments.mSegmentLength = guideIt->mSegmentLength;
 			guide.mGuideSegments.mSegments = Segments(guideIt->mSegments);
+			guide.mPosition = *posIt;
 			guide.mSegmentsAdditionalInfo = additionalInfo;
 
 			aSelectedGuides.push_back(guide);
 		}
 	} // for each guide
-
+	std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
 	build(aSelectedGuides, true);
 }
 
@@ -197,12 +198,12 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			float distSq = dx * dx + dy * dy;
 			float radiusSq = aSelectionMask->getRadius() * aSelectionMask->getRadius();
 
-			if (distSq <= radiusSq)
+			if (distSq <= radiusSq && guide.mSegmentsAdditionalInfo[ i ].mSelected)
 			{
 				selected = true;
 
 				guide.mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
-				guide.mSegmentsAdditionalInfo[ i ].mFallOff = 0.0; //TODO: add actual code
+				guide.mSegmentsAdditionalInfo[ i ].mFallOff = 1.0; //TODO: add actual code
 			}
 		}
 
@@ -210,7 +211,7 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 		{
 			aResult.push_back(guide);
 		}
-	}
+	} // for each guide in the storage
 	// End of testing code
 	// ------------------------------------------
 }

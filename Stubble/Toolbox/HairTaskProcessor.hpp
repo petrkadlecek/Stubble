@@ -119,7 +119,7 @@ private:
 	/// \param aTask The task at the front of the queue
 	/// \return Number of remaining tasks in the queue
 	///----------------------------------------------------------------------------------------------------
-	size_t getTask (HairTask *aTask);
+	size_t getTask (HairTask *&aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Calls doBrush method contained within the aTask object
