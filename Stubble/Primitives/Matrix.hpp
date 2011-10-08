@@ -49,25 +49,27 @@ public:
 
 private:
 
-	Type m[ 16 ];   ///< The matrix data
+	static const unsigned __int32 SIZE = 16;
+
+	Type m[ Matrix::SIZE ];   ///< The matrix data
 };
 
 template < typename Type >
 inline Matrix< Type >::Matrix()
 {
-	std::uninitialized_fill_n(m, 16, 0);
+	std::uninitialized_fill_n(m, Matrix::SIZE, 0);
 }
 
 template < typename Type >
 inline Matrix< Type >::Matrix( const Matrix< Type > &aM )
 {
-	std::uninitialized_copy(aM.m, aM.m + 16, m);
+	std::uninitialized_copy(aM.m, aM.m + Matrix::SIZE, m);
 }
 
 template < typename Type >
 inline Matrix< Type > & Matrix< Type >::operator= ( const Matrix< Type > &aM )
 {
-	std::uninitialized_copy(aM.m, aM.m + 16, m);
+	std::uninitialized_copy(aM.m, aM.m + Matrix::SIZE, m);
 
 	return *this;
 }

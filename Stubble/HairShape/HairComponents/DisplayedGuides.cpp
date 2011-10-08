@@ -85,11 +85,11 @@ void DisplayedGuides::drawPolyline() const
 		}
 		if (*selectedIt)
 		{
-			glColor3f(1,0,0);
+			glColor3f(0.5f, 1.0f, 0.8f);
 		}
 		else
 		{
-			glColor3f(0,1,0);
+			glColor3f(0.18f, 0.5f, 0.3f);
 		}
 		glBegin(GL_LINE_STRIP);
 		// For every segment
@@ -107,8 +107,8 @@ void DisplayedGuides::drawPolyline() const
 
 void DisplayedGuides::drawVertices() const
 {
-	glPointSize(2.0f);
-	glColor3f(0,1,0);
+	glPointSize(3.0f);
+	glColor3f(1.0f, 0.1f, 1.0f);
 
 	// For every guide
 	GuidesCurrentPositions::const_iterator posIt = mGuidesCurrentPositions->begin();
@@ -150,11 +150,11 @@ void DisplayedGuides::drawVertices() const
 			// Draw
 			if (infoIt->mSelected)
 			{
-				glColor3f(1,0,0);
+				glColor3f(1.0f, 1.0f, 0.1f);
 			}
 			else
 			{
-				glColor3f(0,1,0);
+				glColor3f(1.0f, 0.1f, 1.0f);
 			}
 			glVertex3d( pos.x, pos.y, pos.z );
 		}
