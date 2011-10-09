@@ -248,8 +248,8 @@ MStatus MayaHairProperties::initializeAttributes()
 		float float_min = std::numeric_limits< float >::min();
 
 		/* MAYA BASIC PROPERTIES */
-		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 7, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
-		//updateIntArrayComponentsCount( segmentsCountAttr, 3, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 10, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		updateIntArrayComponentsCount( segmentsCountAttr, 6, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
 
 		addFloatAttribute( "density_texture", "dtxt", densityTextureAttr, 1, 0, 1, 0, 1 );
 		addColorAttribute( "interpolation_groups_texture", "itxt", interpolationGroupsTextureAttr, 1, 1, 1 );
@@ -1023,17 +1023,16 @@ void MayaHairProperties::addFloatAttribute( const MString & aFullName, const MSt
 	}
 }
 
-void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const MString & aBriefName,
-	MObject & aAttribute, int aComponentsCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
+void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
 {
-	MFnCompoundAttribute nAttr;
-	aAttribute = nAttr.create(aFullName, aBriefName);
+	MStatus status;
+	MFnCompoundAttribute nAttr(aAttribute, &status);
 
-	for(int i = 0; i < aComponentsCount; ++i)
+	for(int i = 0; i < aFillCount; ++i)
 	{
 		MFnNumericAttribute numericAttribute;
 		MString s = "group_";
-		s += i;
+		s += nAttr.numChildren();
 
 		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, aDefault );
 		numericAttribute.setMin( aMin );
@@ -1045,9 +1044,15 @@ void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const 
 
 		nAttr.addChild(c);
 	}
+}
 
-	// TODO - find how to delete items during PlugIn's life
-	nAttr.removeChild(nAttr.child(nAttr.numChildren() - 1));
+void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const MString & aBriefName,
+	MObject & aAttribute, int aComponentsCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
+{
+	MFnCompoundAttribute nAttr;
+	aAttribute = nAttr.create(aFullName, aBriefName);
+
+	fillIntArrayAttributes( aAttribute, aComponentsCount, aDefault, aMin, aMax, aSoftMin, aSoftMax );
 
 	if ( MPxSurfaceShape::addAttribute( aAttribute ) != MStatus::kSuccess )
 	{
@@ -1059,7 +1064,20 @@ void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const 
 void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, int aComponentsCount, int aDefault,
 	int aMin, int aMax, int aSoftMin, int aSoftMax )
 {
-	// TODO - implement
+	MStatus s;
+	MFnCompoundAttribute nAttr(aAttribute, &s);
+
+	if( aComponentsCount < nAttr.numChildren() ) // we will remove children
+		while( aComponentsCount != nAttr.numChildren() )
+		{
+			MObject child = nAttr.child( nAttr.numChildren() - 1 );
+			nAttr.removeChild ( child );
+
+			MFnNumericAttribute numAttr( child );
+			numAttr.setHidden( true );
+		}
+	else // adding new children
+		fillIntArrayAttributes( aAttribute, aComponentsCount - nAttr.numChildren(), aDefault, aMin, aMax, aSoftMin, aSoftMax );
 }
 
 void MayaHairProperties::addIntAttribute( const MString & aFullName, const MString & aBriefName,

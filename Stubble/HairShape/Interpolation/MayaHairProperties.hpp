@@ -341,6 +341,21 @@ protected:
 	static void addParentAttribute( const MString & aFullName, const MString & aBriefName,
 		MObject & aAttribute, const MObject & aChildAttribute1, const MObject & aChildAttribute2, 
 		const MObject & aChildAttribute3 );
+
+private:
+
+	///-------------------------------------------------------------------------------------------------
+	/// Fills already created int array attribute. 
+	///
+	/// \param [in,out]	aAttribute	The attribute object. 
+	/// \param	aFillCount			The number of newly created array items.
+	/// \param	aDefault			The default value. 
+	/// \param	aMin				The minimum value. 
+	/// \param	aMax				The maximum value. 
+	/// \param	aSoftMin			The soft minimum value. 
+	/// \param	aSoftMax			The soft maximum value. 
+	///-------------------------------------------------------------------------------------------------
+	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 };
 
 // inline functions implementation
