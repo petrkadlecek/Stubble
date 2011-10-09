@@ -67,6 +67,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			SelectedGuide guide;
 			guide.mDirtyFlag = false;
 			guide.mDirtyRedrawFlag = false;
+			guide.mNormal = posIt->mPosition.getNormal();
 			guide.mGuideId = gId;
 			guide.mGuideSegments.mSegmentLength = guideIt->mSegmentLength;
 			guide.mGuideSegments.mSegments = Segments(guideIt->mSegments);

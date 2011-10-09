@@ -44,11 +44,11 @@ public:
 
 	static MObject voxelsResolutionAttr; ///< The voxels resolution attribute
 
-		static MObject voxelsXResolutionAttr;   ///< The voxels x coordinate resolution attribute
+	static MObject voxelsXResolutionAttr;   ///< The voxels x coordinate resolution attribute
 
-		static MObject voxelsYResolutionAttr;   ///< The voxels y coordinate resolution attribute
+	static MObject voxelsYResolutionAttr;   ///< The voxels y coordinate resolution attribute
 
-		static MObject voxelsZResolutionAttr;   ///< The voxels z coordinate resolution attribute
+	static MObject voxelsZResolutionAttr;   ///< The voxels z coordinate resolution attribute
 
 	static MObject timeAttr;	///< The time attribute
 
@@ -224,6 +224,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void exportToNURBS();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the currect maya mesh.
+	///----------------------------------------------------------------------------------------------------
+	inline MayaMesh * getCurrentMesh() const;
+
 private:
 	
 	friend class HairShapeUI;
@@ -351,6 +356,11 @@ inline void HairShape::importNURBS()
 inline void HairShape::exportToNURBS()
 {
 	mHairGuides->exportToNURBS();
+}
+
+inline MayaMesh * HairShape::getCurrentMesh() const
+{
+	return mMayaMesh;
 }
 
 } // namespace HairShape

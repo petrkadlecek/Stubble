@@ -1,5 +1,7 @@
 #include "HairTaskProcessor.hpp"
 
+#include <maya\MMeshIntersector.h>
+
 namespace Stubble
 {
 
@@ -135,9 +137,10 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		if ( 0 != task )
 		{
 			hairTaskProcessor->doBrush(*task->mAffectedGuides, task->mDx, task->mBrushMode);
-			hairTaskProcessor->enforceConstraints(*task->mAffectedGuides);
+			hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
+			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
-			task->mParentHairShape->updateGuides(false);
+			task->mParentHairShape->updateGuides( false );
 
 			delete task;
 		}
@@ -173,6 +176,46 @@ void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSel
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
 		aBrushMode->doBrush(aDx, *it);
+	}
+}
+
+void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides )
+{
+	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMeshIntersector();
+
+	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
+	{
+		const Vector3D<Real> normal = it->mNormal;
+		Vector3D<double> firstPoint = it->mGuideSegments.mSegments.at(1);
+		Vector3D<double> rootPoint = it->mGuideSegments.mSegments.at(0);
+
+		Vector3D<double> r = firstPoint - rootPoint;
+		bool intersected = Vector3D<double>().dotProduct(r, normal) < 0;
+
+		// iterating all segments
+		for(unsigned i = 2; i < it->mGuideSegments.mSegmentLength; ++i)
+		{
+			Vector3D<Real> positionDirection = it->mGuideSegments.mSegments[ i ] - it->mGuideSegments.mSegments[ i - 1 ];
+			Vector3D<Real> positionStart = it->mGuideSegments.mSegments[ i - 1 ];
+
+			MFloatPoint startP(positionStart.x, positionStart.y, positionStart.z);
+			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
+
+			MFloatPoint hitPoint;
+			MFnMesh * currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMayaMesh();
+			MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
+
+			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam,
+				hitPoint, 0, 0, 0, 0, 0 );
+
+			// nearest point on mesh
+			MPointOnMesh closest;
+			MPoint queryPoint( startP );
+			accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
+			
+			if(intersect)
+				intersected = !intersected;
+		}
 	}
 }
 

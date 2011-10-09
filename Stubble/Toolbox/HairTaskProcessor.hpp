@@ -52,6 +52,11 @@ public:
 	static void waitFinishWorkerThread ();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Detects collisions for the manipulated segments and count also penetration.
+	///----------------------------------------------------------------------------------------------------
+	void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Enqueues new hair task into the accumulator queue and creates a worker thread if there's not one
 	/// already active. Contains two critical sections.
 	///

@@ -12,11 +12,17 @@ namespace HairShape
 {
 
 MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): 
-	mUpdatedMesh(0),
+	mUpdatedMesh( 0 ),
 	mUVSet( aUVSet )
 {
+	// creating acceleration structure
+	mRestPoseMesh = new MFnMesh( aMesh );
+	mMeshIntersector = new MMeshIntersector();
+	mMeshIntersector->create( mRestPoseMesh->object() );
+
 	MItMeshPolygon iter( aMesh ); // Polygon iterator
 	MFnMesh fnMesh( aMesh ); // Mesh functions
+
 	unsigned __int32 * localVerticesIndices = new unsigned __int32[ fnMesh.numVertices() ]; // Global to local indices
 	unsigned __int32 polygonID = 0;
 
@@ -195,6 +201,9 @@ inline unsigned __int32 MayaMesh::getTriangleCount() const
 
 void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 {
+	// updating acceleration structure
+	mMeshIntersector->create( aUpdatedMesh );
+
 	delete mUpdatedMesh;
 	mUpdatedMesh = new MFnMesh( aUpdatedMesh );
 	mUVSet = aUVSet;

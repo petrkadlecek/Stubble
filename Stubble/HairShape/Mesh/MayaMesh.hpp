@@ -4,6 +4,7 @@
 #include <maya\MFnMesh.h>
 #include <maya\MObject.h>
 #include <maya\MString.h>
+#include <maya\MMeshIntersector.h>
 
 #include "HairShape\Mesh\Mesh.hpp"
 #include "HairShape\Mesh\MeshUG.hpp"
@@ -31,6 +32,18 @@ public:
 	/// \param aUVSet	UVSet string.
 	///----------------------------------------------------------------------------------------------------
 	MayaMesh( const MObject & aMesh, const MString & aUVSet );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets acceleration structure for the current mesh.
+	/// 
+	/// \return acceleration structure
+	inline MMeshIntersector * getMeshIntersector() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets current Maya mesh
+	/// 
+	/// \return Maya mesh
+	inline MFnMesh * getMayaMesh() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets rest position of mesh.
@@ -94,6 +107,10 @@ private:
 	MeshTriangles mMeshTriangles; ///< Triangles of mesh stored only as indices to rest pose
 
 	Mesh mRestPose; ///< Rest pose mesh
+	
+	MFnMesh * mRestPoseMesh; ///< Rest pose maya mesh
+
+	MMeshIntersector * mMeshIntersector; ///< Acceleration structure for finding closest point on the mesh
 
 	MFnMesh * mUpdatedMesh; ///< The updated mesh
 	
@@ -109,6 +126,16 @@ private:
 inline const Mesh & MayaMesh::getRestPose() const
 {
 	return mRestPose;
+}
+
+inline MMeshIntersector * MayaMesh::getMeshIntersector() const
+{
+	return mMeshIntersector;
+}
+
+inline MFnMesh * MayaMesh::getMayaMesh() const
+{
+	return mUpdatedMesh ? mUpdatedMesh : mRestPoseMesh;
 }
 
 inline const MeshUG & MayaMesh::getMeshUG() const
