@@ -179,23 +179,21 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	/// Recalculates all hair positions data to local space. 
 	///
-	/// \author	martin_sik
-	/// \date	8.9.2011
-	///
-	/// \param	aHairSpace	The local space of each hair.
+	/// \param	aHairSpace			The local space of each hair.
+	/// \param	aHairStrandCount	Number of hair in one strand.
 	///-------------------------------------------------------------------------------------------------
-	void recalculateToLocalSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace );
+	void recalculateToLocalSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace,
+		unsigned __int32 aHairStrandCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Recalculates all hair positions from local to world space 
 	/// ( recalculateToLocalSpace must be called first ).
 	///
-	/// \author	martin_sik
-	/// \date	8.9.2011
-	///
 	/// \param	aHairSpace	The local space of each hair.
+	/// \param	aHairStrandCount	Number of hair in one strand.
 	///-------------------------------------------------------------------------------------------------
-	void recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace );
+	void recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace,
+		unsigned __int32 aHairStrandCount );
 
 private:
 

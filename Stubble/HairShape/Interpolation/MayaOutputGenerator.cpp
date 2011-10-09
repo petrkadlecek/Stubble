@@ -39,7 +39,8 @@ void MayaOutputGenerator::draw()
 	GLExt::glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 ); // For indices data
 }
 
-void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace )
+void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace, 
+	unsigned __int32 aHairStrandCount )
 {
 	mDirty = true;
 	// For all hair
@@ -47,7 +48,9 @@ void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::
 	GLfloat * posIt = mVertices, * endPos; // Points positions
 	Matrix< Real > transform;
 	for ( const unsigned __int32 * ptsCountIt = mPointsCount, *ptsCountEnd = mPointsCount + mHairCount; 
-		ptsCountIt != ptsCountEnd; ++ptsCountIt, ++rootPosIt )
+		ptsCountIt != ptsCountEnd; ++ptsCountIt, 
+		// Moves after whole strand
+		rootPosIt += ( mPointsCount - ptsCountIt ) % aHairStrandCount == 0 ? 1 : 0 )
 	{
 		rootPosIt->mCurrentPosition.getLocalTransformMatrix( transform );
 		// For every point of single hair
@@ -68,7 +71,8 @@ void MayaOutputGenerator::recalculateToLocalSpace( const MayaPositionGenerator::
 	}
 }
 
-void MayaOutputGenerator::recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace )
+void MayaOutputGenerator::recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace, 
+	unsigned __int32 aHairStrandCount  )
 {
 	mDirty = true;
 	// For all hair
@@ -76,7 +80,9 @@ void MayaOutputGenerator::recalculateToWorldSpace( const MayaPositionGenerator::
 	GLfloat * posIt = mVertices, * endPos; // Points positions
 	Matrix< Real > transform;
 	for ( const unsigned __int32 * ptsCountIt = mPointsCount, *ptsCountEnd = mPointsCount + mHairCount; 
-		ptsCountIt != ptsCountEnd; ++ptsCountIt, ++rootPosIt )
+		ptsCountIt != ptsCountEnd; ++ptsCountIt,
+		// Moves after whole strand
+		rootPosIt += ( mPointsCount - ptsCountIt ) % aHairStrandCount == 0 ? 1 : 0 )
 	{
 		rootPosIt->mCurrentPosition.getWorldTransformMatrix( transform );
 		// For every point of single hair

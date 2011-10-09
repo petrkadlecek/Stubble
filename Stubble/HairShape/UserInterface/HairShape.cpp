@@ -486,7 +486,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			// Interpolated hair positions recalculation
 			if ( mDisplayInterpolated )
 			{
-				mInterpolatedHair.meshUpdate( *mMayaMesh );
+				mInterpolatedHair.meshUpdate( *mMayaMesh, *this );
 			}
 		}
 		mIsTopologyModified = false;

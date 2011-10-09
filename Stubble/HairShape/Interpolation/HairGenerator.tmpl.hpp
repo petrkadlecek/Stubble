@@ -620,13 +620,13 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Generate random scale
 	PositionType scale = static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
 	// Curve t param
-	PositionType step = 1.0f / ( aCurvePointsCount - 1 ), t = step;
+	PositionType step = 1.0f / ( aCurvePointsCount - 1 ), t = 0;
 	// For every point on cut curve
 	for( Point * it = aPoints, * end = aPoints + aCount; it != end; 
 		t += step, ++it, ++aMainHairPoints, ++aMainHairNormals, ++aMainHairBinormals )
 	{
 		// Calculate radius and offset
-		PositionType currRadius = radius, offset = mOffset;
+		PositionType currRadius = radius, offset = mOffset * t * t * t;
 		// Calculate final position :
 		// mainHairPos + position on plane defined by normal and binormal * radius + offset in direction of normal
 		// and finally scale whole thing by scale factor

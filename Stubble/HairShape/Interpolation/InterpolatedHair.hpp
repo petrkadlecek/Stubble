@@ -46,8 +46,9 @@ public:
 	/// mesh topology update (generate should be used instead).
 	///
 	/// \param	aCurrentMesh	The current mesh. 
+	/// \param	aHairProperties	The hair properties. 
 	///-------------------------------------------------------------------------------------------------
-	inline void meshUpdate( const MayaMesh & aCurrentMesh );
+	inline void meshUpdate( const MayaMesh & aCurrentMesh, const HairProperties & aHairProperties );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Updates hair properties.
@@ -85,14 +86,17 @@ inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, co
 	mHairGenerator.generate( aHairProperties );
 }
 
-inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh )
+inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const HairProperties & aHairProperties )
 {
+	// Get hair strand count
+	unsigned __int32 count = aHairProperties.getMultiStrandCount();
+	count = count == 0 ? 1 : count;
 	// Move all hair points to local space
-	mOutputGenerator.recalculateToLocalSpace( mPositionGenerator.getPreGeneratedPositions() );
+	mOutputGenerator.recalculateToLocalSpace( mPositionGenerator.getPreGeneratedPositions(), count );
 	// Alter hair points local space
 	mPositionGenerator.recalculateCurrentPositions( aCurrentMesh );
 	// Move all hair points to world space
-	mOutputGenerator.recalculateToWorldSpace( mPositionGenerator.getPreGeneratedPositions() );
+	mOutputGenerator.recalculateToWorldSpace( mPositionGenerator.getPreGeneratedPositions(), count );
 }
 
 inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProperties )
