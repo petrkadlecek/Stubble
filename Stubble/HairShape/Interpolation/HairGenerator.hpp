@@ -244,7 +244,7 @@ private:
 	inline void outputHairIndexAndUVs( IndexType aHairIndex, IndexType aStrandIndex, const MeshPoint &aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Samples disk. Uses two samples from [0-1]^2 to sample disk and returns phi angle and radius.
+	/// Samples disk. Uses two samples from [-1,1]^2 to sample disk and returns phi angle and radius.
 	///
 	/// \param	aSampleX		The sample x coordinate. 
 	/// \param	aSampleY		The sample y coordinate. 

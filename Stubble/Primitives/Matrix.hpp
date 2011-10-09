@@ -57,19 +57,19 @@ private:
 template < typename Type >
 inline Matrix< Type >::Matrix()
 {
-	std::uninitialized_fill_n(m, Matrix::SIZE, 0);
+	std::uninitialized_fill_n( m, Matrix::SIZE, static_cast< Type >( 0 ) );
 }
 
 template < typename Type >
 inline Matrix< Type >::Matrix( const Matrix< Type > &aM )
 {
-	std::uninitialized_copy(aM.m, aM.m + Matrix::SIZE, m);
+	std::uninitialized_copy( aM.m, aM.m + Matrix::SIZE, m );
 }
 
 template < typename Type >
 inline Matrix< Type > & Matrix< Type >::operator= ( const Matrix< Type > &aM )
 {
-	std::uninitialized_copy(aM.m, aM.m + Matrix::SIZE, m);
+	std::uninitialized_copy( aM.m, aM.m + Matrix::SIZE, m );
 
 	return *this;
 }

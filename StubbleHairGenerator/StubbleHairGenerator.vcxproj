@@ -114,6 +114,8 @@
       <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

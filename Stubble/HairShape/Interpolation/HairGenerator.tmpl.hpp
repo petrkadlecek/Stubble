@@ -340,7 +340,7 @@ inline typename HairGenerator< tPositionGenerator, tOutputGenerator >::Vector
 	Vector v2 = *aTangents - tL;
 	NormalType c2 = v2.sizePwr2();
 	return rL - v2 * ( 2 / c2 ) * ( Vector::dotProduct( v2, rL ) );
-	//return aPreviousNormal;
+	return aPreviousNormal;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -555,20 +555,18 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	static const PositionType PI = 3.14159265f;
 	static const PositionType PI_4 = PI / 4;
 	static const PositionType PI_2 = PI / 2;
-	// Transform [0-1]^2 to [-1,1]^2
-	PositionType a = 2 * aSampleX - 1;
-	PositionType b = 2 * aSampleY - 1;
+
 	PositionType phi; // Angle
 	// use squares instead of absolute values
-	if ( a * a > b * b ) 
+	if ( aSampleX * aSampleX > aSampleY * aSampleY ) 
 	{ 
-		aRadius = a;
-		phi = PI_4 * ( b / a );
+		aRadius = aSampleX;
+		phi = PI_4 * ( aSampleY / aSampleX );
 	} 
 	else 
 	{
- 		aRadius = b;
-		phi = PI_2 - PI_4 * ( a / b );
+ 		aRadius = aSampleY;
+		phi = PI_2 - PI_4 * ( aSampleX / aSampleY );
 	}
 	// Calculate cos, sin
 	aCosPhi = static_cast< PositionType >( cos( phi ) );
@@ -613,10 +611,10 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount,
 	const Point * aMainHairPoints, const Vector * aMainHairNormals, const Vector * aMainHairBinormals )
 {
-	// First generate relative position on disk
+	// Generate relative position on disk ( first must transform [0-1]^2 numbers to [-1,1]^2 )
 	PositionType cosPhi, sinPhi, radius;
-	sampleDisk( static_cast< PositionType >( mRandom.uniformNumber() ), 
-		static_cast< PositionType >( mRandom.uniformNumber() * mAspect ), cosPhi, sinPhi, radius );
+	sampleDisk( static_cast< PositionType >( 2 * mRandom.uniformNumber() - 1 ), 
+		static_cast< PositionType >( 2 * mRandom.uniformNumber() - 1 ) , cosPhi, sinPhi, radius );
 	// Generate random scale
 	PositionType scale = static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
 	// Curve t param
@@ -625,12 +623,17 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	for( Point * it = aPoints, * end = aPoints + aCount; it != end; 
 		t += step, ++it, ++aMainHairPoints, ++aMainHairNormals, ++aMainHairBinormals )
 	{
+		// Calculate 4 * ( t - 0.5 )^2
+		static const PositionType half = static_cast< PositionType >( 0.5f );
+		PositionType tMinusHalf = t - half;
+		PositionType tMinusHalf2M4 = tMinusHalf * tMinusHalf * 4;
 		// Calculate radius and offset
-		PositionType currRadius = radius, offset = mOffset * t * t * t;
+		PositionType currRadius = ( t <= half ? mRootSplay : mTipSplay ) * tMinusHalf2M4 + ( 1 - tMinusHalf2M4 ) * mCenterSplay, 
+			offset = mOffset * t * t * t;
 		// Calculate final position :
 		// mainHairPos + position on plane defined by normal and binormal * radius + offset in direction of normal
 		// and finally scale whole thing by scale factor
-		*it = ( *aMainHairPoints + ( *aMainHairNormals * cosPhi + *aMainHairBinormals * sinPhi ) * currRadius +
+		*it = ( *aMainHairPoints + ( *aMainHairNormals * cosPhi + *aMainHairBinormals * sinPhi * mAspect ) * currRadius +
 			*aMainHairNormals * offset ) * scale;
 		// Add twist to cosPhi and sinPhi using trigonometric formulas
 		PositionType newSinPhi = sinPhi * mCosTwist + mSinTwist * cosPhi;
