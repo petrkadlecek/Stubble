@@ -35,6 +35,7 @@ MObject HairShape::voxelsXResolutionAttr;
 MObject HairShape::voxelsYResolutionAttr;
 MObject HairShape::voxelsZResolutionAttr;
 MObject HairShape::timeAttr;
+MObject HairShape::timeChangeAttr;
 MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
@@ -86,10 +87,12 @@ bool HairShape::isBounded() const
 MBoundingBox HairShape::boundingBox() const
 {
 	MObject thisNode = thisMObject();
-	// get surfaceChangeAttr plug, causes compute function to be called
+	// get surfaceChangeAttr and timeChangeAttr plug, causes compute function to be called
 	int val;
 	MPlug RedrawPlug( thisNode, HairShape::surfaceChangeAttr );
 	RedrawPlug.getValue( val );
+	MPlug RedrawPlug2( thisNode, HairShape::timeChangeAttr );
+	RedrawPlug2.getValue( val );
 	// returns updated bounding box
 	return mBoundingBox;
 }
@@ -97,11 +100,14 @@ MBoundingBox HairShape::boundingBox() const
 MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 {
 	MStatus status; // Error code
-	//we only care about the redrawAttr
 	if ( aPlug == surfaceChangeAttr ) // Handle mesh change
 	{
 		aDataBlock.setClean( surfaceChangeAttr );
 		meshChange( aDataBlock.inputValue( surfaceAttr ).asMesh() );
+	}
+	if ( aPlug == timeChangeAttr ) // Handle time change
+	{
+		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
 	}
 	return MS::kSuccess;
 }
@@ -129,11 +135,6 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	if ( aPlug == genCountAttr ) // Generated hair count was changed
 	{
 		mGeneratedHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		return false;
-	}
-	if ( aPlug == timeAttr )
-	{
-		setCurrentTime( static_cast< Time >( aDataHandle.asTime().value() ) );
 		return false;
 	}
 	if ( aPlug == voxelsResolutionAttr ) // Voxels resolution was changed
@@ -266,7 +267,7 @@ MStatus HairShape::initialize()
 		}
 		// I have to check surface attr all the time
 		MFnNumericAttribute nAttr;
-		surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0);
+		surfaceChangeAttr = nAttr.create("surface_change", "srfc", MFnNumericData::kInt, 0 );
 		nAttr.setHidden( true );
 		if( !addAttribute( surfaceChangeAttr ) )
 		{
@@ -283,6 +284,15 @@ MStatus HairShape::initialize()
 			status.perror( "Adding time attr has failed" );
 			return status;
 		}
+		// I have to check time attr all the time
+		timeChangeAttr = nAttr.create("time_change", "tmfc", MFnNumericData::kInt, 0 );
+		nAttr.setHidden( true );
+		if( !addAttribute( timeChangeAttr ) )
+		{
+			status.perror( "Adding time attr has failed" );
+			return status;
+		}
+		attributeAffects( timeAttr, timeChangeAttr );
 		//define count attribute
 		addIntAttribute( "guides_count", "cnt", countAttr, 100, 3, 1000000, 3, 1000 );
 		//define gen. count attribute

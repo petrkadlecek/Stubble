@@ -52,6 +52,8 @@ public:
 
 	static MObject timeAttr;	///< The time attribute
 
+	static MObject timeChangeAttr; ///< The time changed attribute
+
 	static MObject displayGuidesAttr;   ///< Should guides be displayed ? attribute
 
 	static MObject displayInterpolatedAttr; ///< Should interpolated hair be displayed ? attribute

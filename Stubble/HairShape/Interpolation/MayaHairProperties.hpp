@@ -314,8 +314,8 @@ protected:
 	/// \param	aSoftMin			The soft minimum value. 
 	/// \param	aSoftMax			The soft maximum value. 
 	///-------------------------------------------------------------------------------------------------
-	static void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, int aComponentsCount, int aDefault,
-	int aMin, int aMax, int aSoftMin, int aSoftMax );
+	static void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
+		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Adds a bool attribute. 

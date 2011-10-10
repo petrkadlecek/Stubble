@@ -44,6 +44,18 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void expand( const Vector3D<Real> &aPoint );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Expands the bounding box to include the bounding box. 
+	///
+	/// \param	aBoundingBox	The new bounding box to include in the bounding box. 
+	///-------------------------------------------------------------------------------------------------
+	inline void expand( const BoundingBox & aBoundingBox );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Clears this object to its blank/initial state. 
+	///-------------------------------------------------------------------------------------------------
+	inline void clear();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the minimum point for the bounding box.
 	///----------------------------------------------------------------------------------------------------
@@ -75,10 +87,7 @@ typedef std::vector< BoundingBox > BoundingBoxes;
 // inline functions implementation
 inline BoundingBox::BoundingBox()
 {
-	Real infinity = std::numeric_limits<Real>::infinity();
-
-	mMin = Vector3D< Real >( infinity, infinity, infinity );
-	mMax = Vector3D< Real >( -infinity, -infinity, -infinity );
+	clear();
 }
 
 #ifdef MAYA
@@ -104,6 +113,24 @@ inline void BoundingBox::expand( const Vector3D<Real> &aPoint )
 	mMax.y = std::max( aPoint.y, mMax.y );
 	mMax.z = std::max( aPoint.z, mMax.z );
 }
+
+inline void BoundingBox::expand( const BoundingBox & aBoundingBox )
+{
+	mMin.x = std::min( aBoundingBox.mMin.x, mMin.x );
+	mMin.y = std::min( aBoundingBox.mMin.y, mMin.y );
+	mMin.z = std::min( aBoundingBox.mMin.z, mMin.z );
+	mMax.x = std::max( aBoundingBox.mMax.x, mMax.x );
+	mMax.y = std::max( aBoundingBox.mMax.y, mMax.y );
+	mMax.z = std::max( aBoundingBox.mMax.z, mMax.z );
+}
+
+inline void BoundingBox::clear()
+{
+	Real infinity = std::numeric_limits<Real>::infinity();
+	mMin = Vector3D< Real >( infinity, infinity, infinity );
+	mMax = Vector3D< Real >( -infinity, -infinity, -infinity );
+}
+
 
 inline Vector3D< Real > BoundingBox::min() const
 {

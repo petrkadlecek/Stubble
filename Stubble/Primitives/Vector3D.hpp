@@ -44,6 +44,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D( const Vector3D & aStart, const Vector3D & aEnd );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Creates a vector from vector stored in array
+	///
+	/// \param	aVector	a vector. 
+	///-------------------------------------------------------------------------------------------------
+	explicit inline Vector3D( const Type *aVector );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the size of the vector. 
 	///
@@ -341,6 +348,14 @@ inline Vector3D< Type >::Vector3D( const Vector3D & aStart, const Vector3D & aEn
 	z( aEnd.z - aStart.z ) 
 {
 }	
+	
+template < typename Type >
+inline Vector3D< Type >::Vector3D( const Type *aVector ):
+	x( aVector[ 0 ] ),
+	y( aVector[ 1 ] ),
+	z( aVector[ 2 ] ),
+{
+}
 
 template < typename Type >
 inline Type Vector3D< Type >::size() const
