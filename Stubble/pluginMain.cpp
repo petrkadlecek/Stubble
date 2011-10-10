@@ -201,7 +201,6 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 		status.perror( "could not unregister the Stubble3DelightCacheCommand command" );
 	}
 
-
 	// deregister StubbleExportToNURBS command
 	status = plugin.deregisterCommand( "StubbleExportToNURBS" );
 	
@@ -211,16 +210,14 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 		status.perror( "could not unregister the StubbleExportToNURBS command" );
 	}
 
-	// deregister StubbleResetTextures command
-	status = plugin.deregisterCommand( "StubbleResetTextures" );
+	// deregister StubbleImportNURBS command
+	status = plugin.deregisterCommand( "StubbleImportNURBS" );
 
 	// check for error
 	if ( status != MS::kSuccess )
 	{
-		status.perror( "could not unregister the StubbleResetTextures command" );
+		status.perror( "could not unregister the StubbleImportNURBS command" );
 	}
-
-
 
 	// deregister StubbleResetTextures command
 	status = plugin.deregisterCommand( "StubbleResetTextures" );
