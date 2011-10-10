@@ -371,7 +371,7 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
 	// Width multiplier constant
-	const GLfloat wm = 0.5f;
+	const GLfloat wm = 1.0f;
 	// We will calculate triangles from hair points
 	for ( unsigned __int32 i = 0; i < aPointsCount; ++i )
 	{
