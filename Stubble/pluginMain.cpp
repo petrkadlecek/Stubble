@@ -15,6 +15,7 @@
 #include "HairShape/UserInterface/HairShapeUI.hpp"
 
 #include "HairShape\HairComponents\CommandsNURBS.hpp"
+#include "HairShape/HairComponents/CommandsTextures.hpp"
 
 #include "RibExport/RenderManCacheCommand.hpp"
 
@@ -128,6 +129,16 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
+	// register StubbleResetTextures command
+	status = plugin.registerCommand( "StubbleResetTextures", Stubble::HairShape::HairComponents::ResetTexturesCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleResetTextures command" );
+		return status;
+	}
+
 	return status;
 }
 
@@ -188,6 +199,36 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not unregister the Stubble3DelightCacheCommand command" );
+	}
+
+
+	// deregister StubbleExportToNURBS command
+	status = plugin.deregisterCommand( "StubbleExportToNURBS" );
+	
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleExportToNURBS command" );
+	}
+
+	// deregister StubbleResetTextures command
+	status = plugin.deregisterCommand( "StubbleResetTextures" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleResetTextures command" );
+	}
+
+
+
+	// deregister StubbleResetTextures command
+	status = plugin.deregisterCommand( "StubbleResetTextures" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleResetTextures command" );
 	}
 
 	// Clean up the brush worker thread
