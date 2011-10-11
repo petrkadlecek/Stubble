@@ -263,7 +263,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	MVector moveVector = ratio * aDX.x * right + ratio * aDX.y * up;
 
 	// Create the hair task
-	HairTask *task = new HairTask(activeHairShape, &mAffectedGuides, mShape, mBrushMode, moveVector);
+	HairTask *task = new HairTask(activeHairShape, &mAffectedGuides, mBrushMode, moveVector);
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
 
