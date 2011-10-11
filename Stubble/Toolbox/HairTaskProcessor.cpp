@@ -189,11 +189,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		Vector3D<double> firstPoint = (*it)->mGuideSegments.mSegments.at(1);
 		Vector3D<double> rootPoint = (*it)->mGuideSegments.mSegments.at(0);
 
+		// clearing additional informations
 		Vector3D<double> r = firstPoint - rootPoint;
 		bool intersected = Vector3D<double>().dotProduct(r, normal) < 0;
 
 		// iterating all segments
-		for(unsigned i = 2; i < (*it)->mGuideSegments.mSegmentLength; ++i)
+		for(unsigned i = 1; i < (*it)->mGuideSegments.mSegments.size(); ++i)
 		{
 			Vector3D<Real> positionDirection = (*it)->mGuideSegments.mSegments[ i ] - (*it)->mGuideSegments.mSegments[ i - 1 ];
 			Vector3D<Real> positionStart = (*it)->mGuideSegments.mSegments[ i - 1 ];
@@ -208,13 +209,21 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam,
 				hitPoint, 0, 0, 0, 0, 0 );
 
+			(*it)->mSegmentsAdditionalInfo[ i ].mIsColliding = intersected;
+
 			// nearest point on mesh
-			MPointOnMesh closest;
-			MPoint queryPoint( startP );
-			accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
-			
 			if(intersect)
+			{
+				MPointOnMesh closest;
+				MPoint queryPoint( startP );
+				accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
+				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
+
 				intersected = !intersected;
+			}
+			else
+				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>();
+
 		}
 	}
 }

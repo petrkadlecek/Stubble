@@ -32,6 +32,8 @@ struct OneSegmentAdditionalInfo
 
 	bool mIsColliding;	///< True if the vertex collide with the mesh
 
+	Vector3D<Real> mClosestPointOnMesh;	///< In case of collision the closest point on mesh
+
 	Real mFallOff;	///< The fall off of brushing transformation
 };
 
