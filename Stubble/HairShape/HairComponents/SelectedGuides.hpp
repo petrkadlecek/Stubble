@@ -72,7 +72,7 @@ struct SelectedGuide
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the selected guides .
 ///-------------------------------------------------------------------------------------------------
-typedef std::vector< SelectedGuide > SelectedGuides;
+typedef std::vector< SelectedGuide * > SelectedGuides;
 
 } // namespace HairComponents
 

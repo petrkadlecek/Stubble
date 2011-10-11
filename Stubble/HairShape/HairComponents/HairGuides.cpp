@@ -58,14 +58,14 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 	// For every selected guide
 	for( SelectedGuides::const_iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
 	{
-		if ( it->mDirtyFlag )
+		if ( (*it)->mDirtyFlag )
 		{
 			// For every segment
-			for ( Segments::const_iterator segIt = it->mGuideSegments.mSegments.begin();
-				segIt != it->mGuideSegments.mSegments.end(); ++segIt )
+			for ( Segments::const_iterator segIt = (*it)->mGuideSegments.mSegments.begin();
+				segIt != (*it)->mGuideSegments.mSegments.end(); ++segIt )
 			{
 				// Transform to world and expand bbox
-				mBoundingBox.expand( mCurrentPositions[ it->mGuideId].mPosition.toWorld( *segIt ) );
+				mBoundingBox.expand( mCurrentPositions[ (*it)->mGuideId].mPosition.toWorld( *segIt ) );
 			}
 		}
 	}
@@ -80,7 +80,7 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 	// For every selected guide
 	for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
 	{
-		it->mDirtyFlag = false;
+		(*it)->mDirtyFlag = false;
 	}
 }
 
@@ -150,8 +150,8 @@ void HairGuides::exportToNURBS()
 			hairIt != mSelectedGuides.end(); hairIt++, currPosIt++ )
 		{
 			MPointArray pointArray;				
-			for ( Segments::const_iterator segmentIt = hairIt->mGuideSegments.mSegments.begin()
-				; segmentIt != hairIt->mGuideSegments.mSegments.end()
+			for ( Segments::const_iterator segmentIt = (*hairIt)->mGuideSegments.mSegments.begin()
+				; segmentIt != (*hairIt)->mGuideSegments.mSegments.end()
 				; segmentIt++ )
 			{			
 				// Transform to world coordinates and append

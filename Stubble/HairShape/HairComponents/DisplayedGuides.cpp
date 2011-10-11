@@ -37,7 +37,7 @@ void DisplayedGuides::build( const GuidesCurrentPositions & aGuidesCurrentPositi
 	for ( SelectedGuides::const_iterator guideIt = mSelectedGuides->begin(); 
 		guideIt != mSelectedGuides->end(); ++guideIt )
 	{
-		mGuidesSelection[ guideIt->mGuideId ] = true;
+		mGuidesSelection[ (*guideIt)->mGuideId ] = true;
 	}
 	mDirtyBit = false;
 }
@@ -53,7 +53,7 @@ void DisplayedGuides::selectionRebuild( const SelectedGuides & aSelectedGuides, 
 	for ( SelectedGuides::const_iterator guideIt = mSelectedGuides->begin(); 
 		guideIt != mSelectedGuides->end(); ++guideIt )
 	{
-		mGuidesSelection[ guideIt->mGuideId ] = true;
+		mGuidesSelection[ (*guideIt)->mGuideId ] = true;
 	}
 	mDirtyBit = false;
 }
@@ -140,13 +140,13 @@ void DisplayedGuides::drawVertices() const
 	{
 		glBegin(GL_POINTS);
 		// For every segment
-		assert(guideIt->mGuideSegments.mSegments.size() == guideIt->mSegmentsAdditionalInfo.size());
-		SegmentsAdditionalInfo::const_iterator infoIt = guideIt->mSegmentsAdditionalInfo.begin();
-		for ( Segments::const_iterator segIt = guideIt->mGuideSegments.mSegments.begin(); 
-			segIt != guideIt->mGuideSegments.mSegments.end(); ++segIt, ++infoIt )
+		assert((*guideIt)->mGuideSegments.mSegments.size() == (*guideIt)->mSegmentsAdditionalInfo.size());
+		SegmentsAdditionalInfo::const_iterator infoIt = (*guideIt)->mSegmentsAdditionalInfo.begin();
+		for ( Segments::const_iterator segIt = (*guideIt)->mGuideSegments.mSegments.begin(); 
+			segIt != (*guideIt)->mGuideSegments.mSegments.end(); ++segIt, ++infoIt )
 		{
 			// Transform vertex to world
-			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ guideIt->mGuideId ].mPosition.toWorld( *segIt );
+			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( *segIt );
 			// Draw
 			if (infoIt->mSelected)
 			{

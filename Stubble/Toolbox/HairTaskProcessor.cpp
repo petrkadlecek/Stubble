@@ -175,7 +175,7 @@ void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSel
 	HairShape::HairComponents::SelectedGuides::iterator it;
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		aBrushMode->doBrush(aDx, *it);
+		aBrushMode->doBrush(aDx, **it);
 	}
 }
 
@@ -185,18 +185,18 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
-		const Vector3D<Real> normal = it->mNormal;
-		Vector3D<double> firstPoint = it->mGuideSegments.mSegments.at(1);
-		Vector3D<double> rootPoint = it->mGuideSegments.mSegments.at(0);
+		const Vector3D<Real> normal = (*it)->mNormal;
+		Vector3D<double> firstPoint = (*it)->mGuideSegments.mSegments.at(1);
+		Vector3D<double> rootPoint = (*it)->mGuideSegments.mSegments.at(0);
 
 		Vector3D<double> r = firstPoint - rootPoint;
 		bool intersected = Vector3D<double>().dotProduct(r, normal) < 0;
 
 		// iterating all segments
-		for(unsigned i = 2; i < it->mGuideSegments.mSegmentLength; ++i)
+		for(unsigned i = 2; i < (*it)->mGuideSegments.mSegmentLength; ++i)
 		{
-			Vector3D<Real> positionDirection = it->mGuideSegments.mSegments[ i ] - it->mGuideSegments.mSegments[ i - 1 ];
-			Vector3D<Real> positionStart = it->mGuideSegments.mSegments[ i - 1 ];
+			Vector3D<Real> positionDirection = (*it)->mGuideSegments.mSegments[ i ] - (*it)->mGuideSegments.mSegments[ i - 1 ];
+			Vector3D<Real> positionStart = (*it)->mGuideSegments.mSegments[ i - 1 ];
 
 			MFloatPoint startP(positionStart.x, positionStart.y, positionStart.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
@@ -224,8 +224,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	HairShape::HairComponents::SelectedGuides::iterator it;
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		const Real SEGMENT_LENGTH_SQ = it->mGuideSegments.mSegmentLength * it->mGuideSegments.mSegmentLength;
-		HairShape::HairComponents::Segments &hairVertices = it->mGuideSegments.mSegments;
+		const Real SEGMENT_LENGTH_SQ = (*it)->mGuideSegments.mSegmentLength * (*it)->mGuideSegments.mSegmentLength;
+		HairShape::HairComponents::Segments &hairVertices = (*it)->mGuideSegments.mSegments;
 		const Uint VERTEX_COUNT = ( Uint )hairVertices.size();
 		Vec3 folliclePosition(0.0, 0.0, 0.0); // Virtual follicle position, ideally this shouldn't move, but that makes the equation system below unstable
 

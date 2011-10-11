@@ -169,11 +169,11 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 	// For every selected guide
 	for( SelectedGuides::const_iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
-		if ( it->mDirtyFlag )
+		if ( (*it)->mDirtyFlag )
 		{
-			tmpStorage->mIds.push_back( it->mGuideId ); // Store guide id
-			tmpStorage->mSegments.push_back( mCurrent.mSegments[ it->mGuideId ] ); // Store old guide segments
-			mCurrent.mSegments[ it->mGuideId ] = it->mGuideSegments; // Copy modified guide segments
+			tmpStorage->mIds.push_back( (*it)->mGuideId ); // Store guide id
+			tmpStorage->mSegments.push_back( mCurrent.mSegments[ (*it)->mGuideId ] ); // Store old guide segments
+			mCurrent.mSegments[ (*it)->mGuideId ] = (*it)->mGuideSegments; // Copy modified guide segments
 		}
 	}
 	return tmpStorage;
