@@ -169,7 +169,7 @@ void Texture::resample(unsigned __int32 aTextureSamples)
 		mDirty = false;
 }
 
-void Texture::reloadFileTextureImage(MImage aTextureImage)
+void Texture::reloadFileTextureImage(MImage & aTextureImage)
 {	
 	aTextureImage.getSize( mWidth, mHeight );
 	ComputeInverseSize();
@@ -179,7 +179,8 @@ void Texture::reloadFileTextureImage(MImage aTextureImage)
 	// Loading texture with float color channels
 	if ( aTextureImage.pixelType() == MImage::kFloat )
 	{
-		for( unsigned __int32 i = 0; i < mWidth * mHeight; ++i )
+		#pragma omp parallel for
+		for( int i = 0; i < mWidth * mHeight; ++i )
 		{
 			for( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	
@@ -192,7 +193,8 @@ void Texture::reloadFileTextureImage(MImage aTextureImage)
 	// Loading texture with standard byte color channels
 	if ( aTextureImage.pixelType() == MImage::kByte )
 	{
-		for ( unsigned __int32 i = 0; i < mWidth * mHeight; ++i )
+		#pragma omp parallel for
+		for ( int i = 0; i < mWidth * mHeight; ++i )
 		{
 			for ( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	

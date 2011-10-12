@@ -60,7 +60,7 @@ HairShape::HairShape():
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
-	mSampleTextureDimension( 1024 )
+	mSampleTextureDimension( 128 )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -318,7 +318,7 @@ MStatus HairShape::initialize()
 		//define display interpolated hair attribute
 		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
 		//define number of samples in one dimension of texture
-		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 1024, 1, 4096, 64, 2048);
+		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 128, 1, 4096, 32, 1024);
 	}
 	catch( const StubbleException & ex )
 	{

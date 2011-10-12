@@ -215,7 +215,7 @@ public:
 	///
 	/// \param aTextureImage	image from which are loaded necessary pixel channels.
 	///----------------------------------------------------------------------------------------------------
-	void reloadFileTextureImage(MImage aTextureImage);
+	void reloadFileTextureImage(MImage & aTextureImage);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Samples connected 2DTexture and stores the samplevalues.
@@ -323,4 +323,4 @@ inline void Texture::ComputeInverseSize()
 
 } // namespace Stubble
 
-#endif // STUBBLE_HAIR_SHAPE_HPP
+#endif // STUBBLE_TEXTURE_HPP
