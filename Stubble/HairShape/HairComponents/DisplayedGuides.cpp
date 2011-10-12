@@ -120,6 +120,27 @@ void DisplayedGuides::drawPolyline() const
 			glVertex3d( pos.x, pos.y, pos.z );
 		}
 		glEnd();
+
+		//-----------------------
+		//TODO: debug - remove me
+		Vector3D< Real > origin = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ 0 ], (*guideIt)->mPosition.mWorldTransformMatrix);
+		Vector3D< Real > normal = origin + (*guideIt)->mPosition.mPosition.getNormal();
+		Vector3D< Real > binormal = origin + (*guideIt)->mPosition.mPosition.getBinormal();
+		Vector3D< Real > tangent = origin + (*guideIt)->mPosition.mPosition.getTangent();
+
+		glBegin(GL_LINES);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3d( origin.x, origin.y, origin.z );
+		glVertex3d( normal.x, normal.y, normal.z );
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3d( origin.x, origin.y, origin.z );
+		glVertex3d( binormal.x, binormal.y, binormal.z );
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3d( origin.x, origin.y, origin.z );
+		glVertex3d( tangent.x, tangent.y, tangent.z );
+		glEnd();
+		// End of debug code
+		//-----------------------
 	} // For each selected guide
 }
 
