@@ -291,13 +291,13 @@ inline float Texture::realAtUV( Real u, Real v ) const
 
 inline float Texture::derivativeByUAtUV( Real u, Real v ) const
 {
-	return ( realAtUV( std::max( u + mInverseWidth, static_cast< Real >( 1.0f ) ), v ) -
+	return ( realAtUV( std::min( u + mInverseWidth, static_cast< Real >( 1.0f ) ), v ) -
 		realAtUV( u, v ) ) * mWidth;
 }
 
 inline float Texture::derivativeByVAtUV( Real u, Real v ) const
 {
-	return ( realAtUV( u, std::max( v + mInverseHeight, static_cast< Real >( 1.0f ) ) ) -
+	return ( realAtUV( u, std::min( v + mInverseHeight, static_cast< Real >( 1.0f ) ) ) -
 		realAtUV( u, v ) ) * mHeight;
 }
 

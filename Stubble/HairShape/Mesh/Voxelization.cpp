@@ -80,27 +80,28 @@ void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolat
 			index += it->mHairCount; // Increase hair index
 		}
 	}
-	/* TODO : do it in multiple threads */
 	// For each voxel -> calculate bounding box
-	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( mVoxels.size() ); ++i )
 	{
-		if ( it->mHairCount != 0 )
+		Voxel & vx = mVoxels[ i ];
+		if ( vx.mHairCount != 0 )
 		{
 			// Generate current mesh only for this voxel
 			Triangles triangles;
-			aCurrentMesh.getSelectedTriangles( it->mTrianglesIds, triangles );
-			delete it->mCurrentMesh;
-			it->mCurrentMesh = new Mesh( triangles, true );
+			aCurrentMesh.getSelectedTriangles( vx.mTrianglesIds, triangles );
+			delete vx.mCurrentMesh;
+			vx.mCurrentMesh = new Mesh( triangles, true );
 			// Create simple hair position generator & output generator
 			Interpolation::SimpleOutputGenerator output;
-			Interpolation::SimplePositionGenerator posGenerator( *it->mRestPoseMesh, *it->mCurrentMesh,
-				*it->mUVPointGenerator, it->mHairCount, it->mHairIndex );
+			Interpolation::SimplePositionGenerator posGenerator( *vx.mRestPoseMesh, *vx.mCurrentMesh,
+				*vx.mUVPointGenerator, vx.mHairCount, vx.mHairIndex );
 			// Interpolate hair in order to calculate bounding box
 			Interpolation::HairGenerator< Interpolation::SimplePositionGenerator, 
 				Interpolation::SimpleOutputGenerator > generator( posGenerator, output );
-			it->mBoundingBox.clear();
-			it->mRandom.reset();
-			generator.calculateBoundingBox( aHairProperties, 1.0f, it->mBoundingBox );
+			vx.mBoundingBox.clear();
+			vx.mRandom.reset();
+			generator.calculateBoundingBox( aHairProperties, 1.0f, vx.mBoundingBox );
 		}
 	}
 }

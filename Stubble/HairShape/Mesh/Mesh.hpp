@@ -238,8 +238,8 @@ inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Textu
 
 	// Select displace and its derivatives
 	Real displace = aDisplacementTexture.realAtUV( u, v ) * aDisplacementFactor;
-	Real displaceDU = aDisplacementTexture.derivativeByUAtUV( u, v );
-	Real displaceDV = aDisplacementTexture.derivativeByVAtUV( u, v );
+	Real displaceDU = aDisplacementTexture.derivativeByUAtUV( u, v ) * aDisplacementFactor;
+	Real displaceDV = aDisplacementTexture.derivativeByVAtUV( u, v ) * aDisplacementFactor;
 
 	// Normalize normal
 	normal.normalize();
