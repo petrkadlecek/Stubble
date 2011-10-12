@@ -73,36 +73,54 @@ void DisplayedGuides::draw() const
 
 void DisplayedGuides::drawPolyline() const
 {
-	// For every guide
-	GuidesCurrentPositions::const_iterator posIt = mGuidesCurrentPositions->begin();
-	GuidesSelection::const_iterator selectedIt = mGuidesSelection.begin();
-	for ( GuidesSegments::const_iterator guideIt = mFrameSegments->mSegments.begin(); 
-		guideIt != mFrameSegments->mSegments.end(); ++guideIt, ++posIt, ++selectedIt )
+	glColor3f(0.18f, 0.5f, 0.3f);
+
+	// For all non-selected guides
+	if (!mHideNonSelected)
 	{
-		if (mHideNonSelected && !*selectedIt)
+		GuidesCurrentPositions::const_iterator posIt = mGuidesCurrentPositions->begin();
+		GuidesSelection::const_iterator selectedIt = mGuidesSelection.begin();
+		// For each guide
+		for ( GuidesSegments::const_iterator guideIt = mFrameSegments->mSegments.begin(); 
+			guideIt != mFrameSegments->mSegments.end(); ++guideIt, ++posIt, ++selectedIt )
 		{
-			continue;
-		}
-		if (*selectedIt)
-		{
-			glColor3f(0.5f, 1.0f, 0.8f);
-		}
-		else
-		{
-			glColor3f(0.18f, 0.5f, 0.3f);
-		}
+			if (*selectedIt)
+			{
+				continue;
+			}
+
+			glBegin(GL_LINE_STRIP);
+			// For every segment
+			for ( Segments::const_iterator segIt = guideIt->mSegments.begin(); 
+				segIt != guideIt->mSegments.end(); ++segIt )
+			{
+				// Transform vertex to world
+				Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
+				// Draw
+				glVertex3d( pos.x, pos.y, pos.z );
+			}
+			glEnd();
+		} // For each guide
+	} // if (!mHideNonSelected)
+
+	glColor3f(0.5f, 1.0f, 0.8f);
+
+	// For each selected guide
+	for ( SelectedGuides::const_iterator guideIt = mSelectedGuides->begin(); 
+		guideIt != mSelectedGuides->end(); ++guideIt )
+	{
 		glBegin(GL_LINE_STRIP);
-		// For every segment
-		for ( Segments::const_iterator segIt = guideIt->mSegments.begin(); 
-			segIt != guideIt->mSegments.end(); ++segIt )
+		// For each segment
+		for ( Segments::const_iterator segIt = (*guideIt)->mGuideSegments.mSegments.begin(); 
+			segIt != (*guideIt)->mGuideSegments.mSegments.end(); ++segIt )
 		{
 			// Transform vertex to world
-			Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
+			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( *segIt );
 			// Draw
 			glVertex3d( pos.x, pos.y, pos.z );
 		}
 		glEnd();
-	} // for every guide
+	} // For each selected guide
 }
 
 void DisplayedGuides::drawVertices() const
@@ -110,36 +128,40 @@ void DisplayedGuides::drawVertices() const
 	glPointSize(3.0f);
 	glColor3f(1.0f, 0.1f, 1.0f);
 
-	// For every guide
-	GuidesCurrentPositions::const_iterator posIt = mGuidesCurrentPositions->begin();
-	GuidesSelection::const_iterator selectedIt = mGuidesSelection.begin();
-	for ( GuidesSegments::const_iterator guideIt = mFrameSegments->mSegments.begin(); 
-		guideIt != mFrameSegments->mSegments.end(); ++guideIt, ++posIt, ++selectedIt )
+	// For all non-selected guides
+	if (!mHideNonSelected)
 	{
-		if (mHideNonSelected && !*selectedIt || *selectedIt)
+		GuidesCurrentPositions::const_iterator posIt = mGuidesCurrentPositions->begin();
+		GuidesSelection::const_iterator selectedIt = mGuidesSelection.begin();
+		// For each guide
+		for ( GuidesSegments::const_iterator guideIt = mFrameSegments->mSegments.begin(); 
+			guideIt != mFrameSegments->mSegments.end(); ++guideIt, ++posIt, ++selectedIt )
 		{
-			continue;
-		}
+			if (*selectedIt)
+			{
+				continue;
+			}
 		
-		glBegin(GL_POINTS);
-		// For every segment
-		for ( Segments::const_iterator segIt = guideIt->mSegments.begin(); 
-			segIt != guideIt->mSegments.end(); ++segIt )
-		{
-			// Transform vertex to world
-			Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
-			// Draw
-			glVertex3d( pos.x, pos.y, pos.z );
-		}
-		glEnd();
-	} // For every guide
+			glBegin(GL_POINTS);
+			// For every segment
+			for ( Segments::const_iterator segIt = guideIt->mSegments.begin(); 
+				segIt != guideIt->mSegments.end(); ++segIt )
+			{
+				// Transform vertex to world
+				Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
+				// Draw
+				glVertex3d( pos.x, pos.y, pos.z );
+			}
+			glEnd();
+		} // For each guide
+	} // if (!mHideNonSelected)
 
-	// For every selected guide
+	// For each selected guide
 	for ( SelectedGuides::const_iterator guideIt = mSelectedGuides->begin(); 
 		guideIt != mSelectedGuides->end(); ++guideIt )
 	{
 		glBegin(GL_POINTS);
-		// For every segment
+		// For each segment
 		assert((*guideIt)->mGuideSegments.mSegments.size() == (*guideIt)->mSegmentsAdditionalInfo.size());
 		SegmentsAdditionalInfo::const_iterator infoIt = (*guideIt)->mSegmentsAdditionalInfo.begin();
 		for ( Segments::const_iterator segIt = (*guideIt)->mGuideSegments.mSegments.begin(); 
@@ -157,9 +179,9 @@ void DisplayedGuides::drawVertices() const
 				glColor3f(1.0f, 0.1f, 1.0f);
 			}
 			glVertex3d( pos.x, pos.y, pos.z );
-		}
+		} // For each segment
 		glEnd();
-	} // For every selected guide
+	} // For each selected guide
 }
 
 } // namespace HairComponents
