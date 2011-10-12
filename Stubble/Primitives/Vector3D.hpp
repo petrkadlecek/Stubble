@@ -491,9 +491,9 @@ inline Vector3D< Type > & Vector3D< Type >::normalize()
 template < typename Type >
 inline Vector3D< Type > & Vector3D< Type >::transformAsPoint( const Matrix< Type > & aTransformMatrix )
 {
-	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ] + aTransformMatrix[ 12 ];
-	Type ty = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ] + aTransformMatrix[ 13 ];
-	Type tz = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ] + aTransformMatrix[ 14 ];
+	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 1 ] + z * aTransformMatrix[ 2 ] + aTransformMatrix[ 3 ];
+	Type ty = x * aTransformMatrix[ 4 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 6 ] + aTransformMatrix[ 7 ];
+	Type tz = x * aTransformMatrix[ 8 ] + y * aTransformMatrix[ 9 ] + z * aTransformMatrix[ 10 ] + aTransformMatrix[ 11 ];
 	x = tx;
 	y = ty;
 	z = tz;
@@ -503,9 +503,9 @@ inline Vector3D< Type > & Vector3D< Type >::transformAsPoint( const Matrix< Type
 template < typename Type >
 inline Vector3D< Type > & Vector3D< Type >::transform( const Matrix< Type > & aTransformMatrix )
 {
-	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 4 ] + z * aTransformMatrix[ 8 ];
-	Type ty = x * aTransformMatrix[ 1 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 9 ];
-	Type tz = x * aTransformMatrix[ 2 ] + y * aTransformMatrix[ 6 ] + z * aTransformMatrix[ 10 ];
+	Type tx = x * aTransformMatrix[ 0 ] + y * aTransformMatrix[ 1 ] + z * aTransformMatrix[ 2 ];
+	Type ty = x * aTransformMatrix[ 4 ] + y * aTransformMatrix[ 5 ] + z * aTransformMatrix[ 6 ];
+	Type tz = x * aTransformMatrix[ 8 ] + y * aTransformMatrix[ 9 ] + z * aTransformMatrix[ 10 ];
 	x = tx;
 	y = ty;
 	z = tz;
