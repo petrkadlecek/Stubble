@@ -23,7 +23,7 @@ namespace Interpolation
 {
 
 template< typename tPositionGenerator, typename tOutputGenerator >
-void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const HairProperties & aHairProperties )
+void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const HairProperties & aHairProperties )
 {
 	// Store pointer to hair properties, so we don't need to send it to every function
 	mHairProperties = & aHairProperties;
@@ -162,6 +162,126 @@ void inline HairGenerator< tPositionGenerator, tOutputGenerator >::generate( con
 		}
 	}
 	mOutputGenerator.endOutput();
+	// Release memory of local buffers
+	delete [] points;
+	delete [] pointsStrand;
+	delete [] tangents;
+	delete [] normals;
+	delete [] binormals;
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	calculateBoundingBox( const HairProperties & aHairProperties, float aHairGenerateRatio, 
+	BoundingBox & aBoundingBox )
+{
+	// Store pointer to hair properties, so we don't need to send it to every function
+	mHairProperties = & aHairProperties;
+	// Get max points count = segments + 1 ( + 2 for duplicate of first and last point )
+	const unsigned __int32 maxPointsCount = aHairProperties.getInterpolationGroups().getMaxSegmentsCount() + 3;
+	// Prepare local buffers for hair
+	Point * points = new Point[ maxPointsCount ];
+	// The first point always equals the second one, so it will not be included in many calculations
+	Point * pointsPlusOne = points + 1; 
+	Point * pointsStrand = new Point[ maxPointsCount ];
+	Point * pointsStrandPlusOne = pointsStrand + 1; 
+	Vector * tangents = new Vector[ maxPointsCount ];
+	Vector * tangentsPlusOne = tangents + 1; 
+	Vector * normals = new Vector[ maxPointsCount ];
+	Vector * binormals = new Vector[ maxPointsCount ];
+	// Prepare matrix
+	Matrix localToCurr;
+	// Resets random generator
+	mRandom.reset();
+	// Calculate hair count
+	unsigned __int32 hairCount = static_cast< unsigned __int32 >( aHairGenerateRatio * mPositionGenerator.getHairCount() );
+	// For every main hair
+	for ( unsigned __int32 i = 0; i < hairCount; ++i )
+	{
+		// Generate position
+		MeshPoint currPos;
+		MeshPoint restPos;
+		Real displaceFactor = mHairProperties->getDisplacement();
+		if ( displaceFactor == 0 )
+		{
+			mPositionGenerator.generate( currPos, restPos );
+		}
+		else
+		{
+			mPositionGenerator.generate( currPos, restPos, mHairProperties->getDisplacementTexture(), 
+				mHairProperties->getDisplacement() );
+		}
+		// Determine cut factor
+		PositionType cutFactor = static_cast< PositionType >( 
+			aHairProperties.getCutTexture().realAtUV( restPos.getUCoordinate(), restPos.getVCoordinate() ) );
+		if ( cutFactor == 0 )
+		{
+			continue; // The hair has been cut at root
+		}
+		// Get interpolation group
+		unsigned __int32 groupId = aHairProperties.getInterpolationGroups().
+			getGroupId( restPos.getUCoordinate(), restPos.getVCoordinate() );
+		// Get points count = segments count + 1
+		unsigned __int32 ptsCountBeforeCut = aHairProperties.getInterpolationGroups().
+			getGroupSegmentsCount( groupId ) + 1;
+		// Calculate points count after cut, if cut < 1 than we need to include two more point for cut calculation
+		unsigned __int32 ptsCountAfterCut = 
+			static_cast< unsigned __int32 >( std::ceil( cutFactor * ptsCountBeforeCut ) ) + 2;
+		// Limit pts count
+		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
+		// Interpolate points of hair from closest guides
+		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
+		// Apply scale to points 
+		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
+		// Apply frizz and kink to points 
+		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
+		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
+		// Calculate local space to current world space transform
+		currPos.getWorldTransformMatrix( localToCurr );
+		if ( aHairProperties.getMultiStrandCount() ) // Uses multi strands ?
+		{
+			// Duplicate first and last point ( last points need to be duplicated, 
+			// only if cut has not decreased points count, so we will use total points count )
+			// These duplicated points are used for curve points calculation at any given param t
+			copyToLastAndFirst( points, ptsCountBeforeCut + 2 );
+			// Calculate tangents
+			calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
+			// Duplicate tangents ( same reason as with points duplication )
+			copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
+			// Create full rotation minimizing frame for main hair
+			calculateNormalsAndBinormals( normals, binormals, pointsPlusOne, tangentsPlusOne, ptsCountAfterCut );
+			// Get multi-strands properties
+			selectMultiStrandProperties( restPos, ptsCountBeforeCut );
+			// Generate all hair in strand
+			for ( unsigned __int32 j = 0; j < aHairProperties.getMultiStrandCount(); ++j )
+			{
+				// First generate points
+				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, pointsPlusOne,
+					normals, binormals );
+				// Convert positions to current world space
+				transformPoints( pointsStrandPlusOne, ptsCountAfterCut, localToCurr );
+				// Cuts hair
+				if ( cutFactor < 1 )
+				{
+					cutHair( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, cutFactor );
+				}
+				// Finally updates bounding box
+				updateBoundingBox( pointsStrandPlusOne, ptsCountAfterCut, aBoundingBox );
+			}
+		}
+		else // Single hair only
+		{
+			// Convert positions to current world space
+			transformPoints( pointsPlusOne, ptsCountAfterCut, localToCurr );
+			// Cuts hair
+			if ( cutFactor < 1 )
+			{
+				cutHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, cutFactor );
+			}
+			// Finally updates bounding box
+			updateBoundingBox( pointsPlusOne, ptsCountAfterCut, aBoundingBox );
+		}
+	}
 	// Release memory of local buffers
 	delete [] points;
 	delete [] pointsStrand;
@@ -532,6 +652,31 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 
 template< typename tPositionGenerator, typename tOutputGenerator >
 inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	cutHair( Point * aPoints, unsigned __int32 aCount, 
+		unsigned __int32 aCurvePointsCount, PositionType aCutFactor )
+{
+	// Select parameter step and iteration end
+	bool iterationEnd = false;
+	PositionType step = 1.0f / ( aCount - 1); // Points count -> segments count
+	// Iterate with curve parameter t until iteration end is signaled
+	for ( PositionType t = 0; !iterationEnd; 
+		t += step, ++aPoints )
+	{
+		if ( t > aCutFactor ) // Reached curve cut end
+		{
+			// Calculate new point position
+			Point newPos;
+			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
+			t = aCutFactor;
+			iterationEnd = true;
+			// Set current point and calculate tangent
+			*aPoints = newPos;
+		}
+	}
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	outputHairIndexAndUVs( IndexType aHairIndex, IndexType aStrandIndex, const MeshPoint &aRestPosition )
 {
 	// Store uv coordinates
@@ -641,6 +786,17 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		cosPhi -= mSinTwist * sinPhi;
 		sinPhi = newSinPhi;
 	} 
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	updateBoundingBox( const Point * aPoints, unsigned __int32 aCount, BoundingBox & aBoundingBox )
+{
+	// For every point
+	for ( const Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
+	{
+		aBoundingBox.expand( *it );
+	}
 }
 
 } // namespace Interpolation

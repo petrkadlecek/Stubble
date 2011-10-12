@@ -62,13 +62,6 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline void draw();
 
-	///-------------------------------------------------------------------------------------------------
-	/// Gets the bounding box of displayed hair. 
-	///
-	/// \return	The bounding box. 
-	///-------------------------------------------------------------------------------------------------
-	inline const BoundingBox & getBoundingBox();
-
 private:
 
 	MayaPositionGenerator mPositionGenerator;   ///< The hair position generator
@@ -115,11 +108,6 @@ inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProp
 inline void InterpolatedHair::draw()
 {
 	mOutputGenerator.draw();
-}
-
-inline const BoundingBox & InterpolatedHair::getBoundingBox()
-{
-	return mOutputGenerator.getBoundingBox();
 }
 
 } // namespace Interpolation

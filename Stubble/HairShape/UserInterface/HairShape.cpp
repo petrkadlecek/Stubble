@@ -344,12 +344,13 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	if ( mVoxelization == 0 ) // Voxelization does not exist
 	{
 		// Creates voxelization
-		mVoxelization = new Voxelization( mMayaMesh->getRestPose(), *mUVPointGenerator, mVoxelsResolution );
+		mVoxelization = new Voxelization( mMayaMesh->getRestPose(), getDensityTexture(), mVoxelsResolution );
 	}
+	mVoxelization->updateVoxels( *mMayaMesh, *this, mGeneratedHairCount );
 	// For every voxel
-	for ( unsigned __int32 i = 0, hairCountTotal = 0; i < mVoxelization->getVoxelsCount(); ++i )
+	for ( unsigned __int32 i = 0; i < mVoxelization->getVoxelsCount(); ++i )
 	{
-		if ( !mVoxelization->isVoxelEmpty( i ) )
+		if ( mVoxelization->getVoxelHairCount( i ) > 0 )
 		{
 			// Open file 
 			std::ostringstream voxelFileName; aFileName;
@@ -359,17 +360,8 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 				zlib_stream::StrategyFiltered, 15, 9, BUFFER_SIZE );
 			// Write id
 			zipper.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
-			// Write start hair index
-			zipper.write( reinterpret_cast< const char * >( &hairCountTotal ), sizeof( unsigned __int32 ) );
-			// Write number of generated hair in current voxel
-			unsigned __int32 hairCount = mVoxelization->getVoxelHairCount( mGeneratedHairCount, i );
-			zipper.write( reinterpret_cast< const char * >( &hairCount ), sizeof( unsigned __int32 ) );
-			// Increase hair count total
-			hairCountTotal += hairCount;
-			// Write rest pose mesh
-			mVoxelization->exportRestPoseVoxel( zipper, mMayaMesh->getRestPose(), i );
-			// Write current mesh and store its bounding box
-			aVoxelBoundingBoxes.push_back( mVoxelization->exportCurrentVoxel( zipper, *mMayaMesh, i ) );
+			// Write voxel to file and stores voxel bounding box
+			aVoxelBoundingBoxes.push_back( mVoxelization->exportVoxel( zipper, i ) );
 			// Flush zipper
 			zipper.zflush();
 			// Closes voxel file

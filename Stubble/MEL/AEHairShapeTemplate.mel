@@ -19,6 +19,7 @@ global proc AEHairShapeTemplate( string $nodeName )
 		editorTemplate -addControl "segments_count";
 		editorTemplate -addControl "display_guides";
 		editorTemplate -addControl "display_hair";
+		editorTemplate -addControl "voxels_dimensions";
 		editorTemplate -callCustom "AEstubbleCutTextureNew"
 				"AEstubbleCutTextureReplace" "cut_texture";
 		editorTemplate -callCustom "AEstubbleDensityTextureNew"

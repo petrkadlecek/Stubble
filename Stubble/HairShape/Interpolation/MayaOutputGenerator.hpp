@@ -6,6 +6,8 @@
 
 #include "Common/GLExtensions.hpp"
 
+#include "HairShape/Mesh/Voxelization.hpp"
+
 #include "Primitives/BoundingBox.hpp"
 
 namespace Stubble
@@ -191,18 +193,11 @@ public:
 	/// Recalculates all hair positions from local to world space 
 	/// ( recalculateToLocalSpace must be called first ).
 	///
-	/// \param	aHairSpace	The local space of each hair.
+	/// \param	aHairSpace			The local space of each hair.
 	/// \param	aHairStrandCount	Number of hair in one strand.
 	///-------------------------------------------------------------------------------------------------
 	void recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace,
 		unsigned __int32 aHairStrandCount );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Gets the bounding box of displayed hair. 
-	///
-	/// \return	The bounding box. 
-	///-------------------------------------------------------------------------------------------------
-	inline const BoundingBox & getBoundingBox();
 
 private:
 
@@ -239,8 +234,6 @@ private:
 	MayaTypes::IndexType mTmpIndex; ///< Temporary variable for storing outputed index ( ignored during render )
 
 	MayaTypes::UVCoordinateType mTmpUV[ 2 ]; ///< Temporary variable for storing outputed uv coord ( ignored during render )
-
-	BoundingBox mBoundingBox;   ///< The bounding box of displayed hair
 
 	/* GL structures */
 
@@ -318,7 +311,6 @@ inline void MayaOutputGenerator::clear()
 inline void MayaOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
 {
 	mDirty = true;
-	mBoundingBox.clear();
 	// Memory is not sufficient
 	if ( mMaxPointsCount < aMaxPointsCount || aMaxHairCount > mMaxHairCount )
 	{
@@ -385,8 +377,6 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
-		// Expands bounding box by first point
-		mBoundingBox.expand( Vector3D< Real >( mVerticesPointer - 3 ) );
 		// Color of second point will be the same as first point
 		*( mVerticesPointer++ ) = mColorData[ i * 3 ]; // R
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
@@ -396,8 +386,6 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
 		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
-		// Expands bounding box by second point
-		mBoundingBox.expand( Vector3D< Real >( mVerticesPointer - 3 ) );
 	}
 	// Calculate indices ( for each segment 2 )
 	GLuint startIndex = mIndicesPointer == mIndices ? 0 : *( mIndicesPointer - 1 ) + 1;
@@ -463,11 +451,6 @@ inline MayaOutputGenerator::IndexType * MayaOutputGenerator::hairIndexPointer()
 inline MayaOutputGenerator::IndexType * MayaOutputGenerator::strandIndexPointer()
 {
 	return &mTmpIndex; /* NOT SUPPORTED */
-}
-
-inline const BoundingBox & MayaOutputGenerator::getBoundingBox()
-{
-	return mBoundingBox;
 }
 
 inline void MayaOutputGenerator::rebuildVBO()

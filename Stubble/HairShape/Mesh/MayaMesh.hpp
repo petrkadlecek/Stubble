@@ -90,6 +90,14 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline const MeshUVCoordUG & getMeshUVCoordUG() const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the selected triangles. 
+	///
+	/// \param	aTrianglesIds	List of identifiers for a triangles. 
+	/// \param [in,out]	aResult	The selected triangles. 
+	///-------------------------------------------------------------------------------------------------
+	inline void getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
@@ -158,6 +166,17 @@ inline const MeshUVCoordUG & MayaMesh::getMeshUVCoordUG() const
 		mMeshUVCoordUG.build( triangles );
 	}
 	return mMeshUVCoordUG;
+}
+
+inline void MayaMesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
+{
+	aResult.resize( aTrianglesIds.size() );
+	Triangles::iterator outIt = aResult.begin();
+	for ( TrianglesIds::const_iterator idIt = aTrianglesIds.begin(); idIt != aTrianglesIds.end();
+		++idIt, ++outIt )
+	{
+		*outIt = getTriangle( *idIt );
+	}
 }
 
 } // namespace HairShape

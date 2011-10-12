@@ -6,21 +6,17 @@ namespace Stubble
 namespace HairShape
 {
 
-Voxelization::Voxelization( const Mesh & aRestPoseMesh, const UVPointGenerator & aUVPointGenerator, 
+Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensityTexture, 
 	const Dimensions3 & aDimensions3 )
 {
 	BoundingBox bbox = aRestPoseMesh.getBoundingBox();
 	unsigned __int32 total = aDimensions3[ 0 ] * aDimensions3[ 1 ] * aDimensions3[ 2 ];
 	mVoxels.resize( total );
-	// Resets density
-	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
-	{
-		it->mDensity = 0;
-	}
 	Vector3D< Real > bsize = ( bbox.max() - bbox.min() ) * 1.001f;
 	Vector3D< Real > voxelSize( bsize.x / aDimensions3[ 0 ],
 		bsize.y / aDimensions3[ 1 ],
 		bsize.z / aDimensions3[ 2 ] );
+	// For each triangle
 	for ( TriangleConstIterator it = aRestPoseMesh.getTriangleConstIterator(); !it.end(); ++it )
 	{
 		const Triangle & t = it.getTriangle();
@@ -31,54 +27,97 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const UVPointGenerator &
 		unsigned __int32 y = static_cast< unsigned __int32 >( floor( ( barycenter.y - bbox.min().y ) / voxelSize.y ) );
 		unsigned __int32 z = static_cast< unsigned __int32 >( floor( ( barycenter.z - bbox.min().z ) / voxelSize.z ) );
 		// Calculate voxel id
-		Voxel & v = mVoxels[ z + aDimensions3[ 2 ] * ( y + aDimensions3[ 1 ] * x ) ];
-		// Add triangle to voxel
+		unsigned __int32 id = z + aDimensions3[ 2 ] * ( y + aDimensions3[ 1 ] * x );
+		Voxel & v = mVoxels[ id ];
+		// Add triangle id to voxel
 		v.mTrianglesIds.push_back( it.getTriangleID() );
-		// Increase density
-		v.mDensity += aUVPointGenerator.getTriangleDensity( it.getTriangleID() );
+	}
+	// For each voxel
+	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	{
+		// No current mesh, yet
+		it->mCurrentMesh = 0;
+		if ( it->mTrianglesIds.empty() ) // Empty voxel ?
+		{
+			it->mRestPoseMesh = 0;
+			it->mUVPointGenerator = 0;
+			it->mHairCount = 0;
+		}
+		else
+		{
+			// Generate rest pose mesh only for this voxel
+			Triangles triangles;
+			aRestPoseMesh.getSelectedTriangles( it->mTrianglesIds, triangles );
+			it->mRestPoseMesh = new Mesh( triangles );
+			// Create UV point generator for selected triangles
+			it->mUVPointGenerator = new UVPointGenerator( aDensityTexture, it->mRestPoseMesh->getTriangleConstIterator(), it->mRandom );
+		}
 	}
 }
 
-BoundingBox Voxelization::exportCurrentVoxel( std::ostream & aOutputStream, const MayaMesh & aCurrentMesh, 
-	unsigned __int32 aVoxelId ) const
+void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolation::HairProperties & aHairProperties,
+	unsigned __int32 aTotalHairCount )
 {
-	BoundingBox bbox;
-	const TrianglesIds & trianglesIds = mVoxels[ aVoxelId ].mTrianglesIds;
-	// Export triangles count
-	unsigned __int32 size = static_cast< unsigned __int32 >( trianglesIds.size() );
-	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
-	// Export triangles
-	for ( TrianglesIds::const_iterator it = trianglesIds.begin(); it != trianglesIds.end(); ++it )
+	Real totalDensity = 0;
+	// For each voxel => calculate total density
+	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
 	{
-		const Triangle & t = aCurrentMesh.getTriangle( *it );
-		// Expand bounding box
-		bbox.expand( t.getVertex1().getPosition() );
-		bbox.expand( t.getVertex2().getPosition() );
-		bbox.expand( t.getVertex3().getPosition() );
-		// Export vertices
-		aOutputStream << t.getVertex1();
-		aOutputStream << t.getVertex2();
-		aOutputStream << t.getVertex3();
+		if ( it->mUVPointGenerator != 0 )
+		{
+			totalDensity += it->mUVPointGenerator->getDensity();
+		}
 	}
-	return bbox;
+	Real inverseDensity = 1 / totalDensity;
+	unsigned __int32 index = 0;
+	// Calculate hair count and hair index for each voxel
+	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	{
+		if ( it->mUVPointGenerator != 0 )
+		{
+			it->mHairCount = static_cast< unsigned __int32 >( it->mUVPointGenerator->getDensity() * inverseDensity *
+				aTotalHairCount );
+			it->mHairIndex = index;
+			index += it->mHairCount; // Increase hair index
+		}
+	}
+	/* TODO : do it in multiple threads */
+	// For each voxel -> calculate bounding box
+	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	{
+		if ( it->mHairCount != 0 )
+		{
+			// Generate current mesh only for this voxel
+			Triangles triangles;
+			aCurrentMesh.getSelectedTriangles( it->mTrianglesIds, triangles );
+			delete it->mCurrentMesh;
+			it->mCurrentMesh = new Mesh( triangles, true );
+			// Create simple hair position generator & output generator
+			Interpolation::SimpleOutputGenerator output;
+			Interpolation::SimplePositionGenerator posGenerator( *it->mRestPoseMesh, *it->mCurrentMesh,
+				*it->mUVPointGenerator, it->mHairCount, it->mHairIndex );
+			// Interpolate hair in order to calculate bounding box
+			Interpolation::HairGenerator< Interpolation::SimplePositionGenerator, 
+				Interpolation::SimpleOutputGenerator > generator( posGenerator, output );
+			it->mBoundingBox.clear();
+			it->mRandom.reset();
+			generator.calculateBoundingBox( aHairProperties, 1.0f, it->mBoundingBox );
+		}
+	}
 }
 
-void Voxelization::exportRestPoseVoxel( std::ostream & aOutputStream, const Mesh & aRestPoseMesh, 
-	unsigned __int32 aVoxelId ) const
+BoundingBox Voxelization::exportVoxel( std::ostream & aOutputStream, unsigned __int32 aVoxelId )
 {
-	const TrianglesIds & trianglesIds = mVoxels[ aVoxelId ].mTrianglesIds;
-	// Export triangles count
-	unsigned __int32 size = static_cast< unsigned __int32 >( trianglesIds.size() );
-	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
-	// Export triangles
-	for ( TrianglesIds::const_iterator it = trianglesIds.begin(); it != trianglesIds.end(); ++it )
-	{
-		const Triangle & t = aRestPoseMesh.getTriangle( *it );
-		// Export vertices
-		aOutputStream << t.getVertex1();
-		aOutputStream << t.getVertex2();
-		aOutputStream << t.getVertex3();
-	}
+	Voxel & voxel = mVoxels[ aVoxelId ];
+	// Export hair index
+	aOutputStream.write( reinterpret_cast< const char *>( &voxel.mHairIndex ), sizeof( unsigned __int32 ) );
+	// Export hair count
+	aOutputStream.write( reinterpret_cast< const char *>( &voxel.mHairCount ), sizeof( unsigned __int32 ) );
+	// Export rest pose mesh
+	voxel.mRestPoseMesh->exportMesh( aOutputStream );
+	// Export current mesh
+	voxel.mCurrentMesh->exportMesh( aOutputStream );
+	// Finally return bbox
+	return voxel.mBoundingBox;
 }
 
 } // namespace HairShape

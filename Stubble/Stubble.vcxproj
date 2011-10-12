@@ -160,6 +160,7 @@
     <ClCompile Include="HairShape\Generators\RandomGenerator.cpp" />
     <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp" />
     <ClCompile Include="HairShape\HairComponents\CommandsNURBS.cpp" />
+    <ClCompile Include="HairShape\HairComponents\CommandsTextures.cpp" />
     <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp" />
     <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="Common\StubbleException.hpp" />
     <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
     <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp" />
+    <ClInclude Include="HairShape\HairComponents\CommandsTextures.hpp" />
     <ClInclude Include="HairShape\HairComponents\DisplayedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuidePosition.hpp" />
     <ClInclude Include="HairShape\HairComponents\RestPositionsUG.hpp" />
@@ -230,6 +232,8 @@
     <ClInclude Include="HairShape\Interpolation\RMHairProperties.hpp" />
     <ClInclude Include="HairShape\Interpolation\RMOutputGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\RMPositionGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp" />
+    <ClInclude Include="HairShape\Interpolation\SimplePositionGenerator.hpp" />
     <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshUG.hpp" />

@@ -33,6 +33,22 @@ public:
 	Mesh( std::istream & aInStream, bool aCalculateDerivatives = false );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Constructor realized from triangles array
+	///
+	/// \param	aTriangles				Input triangles
+	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
+	/// 								calculated ( used for surface displacement )
+	///----------------------------------------------------------------------------------------------------
+	Mesh( const Triangles &aTriangles , bool aCalculateDerivatives = false );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Exports mesh. 
+	///
+	/// \param [in,out]	aOutputStream	The output stream. 
+	///-------------------------------------------------------------------------------------------------
+	void exportMesh( std::ostream & aOutputStream ) const;
+
+	///----------------------------------------------------------------------------------------------------
 	/// Gets const triangle iterator.
 	///----------------------------------------------------------------------------------------------------
 	inline TriangleConstIterator getTriangleConstIterator() const;
@@ -82,6 +98,14 @@ public:
 	/// Gets triangle as 3 vertices.
 	///----------------------------------------------------------------------------------------------------
 	inline const Triangle & getTriangle( unsigned __int32 aID ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the selected triangles. 
+	///
+	/// \param	aTrianglesIds	List of identifiers for a triangles. 
+	/// \param [in,out]	aResult	The selected triangles. 
+	///-------------------------------------------------------------------------------------------------
+	inline void getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
@@ -238,6 +262,17 @@ inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Textu
 inline const Triangle & Mesh::getTriangle( unsigned __int32 aID ) const
 {
 	return mTriangles[ aID ];
+}
+
+inline void Mesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
+{
+	aResult.resize( aTrianglesIds.size() );
+	Triangles::iterator outIt = aResult.begin();
+	for ( TrianglesIds::const_iterator idIt = aTrianglesIds.begin(); idIt != aTrianglesIds.end();
+		++idIt, ++outIt )
+	{
+		*outIt = mTriangles[ *idIt ];
+	}
 }
 
 inline unsigned __int32 Mesh::getTriangleCount() const

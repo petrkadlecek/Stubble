@@ -205,6 +205,9 @@
     <ClCompile Include="HairShape\HairComponents\CommandsNURBS.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\CommandsTextures.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -398,6 +401,15 @@
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\CommandsTextures.hpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\SimplePositionGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

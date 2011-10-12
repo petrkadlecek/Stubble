@@ -15,7 +15,7 @@
 #include "HairShape/UserInterface/HairShapeUI.hpp"
 
 #include "HairShape\HairComponents\CommandsNURBS.hpp"
-// TODO #include "HairShape/HairComponents/CommandsTextures.hpp"
+#include "HairShape/HairComponents/CommandsTextures.hpp"
 
 #include "RibExport/RenderManCacheCommand.hpp"
 
@@ -130,7 +130,7 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	}
 
 	// register StubbleResetTextures command
-	// TODO status = plugin.registerCommand( "StubbleResetTextures", Stubble::HairShape::HairComponents::ResetTexturesCommand::creator );
+	status = plugin.registerCommand( "StubbleResetTextures", Stubble::HairShape::HairComponents::ResetTexturesCommand::creator );
 
 	// check for error
 	if ( status != MS::kSuccess )

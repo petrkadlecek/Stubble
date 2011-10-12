@@ -19,7 +19,6 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 	{
 		stack = new SubTriangle[ STACK_SIZE ];
 		BuildVertices();
-		mTrianglesPDF.resize( aTriangleConstIterator.getTrianglesCount(), 0 );
 		// Cumulative distribution fuction
 		Real cdf = 0;
 		// Stack for subtriangles
@@ -137,8 +136,6 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 							subTriangle.mCDFValue = cdf;
 							subTriangle.mTriangleSimpleID = triangleSimpleID;
 							mSubTriangles.push_back( subTriangle );
-							// Update triangle pdf
-							mTrianglesPDF[ triangleSimpleID ] += p;
 						}
 					}
 				}
@@ -176,16 +173,10 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 			}
 		}
 		// Free memory of triangles iterator and stack for sub triangles
-		delete stack;
+		delete [] stack;
 		if ( mSubTriangles.size() == 0 )
 		{
 			throw StubbleException( "UVPointGenerator::UVPointGenerator : zero probability all over the mesh !" );
-		}
-		Real oneDividedByTotalDensity = 1 / mSubTriangles.rbegin()->mCDFValue;
-		// Finally normalize pdf of triangles
-		for ( RealArray::iterator it = mTrianglesPDF.begin(); it != mTrianglesPDF.end(); ++it )
-		{
-			*it *= oneDividedByTotalDensity;
 		}
 	}
 	catch( ... ) // Not enough memory for vertices
