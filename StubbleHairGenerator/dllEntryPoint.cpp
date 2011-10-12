@@ -106,6 +106,7 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 	// Load stubble workdir
 	std::string stubbleWorkDir = Stubble::getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
 	// Prepare rendering params
+	RtInt test = RI_CATMULLROMSTEP;
 	RiBasis( RiCatmullRomBasis, RI_CATMULLROMSTEP, RiCatmullRomBasis, RI_CATMULLROMSTEP );
 	// Declare output variables
 	RMOutputGenerator::declareVariables();

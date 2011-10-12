@@ -44,12 +44,12 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const Hair
 	// Resets random generator
 	mRandom.reset();
 	// Indices
-	IndexType hairIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() * 
-		mHairProperties->getMultiStrandCount() );
+	IndexType hairInStrand = 
+		std::max( aHairProperties.getMultiStrandCount(), static_cast< unsigned __int32 >( 1 ) );
+	IndexType hairIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() * hairInStrand );
 	IndexType strandIndex = static_cast< IndexType >( mPositionGenerator.getHairStartIndex() );
 	// Start output
-	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount() * 
-		std::max( aHairProperties.getMultiStrandCount(), static_cast< unsigned __int32 >( 1 ) ), maxPointsCount );
+	mOutputGenerator.beginOutput( mPositionGenerator.getHairCount() * hairInStrand, maxPointsCount );
 	// For every main hair
 	for ( unsigned __int32 i = 0; i < mPositionGenerator.getHairCount(); ++i, ++strandIndex )
 	{
@@ -571,12 +571,12 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	generateHair( Point * aPoints, Vector * aTangents, unsigned __int32 aCount, 
 		unsigned __int32 aCurvePointsCount, const MeshPoint & aRestPosition, PositionType aCutFactor )
 {
-	// Select output pointers and skip first point ( first equals second, will be copied later )
+	// Select output pointers and skip first position ( first equals second, will be copied later )
 	PositionType *posOutIt = mOutputGenerator.positionPointer() + 3;
-	NormalType *normalOutIt = mOutputGenerator.normalPointer() + 3;
-	ColorType *colorIt = mOutputGenerator.colorPointer() + 3;
-	OpacityType *opacityIt = mOutputGenerator.opacityPointer() + 3;
-	WidthType *widthIt = mOutputGenerator.widthPointer() + 1;
+	NormalType *normalOutIt = mOutputGenerator.normalPointer();
+	ColorType *colorIt = mOutputGenerator.colorPointer();
+	OpacityType *opacityIt = mOutputGenerator.opacityPointer();
+	WidthType *widthIt = mOutputGenerator.widthPointer();
 	// We need to store previous normal, for next normal calculation
 	// First point has normal in tangent direction
 	Vector normal = Vector( static_cast< NormalType >( aRestPosition.getTangent().x ),
@@ -642,10 +642,6 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Finally duplicates first & last hair points
 	count += 2;
 	copyToLastAndFirst< PositionType, 3 > ( mOutputGenerator.positionPointer(), count );
-	copyToLastAndFirst< NormalType, 3 > ( mOutputGenerator.normalPointer(), count );
-	copyToLastAndFirst< ColorType, 3 > ( mOutputGenerator.colorPointer(), count );
-	copyToLastAndFirst< OpacityType, 3 > ( mOutputGenerator.opacityPointer(), count );
-	copyToLastAndFirst< WidthType > ( mOutputGenerator.widthPointer(), count );      
 	// Return number of outputed hair points
 	return count;
 }

@@ -37,15 +37,16 @@ Texture::Texture(float value, float value1, float value2, float value3): mColorC
 
 Texture::Texture( std::istream & aIsStream )
 {
-	aIsStream >> mWidth;
-	aIsStream >> mHeight;
-	aIsStream >> mColorComponents;
-	mTexture = new float[mWidth * mHeight * mColorComponents * sizeof(float)];
+	aIsStream.read( reinterpret_cast< char * >( &mWidth ), sizeof( unsigned __int32 ) );
+	aIsStream.read( reinterpret_cast< char * >( &mHeight ), sizeof( unsigned __int32 ) );
+	aIsStream.read( reinterpret_cast< char * >( &mColorComponents ), sizeof( unsigned __int32 ) );
+	mTexture = new float[ mWidth * mHeight * mColorComponents ];
+	aIsStream.read( reinterpret_cast< char * >( mTexture ), 
+		mWidth * mHeight * mColorComponents * sizeof( float ) );
 	mDirty = false;
-	for ( unsigned __int32 i = 0; i < mWidth * mHeight * mColorComponents * sizeof( float ); ++i )
-	{
-		aIsStream >> mTexture[i];
-	}
+	mIsAnimated = false;
+	mInverseWidth = 1.0f / mWidth;
+	mInverseHeight = 1.0f / mHeight;
 }
 
 Texture::~Texture()
@@ -67,14 +68,11 @@ void Texture::init()
 void Texture::exportToFile( std::ostream &aOutStream ) const
 {
 	//std::string dir = Stubble::getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
-	aOutStream << mWidth;
-	aOutStream << mHeight;
-	aOutStream << mColorComponents;
-	for ( unsigned __int32 i = 0; i < mWidth * mHeight * mColorComponents; ++i )
-	{
-		aOutStream << mTexture[i];
-	}
-
+	aOutStream.write( reinterpret_cast< const char * >( &mWidth ), sizeof( unsigned __int32 ) );
+	aOutStream.write( reinterpret_cast< const char * >( &mHeight ), sizeof( unsigned __int32 ) );
+	aOutStream.write( reinterpret_cast< const char * >( &mColorComponents ), sizeof( unsigned __int32 ) );
+	aOutStream.write( reinterpret_cast< const char * >( mTexture ), 
+		mWidth * mHeight * mColorComponents * sizeof( float ) );
 	/* TODO : export must also save current time value or only data for current time */
 }
 
@@ -151,7 +149,7 @@ void Texture::resample(unsigned __int32 aTextureSamples)
 		if ( sourceNode.hasFn( MFn::kFileTexture ) )
 		{
 			MImage textureData;
-			status = textureData.readFromTextureNode( sourceNode, MImage::MPixelType::kUnknown );
+			status = textureData.readFromTextureNode( sourceNode, MImage::kUnknown );
 			if( status == MStatus::kSuccess )
 			{
 				reloadFileTextureImage(textureData);				
@@ -179,11 +177,11 @@ void Texture::reloadFileTextureImage(MImage aTextureImage)
 	mTexture = new float[ mWidth * mHeight * mColorComponents ];
 	unsigned int depth = aTextureImage.depth();
 	// Loading texture with float color channels
-	if ( aTextureImage.pixelType() == MImage::MPixelType::kFloat )
+	if ( aTextureImage.pixelType() == MImage::kFloat )
 	{
-		for( int i = 0; i < mWidth * mHeight; ++i )
+		for( unsigned __int32 i = 0; i < mWidth * mHeight; ++i )
 		{
-			for( int j = 0; j < mColorComponents; ++j )
+			for( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	
 				// Modulo solves problems with sourceTexture with less channels than we need
 				mTexture[ i * mColorComponents + j ] =
@@ -192,11 +190,11 @@ void Texture::reloadFileTextureImage(MImage aTextureImage)
 		}
 	}
 	// Loading texture with standard byte color channels
-	if ( aTextureImage.pixelType() == MImage::MPixelType::kByte )
+	if ( aTextureImage.pixelType() == MImage::kByte )
 	{
-		for ( int i = 0; i < mWidth * mHeight; ++i )
+		for ( unsigned __int32 i = 0; i < mWidth * mHeight; ++i )
 		{
-			for ( int j = 0; j < mColorComponents; ++j )
+			for ( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	
 				// Modulo solves problems with sourceTexture with less channels than we need
 				mTexture[ i * mColorComponents + j ] = aTextureImage.pixels()[ i * depth + j % depth ];
@@ -233,9 +231,9 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 		MRenderUtil::sampleShadingNetwork( textureDataSourcePlug.name(), mWidth , false, false,
 			cameraMat, NULL, &uCoordinates, &vCoordinates, NULL, NULL, NULL, NULL, NULL,
 			sampleColors, sampleTransparencies);
-		for ( unsigned __int32 i=0; i < mWidth; ++i )
+		for ( unsigned __int32 i = 0; i < mWidth; ++i )
 		{
-			for ( unsigned __int32 j=0; j<mColorComponents; ++j )
+			for ( unsigned __int32 j = 0; j<mColorComponents; ++j )
 			{
 				mTexture[ mColorComponents * ( row * mWidth + i ) + j ] = sampleColors[ i ][ j ];			
 			}

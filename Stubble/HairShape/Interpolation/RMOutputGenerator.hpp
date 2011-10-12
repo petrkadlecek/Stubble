@@ -322,7 +322,7 @@ inline void RMOutputGenerator::endOutput()
 inline void RMOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 {
 	// Will not fit into commit buffer ?
-	if ( ( mWidthDataPointer + aMaxPointsCount ) > ( mWidthData + mCommitSize ) )
+	if ( ( mPositionDataPointer + aMaxPointsCount * 3 ) > ( mPositionData + mCommitSize * 3 ) )
 	{
 		// Commit and reset buffer
 		commit();
@@ -332,12 +332,13 @@ inline void RMOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 
 inline void RMOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
+	unsigned __int32 aCountMinus2 = aPointsCount - 2; // Other data than points have 2 less items
 	// Move position pointer
 	mPositionDataPointer += aPointsCount * 3; 
-	mColorDataPointer += aPointsCount * 3;
-	mNormalDataPointer += aPointsCount * 3;
-	mWidthDataPointer += aPointsCount;
-	mOpacityDataPointer += aPointsCount * 3;
+	mColorDataPointer += aCountMinus2 * 3;
+	mNormalDataPointer += aCountMinus2 * 3;
+	mWidthDataPointer += aCountMinus2;
+	mOpacityDataPointer += aCountMinus2 * 3;
 	mHairUVCoordinateDataPointer += 2;
 	mStrandUVCoordinateDataPointer += 2;
 	++mHairIndexDataPointer;

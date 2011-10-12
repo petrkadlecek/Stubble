@@ -362,6 +362,8 @@ inline void MayaOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 
 inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
+	// We will ignore the first and last of points
+	aPointsCount -= 2;
 	// Width multiplier constant
 	const GLfloat wm = 1.0f;
 	// We will calculate triangles from hair points
@@ -373,19 +375,19 @@ inline void MayaOutputGenerator::endHair( unsigned __int32 aPointsCount )
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
 		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
-		// Position of first point
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
+		// Position of first point ( ignores first point -> +3 - +5 )
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 3 ] + mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 4 ] + mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 5 ] + mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
 		// Color of second point will be the same as first point
 		*( mVerticesPointer++ ) = mColorData[ i * 3 ]; // R
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 1 ]; // G
 		*( mVerticesPointer++ ) = mColorData[ i * 3 + 2 ]; // B
 		*( mVerticesPointer++ ) = mOpacityData[ i * 3 ]; // A
 		// Position of second point ( displaced in opposite direction )
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 1 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
-		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 2 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 3 ] - mWidthData[ i ] * mNormalData[ i * 3 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 4 ] - mWidthData[ i ] * mNormalData[ i * 3 + 1 ] * wm;
+		*( mVerticesPointer++ ) = mPositionData[ i * 3 + 5 ] - mWidthData[ i ] * mNormalData[ i * 3 + 2 ] * wm;
 	}
 	// Calculate indices ( for each segment 2 )
 	GLuint startIndex = mIndicesPointer == mIndices ? 0 : *( mIndicesPointer - 1 ) + 1;

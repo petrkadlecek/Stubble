@@ -63,12 +63,12 @@ global proc AEHairShapeTemplate( string $nodeName )
 				"AEstubbleTextureReplace" "tip_opacity_texture";
 		AEstubbleSpacer();
 		editorTemplate -addControl "root_color";
-		//editorTemplate -callCustom "AEstubbleTextureNew"
-		//		"AEstubbleTextureReplace" "root_color_texture";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "root_color_texture";
 		AEstubbleSpacer();
 		editorTemplate -addControl "tip_color";
-		//editorTemplate -callCustom "AEstubbleTextureNew"
-		//		"AEstubbleTextureReplace" "tip_color_texture";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "tip_color_texture";
 		AEstubbleSpacer();
 		editorTemplate -addControl "hue_variation";
 		editorTemplate -callCustom "AEstubbleTextureNew"
@@ -79,8 +79,8 @@ global proc AEHairShapeTemplate( string $nodeName )
 				"AEstubbleTextureReplace" "value_variation_texture";
 		AEstubbleSpacer();
 		editorTemplate -addControl "mutant_hair_color";
-		//editorTemplate -callCustom "AEstubbleTextureNew"
-		//		"AEstubbleTextureReplace" "mutant_hair_color_texture";
+		editorTemplate -callCustom "AEstubbleTextureNew"
+				"AEstubbleTextureReplace" "mutant_hair_color_texture";
 		AEstubbleSpacer();
 		editorTemplate -addControl "percent_mutant_hair";
 		editorTemplate -callCustom "AEstubbleTextureNew"
@@ -191,11 +191,7 @@ global proc AEHairShapeTemplate( string $nodeName )
 	editorTemplate -suppress "surface";
 	editorTemplate -suppress "surface_change";
 	editorTemplate -suppress "time";
-	editorTemplate -suppress "voxels_dimensions";
 	editorTemplate -suppress "segments_count";
-	editorTemplate -suppress "root_color_texture";
-	editorTemplate -suppress "tip_color_texture";
-	editorTemplate -suppress "mutant_hair_color_texture";
 	
 	// We don't want to see these inherited attributes, either.
 	editorTemplate -suppress "collisionDepthVelocityIncrement";
