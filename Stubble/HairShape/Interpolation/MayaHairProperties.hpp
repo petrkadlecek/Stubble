@@ -221,12 +221,13 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh textures. 
 	///
+	/// \param [in] aTextureSamples					The number of samples in one dimension of sampled texture.
 	/// \param [in,out]	aDensityChanged				The density has changed. 
 	/// \param [in,out]	aInterpolationGroupsChanged	The interpolation groups has changed. 
 	/// \param [in,out]	aHairPropertiesChanged		The hair properties has changed. 
 	///----------------------------------------------------------------------------------------------------
-	void refreshTextures( bool & aDensityChanged, bool & aInterpolationGroupsChanged, 
-		bool & aHairPropertiesChanged );
+	void refreshTextures(unsigned __int32 aTextureSamples, bool & aDensityChanged,
+		bool & aInterpolationGroupsChanged, bool & aHairPropertiesChanged );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets the current time. 

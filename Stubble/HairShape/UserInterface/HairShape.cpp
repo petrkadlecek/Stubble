@@ -39,6 +39,7 @@ MObject HairShape::timeChangeAttr;
 MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
+MObject HairShape::sampleTextureDimensionAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -58,7 +59,8 @@ HairShape::HairShape():
 	mIsTopologyCallbackRegistered( false ),
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
-	mDisplayInterpolated( false )
+	mDisplayInterpolated( false ),
+	mSampleTextureDimension( 1024 )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -193,6 +195,11 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		}
 		return false;
 	}
+	if ( aPlug == sampleTextureDimensionAttr ) // Number of samples in one dimension of sampled texture
+	{
+		mSampleTextureDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
 	// Set hair properties values
 	bool segmentsCountChanged;
 	bool hairPropertiesChanged;
@@ -310,6 +317,8 @@ MStatus HairShape::initialize()
 		addBoolAttribute( "display_guides", "digu", displayGuidesAttr, true );
 		//define display interpolated hair attribute
 		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
+		//define number of samples in one dimension of texture
+		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 1024, 1, 4096, 64, 2048);
 	}
 	catch( const StubbleException & ex )
 	{
@@ -374,7 +383,8 @@ void HairShape::refreshTextures()
 {
 	bool densityChanged, interpolationGroupsChanged, hairPropertiesChanged;
 	// Actual refresh textures
-	MayaHairProperties::refreshTextures( densityChanged, interpolationGroupsChanged, hairPropertiesChanged );
+	MayaHairProperties::refreshTextures(mSampleTextureDimension, densityChanged,
+		interpolationGroupsChanged, hairPropertiesChanged );
 	// React on refreshed textures
 	if ( interpolationGroupsChanged )
 	{

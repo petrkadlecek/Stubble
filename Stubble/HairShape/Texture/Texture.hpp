@@ -3,9 +3,19 @@
 
 #ifdef MAYA
 #include <maya\MDagPath.h>
+#include <maya\MPlugArray.h>
+#include <maya\MPlug.h>
+#include <maya\MImage.h>
+#include <maya\MRenderUtil.h>
+#include <maya\M3dView.h>
+#include <maya\MMatrix.h>
+#include <maya\MFloatMatrix.h>
+#include <maya\MFloatVectorArray.h>
+#include <maya\MFloatArray.h>
 #endif
 
 #include "HairShape\Mesh\UVPoint.hpp"
+#include "Common\CommonFunctions.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -186,13 +196,44 @@ public:
 
 #ifdef MAYA
 	///----------------------------------------------------------------------------------------------------
-	/// Resample entire texture.
+	/// Sets a connection to a source of texture data.
+	/// Saves the plug of outColor or outAlpha attribute from the texture node.
+	///
+	/// \param aPlug	plug to which the data are connected
 	///----------------------------------------------------------------------------------------------------
-	void resample();
+	void setConnection(const MPlug& aPlug); 
+
+	///----------------------------------------------------------------------------------------------------
+	/// Resample entire texture.
+	///
+	/// \param aTextureSamples number of samples in one dimension of sampled texture
+	///----------------------------------------------------------------------------------------------------
+	void resample(unsigned __int32 aTextureSamples);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Loads image texture into internal datastructure.
+	///
+	/// \param aTextureImage	image from which are loaded necessary pixel channels.
+	///----------------------------------------------------------------------------------------------------
+	void reloadFileTextureImage(MImage aTextureImage);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Samples connected 2DTexture and stores the samplevalues.
+	///
+	/// \param aTextureSamples number of samples in one dimension of sampled texture
+	///----------------------------------------------------------------------------------------------------
+	void resample2DTexture(unsigned __int32 aTextureSamples);
+
 #endif
 
 private:
 	bool mDirty;	///< Dirty flag
+
+	bool mImageTexture; ///< Image texture flag
+
+#ifdef MAYA
+	MPlug textureDataSourcePlug; ///< TextureData source
+#endif
 
 	float *mTexture;	///< Texture matrix
 
@@ -207,6 +248,12 @@ private:
 	float mInverseWidth;  ///< The inverse value of texture width
 
 	float mInverseHeight;  ///< The inverse value of texture height
+
+
+	void GetSampleUVPoints(float aUSamples[], float aVSamples[], unsigned __int32 dimension);
+
+	void ComputeInverseSize();
+
 };
 
 // inline functions implementation
@@ -262,7 +309,14 @@ inline Texture::Color Texture::colorAtUV( Real u, Real v ) const
 	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(v * mHeight) );
 	y = y == mHeight ? mHeight - 1 :  y;
 
-	return mTexture + y * mWidth * mColorComponents * sizeof(float) + y * mColorComponents * sizeof(float);
+	//return mTexture + y * mWidth * mColorComponents * sizeof(float) + x * mColorComponents * sizeof(float);
+	return mTexture + y * mWidth * mColorComponents + x * mColorComponents;
+}
+
+inline void Texture::ComputeInverseSize()
+{
+	mInverseHeight = 1.0f / mHeight;
+	mInverseWidth = 1.0f / mWidth;
 }
 
 } // namespace HairShape

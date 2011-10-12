@@ -60,6 +60,8 @@ public:
 
 	static MObject genDisplayCountAttr;	///< The number of generated hair to be displayed attribute
 
+	static MObject sampleTextureDimensionAttr; ///< Texture dimension for sampling attribute
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------
@@ -294,6 +296,8 @@ private:
 	bool mDisplayInterpolated; ///< Should interpolated hair be displayed ?
 
 	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed
+
+	unsigned __int32 mSampleTextureDimension; ///< Texture dimension for sampling attribute
 
 	// Mesh topology callback
 

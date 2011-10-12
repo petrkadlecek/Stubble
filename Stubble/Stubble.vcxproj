@@ -96,6 +96,10 @@
     <PostBuildEvent>
       <Command>installMELscripts.bat</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|Win32'">
     <ClCompile>
