@@ -286,7 +286,7 @@ inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor
 
 inline float Texture::realAtUV( Real u, Real v ) const
 {
-	return colorAtUV(u, v)[ mColorComponents - 1 ]; // Alpha
+	return colorAtUV(u, v)[ 0 ]; // Alpha
 }
 
 inline float Texture::derivativeByUAtUV( Real u, Real v ) const
