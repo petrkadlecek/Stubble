@@ -25,7 +25,7 @@ struct HairTask
 	HairShape::HairShape *mParentHairShape; ///< The fluffy object the changes will be made upon
 	HairShape::HairComponents::SelectedGuides *mAffectedGuides; ///< Selection of guides affected by this operation
 	BrushMode *mBrushMode; ///< Brush state containing the brush operation method - points to an effective singleton, no deletion takes place!
-	Vector3D< double > mDx; ///< Cursor change projected into the eye coordinates
+	Vector3D< double > mDx; ///< Cursor change projected into the world coordinates
 };
 
 inline HairTask::HairTask (HairShape::HairShape *aParentHairShape, HairShape::HairComponents::SelectedGuides *aAffectedGuides,

@@ -46,7 +46,6 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			segIt != guideIt->mSegments.end(); ++segIt)
 		{
 			OneSegmentAdditionalInfo sgmtInfo;
-			sgmtInfo.mSelected = false;
 			
 			Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
 			view.beginSelect();
@@ -99,8 +98,6 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		guide->mGuideSegments = aFrameSegments.mSegments[ i ];
 		
 		OneSegmentAdditionalInfo sgmtInfo;
-		sgmtInfo.mInsideBrush = true;
-		sgmtInfo.mFallOff = 1.0;
 		guide->mSegmentsAdditionalInfo = SegmentsAdditionalInfo(guide->mGuideSegments.mSegments.size(), sgmtInfo);
 
 		mStoredGuides.push_back(guide);
@@ -122,50 +119,6 @@ void SegmentsUG::build( const SelectedGuides & aSelectedGuides, bool aFullBuild 
 	// End of testing code
 	// ------------------------------------------
 	mDirtyBit = false;
-}
-
-void SegmentsUG::select( short aX, short aY, short aW, short aH, SelectedGuides &aResult ) const
-{
-	// ------------------------------------------
-	//TODO: rewrite testing code with actual code
-	aResult.clear();
-
-	MStatus status;
-	M3dView view = M3dView::active3dView(&status);
-	bool selected; // Is current guide selected?
-	SelectedGuide *guide; // Current guide
-	SelectedGuides::const_iterator gIt;
-
-	// For each guide in the storage
-	for (gIt = mStoredGuides.begin(); gIt != mStoredGuides.end(); ++gIt)
-	{
-		selected = false;
-		assert((*gIt)->mGuideSegments.mSegments.size() == (*gIt)->mSegmentsAdditionalInfo.size());
-		guide = (*gIt);
-
-		// For each endpoint on the guide
-		for (size_t i = 0; i < guide->mGuideSegments.mSegments.size(); ++i)
-		{
-			MPoint p = Vector3D< Real >::transformPoint(guide->mGuideSegments.mSegments[ i ], guide->mPosition.mWorldTransformMatrix).toMayaPoint();
-			short px, py;
-			view.worldToView(p, px, py, &status);
-
-			if (px >= aX && px <= (aX + aW) && py >= aY && py <= (aY + aH))
-			{
-				selected = true;
-
-				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
-				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;  //TODO: add actual code
-			}
-		}
-
-		if (selected)
-		{
-			aResult.push_back(guide);
-		}
-	}
-	// End of testing code
-	// ------------------------------------------
 }
 
 void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
@@ -205,6 +158,12 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
 				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 1.0; //TODO: add actual code
+				guide->mDirtyFlag = true;
+			}
+			else
+			{
+				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;
+				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
 			}
 		}
 

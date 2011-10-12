@@ -243,15 +243,13 @@ MStatus BrushTool::doRelease( MEvent & event )
 
 void BrushTool::doBrush( Vector3D< double > aDX )
 {
-	//std::cout << "doBrush()\n" << std::flush;
-
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
 	if ( 0 == activeHairShape )
 	{
 		return;
 	}
 
-	// Transform the move vector into the eye coordinates
+	// Transform the move vector into the world coordinates
 	MDagPath cameraPath;
 	mView.getCamera(cameraPath);
 	MFnCamera camera(cameraPath);
@@ -259,8 +257,8 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	MStatus status;
 	MVector right = camera.rightDirection(MSpace::kWorld, &status);
 	MVector up = camera.upDirection(MSpace::kWorld, &status);
-	static const double ratio = 1e-2;
-	MVector moveVector = ratio * aDX.x * right + ratio * aDX.y * up;
+	static const Real ratio = 1e-2;
+	Vector3D< Real > moveVector(ratio * aDX.x * right + ratio * aDX.y * up);
 
 	// Create the hair task
 	HairTask *task = new HairTask(activeHairShape, &mAffectedGuides, mBrushMode, moveVector);

@@ -71,17 +71,6 @@ public:
 	void build( const SelectedGuides & aSelectedGuides, bool aFullBuild );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Selects the guides using rectangle - deprecated!
-	///
-	/// \param	aX	X screen coordinate of the top left corner
-	/// \param	aY	Y screen coordinate of the top right corner
-	/// \param	aW	Width of the rectangle
-	/// \param	aH	Height of the rectangle
-	/// \param	[in,out]	aResult	The selected guides.
-	///-------------------------------------------------------------------------------------------------
-	void select( short aX, short aY, short aW, short aH, SelectedGuides &aResult ) const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Selects the guides using selection mask. 
 	///
 	/// \param	aSelectionMask	The selection mask. 

@@ -140,7 +140,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 			hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
 			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
-			task->mParentHairShape->updateGuides( false );
+			//task->mParentHairShape->updateGuides( false );  //FIXME: caused changes not being stored, because it overwrote all dirty flags
 
 			delete task;
 		}
@@ -302,7 +302,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Inextensibility constraint derivatives:
 			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 			{
-				Vec3 e = (hairVertices[ i + 1] - hairVertices[ i ]) * 2.0;
+				Vec3 e = (hairVertices[ i + 1 ] - hairVertices[ i ]) * 2.0;
 
 				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ] = -e.x;
 				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) ] = e.x;
