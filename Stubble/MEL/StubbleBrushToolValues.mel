@@ -4,8 +4,14 @@ global proc StubbleBrushToolValues( string $ctxName )
 	setParent $parent;
 	
 	int $brushModeChoice = `StubbleBrushToolCommand -q -brushModeChoice $ctxName`;
-	int $scale = `StubbleBrushToolCommand -q -toolScale $ctxName`;
-		
+	float $scale = `StubbleBrushToolCommand -q -toolScale $ctxName`;
+	float $sensitivity = `StubbleBrushToolCommand -q -brushSensitivity $ctxName`;
+	
+	floatSliderGrp -e
+		-v $sensitivity
+		-cc ("StubbleBrushToolCommand -e -brushSensitivity #1 " + $ctxName)
+		stubbleBrushSensitivity;
+
 	floatSliderGrp -e
 		-v $scale
 		-cc ("StubbleBrushToolCommand -e -toolScale #1 " + $ctxName)

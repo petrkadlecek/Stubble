@@ -1,11 +1,13 @@
 #include "BrushTool.hpp"
 
 // parameters that can be passed from the UI,
-// inherited from GenericTool
+// declared in GenericTool.cpp
 extern const char *toolScaleFlag;
 extern const char *toolScaleLongFlag;
 extern const char *brushModeChoiceFlag;
 extern const char *brushModeChoiceLongFlag;
+extern const char *brushSensitivityFlag;
+extern const char *brushSensitivityLongFlag;
 
 
 namespace Stubble
@@ -30,7 +32,7 @@ void* BrushToolCommand::creator()
 	return new BrushToolCommand;
 }
 
-const MString BrushTool::sHelpTxt( "Click to select hair and drag to brush it." );
+const MString BrushTool::sHelpTxt( "Click to select hair/hair vertices and drag them to brush." );
 
 BrushToolCommand::BrushToolCommand()
 {
@@ -49,14 +51,20 @@ MStatus	BrushToolCommand::doEditFlags()
 
 	if( pars.isFlagSet( brushModeChoiceFlag ) )
 	{
-		pars.getFlagArgument( brushModeChoiceFlag, 0, ( mCurrentBrushToolObject->mBrushModeChoice ) );
+		pars.getFlagArgument( brushModeChoiceFlag, 0, mCurrentBrushToolObject->mBrushModeChoice );
 		// this is the connection between the UI and the brushMode state change
 		mCurrentBrushToolObject->changeBrushMode();
 	}
 
 	if( pars.isFlagSet( toolScaleFlag ) )
 	{
-		pars.getFlagArgument( toolScaleFlag, 0, ( mCurrentBrushToolObject->mScale ) );
+		pars.getFlagArgument( toolScaleFlag, 0, mCurrentBrushToolObject->mScale );
+		mCurrentBrushToolObject->notify();
+	}
+
+	if( pars.isFlagSet( brushSensitivityFlag ) )
+	{
+		pars.getFlagArgument( brushSensitivityFlag, 0, mCurrentBrushToolObject->mSensitivity );
 		mCurrentBrushToolObject->notify();
 	}
 
@@ -68,10 +76,19 @@ MStatus	BrushToolCommand::doQueryFlags()
 	MArgParser pars = parser();
 
 	if( pars.isFlagSet( brushModeChoiceFlag ) )
+	{
 		setResult( mCurrentBrushToolObject->mBrushModeChoice );
+	}
 	
 	if( pars.isFlagSet( toolScaleFlag ) )
+	{
 		setResult( mCurrentBrushToolObject->mScale );
+	}
+
+	if( pars.isFlagSet( brushSensitivityFlag ) )
+	{
+		setResult( mCurrentBrushToolObject->mSensitivity );
+	}
 	
 	return MS::kSuccess;
 }
@@ -99,14 +116,13 @@ void BrushTool::deleteMouseMoveListener()
 }
 
 BrushTool::BrushTool() :
-	GenericTool(new CircleToolShape())
+	GenericTool(new CircleToolShape()),
+	mSensitivity(1.0f),
+	mFalloff(1.0f),
+	mBrushModeChoice(1), // These two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
+	mBrushMode(&BrushTool::sTranslateBrushMode) // so we make sure that the starting state is valid.
 {
 	setTitleString( "Stubble Brush Tool" );
-	
-	// The next two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
-	// so we make sure that the starting state is valid.
-	mBrushModeChoice = 1;
-	mBrushMode = &BrushTool::sTranslateBrushMode;
 }
 
 BrushTool::~BrushTool()

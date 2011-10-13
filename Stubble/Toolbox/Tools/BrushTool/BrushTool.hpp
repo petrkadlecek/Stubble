@@ -120,8 +120,6 @@ public:
 
 	/// the mouse move listener
 	static QPointer<MouseMoveListener> sMouseMoveListener;
-	
-	int mBrushModeChoice; ///< The index of the brush mode to be used (translate, rotate, scale, clump...)
 
 protected:
 
@@ -139,9 +137,11 @@ protected:
 
 	virtual void changeToolShape();
 
-	float mSensitivity; ///< Brush sensitivity.
+	double mSensitivity; ///< Brush sensitivity.
 
-	float mFalloff; ///< Brush falloff.
+	double mFalloff; ///< Brush falloff.
+
+	int mBrushModeChoice; ///< The index of the brush mode to be used (translate, rotate, scale, clump...)
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 

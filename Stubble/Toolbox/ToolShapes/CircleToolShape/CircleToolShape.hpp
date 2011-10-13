@@ -59,9 +59,9 @@ protected:
 
 	short mPrevScreenCoords[ 2 ]; ///< The previous position of the cursor during moving
 
-	static const int mScaleFactor = 10; ///< The scale multiplier for calculating the circle radius.
+	static const double DEFAULT_RADIUS; ///< The scale multiplier for calculating the circle radius.
 
-	int mRadius; ///< The radius of the displayed circle (mRadius = mScale * mScaleFactor).
+	double mRadius; ///< The radius of the displayed circle (mRadius = mScale * mScaleFactor).
 };
 
 inline int CircleToolShape::getRadius() const

@@ -54,7 +54,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the current tool scale, as selected in the UI. 
 	///----------------------------------------------------------------------------------------------------
-	int getToolScale();
+	double getToolScale();
 
 protected:
 
@@ -62,7 +62,7 @@ protected:
 
 	M3dView mView; ///< The view in which we are currently operating.
 
-	int mScale; ///< The scale of the tool (passed from the UI).
+	double mScale; ///< The scale of the tool (passed from the UI).
 };
 
 

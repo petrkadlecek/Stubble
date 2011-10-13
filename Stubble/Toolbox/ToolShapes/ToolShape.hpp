@@ -20,18 +20,6 @@ class GenericTool;
 class ToolShape
 {
 public:
-	///----------------------------------------------------------------------------------------------------
-	/// Returns shape size.
-	///----------------------------------------------------------------------------------------------------
-	//Deprecated - TODO: probably remove?
-	//virtual float getSize();
-
-	// TODO: for Honza Kadlec: feel free to add/remove any other methods/members. For the time being I've
-	// commented out method for getting size of the shape. This should go to inherited shapes.
-
-	/* TODO once we have GuideHair...
-	vector< GuideHair > filterSelection() = 0;
-	*/
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws the tool shape.
@@ -43,11 +31,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void update( GenericTool *aTool ) = 0;
 
-protected:
-	//Deprecated - TODO: probably remove?
-	//float mSize; ///< Tool shape size.
+	///----------------------------------------------------------------------------------------------------
+	/// Returns tool shape scale
+	///----------------------------------------------------------------------------------------------------
+	double getScale();
 
-	int mScale; ///< The scale of the tool (passed from the UI).
+protected:
+
+	double mScale; ///< The scale of the tool (passed from the UI).
 };
 	
 } // namespace Toolbox

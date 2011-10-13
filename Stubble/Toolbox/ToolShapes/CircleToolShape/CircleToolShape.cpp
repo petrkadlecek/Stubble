@@ -9,20 +9,22 @@ namespace Stubble
 namespace Toolbox
 {
 
+const double CircleToolShape::DEFAULT_RADIUS = 30.0;
+
 CircleToolShape::CircleToolShape()
 	: mIsDrawn( false )
 {
 	mPrevScreenCoords[ 0 ] = 0;
 	mPrevScreenCoords[ 1 ] = 0;
-	mScale = 1; // initialize the value before it is first passed from the UI
+	mScale = 1.0; // initialize the value before it is first passed from the UI
 
-	mRadius = mScale * mScaleFactor;
+	mRadius = mScale * DEFAULT_RADIUS;
 }
 
 void CircleToolShape::update( GenericTool *aTool )
 {
 	mScale = aTool->getToolScale();
-	mRadius = mScaleFactor * mScale;
+	mRadius = mScale * DEFAULT_RADIUS;
 }
 
 void CircleToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType )
