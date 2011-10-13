@@ -9,7 +9,7 @@ namespace HairShape
 namespace HairComponents
 {
 
-const Real HAIR_LENGTH = 1.0f;
+const Real HAIR_LENGTH = 5.0f;
 
 SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )

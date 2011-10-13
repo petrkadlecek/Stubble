@@ -146,6 +146,12 @@ private:
 	static const unsigned __int32 VERTICES_COUNT = THIRD_VERTEX_INDEX + 1;
 	
 	SubTriangles mSubTriangles;	///< The sub triangles cdf
+
+	SubTriangle * mBegin;   ///< The begin of sub triangles
+
+	SubTriangle * mEnd; ///< The end of sub triangles
+
+	Real mTotalDensity; ///< The total density
 	
 	VerticesArray mVertices; ///< The vertices
 	
@@ -165,7 +171,7 @@ inline void UVPointGenerator::reset()
 
 inline Real UVPointGenerator::getDensity() const
 {
-	return mSubTriangles.empty() ? 0 : mSubTriangles.rbegin()->mCDFValue;
+	return mTotalDensity;
 }
 
 } // namespace HairShape

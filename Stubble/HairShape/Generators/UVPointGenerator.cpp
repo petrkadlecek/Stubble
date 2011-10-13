@@ -178,6 +178,10 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 		{
 			throw StubbleException( "UVPointGenerator::UVPointGenerator : zero probability all over the mesh !" );
 		}
+		// Store some values for faster generation of samples
+		mTotalDensity = mSubTriangles.empty() ? 0 : mSubTriangles.rbegin()->mCDFValue;
+		mBegin = & ( * mSubTriangles.begin() );
+		mEnd = mBegin + mSubTriangles.size();
 	}
 	catch( ... ) // Not enough memory for vertices
 	{
@@ -190,9 +194,10 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 UVPoint UVPointGenerator::next()
 {
 	// Generate random value for triangle selection
-	Real xi = mRandomNumberGenerator.randomReal( 0, mSubTriangles.rbegin()->mCDFValue );
+	Real xi = mRandomNumberGenerator.randomReal( 0,  mTotalDensity );
 	// Search for first triangle that has greater cdf value than the generated one
-	SubTriangles::const_iterator min =  mSubTriangles.begin(), max =  mSubTriangles.end(), mid; 
+	SubTriangle * max = mEnd, * min = mBegin, *mid;
+	//SubTriangles::const_iterator min =  mSubTriangles.begin(), max =  mSubTriangles.end(), mid; 
 	do 
 	{
 		mid = min + ( ( max - min ) >> 1 ); // Select middle
@@ -201,7 +206,7 @@ UVPoint UVPointGenerator::next()
 			min = mid + 1; 
 		}	
 		else {
-			if ( mid == mSubTriangles.begin() || ( mid - 1 )->mCDFValue <= xi ) // OK !
+			if ( mid == mBegin || ( mid - 1 )->mCDFValue <= xi ) // OK !
 			{
 				// Select vertices of subtriangle
 				const Vertex & v1 = mVertices[ mid->mVertex1ID ];

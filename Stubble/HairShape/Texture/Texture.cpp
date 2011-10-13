@@ -190,7 +190,7 @@ void Texture::reloadFileTextureImage(MImage & aTextureImage)
 	if ( aTextureImage.pixelType() == MImage::kFloat )
 	{
 		#pragma omp parallel for
-		for( int i = 0; i < mWidth * mHeight; ++i )
+		for( int i = 0; i < static_cast< int >( mWidth * mHeight ); ++i )
 		{
 			for( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	
@@ -204,7 +204,7 @@ void Texture::reloadFileTextureImage(MImage & aTextureImage)
 	if ( aTextureImage.pixelType() == MImage::kByte )
 	{
 		#pragma omp parallel for
-		for ( int i = 0; i < mWidth * mHeight; ++i )
+		for ( int i = 0; i < static_cast< int >( mWidth * mHeight ); ++i )
 		{
 			for ( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	

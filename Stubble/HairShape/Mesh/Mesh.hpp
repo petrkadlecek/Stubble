@@ -247,12 +247,12 @@ inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Textu
 	// Now displace position
 	position += normal * displace;
 
-	// Recalculate normal 
+	/*// Recalculate normal 
 	Vector3D< Real > dpdu = triangle.getDPDU() + normal * displaceDU + triangle.getDNDU() * displace;
 	Vector3D< Real > dpdv = triangle.getDPDV() + normal * displaceDV + triangle.getDNDV() * displace;
 	normal = Vector3D< Real >::crossProduct( dpdu, dpdv );
 	normal.normalize();
-
+	*/
 	// Orthonormalize tangent to normal
 	tangent -= normal * ( Vector3D< Real >::dotProduct( tangent, normal ) ); 
 	tangent.normalize();
