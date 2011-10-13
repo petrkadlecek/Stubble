@@ -219,6 +219,15 @@ protected:
 		bool & aSegmentsCountChanged, bool & aHairPropertiesChanged);
 
 	///----------------------------------------------------------------------------------------------------
+	/// Brakes a connection to plug on our node.
+	///
+	/// \param aPlug				Which plug should be disconnected.
+	///
+	/// \return Maya status code.
+	///----------------------------------------------------------------------------------------------------
+	MStatus brakeConnection( const MPlug & aPlug );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Refresh textures. 
 	///
 	/// \param [in] aTextureSamples					The number of samples in one dimension of sampled texture.

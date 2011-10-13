@@ -204,6 +204,12 @@ public:
 	void setConnection(const MPlug& aPlug); 
 
 	///----------------------------------------------------------------------------------------------------
+	/// Removes a connection to a source of texture data.
+	///
+	///----------------------------------------------------------------------------------------------------
+	void removeConnection(); 
+
+	///----------------------------------------------------------------------------------------------------
 	/// Resample entire texture.
 	///
 	/// \param aTextureSamples number of samples in one dimension of sampled texture
@@ -232,7 +238,7 @@ private:
 	bool mImageTexture; ///< Image texture flag
 
 #ifdef MAYA
-	MPlug textureDataSourcePlug; ///< TextureData source
+	MPlug mTextureDataSourcePlug; ///< TextureData source
 #endif
 
 	float *mTexture;	///< Texture matrix
@@ -250,9 +256,9 @@ private:
 	float mInverseHeight;  ///< The inverse value of texture height
 
 
-	void GetSampleUVPoints(float aUSamples[], float aVSamples[], unsigned __int32 dimension);
+	void getSampleUVPoints(float aUSamples[], float aVSamples[], unsigned __int32 dimension);
 
-	void ComputeInverseSize();
+	void computeInverseSize();
 
 };
 
@@ -313,7 +319,7 @@ inline Texture::Color Texture::colorAtUV( Real u, Real v ) const
 	return mTexture + y * mWidth * mColorComponents + x * mColorComponents;
 }
 
-inline void Texture::ComputeInverseSize()
+inline void Texture::computeInverseSize()
 {
 	mInverseHeight = 1.0f / mHeight;
 	mInverseWidth = 1.0f / mWidth;

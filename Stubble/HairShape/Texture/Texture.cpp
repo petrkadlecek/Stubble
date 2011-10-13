@@ -135,16 +135,26 @@ void Texture::setConnection( const MPlug& aPlug )
 		if ( sourceTexturePlugs.length() > 0 ) // We have some connections
 		{
 			// We are destination, so we have only one connection
-			textureDataSourcePlug = sourceTexturePlugs[0];
+			mTextureDataSourcePlug = sourceTexturePlugs[0];
 		}
 	}
 	mDirty = true;
 }
 
+void Texture::removeConnection()
+{
+	delete[] mTexture;
+	init();
+	for ( unsigned __int32 i = 0; i < mColorComponents; ++i )
+	{
+		mTexture[i] = 1; // TODO shouldn't we reset to better value?
+	}	
+}
+
 void Texture::resample(unsigned __int32 aTextureSamples)
 {
 	MStatus status;
-	MObject sourceNode = textureDataSourcePlug.node( &status );//TODO: test if this is not null
+	MObject sourceNode = mTextureDataSourcePlug.node( &status );//TODO: test if this is not null
 	if ( status == MStatus::kSuccess )
 		if ( sourceNode.hasFn( MFn::kFileTexture ) )
 		{
@@ -172,7 +182,7 @@ void Texture::resample(unsigned __int32 aTextureSamples)
 void Texture::reloadFileTextureImage(MImage & aTextureImage)
 {	
 	aTextureImage.getSize( mWidth, mHeight );
-	ComputeInverseSize();
+	computeInverseSize();
 	delete[] mTexture;
 	mTexture = new float[ mWidth * mHeight * mColorComponents ];
 	unsigned int depth = aTextureImage.depth();
@@ -212,7 +222,7 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 		// Change texture and texture attributes only if the dimension of texture changes
 		mWidth = aTextureSamples;
 		mHeight = aTextureSamples;
-		ComputeInverseSize();
+		computeInverseSize();
 		// Prepare texture array for saving new texture values
 		delete[] mTexture;
 		mTexture = new float[ mWidth * mHeight * mColorComponents ];
@@ -220,7 +230,7 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 	// Generate sample points
 	float * uCoords = new float[ mWidth * mHeight ];
 	float * vCoords = new float[ mWidth * mHeight ];
-	GetSampleUVPoints( uCoords, vCoords, aTextureSamples );
+	getSampleUVPoints( uCoords, vCoords, aTextureSamples );
 	// Prepare arrays for saving results of sampling 
 	MFloatMatrix cameraMat;
 	MFloatVectorArray sampleColors;
@@ -230,7 +240,7 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 	{
 		MFloatArray uCoordinates( uCoords + row * mWidth, mWidth );
 		MFloatArray vCoordinates( vCoords + row * mWidth, mWidth );
-		MRenderUtil::sampleShadingNetwork( textureDataSourcePlug.name(), mWidth , false, false,
+		MRenderUtil::sampleShadingNetwork( mTextureDataSourcePlug.name(), mWidth , false, false,
 			cameraMat, NULL, &uCoordinates, &vCoordinates, NULL, NULL, NULL, NULL, NULL,
 			sampleColors, sampleTransparencies);
 		for ( unsigned __int32 i = 0; i < mWidth; ++i )
@@ -249,7 +259,7 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 
 #endif
 
-void Texture::GetSampleUVPoints(float* aUSamples, float* aVSamples, unsigned __int32 dimension)
+void Texture::getSampleUVPoints(float* aUSamples, float* aVSamples, unsigned __int32 dimension)
 {
 	for( unsigned __int32 i = 0; i < dimension; ++i )
 	{

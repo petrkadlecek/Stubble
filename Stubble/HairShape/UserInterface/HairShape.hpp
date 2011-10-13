@@ -128,6 +128,18 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual bool setInternalValueInContext( const MPlug & aPlug, const MDataHandle & aDataHandle, 
 		MDGContext & aContext );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Reacts on braking connection to our node.
+	///
+	/// \param aPlug				Which plug lost his connection.
+	/// \param aOtherPlug			Plug on the other side of the broken connection.
+	/// \param aAsSrc		Determines if this plug is source.
+	///
+	/// \return Maya status code.
+	///----------------------------------------------------------------------------------------------------
+	virtual MStatus connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug,bool aAsSrc );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Creates new HairShape.
 	///----------------------------------------------------------------------------------------------------

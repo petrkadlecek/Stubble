@@ -231,6 +231,11 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	return false;
 }
 
+MStatus HairShape::connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug,bool aAsSrc )
+{
+	return MayaHairProperties::brakeConnection(aPlug);
+}
+
 void* HairShape::creator()
 {
 	return new HairShape();

@@ -209,7 +209,7 @@ MStatus BrushTool::doDrag( MEvent &event )
 
 		// Dispatch brushing event
 		short dX = mEndPos[ 0 ] - mPrevPos[ 0 ];
-		short dY = mEndPos[ 1 ] - mPrevPos[ 0 ];
+		short dY = mEndPos[ 1 ] - mPrevPos[ 1 ];
 		this->doBrush( Vector3D< double >(dX, dY, 0.0) );
 	}
 

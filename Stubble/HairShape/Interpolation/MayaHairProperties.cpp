@@ -557,7 +557,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == mutantHairColorTextureAttr || root == mutantHairColorTextureAttr )
 	{
-		mMutantHairColorTexture->setConnection( aPlug );
+		mMutantHairColorTexture->setConnection( root );
 		return;
 	}
 	if ( aPlug == offsetAttr )
@@ -614,7 +614,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == rootColorTextureAttr || root == rootColorTextureAttr )
 	{
-		mRootColorTexture->setConnection( aPlug );
+		mRootColorTexture->setConnection( root );
 		return;
 	}
 	if ( aPlug == rootFrizzAttr )
@@ -693,7 +693,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == tipColorTextureAttr || root == tipColorTextureAttr  )
 	{
-		mTipColorTexture->setConnection( aPlug );
+		mTipColorTexture->setConnection( root );
 		return;
 	}
 	if ( aPlug == tipFrizzAttr )
@@ -773,6 +773,187 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mValueVariationTexture->setConnection( aPlug );
 		return;
 	}
+}
+
+MStatus MayaHairProperties::brakeConnection( const MPlug & aPlug )
+{
+	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
+	if ( aPlug == densityTextureAttr )
+	{
+		mDensityTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == interpolationGroupsTextureAttr || root == interpolationGroupsTextureAttr )
+	{
+		mInterpolationGroupsTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == aspectTextureAttr )
+	{
+		mAspectTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == centerSplayTextureAttr )
+	{
+		mCenterSplayTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == cutTextureAttr )
+	{
+		mCutTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == displacementTextureAttr )
+	{
+		mDisplacementTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == frizzAnimSpeedTextureAttr )
+	{
+		mFrizzAnimSpeedTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == frizzAnimTextureAttr )
+	{
+		mFrizzAnimTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == frizzXFrequencyTextureAttr )
+	{
+		mFrizzXFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == frizzYFrequencyTextureAttr )
+	{
+		mFrizzYFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == frizzZFrequencyTextureAttr )
+	{
+		mFrizzZFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == hueVariationTextureAttr )
+	{
+		mHueVariationTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == kinkXFrequencyTextureAttr )
+	{
+		mKinkXFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == kinkYFrequencyTextureAttr )
+	{
+		mKinkYFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == kinkZFrequencyTextureAttr )
+	{
+		mKinkZFrequencyTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == mutantHairColorTextureAttr || root == mutantHairColorTextureAttr )
+	{
+		mMutantHairColorTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == offsetTextureAttr )
+	{
+		mOffsetTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == percentMutantHairTextureAttr )
+	{
+		mPercentMutantHairTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == randomizeStrandTextureAttr )
+	{
+		mRandomizeStrandTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == randScaleTextureAttr )
+	{
+		mRandScaleTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootColorTextureAttr || root == rootColorTextureAttr )
+	{
+		mRootColorTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootFrizzTextureAttr )
+	{
+		mRootFrizzTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootKinkTextureAttr )
+	{
+		mRootKinkTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootOpacityTextureAttr )
+	{
+		mRootOpacityTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootSplayTextureAttr )
+	{
+		mRootSplayTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == rootThicknessTextureAttr )
+	{
+		mRootThicknessTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == scaleTextureAttr )
+	{
+		mScaleTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipColorTextureAttr || root == tipColorTextureAttr  )
+	{
+		mTipColorTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipFrizzTextureAttr )
+	{
+		mTipFrizzTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipKinkTextureAttr )
+	{
+		mTipKinkTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipOpacityTextureAttr )
+	{
+		mTipOpacityTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipSplayTextureAttr )
+	{
+		mTipSplayTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == tipThicknessTextureAttr )
+	{
+		mTipThicknessTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == twistTextureAttr )
+	{
+		mTwistTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	if ( aPlug == valueVariationTextureAttr )
+	{
+		mValueVariationTexture->removeConnection();
+		return MStatus::kSuccess;
+	}
+	return MStatus::kSuccess;
 }
 
 void MayaHairProperties::refreshTextures(unsigned __int32 aTextureSamples, bool & aDensityChanged,
