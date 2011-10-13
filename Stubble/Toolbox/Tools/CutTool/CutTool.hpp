@@ -84,7 +84,7 @@ public:
 	///
 	/// \param aDX Position change in the screen coordinates
 	///----------------------------------------------------------------------------------------------------
-	void doCut( /* TODO args */ ); // FIXME: add selected hair parameter ?
+	void doCut();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the relevant depending objects of the changes in the user interface.

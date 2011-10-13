@@ -149,21 +149,60 @@ MStatus CutTool::doRelease( MEvent & event )
 		
 	filterAffectedGuides();
 	
-	this->doCut( /* TODO args */ );
+	this->doCut();
 
 	// Put the change into the undo stack
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
 	if ( 0 != activeHairShape )
 	{
-		activeHairShape->updateGuides(true);
+		activeHairShape->updateGuides( true );
 	}
 
 	return MS::kSuccess;
 }
 
-void CutTool::doCut( /* TODO args */ )
-{		
-	// TODO	
+void CutTool::doCut()
+{
+	// over all affected guides
+	for ( HairShape::HairComponents::SelectedGuides::iterator it = mAffectedGuides.begin();
+		it != mAffectedGuides.end(); it++ )
+	{
+		HairShape::HairComponents::SelectedGuide *guide = *it;
+		HairShape::HairComponents::SegmentsAdditionalInfo::iterator infoIt = guide->mSegmentsAdditionalInfo.begin();		
+		HairShape::HairComponents::Segments::iterator segmentIt;
+
+		assert( guide->mGuideSegments.mSegments.size() == guide->mSegmentsAdditionalInfo.size() );
+
+		// where do we cut
+		int segmentsLeft = 0;
+		int segmentCount = guide->mSegmentsAdditionalInfo.size();
+		while ( segmentsLeft < segmentCount && ! guide->mSegmentsAdditionalInfo[ segmentsLeft ].mInsideBrush )
+		{
+			segmentsLeft++;
+		}
+
+		Real oldSegmentLength = guide->mGuideSegments.mSegmentLength;
+		Real newSegmentLength = oldSegmentLength * max( 0, segmentsLeft - 1 ) / segmentCount;
+		
+		HairShape::HairComponents::Segments newSegments;
+		newSegments.reserve( segmentCount );
+				
+		// create new segments
+		for ( int i = 0; i < segmentCount; i++ )
+		{
+			Real dist;
+			Real placeAfterSegment = modf( i * newSegmentLength / oldSegmentLength, &dist );
+
+			// XXX new points are placed according to distance on the *original* polyline
+			newSegments.push_back( guide->mGuideSegments.mSegments[ placeAfterSegment ]
+				+ ( guide->mGuideSegments.mSegments[ placeAfterSegment + 1 ]
+				  - guide->mGuideSegments.mSegments[ placeAfterSegment ] ) * dist );
+		}
+
+		// replace old values
+		guide->mGuideSegments.mSegmentLength = newSegmentLength;
+		guide->mGuideSegments.mSegments = newSegments;
+	}
 }
 
 void CutTool::changeToolShape( void )
