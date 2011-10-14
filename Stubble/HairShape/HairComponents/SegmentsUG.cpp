@@ -149,16 +149,15 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			
 			short dx = aX - px;
 			short dy = aY - py;
-			float distSq = dx * dx + dy * dy;
-			float radiusSq = aSelectionMask->getRadius() * aSelectionMask->getRadius();
+			Real distSq = dx * dx + dy * dy;
+			Real radiusSq = aSelectionMask->getRadius() * aSelectionMask->getRadius();
 
 			if (distSq <= radiusSq && guide->mSegmentsAdditionalInfo[ i ].mSelected)
 			{
 				selected = true;
 
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
-				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 1.0; //TODO: add actual code
-				guide->mDirtyFlag = true;
+				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 1.0 - distSq / radiusSq;
 			}
 			else
 			{

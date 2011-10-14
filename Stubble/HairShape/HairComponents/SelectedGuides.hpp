@@ -34,7 +34,7 @@ struct OneSegmentAdditionalInfo
 
 	Vector3D<Real> mClosestPointOnMesh;	///< In case of collision the closest point on mesh
 
-	Real mFallOff;	///< The fall off of brushing transformation
+	Real mFallOff;	///< The fall off of brushing transformation = 1 - d, where d is the distance of the vertex from the brush center
 };
 
 inline OneSegmentAdditionalInfo::OneSegmentAdditionalInfo() :

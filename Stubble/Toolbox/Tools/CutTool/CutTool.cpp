@@ -175,7 +175,7 @@ void CutTool::doCut()
 
 		// where do we cut
 		int segmentsLeft = 0;
-		int segmentCount = guide->mSegmentsAdditionalInfo.size();
+		size_t segmentCount = guide->mSegmentsAdditionalInfo.size();
 		while ( segmentsLeft < segmentCount && ! guide->mSegmentsAdditionalInfo[ segmentsLeft ].mInsideBrush )
 		{
 			segmentsLeft++;

@@ -19,10 +19,27 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method in which the derived classes implement the different brushing transformations.
 	///
-	/// \param aDX Cursor change in local coordinates
+	/// \param aDX	Cursor change in world coordinates
+	/// \param aGuideHair	Guide selection affected by the transformation
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair ) = 0;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Sets whether the brush falloff is enabled or disabled
+	///
+	/// \param aValue	New value of the falloff switch
+	///----------------------------------------------------------------------------------------------------
+	inline void setFalloffSwitch ( bool aValue );
+
+protected:
+
+	bool mEnableFalloff;
 };
+
+inline void BrushMode::setFalloffSwitch ( bool aValue )
+{
+	mEnableFalloff = aValue;
+}
 
 } // namespace Toolbox
 

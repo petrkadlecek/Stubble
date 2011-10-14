@@ -176,6 +176,8 @@ void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSel
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
 		aBrushMode->doBrush(aDx, **it);
+		(*it)->mDirtyFlag = true;
+		(*it)->mDirtyRedrawFlag = true;
 	}
 }
 

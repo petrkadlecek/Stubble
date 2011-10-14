@@ -139,11 +139,13 @@ protected:
 
 	double mSensitivity; ///< Brush sensitivity.
 
-	double mFalloff; ///< Brush falloff.
+	bool mEnableFalloff; ///< Enable brush falloff.
 
 	int mBrushModeChoice; ///< The index of the brush mode to be used (translate, rotate, scale, clump...)
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
+
+	static const Real SENSITIVITY_RATIO;
 
 	static ClumpBrushMode sClumpBrushMode;
 	static PuffEndBrushMode sPuffEndBrushMode;

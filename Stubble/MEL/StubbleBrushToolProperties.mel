@@ -25,7 +25,7 @@ global proc StubbleBrushToolProperties()
 				floatSliderGrp -label "Scale"
 					-value 1.0
 					-field true
-					-precision 1
+					-precision 2
 					-minValue 0.1 -maxValue 5.0
 					-fieldMinValue 0.1 -fieldMaxValue 10.0 
 						stubbleToolScale;
@@ -35,11 +35,17 @@ global proc StubbleBrushToolProperties()
 				floatSliderGrp -label "Sensitivity"
 					-value 1.0
 					-field true
-					-precision 1
-					-minValue 1.0 -maxValue 5.0
-					-fieldMinValue 1.0 -fieldMaxValue 10.0 
+					-precision 2
+					-minValue 0.1 -maxValue 5.0
+					-fieldMinValue 0.1 -fieldMaxValue 5.0 
 						stubbleBrushSensitivity;
+
+					separator -style "none";
 					
+				checkBox -label "Enable falloff"
+					-value true
+						stubbleBrushFalloff;
+
 				setParent ..;
 			setParent ..;
 		setParent ..;

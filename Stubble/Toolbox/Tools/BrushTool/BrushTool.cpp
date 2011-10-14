@@ -8,6 +8,8 @@ extern const char *brushModeChoiceFlag;
 extern const char *brushModeChoiceLongFlag;
 extern const char *brushSensitivityFlag;
 extern const char *brushSensitivityLongFlag;
+extern const char *brushFalloffFlag;
+extern const char *brushFalloffLongFlag;
 
 
 namespace Stubble
@@ -65,6 +67,11 @@ MStatus	BrushToolCommand::doEditFlags()
 	if( pars.isFlagSet( brushSensitivityFlag ) )
 	{
 		pars.getFlagArgument( brushSensitivityFlag, 0, mCurrentBrushToolObject->mSensitivity );
+	}
+
+	if ( pars.isFlagSet( brushFalloffFlag ) )
+	{
+		pars.getFlagArgument( brushFalloffFlag, 0, mCurrentBrushToolObject->mEnableFalloff );
 		mCurrentBrushToolObject->notify();
 	}
 
@@ -75,19 +82,24 @@ MStatus	BrushToolCommand::doQueryFlags()
 {
 	MArgParser pars = parser();
 
-	if( pars.isFlagSet( brushModeChoiceFlag ) )
+	if ( pars.isFlagSet( brushModeChoiceFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mBrushModeChoice );
 	}
 	
-	if( pars.isFlagSet( toolScaleFlag ) )
+	if ( pars.isFlagSet( toolScaleFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mScale );
 	}
 
-	if( pars.isFlagSet( brushSensitivityFlag ) )
+	if ( pars.isFlagSet( brushSensitivityFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mSensitivity );
+	}
+
+	if ( pars.isFlagSet( brushFalloffFlag ) )
+	{
+		setResult( mCurrentBrushToolObject->mEnableFalloff );
 	}
 	
 	return MS::kSuccess;
@@ -97,6 +109,8 @@ MStatus	BrushToolCommand::doQueryFlags()
 //----------------------------------------------------------------------------------------------------
 // BrushTool
 //----------------------------------------------------------------------------------------------------
+
+const Real BrushTool::SENSITIVITY_RATIO = 1e-2;
 
 ClumpBrushMode BrushTool::sClumpBrushMode;
 PuffEndBrushMode BrushTool::sPuffEndBrushMode;
@@ -118,11 +132,12 @@ void BrushTool::deleteMouseMoveListener()
 BrushTool::BrushTool() :
 	GenericTool(new CircleToolShape()),
 	mSensitivity(1.0f),
-	mFalloff(1.0f),
+	mEnableFalloff(true),
 	mBrushModeChoice(1), // These two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
 	mBrushMode(&BrushTool::sTranslateBrushMode) // so we make sure that the starting state is valid.
 {
 	setTitleString( "Stubble Brush Tool" );
+	mBrushMode->setFalloffSwitch(mEnableFalloff);
 }
 
 BrushTool::~BrushTool()
@@ -273,7 +288,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	MStatus status;
 	MVector right = camera.rightDirection(MSpace::kWorld, &status);
 	MVector up = camera.upDirection(MSpace::kWorld, &status);
-	static const Real ratio = 1e-2;
+	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
 	Vector3D< Real > moveVector(ratio * aDX.x * right + ratio * aDX.y * up);
 
 	// Create the hair task
@@ -284,6 +299,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 void BrushTool::notify()
 {
 	mShape->update( this );
+	mBrushMode->setFalloffSwitch(mEnableFalloff);
 }
 
 void BrushTool::changeBrushMode()
@@ -315,6 +331,7 @@ void BrushTool::changeBrushMode()
 		mBrushMode = &BrushTool::sTranslateBrushMode;
 		mBrushModeChoice = 1;
 	}
+	mBrushMode->setFalloffSwitch(mEnableFalloff);
 }
 
 void BrushTool::filterAffectedGuides()
