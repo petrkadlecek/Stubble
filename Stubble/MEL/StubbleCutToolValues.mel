@@ -1,0 +1,14 @@
+global proc StubbleCutToolValues( string $ctxName ) 
+{
+	string $parent = (`toolPropertyWindow -q -location` + "|stubbleCutToolLayout");
+	setParent $parent;
+	
+	float $scale = `StubbleCutToolCommand -q -toolScale $ctxName`;
+
+	floatSliderGrp -e
+		-v $scale
+		-cc ("StubbleCutToolCommand -e -toolScale #1 " + $ctxName)
+		stubbleToolScale;
+
+	toolPropertySelect stubbleCutToolLayout;
+}

@@ -443,5 +443,14 @@
     <None Include="MEL\StubbleRebuildSelectMenu.mel">
       <Filter>MEL</Filter>
     </None>
+    <None Include="MEL\StubbleCutTool.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleCutToolProperties.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleCutToolValues.mel">
+      <Filter>MEL</Filter>
+    </None>
   </ItemGroup>
 </Project>

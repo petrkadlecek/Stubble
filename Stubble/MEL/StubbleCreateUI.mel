@@ -93,7 +93,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble Cut tool"
 				-label "Stubble Cut tool"
-// TODO scissors				-image1 "art3dPaint.png"
+				-image1 "art3dPaint.png" // TODO scissors
 				-style "iconOnly"
 				-command "toolPropertyWindow; setToolTo stubbleCutTool"`;
 

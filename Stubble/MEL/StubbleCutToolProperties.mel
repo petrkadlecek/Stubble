@@ -1,0 +1,32 @@
+global proc StubbleCutToolProperties()
+{	
+	if( !`control -exists stubbleCutToolLayout` )
+	{
+		setUITemplate -pushTemplate OptionsTemplate;
+
+		string $parent = `toolPropertyWindow -query -location`;
+		setParent $parent;
+
+		columnLayout stubbleCutToolLayout;
+			frameLayout -collapsable true -collapse false
+				-l "Cut Tool Settings" stubbleCutToolFrame;
+				columnLayout stubbleCutToolOptions;
+				$parent = `setParent -query`;
+				
+					separator -style "none";
+
+				floatSliderGrp -label "Scale"
+					-value 1.0
+					-field true
+					-precision 2
+					-minValue 0.1 -maxValue 5.0
+					-fieldMinValue 0.1 -fieldMaxValue 10.0 
+						stubbleToolScale;
+				
+				setParent ..;
+			setParent ..;
+		setParent ..;
+	
+		setUITemplate -popTemplate;
+	}
+}

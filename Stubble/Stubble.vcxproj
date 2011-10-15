@@ -284,6 +284,9 @@
     <None Include="MEL\StubbleBrushToolValues.mel" />
     <None Include="MEL\StubbleCreateHair.mel" />
     <None Include="MEL\StubbleCreateUI.mel" />
+    <None Include="MEL\StubbleCutTool.mel" />
+    <None Include="MEL\StubbleCutToolProperties.mel" />
+    <None Include="MEL\StubbleCutToolValues.mel" />
     <None Include="MEL\StubbleDeleteUI.mel" />
     <None Include="MEL\StubbleHapticSettingsTool.mel" />
     <None Include="MEL\StubbleRebuildSelectMenu.mel" />
