@@ -182,7 +182,7 @@ void CutTool::doCut()
 		}
 
 		Real oldSegmentLength = guide->mGuideSegments.mSegmentLength;
-		Real newSegmentLength = oldSegmentLength * max( 0, segmentsLeft - 1 ) / segmentCount;
+		Real newSegmentLength = oldSegmentLength * max( 0, segmentsLeft - 1 ) / ( segmentCount - 1 );
 		
 		HairShape::HairComponents::Segments newSegments;
 		newSegments.reserve( segmentCount );
@@ -190,9 +190,9 @@ void CutTool::doCut()
 		// create new segments
 		for ( int i = 0; i < segmentCount; i++ )
 		{
-			Real dist;
-			Real placeAfterSegment = modf( i * newSegmentLength / oldSegmentLength, &dist );
-
+			Real placeAfterSegment;
+			Real dist = modf( i * newSegmentLength / oldSegmentLength, &placeAfterSegment );
+			
 			// XXX new points are placed according to distance on the *original* polyline
 			newSegments.push_back( guide->mGuideSegments.mSegments[ placeAfterSegment ]
 				+ ( guide->mGuideSegments.mSegments[ placeAfterSegment + 1 ]
@@ -202,6 +202,8 @@ void CutTool::doCut()
 		// replace old values
 		guide->mGuideSegments.mSegmentLength = newSegmentLength;
 		guide->mGuideSegments.mSegments = newSegments;
+		guide->mDirtyFlag = true;
+		guide->mDirtyRedrawFlag = true;
 	}
 }
 
