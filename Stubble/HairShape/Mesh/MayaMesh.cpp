@@ -11,14 +11,14 @@ namespace Stubble
 namespace HairShape
 {
 
-MayaMesh::MayaMesh(const MObject & aMesh, const MString & aUVSet): 
+MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet): 
 	mUpdatedMesh( 0 ),
 	mUVSet( aUVSet )
 {
 	// creating acceleration structure
 	mRestPoseMesh = new MFnMesh( aMesh );
 	mMeshIntersector = new MMeshIntersector();
-	mMeshIntersector->create( mRestPoseMesh->object() );
+	mMeshIntersector->create( aMesh );
 
 	MItMeshPolygon iter( aMesh ); // Polygon iterator
 	MFnMesh fnMesh( aMesh ); // Mesh functions

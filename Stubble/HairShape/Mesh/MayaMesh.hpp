@@ -31,7 +31,7 @@ public:
 	/// \param aMesh	Maya mesh object.
 	/// \param aUVSet	UVSet string.
 	///----------------------------------------------------------------------------------------------------
-	MayaMesh( const MObject & aMesh, const MString & aUVSet );
+	MayaMesh( MObject & aMesh, const MString & aUVSet );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets acceleration structure for the current mesh.
