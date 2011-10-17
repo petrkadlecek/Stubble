@@ -411,6 +411,9 @@
     <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\kdtmpl.h">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MEL\StubbleBrushToolProperties.mel">

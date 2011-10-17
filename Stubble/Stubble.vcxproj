@@ -219,6 +219,7 @@
     <ClInclude Include="HairShape\HairComponents\CommandsTextures.hpp" />
     <ClInclude Include="HairShape\HairComponents\DisplayedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\GuidePosition.hpp" />
+    <ClInclude Include="HairShape\HairComponents\kdtmpl.h" />
     <ClInclude Include="HairShape\HairComponents\RestPositionsUG.hpp" />
     <ClInclude Include="HairShape\HairComponents\Segments.hpp" />
     <ClInclude Include="HairShape\HairComponents\SegmentsStorage.hpp" />

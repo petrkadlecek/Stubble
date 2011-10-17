@@ -5,6 +5,8 @@
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
 
+#include "kdtmpl.h"
+
 #include <fstream>
 
 namespace Stubble
@@ -30,6 +32,11 @@ struct IdAndDistance
 /// Defines an alias representing list of identifiers for the closest guides .
 ///----------------------------------------------------------------------------------------------------
 typedef std::vector< IdAndDistance> ClosestGuidesIds;
+
+///----------------------------------------------------------------------------------------------------
+/// Defines a KDTree for finding N closest points for the query point.
+///----------------------------------------------------------------------------------------------------
+typedef KdTreeTmplPtr<Stubble::Vector3D<Real>, Stubble::Vector3D<Real>> KdTree;
 
 ///-------------------------------------------------------------------------------------------------
 /// Guides segments uniform grid
@@ -67,6 +74,9 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
 		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const;
+
+	std::vector< const Vector3D< Real > * > getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
+		unsigned __int32 aN ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
@@ -113,6 +123,8 @@ private:
 	typedef std::vector< Vector3D< Real > > Positions;
 
 	Positions mGuidesRestPositions;   ///< The guides rest positions
+
+	KdTree mKdTree;	///< KDTree for closest points query
 };
 
 // inline functions implementation

@@ -1,5 +1,9 @@
 #include "RestPositionsUG.hpp"
 
+#include <vector>
+
+using namespace std;
+
 namespace Stubble
 {
 
@@ -41,6 +45,22 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 	/* TODO */
 }
 
+vector< const Vector3D< Real > * > RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
+		unsigned __int32 aN ) const
+{
+	KdTree::CKNNQuery query( aN );
+
+	query.Init( aPosition , aN, 1e20 );
+    mKdTree.KNNQuery(query, mKdTree.truePred);
+
+	vector< const Vector3D< Real > *> foundPoints;
+
+	for(unsigned int i = 1; i <= query.found; ++i)
+		foundPoints.push_back( query.index[ i ] );
+
+	return foundPoints;
+}
+
 void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const
 {
 	// First export rest positions size
@@ -72,7 +92,16 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 
 void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	/* TODO */
+	mKdTree.Clear();
+	mKdTree.Reserve( mGuidesRestPositions.size() );
+
+	// filling data structure
+	for(Positions::iterator it = mGuidesRestPositions.begin(); it != mGuidesRestPositions.end(); ++it)
+		mKdTree.AddItem( & ( *it ) );
+
+	// building the tree
+	mKdTree.BuildUp();
+
 	mDirtyBit = false;
 }
 
