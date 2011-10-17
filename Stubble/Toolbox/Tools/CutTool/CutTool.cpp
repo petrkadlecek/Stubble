@@ -182,6 +182,11 @@ void CutTool::doCut()
 		}
 
 		Real oldSegmentLength = guide->mGuideSegments.mSegmentLength;
+		if ( oldSegmentLength == 0 )
+		{
+			continue; // nothing more to cut
+		}
+
 		Real newSegmentLength = oldSegmentLength * max( 0, segmentsLeft - 1 ) / ( segmentCount - 1 );
 		
 		HairShape::HairComponents::Segments newSegments;
