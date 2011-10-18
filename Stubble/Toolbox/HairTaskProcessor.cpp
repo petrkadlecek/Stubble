@@ -222,7 +222,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MFnMesh * currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMayaMesh();
 			MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 
-			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, 0,
+			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam,
 				hitPoint, 0, 0, 0, 0, 0 );
 
 			// nearest point on mesh
