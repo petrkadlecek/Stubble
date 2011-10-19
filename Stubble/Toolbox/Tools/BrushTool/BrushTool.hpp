@@ -135,7 +135,12 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	void filterAffectedGuides();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Takes care when the user changes tool shape from the UI
+	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape();
+
+	Stubble::HairShape::HairComponents::SelectedGuides mAffectedGuides; ///< Guides currently affected by present operation
 
 	double mSensitivity; ///< Brush sensitivity.
 
@@ -173,8 +178,6 @@ private:
 	MSelectionMask mPrevCompMask; ///< Previous component selection mask, used when undoing the command.
 
 	MSelectionMask mPrevObjMask; ///< Previous object selection mask, used when undoing the command.
-
-	Stubble::HairShape::HairComponents::SelectedGuides mAffectedGuides; ///< Guides currently affected by present operation
 
 	int mClickBoxSize; ///< GUI click box size.
 
