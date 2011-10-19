@@ -130,6 +130,8 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 
 	while ( accumulatorSize > 0 )
 	{
+		//std::cout << "Accumulator size = " << accumulatorSize << std::endl << std::flush; //TODO: remove me
+
 		// Contains critical section
 		HairTask *task = 0;
 		accumulatorSize = hairTaskProcessor->getTask(task);
@@ -140,11 +142,13 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 			hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
 			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
-			//task->mParentHairShape->updateGuides( false );  //FIXME: caused changes not being stored, because it overwrote all dirty flags
+			task->mParentHairShape->updateGuides( false );
 
 			delete task;
 		}
 	}
+
+	//std::cout << "Ending loop..." << std::endl << std::flush; //TODO: remove me
 
 	return 0;
 }
@@ -280,19 +284,25 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				C[ RIGID_BODY_COUPL_CONSTRAINTS + i ] = Vec3::dotProduct(e, e) - SEGMENT_LENGTH_SQ;
 			}
 
-			//TODO: debug - remove me
-			/*std::cout << "C = ";
-			for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
-			{
-				std::cout << C[ i ] << " ";
-			}
-			std::cout << std::endl << std::flush;*/
-			//break;
-			// ------------------------
-
 			// Convergence condition:
 			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)
 			{
+				//TODO: debug - remove me
+				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
+				std::cout << ", C = ";
+				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
+				{
+					std::cout << C[ i ] << " ";
+				}
+				std::cout << std::endl << std::flush;*/
+				//break;
+				// ------------------------
+				Vec3 correction = Vec3(0.0, 0.0, 0.0) - hairVertices[ 0 ];
+				for (Uint i = 0; i < VERTEX_COUNT; ++i)
+				{
+					hairVertices[ i ] += correction;
+				}
+
 				break;
 			}
 
@@ -353,13 +363,14 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			RealN dX(DERIVATIVES_COUNT); // Position change vector
 			dX = -delta * lambda;
 
+			// Apply change to coupled rigid bodies
 			Vec3 change(dX[ 0 ], dX[ 1 ], dX[ 2 ]);
-			folliclePosition += change; // Update just the virtual position
+			folliclePosition += change; // Update just the virtual position - mesh won't be moved
 
+			// Apply change to all hair vertices
 			for (Uint i = 0; i < VERTEX_COUNT; ++i)
 			{
 				change.set(dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ], dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1], dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2]);
-
 				hairVertices[ i ] += change;
 			}
 
