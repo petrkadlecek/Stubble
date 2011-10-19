@@ -79,6 +79,10 @@ HairShape::~HairShape()
 	delete mMayaMesh;
 	delete mHairGuides;
 	delete mVoxelization;
+	if ( mActiveHairShapeNode == this )
+	{
+		mActiveHairShapeNode = 0;
+	}
 }
 
 bool HairShape::isBounded() const

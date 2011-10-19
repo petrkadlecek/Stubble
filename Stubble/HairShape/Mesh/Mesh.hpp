@@ -237,9 +237,9 @@ inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Textu
 	Real textV = static_cast< Real >( u * p0.getVCoordinate() + v * p1.getVCoordinate() + w * p2.getVCoordinate() );
 
 	// Select displace and its derivatives
-	Real displace = aDisplacementTexture.realAtUV( u, v ) * aDisplacementFactor;
-	Real displaceDU = aDisplacementTexture.derivativeByUAtUV( u, v ) * aDisplacementFactor;
-	Real displaceDV = aDisplacementTexture.derivativeByVAtUV( u, v ) * aDisplacementFactor;
+	Real displace = aDisplacementTexture.realAtUV( textU, textV ) * aDisplacementFactor;
+	Real displaceDU = aDisplacementTexture.derivativeByUAtUV( textU, textV ) * aDisplacementFactor;
+	Real displaceDV = aDisplacementTexture.derivativeByVAtUV( textU, textV ) * aDisplacementFactor;
 
 	// Normalize normal
 	normal.normalize();
@@ -247,12 +247,11 @@ inline MeshPoint Mesh::getDisplacedMeshPoint( const UVPoint &aPoint, const Textu
 	// Now displace position
 	position += normal * displace;
 
-	/*// Recalculate normal 
+	// Recalculate normal 
 	Vector3D< Real > dpdu = triangle.getDPDU() + normal * displaceDU + triangle.getDNDU() * displace;
 	Vector3D< Real > dpdv = triangle.getDPDV() + normal * displaceDV + triangle.getDNDV() * displace;
 	normal = Vector3D< Real >::crossProduct( dpdu, dpdv );
 	normal.normalize();
-	*/
 	// Orthonormalize tangent to normal
 	tangent -= normal * ( Vector3D< Real >::dotProduct( tangent, normal ) ); 
 	tangent.normalize();

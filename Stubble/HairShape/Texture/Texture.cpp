@@ -45,8 +45,7 @@ Texture::Texture( std::istream & aIsStream )
 		mWidth * mHeight * mColorComponents * sizeof( float ) );
 	mDirty = false;
 	mIsAnimated = false;
-	mInverseWidth = 1.0f / mWidth;
-	mInverseHeight = 1.0f / mHeight;
+	computeInverseSize();
 }
 
 Texture::~Texture()
@@ -61,8 +60,7 @@ void Texture::init()
 	mHeight = 1;
 	mDirty = false;
 	mTexture = new float[mWidth * mHeight * mColorComponents];
-	mInverseWidth = 1.0f / mWidth;
-	mInverseHeight = 1.0f / mHeight;
+	computeInverseSize();
 }
 
 void Texture::exportToFile( std::ostream &aOutStream ) const
