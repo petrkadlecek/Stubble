@@ -30,16 +30,45 @@ public:
 	/// \param aValue	New value of the falloff switch
 	///----------------------------------------------------------------------------------------------------
 	inline void setFalloffSwitch ( bool aValue );
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Sets whether the brush collision detection is enabled or disabled
+	///
+	/// \param aValue	New value of the collision detection switch
+	///----------------------------------------------------------------------------------------------------
+	inline void setCollisionDetectionSwitch( bool aValue );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Tells whether the collision detection is enabled or disabled
+	///
+	/// \return	True if enabled, false if disabled
+	///----------------------------------------------------------------------------------------------------
+	inline bool isCollisionDetectionEnabled();
 
 protected:
 
-	bool mEnableFalloff;
+	bool mEnableFalloff; ///< Tells whether the brush falloff is enabled or disabled
+
+	bool mEnableCollisionDetection; ///< Tells whether the brush collision detection is enabled or disabled
 };
 
 inline void BrushMode::setFalloffSwitch ( bool aValue )
 {
 	mEnableFalloff = aValue;
 }
+
+inline void BrushMode::setCollisionDetectionSwitch( bool aValue )
+{
+	mEnableCollisionDetection = aValue;
+}
+
+
+inline bool BrushMode::isCollisionDetectionEnabled()
+{
+	return mEnableCollisionDetection;
+}
+
+
 
 } // namespace Toolbox
 

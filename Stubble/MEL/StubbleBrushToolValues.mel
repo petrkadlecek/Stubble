@@ -7,7 +7,13 @@ global proc StubbleBrushToolValues( string $ctxName )
 	float $scale = `StubbleBrushToolCommand -q -toolScale $ctxName`;
 	float $sensitivity = `StubbleBrushToolCommand -q -brushSensitivity $ctxName`;
 	int $falloff = `StubbleBrushToolCommand -q -brushFalloff $ctxName`;
+	int $collisions = `StubbleBrushToolCommand -q -brushCollision $ctxName`;
 	
+	checkBox -e
+		-v $collisions
+		-cc ("StubbleBrushToolCommand -e -brushCollision #1 " + $ctxName)
+		stubbleBrushCollision;
+
 	checkBox -e
 		-v $falloff
 		-cc ("StubbleBrushToolCommand -e -brushFalloff #1 " + $ctxName)

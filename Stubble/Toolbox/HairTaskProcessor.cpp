@@ -139,7 +139,10 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		if ( 0 != task )
 		{
 			hairTaskProcessor->doBrush(*task->mAffectedGuides, task->mDx, task->mBrushMode);
-			hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
+			if ( task->mBrushMode->isCollisionDetectionEnabled() )
+			{
+				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
+			}
 			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
 			task->mParentHairShape->updateGuides( false );

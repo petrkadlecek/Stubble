@@ -9,6 +9,8 @@ const char *brushSensitivityFlag = "-bse"; // :)
 const char *brushSensitivityLongFlag = "-brushSensitivity";
 const char *brushFalloffFlag = "-bfo";
 const char *brushFalloffLongFlag = "-brushFalloff";
+const char *brushCollisionFlag = "-bco";
+const char *brushCollisionLongFlag = "-brushCollision";
 
 namespace Stubble
 {
@@ -66,6 +68,8 @@ MStatus	GenericToolCommand::appendSyntax()
 	syn.addFlag( brushSensitivityFlag, brushSensitivityLongFlag, MSyntax::kDouble );
 
 	syn.addFlag( brushFalloffFlag, brushFalloffLongFlag, MSyntax::kBoolean );
+
+	syn.addFlag( brushCollisionFlag, brushCollisionLongFlag, MSyntax::kBoolean );
 
 	return MS::kSuccess;
 }

@@ -10,6 +10,8 @@ extern const char *brushSensitivityFlag;
 extern const char *brushSensitivityLongFlag;
 extern const char *brushFalloffFlag;
 extern const char *brushFalloffLongFlag;
+extern const char *brushCollisionFlag;
+extern const char *brushCollisionLongFlag;
 
 
 namespace Stubble
@@ -75,6 +77,12 @@ MStatus	BrushToolCommand::doEditFlags()
 		mCurrentBrushToolObject->notify();
 	}
 
+	if ( pars.isFlagSet( brushCollisionFlag ) )
+	{
+		pars.getFlagArgument( brushCollisionFlag, 0, mCurrentBrushToolObject->mEnableCollisionDetection );
+		mCurrentBrushToolObject->notify();
+	}
+
 	return MS::kSuccess;
 }
 
@@ -100,6 +108,11 @@ MStatus	BrushToolCommand::doQueryFlags()
 	if ( pars.isFlagSet( brushFalloffFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mEnableFalloff );
+	}
+
+	if ( pars.isFlagSet( brushCollisionFlag ) )
+	{
+		setResult( mCurrentBrushToolObject->mEnableCollisionDetection );
 	}
 	
 	return MS::kSuccess;
@@ -133,11 +146,13 @@ BrushTool::BrushTool() :
 	GenericTool(new CircleToolShape()),
 	mSensitivity(1.0f),
 	mEnableFalloff(true),
+	mEnableCollisionDetection(false),
 	mBrushModeChoice(1), // These two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
 	mBrushMode(&BrushTool::sTranslateBrushMode) // so we make sure that the starting state is valid.
 {
 	setTitleString( "Stubble Brush Tool" );
 	mBrushMode->setFalloffSwitch(mEnableFalloff);
+	mBrushMode->setCollisionDetectionSwitch(mEnableCollisionDetection);
 }
 
 BrushTool::~BrushTool()
@@ -299,7 +314,8 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 void BrushTool::notify()
 {
 	mShape->update( this );
-	mBrushMode->setFalloffSwitch(mEnableFalloff);
+	mBrushMode->setFalloffSwitch( mEnableFalloff );
+	mBrushMode->setCollisionDetectionSwitch( mEnableCollisionDetection );
 }
 
 void BrushTool::changeBrushMode()

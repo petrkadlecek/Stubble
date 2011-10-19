@@ -46,6 +46,12 @@ global proc StubbleBrushToolProperties()
 					-value true
 						stubbleBrushFalloff;
 
+					separator -style "none";
+
+				checkBox -label "Enable collision detection"
+					-value false
+						stubbleBrushCollision;
+
 				setParent ..;
 			setParent ..;
 		setParent ..;

@@ -146,6 +146,8 @@ protected:
 
 	bool mEnableFalloff; ///< Enable brush falloff.
 
+	bool mEnableCollisionDetection; ///< Enable brush collision detection.
+
 	int mBrushModeChoice; ///< The index of the brush mode to be used (translate, rotate, scale, clump...)
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
