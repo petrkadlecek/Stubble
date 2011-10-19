@@ -41,21 +41,15 @@ public:
 	inline MayaPositionGenerator();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Generates hair positions for later use.
+	/// Sets the internal variables of maya positions generator. 
 	///
-	/// \param [in,out]	aUVPointGenerator	The uv point generator. 
-	/// \param	aCurrentMesh				The current mesh. 
-	/// \param	aRestPoseMesh				The rest pose mesh. 
-	/// \param	aCount						Number of the interpolated hair. 
+	/// \param [in,out]	mGeneratedPositions	If non-null, the generated positions. 
+	/// \param	aCount						Number of hair. 
+	/// \param	aHairIndex					Zero-based index of a hair. 
 	///-------------------------------------------------------------------------------------------------
-	void preGenerate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aCurrentMesh,
-		const Mesh & aRestPoseMesh, unsigned __int32 aCount );
+	inline void set( GeneratedPosition * mGeneratedPositions, unsigned __int32 aCount, 
+		unsigned __int32 aHairIndex );
 
-	///-------------------------------------------------------------------------------------------------
-	/// Finaliser. 
-	///-------------------------------------------------------------------------------------------------
-	inline ~MayaPositionGenerator();
-	
 	///-------------------------------------------------------------------------------------------------
 	/// Generates position of interpolated hair. Pre-generate must be called first.
 	///
@@ -90,20 +84,6 @@ public:
 	inline unsigned __int32 getHairStartIndex() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pre-generated positions in raw format. 
-	///
-	/// \return	null if it fails, else the pre-generated positions. 
-	///-------------------------------------------------------------------------------------------------
-	inline const GeneratedPosition * getPreGeneratedPositions() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Recalculates current positions. 
-	///
-	/// \param	aCurrentMesh	The current mesh. 
-	///-------------------------------------------------------------------------------------------------
-	void recalculateCurrentPositions( const MayaMesh & aCurrentMesh );
-
-	///-------------------------------------------------------------------------------------------------
 	/// Resets returning generated values.
 	///-------------------------------------------------------------------------------------------------
 	inline void reset();
@@ -114,6 +94,8 @@ private:
 	GeneratedPosition * mCurrentPosition;   ///< The current position, that will be returned
 	
 	unsigned __int32 mCount;	///< Number of the interpolated hair.
+
+	unsigned __int32 mHairIndex;	///< Zero-based index of a hair
 };
 
 // inline functions implementation
@@ -124,9 +106,13 @@ inline MayaPositionGenerator::MayaPositionGenerator():
 {
 }
 
-inline MayaPositionGenerator::~MayaPositionGenerator()
+inline void MayaPositionGenerator::set( GeneratedPosition * aGeneratedPositions, unsigned __int32 aCount, 
+	unsigned __int32 aHairIndex )
 {
-	delete [] mGeneratedPositions;
+	mGeneratedPositions = aGeneratedPositions;
+	mCurrentPosition = mGeneratedPositions;
+	mCount = aCount;
+	mHairIndex = aHairIndex;
 }
 
 inline void MayaPositionGenerator::generate( MeshPoint & aCurrentPosition, MeshPoint & aRestPosition )
@@ -149,12 +135,7 @@ inline unsigned __int32 MayaPositionGenerator::getHairCount() const
 
 inline unsigned __int32 MayaPositionGenerator::getHairStartIndex() const
 {
-	return 0;
-}
-
-inline const MayaPositionGenerator::GeneratedPosition * MayaPositionGenerator::getPreGeneratedPositions() const
-{
-	return mGeneratedPositions;
+	return static_cast< unsigned __int32 >( mCurrentPosition - mGeneratedPositions ) + mHairIndex;
 }
 
 inline void MayaPositionGenerator::reset()

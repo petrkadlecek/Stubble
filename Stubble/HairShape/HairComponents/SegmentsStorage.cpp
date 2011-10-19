@@ -148,18 +148,28 @@ void SegmentsStorage::setFrame( Time aTime )
 	AllFramesSegments::const_iterator upperBound = mSegments.upper_bound( aTime );
 }
 
-void SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
+PartialStorage * SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
 {
-	const GuidesSegments & change = aSegmentsChange.mSegments;
+	// Prepare partial storage
+	PartialStorage * tmpStorage = new PartialStorage;
+	// Copy ids
+	tmpStorage->mIds = aSegmentsChange.mIds;
+	// Prepare storage size
+	tmpStorage->mSegments.resize( aSegmentsChange.mSegments.size() );
+	GuidesSegments::iterator storeIt = tmpStorage->mSegments.begin();
+	GuidesSegments::const_iterator it = aSegmentsChange.mSegments.begin();
 	// For every change
 	for ( GuidesIds::const_iterator idIt = aSegmentsChange.mIds.begin(); 
-		idIt != aSegmentsChange.mIds.end(); ++idIt )
+		idIt != aSegmentsChange.mIds.end(); ++idIt, ++it, ++storeIt )
 	{
 		// Copy segments
-		mCurrent.mSegments[ *idIt ] = change[ *idIt ]; 
+		OneGuideSegments & guide = mCurrent.mSegments[ *idIt ];
+		*storeIt = guide;
+		guide = *it; 
 	}
 	// Current segments has been changed and need to be propagated through time
 	mAreCurrentSegmentsDirty = true;
+	return tmpStorage;
 }
 
 PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSelectedGuides )

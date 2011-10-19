@@ -66,6 +66,20 @@ public:
 	inline const PartialStorage & redo();
 
 	///-------------------------------------------------------------------------------------------------
+	/// Updates the current stack element after undo.
+	///
+	/// \param [in,out]	aChange	The change of element. 
+	///-------------------------------------------------------------------------------------------------
+	inline void updateAfterUndo( PartialStorage * aChange );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Updates the current stack element after redo.
+	///
+	/// \param [in,out]	aChange	The change of element. 
+	///-------------------------------------------------------------------------------------------------
+	inline void updateAfterRedo( PartialStorage * aChange );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Adds guides segments change to undo stack.
 	///
 	/// \param [in,out]	aChange	If non-null, the PartialStorage * to add. 
@@ -106,6 +120,7 @@ inline void UndoStack::clear()
 	// Clear memory
 	for ( SegmentsChangesStackPointer p = mChanges.begin(); p != mChanges.end(); ++p )
 		delete * p;
+	mChanges.clear();
 	mCurrent = mChanges.end();
 }
 
@@ -132,13 +147,32 @@ inline const PartialStorage & UndoStack::redo()
 	return **( mCurrent++ ); // Return and then move upper in stack
 }
 
+inline void UndoStack::updateAfterUndo( PartialStorage * aChange )
+{
+	// Must change current item
+	delete *mCurrent;
+	*mCurrent = aChange;
+}
+
+inline void UndoStack::updateAfterRedo( PartialStorage * aChange )
+{
+	// Must change the previous item
+	SegmentsChangesStackPointer mPrevious = mCurrent;
+	--mPrevious;
+	delete *mPrevious;
+	*mPrevious = aChange;
+}
+
 inline void UndoStack::add( PartialStorage * aChange )
 {
 	// First remove all redo steps
+	for ( SegmentsChangesStackPointer p = mCurrent; p != mChanges.end(); ++p )
+		delete * p;
 	mChanges.erase( mCurrent, mChanges.end() );
 	// If stack is too big, erase first element
 	if ( mChanges.size() > MAX_STACK_SIZE )
 	{
+		delete *mChanges.begin();
 		mChanges.pop_front();
 	}
 	// Add change to stack

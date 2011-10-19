@@ -13,6 +13,8 @@
 
 #include "HairShape/UserInterface/HairShape.hpp"
 #include "HairShape/UserInterface/HairShapeUI.hpp"
+#include "HairShape/UserInterface/SelectCommand.hpp"
+#include "HairShape/UserInterface/HistoryCommands.hpp"
 
 #include "HairShape\HairComponents\CommandsNURBS.hpp"
 #include "HairShape/HairComponents/CommandsTextures.hpp"
@@ -139,6 +141,35 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
+	// register StubbleSelectCommand command
+	status = plugin.registerCommand( "StubbleSelectCommand", Stubble::HairShape::SelectCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleSelectCommand command" );
+		return status;
+	}
+	
+	// register StubbleUndoCommand command
+	status = plugin.registerCommand( "StubbleUndoCommand", Stubble::HairShape::UndoCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleUndoCommand command" );
+		return status;
+	}
+	
+	// register StubbleRedoCommand command
+	status = plugin.registerCommand( "StubbleRedoCommand", Stubble::HairShape::RedoCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleRedoCommand command" );
+		return status;
+	}
 	return status;
 }
 
@@ -226,6 +257,33 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not unregister the StubbleResetTextures command" );
+	}
+
+	// deregister StubbleSelectCommand command
+	status = plugin.deregisterCommand( "StubbleSelectCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleSelectCommand command" );
+	}
+
+	// deregister StubbleUndoCommand command
+	status = plugin.deregisterCommand( "StubbleUndoCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleUndoCommand command" );
+	}
+
+	// deregister StubbleRedoCommand command
+	status = plugin.deregisterCommand( "StubbleRedoCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleRedoCommand command" );
 	}
 
 	// Clean up the brush worker thread

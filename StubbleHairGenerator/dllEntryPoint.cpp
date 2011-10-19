@@ -9,11 +9,11 @@
 
 #include "ri.h"
 
+#include <ctime>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector> 
-
-#include <iostream>
 
 using namespace Stubble::HairShape::Interpolation;
 
@@ -35,6 +35,9 @@ RtVoid DLLEXPORT Free( RtPointer aData );
 #ifdef __cplusplus
 }
 #endif
+
+// If report is defined, subdivide running time will be measured and outputed
+#define REPORT
 
 ///----------------------------------------------------------------------------------------------------
 /// Defines an alias representing list of names of the files .
@@ -101,6 +104,9 @@ RtPointer DLLEXPORT ConvertParameters( RtString aParamString )
 ///-------------------------------------------------------------------------------------------------
 RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 {
+#ifdef REPORT
+	clock_t start = clock();
+#endif
 	// Get params
 	const BinaryParams & bp = * reinterpret_cast< BinaryParams * >( aData );
 	// Load stubble workdir
@@ -141,6 +147,10 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		// End motion blur
 		RiMotionEnd();
 	}
+#ifdef REPORT
+	std::cerr << "StubbleHairGenerator.dll::Subdivide run time: " << ( (double) ( clock() - start ) / CLOCKS_PER_SEC )
+		<< std::endl;
+#endif
 }
 
 ///-------------------------------------------------------------------------------------------------

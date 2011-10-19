@@ -8,6 +8,9 @@
 #include "MayaOutputGenerator.hpp"
 #include "MayaPositionGenerator.hpp"
 
+#include <vector>
+#include <omp.h>
+
 namespace Stubble
 {
 
@@ -28,6 +31,11 @@ public:
 	/// Default constructor. 
 	///-------------------------------------------------------------------------------------------------
 	inline InterpolatedHair();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Finaliser. 
+	///-------------------------------------------------------------------------------------------------
+	inline ~InterpolatedHair();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Generates interpolated hair. 
@@ -62,28 +70,114 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline void draw();
 
+	static const unsigned __int32 MAX_HAIR_COUNT = 10000;   ///< Number of maximum hair
+
 private:
 
-	MayaPositionGenerator mPositionGenerator;   ///< The hair position generator
+	///-------------------------------------------------------------------------------------------------
+	/// Hair interpolated by one thread.
+	///-------------------------------------------------------------------------------------------------
+	class ThreadData
+	{
+	public:
 
-	MayaOutputGenerator mOutputGenerator;   ///< The output hair generator
+		///-------------------------------------------------------------------------------------------------
+		/// Default constructor. 
+		///-------------------------------------------------------------------------------------------------
+		inline ThreadData();
 
-	HairGenerator< MayaPositionGenerator, MayaOutputGenerator > mHairGenerator; ///< The hair generator
+		MayaPositionGenerator::GeneratedPosition * mGeneratedPositions; ///< The generated positions for this thread
+		
+		unsigned __int32 mHairCount; ///< The hair count for this thread
 
+		MayaPositionGenerator mPositionGenerator;   ///< The hair position generator
+
+		MayaOutputGenerator mOutputGenerator;   ///< The output hair generator
+
+		HairGenerator< MayaPositionGenerator, MayaOutputGenerator > mHairGenerator; ///< The hair generator
+	};
+
+	ThreadData * mThreads;  ///< The threads
+
+	ThreadData * mThreadsEnd;   ///< The threads end
+
+	unsigned __int32 mThreadsCount; ///< Number of threads
+
+	MayaPositionGenerator::GeneratedPosition * mGeneratedPositions; ///< The generated positions of hair
+
+	unsigned __int32 mHairCount;	///< Number of hair
+
+	unsigned __int32 mAllocatedHairCount;   ///< Number of allocated and generated hair
 };
 
 // inline functions implementation
 
 inline InterpolatedHair::InterpolatedHair():
-	mHairGenerator( mPositionGenerator, mOutputGenerator )
+	mGeneratedPositions( 0 ),
+	mAllocatedHairCount( 0 ),
+	mThreadsCount( omp_get_max_threads() )
 {
+	mThreads = new ThreadData[ mThreadsCount ];
+	mThreadsEnd = mThreads + mThreadsCount;
+}
+
+inline InterpolatedHair::~InterpolatedHair()
+{
+	delete [] mThreads;
+	delete [] mGeneratedPositions;
 }
 
 inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aCurrentMesh,
 	const Mesh & aRestPoseMesh, const HairProperties & aHairProperties, unsigned __int32 aCount )
 {
-	mPositionGenerator.preGenerate( aUVPointGenerator, aCurrentMesh, aRestPoseMesh, aCount );
-	mHairGenerator.generate( aHairProperties );
+	if ( aCount > mAllocatedHairCount )
+	{
+		// Clear old memory
+		delete [] mGeneratedPositions;
+		mGeneratedPositions = 0;
+		// Sets new size
+		mAllocatedHairCount = aCount << 1;
+		mAllocatedHairCount = mAllocatedHairCount > MAX_HAIR_COUNT ? MAX_HAIR_COUNT : mAllocatedHairCount;
+		// Allocate memory for generated positions
+		mGeneratedPositions = new MayaPositionGenerator::GeneratedPosition[ mAllocatedHairCount ];
+		// Iterates over all positions
+		MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mAllocatedHairCount;
+		aUVPointGenerator.reset();
+		for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
+		{
+			it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos
+			// Calculate positions
+			it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
+			it->mRestPosition = aRestPoseMesh.getMeshPoint( it->mUVPoint );
+		}
+	}
+	// Copy new hair count
+	mHairCount = aCount;
+	// Calculate number of hair per thread
+	unsigned __int32 aCountPerThread = ( mHairCount / mThreadsCount ) + ( mHairCount % mThreadsCount );
+	MayaPositionGenerator::GeneratedPosition * current = mGeneratedPositions, * end = mGeneratedPositions + aCount;
+	// For every thread - single threaded
+	for ( ThreadData * it = mThreads; it != mThreadsEnd; ++it )
+	{
+		// Sets hair positions start
+		it->mGeneratedPositions = current;
+		// Sets hair count
+		current += aCountPerThread;
+		current = current > end ? end : current;
+		it->mHairCount = static_cast< unsigned __int32 >( current - it->mGeneratedPositions );
+		it->mPositionGenerator.set( it->mGeneratedPositions, it->mHairCount, 
+			static_cast< unsigned __int32 >( it->mGeneratedPositions - mGeneratedPositions ) );
+	}
+	// For every thread - multi threaded
+	#pragma omp parallel for
+	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
+	{
+		ThreadData * it = mThreads + i;
+		if ( it->mHairCount > 0 )
+		{
+			it->mHairGenerator.generate( aHairProperties );
+		}
+	}
 }
 
 inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const HairProperties & aHairProperties )
@@ -91,23 +185,67 @@ inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const H
 	// Get hair strand count
 	unsigned __int32 count = aHairProperties.getMultiStrandCount();
 	count = count == 0 ? 1 : count;
-	// Move all hair points to local space
-	mOutputGenerator.recalculateToLocalSpace( mPositionGenerator.getPreGeneratedPositions(), count );
-	// Alter hair points local space
-	mPositionGenerator.recalculateCurrentPositions( aCurrentMesh );
-	// Move all hair points to world space
-	mOutputGenerator.recalculateToWorldSpace( mPositionGenerator.getPreGeneratedPositions(), count );
+	// For every thread - multi threaded
+	#pragma omp parallel for
+	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
+	{
+		ThreadData * it = mThreads + i;
+		if ( it->mHairCount > 0 )
+		{
+			// Move all hair points to local space
+			it->mOutputGenerator.recalculateToLocalSpace( it->mGeneratedPositions, count );
+		}
+	}
+	// Iterates over all used positions
+	const MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mHairCount;
+	for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
+	{
+		// Alter hair points local space
+		it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
+	}
+	// For every thread - multi threaded
+	#pragma omp parallel for
+	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
+	{
+		ThreadData * it = mThreads + i;
+		if ( it->mHairCount > 0 )
+		{
+			// Move all hair points to world space
+			it->mOutputGenerator.recalculateToWorldSpace( it->mGeneratedPositions, count );
+		}
+	}
 }
 
 inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProperties )
 {
-	mPositionGenerator.reset();
-	mHairGenerator.generate( aHairProperties );
+	// For every thread - multi threaded
+	#pragma omp parallel for
+	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
+	{
+		ThreadData * it = mThreads + i;
+		if ( it->mHairCount > 0 )
+		{
+			it->mPositionGenerator.reset();
+			it->mHairGenerator.generate( aHairProperties );
+		}
+	}
 }
 
 inline void InterpolatedHair::draw()
 {
-	mOutputGenerator.draw();
+	// For every thread - single threaded
+	for ( ThreadData * it = mThreads; it != mThreadsEnd; ++it )
+	{
+		if ( it->mHairCount > 0 )
+		{
+			it->mOutputGenerator.draw();
+		}
+	}
+}
+
+inline InterpolatedHair::ThreadData::ThreadData():
+	mHairGenerator( mPositionGenerator, mOutputGenerator )
+{
 }
 
 } // namespace Interpolation

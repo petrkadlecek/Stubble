@@ -70,7 +70,8 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
-	/// demand and it's dirty flag is never set by HairGuides class.
+	/// demand and it's dirty flag is only set, when the selected guides are changed due to not brushing
+	/// event.
 	///
 	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
@@ -190,6 +191,16 @@ public:
 	inline const FrameSegments & getCurrentFrameSegments() const;
 
 private:	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Updates the selected guides if mesh, time or undo/redo event happens. 
+	///-------------------------------------------------------------------------------------------------
+	void updateSelectedGuides();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Clears the selected guides. 
+	///-------------------------------------------------------------------------------------------------
+	void clearSelectedGuides();
 
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid
 

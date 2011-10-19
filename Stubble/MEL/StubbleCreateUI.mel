@@ -111,6 +111,34 @@ global proc StubbleCreateUI()
 				-style "iconOnly"
 				-command "setToolTo stubbleHapticSettingsTool"`;
 
+	// create Stubble Undo icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble Undo"
+				-label "Stubble Undo"
+				-image1 "arrowLeft.png"
+				-style "iconOnly"
+				-command "StubbleUndoCommand;refresh;"`;
+	
+	// create Stubble Redo icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble Redo"
+				-label "Stubble Redo"
+				-image1 "arrowRight.png"
+				-style "iconOnly"
+				-command "StubbleRedoCommand;refresh;"`;
+
 	// enable rendering with 3Delight
 	source Stubble3DelightRendering.mel;
 }

@@ -20,25 +20,11 @@ void *ImportNURBSCommand::creator()
 
 MStatus ImportNURBSCommand::doIt( const MArgList &aArgList )
 {
- 	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );
-	
-	MItSelectionList pluginIt( selection, MFn::kPluginDependNode );		
-
-	for ( ; !pluginIt.isDone(); pluginIt.next() )
+	if ( HairShape::getActiveObject() != 0 )
 	{
-		MDagPath path;
-		pluginIt.getDagPath( path );
-		MFnDependencyNode node( path.node() );
-		MPxNode *mpxNode = node.userNode();		
-		if ( mpxNode->typeId() == Stubble::HairShape::HairShape::typeId ) // our plugin?
-		{
-			Stubble::HairShape::HairShape *hairShape = dynamic_cast< HairShape * >( mpxNode );
-			hairShape->importNURBS();
-			return MStatus::kSuccess;			
-		}
+		HairShape::getActiveObject()->importNURBS();
+		return MStatus::kSuccess;	
 	}
-
 	return MStatus::kFailure;
 }
 
@@ -53,25 +39,11 @@ void *ExportToNURBSCommand::creator()
 
 MStatus ExportToNURBSCommand::doIt( const MArgList &aArgList )
 {
- 	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );
-	
-	MItSelectionList pluginIt( selection, MFn::kPluginDependNode );		
-
-	for ( ; !pluginIt.isDone(); pluginIt.next() )
+ 	if ( HairShape::getActiveObject() != 0 )
 	{
-		MDagPath path;
-		pluginIt.getDagPath( path );
-		MFnDependencyNode node( path.node() );
-		MPxNode *mpxNode = node.userNode();		
-		if ( mpxNode->typeId() == Stubble::HairShape::HairShape::typeId ) // our plugin?
-		{
-			Stubble::HairShape::HairShape *hairShape = dynamic_cast< HairShape * >( mpxNode );
-			hairShape->exportToNURBS();
-			return MStatus::kSuccess;
-		}
+		HairShape::getActiveObject()->exportToNURBS();
+		return MStatus::kSuccess;	
 	}
-
 	return MStatus::kFailure;
 }
 

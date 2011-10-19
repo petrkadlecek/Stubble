@@ -208,6 +208,12 @@
     <ClCompile Include="HairShape\HairComponents\CommandsTextures.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\SelectCommand.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\HistoryCommands.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -411,8 +417,14 @@
     <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\SelectCommand.hpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
     <ClInclude Include="HairShape\HairComponents\kdtmpl.h">
       <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\HistoryCommands.hpp">
+      <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

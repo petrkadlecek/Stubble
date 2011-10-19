@@ -71,8 +71,10 @@ public:
 	/// Replaces the old segments of some guides with aSegmentsChange (used only for undo, redo) 
 	///
 	/// \param	aSegmentsChange	the segments change. 
+	/// 						
+	/// \return	segments change in PartialStorage for undo stack 
 	///-------------------------------------------------------------------------------------------------
-	void replace( const PartialStorage & aSegmentsChange );
+	PartialStorage * replace( const PartialStorage & aSegmentsChange );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Propagate changes of selected guides through all time frames. 

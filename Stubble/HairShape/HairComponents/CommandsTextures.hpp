@@ -3,10 +3,6 @@
 
 #include "HairShape\UserInterface\HairShape.hpp"
 
-#include <maya/MSelectionList.h>
-#include <maya/MItSelectionList.h>
-#include <maya/MGlobal.h>
-#include <maya/MDagPath.h>
 #include <maya/MPxCommand.h>
 #include <maya/MPxNode.h>
 

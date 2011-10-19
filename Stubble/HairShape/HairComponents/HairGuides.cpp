@@ -1,5 +1,7 @@
 #include "HairGuides.hpp"
 
+#include <cassert>
+
 namespace Stubble
 {
 
@@ -18,6 +20,7 @@ HairGuides::HairGuides():
 
 HairGuides::~HairGuides()
 {
+	clearSelectedGuides();
 	delete mSegmentsStorage;
 }
 
@@ -30,6 +33,7 @@ void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 	// Hide old selection
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
+	clearSelectedGuides();
 	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides);
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
@@ -47,6 +51,10 @@ BoundingBox HairGuides::getBoundingBox()
 
 const SegmentsUG & HairGuides::getSelectedGuidesUG()
 {
+	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
+	{
+		mSelectedSegmentsUG.build( mSelectedGuides, true );
+	}
 	return mSelectedSegmentsUG;
 }
 
@@ -75,12 +83,13 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 		mUndoStack.add( mSegmentsStorage->propagateChanges( mSelectedGuides ) );
 		// Set guides segments dirty
 		mAllSegmentsUG.setDirty();
-	}
-	// Set selected guides as non dirty
-	// For every selected guide
-	for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
-	{
-		(*it)->mDirtyFlag = false;
+		mSelectedSegmentsUG.setDirty();
+		// Set selected guides as non dirty
+		// For every selected guide
+		for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
+		{
+			(*it)->mDirtyFlag = false;
+		}
 	}
 }
 
@@ -131,6 +140,7 @@ void HairGuides::importNURBS()
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
 	mAllSegmentsUG.setDirty();
+	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -182,6 +192,7 @@ void HairGuides::setCurrentTime( Time aTime )
 	mRestPositionsUG.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
+	updateSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -227,6 +238,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		delete tmpSegmentsStorage;
 		// Rest positions has changed...
 		mRestPositionsUG.setDirty();
+		clearSelectedGuides();
 	}
 	else
 	{
@@ -239,6 +251,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 			currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
 			currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
 		}
+		updateSelectedGuides();
 	}
 	// Current positions has changed...
 	mDisplayedGuides.setDirty();
@@ -250,14 +263,16 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 
 void HairGuides::undo()
 {
+	bool noRedo = mUndoStack.canRedo();
 	if ( !mUndoStack.canUndo() )
 	{
 		return;
 	}
-	mSegmentsStorage->replace( mUndoStack.undo() );
+	mUndoStack.updateAfterUndo( mSegmentsStorage->replace( mUndoStack.undo() ) );
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	updateSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -267,10 +282,11 @@ void HairGuides::redo()
 	{
 		return;
 	}
-	mSegmentsStorage->replace( mUndoStack.redo() );
+	mUndoStack.updateAfterRedo( mSegmentsStorage->replace( mUndoStack.redo() ) );
 	// Segments has changed...
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	updateSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -326,6 +342,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();
 	mAllSegmentsUG.setDirty();
+	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -336,7 +353,41 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
+	updateSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
+}
+
+void HairGuides::clearSelectedGuides()
+{
+	for ( SelectedGuides::iterator guideIt = mSelectedGuides.begin();
+		guideIt != mSelectedGuides.end(); ++guideIt )
+	{
+		delete *guideIt;
+	}
+	mSelectedGuides.clear();
+	mSelectedSegmentsUG.setDirty();
+}
+
+void HairGuides::updateSelectedGuides()
+{
+	const GuidesSegments & guideSegments = mSegmentsStorage->getCurrentSegments().mSegments;
+	for ( SelectedGuides::iterator guideIt = mSelectedGuides.begin();
+		guideIt != mSelectedGuides.end(); ++guideIt )
+	{
+		SelectedGuide & guide = **guideIt;
+		// Updates segments info
+		guide.mGuideSegments = guideSegments[ guide.mGuideId ];
+		// Update position info
+		const GuideCurrentPosition & pos = mCurrentPositions[ guide.mGuideId ];
+		guide.mNormal = pos.mPosition.getNormal();
+		guide.mPosition = pos;
+		// Update flags
+		guide.mDirtyFlag = true;
+		guide.mDirtyRedrawFlag = true;
+	} // for each guide
+	// We will not update all segments ug, it will be updated when necessary
+	// for each guide, we will only set selected segments as dirty
+	mSelectedSegmentsUG.setDirty();
 }
 
 } // namespace HairComponents

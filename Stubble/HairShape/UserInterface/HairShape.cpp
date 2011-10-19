@@ -317,7 +317,7 @@ MStatus HairShape::initialize()
 		addParentAttribute( "voxels_dimensions", "vxsdim", voxelsResolutionAttr, voxelsXResolutionAttr, 
 			voxelsYResolutionAttr, voxelsZResolutionAttr );
 		//define gen. display count attribute
-		addIntAttribute( "displayed_hair_count", "dhc", genDisplayCountAttr, 1000, 1, 50000, 1, 10000 );
+		addIntAttribute( "displayed_hair_count", "dhc", genDisplayCountAttr, 1000, 1, 10000, 1, 10000 );
 		//define display guides attribute
 		addBoolAttribute( "display_guides", "digu", displayGuidesAttr, true );
 		//define display interpolated hair attribute
