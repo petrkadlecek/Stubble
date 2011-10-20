@@ -113,7 +113,8 @@ private:
 	///
 	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
-	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups );
+	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups,
+		const std::vector< unsigned int > &groupIdentifiers );
 
 	bool mDirtyBit; ///< true to dirty bit
 
@@ -124,7 +125,9 @@ private:
 
 	Positions mGuidesRestPositions;   ///< The guides rest positions
 
-	KdTree mKdTree;	///< KDTree for closest points query
+	KdTree *mKdForest;	///< KDTree forest for closest points query
+
+	unsigned int mForestSize;	///< Size of forrest
 };
 
 // inline functions implementation

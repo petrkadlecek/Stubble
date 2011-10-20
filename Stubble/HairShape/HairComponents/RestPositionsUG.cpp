@@ -1,6 +1,7 @@
 #include "RestPositionsUG.hpp"
 
 #include <vector>
+#include <assert.h>
 
 using namespace std;
 
@@ -14,14 +15,16 @@ namespace HairComponents
 {
 
 RestPositionsUG::RestPositionsUG():
-	mDirtyBit( true )
+	mDirtyBit( true ),
+	mKdForest( 0 ),
+	mForestSize( 0 )
 {
 	/* TODO */
 }
 
 RestPositionsUG::~RestPositionsUG()
 {
-	/* TODO */
+	delete[] mKdForest;
 }
 
 void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions, 
@@ -30,13 +33,18 @@ void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions,
 	// Copies only positions to local store
 	mGuidesRestPositions.resize( aGuidesRestPositions.size() );
 	GuidesRestPositions::const_iterator cIt = aGuidesRestPositions.begin();
-	for ( Positions::iterator it = mGuidesRestPositions.begin(); 
-		it != mGuidesRestPositions.end(); ++it, ++cIt )
+
+	vector< unsigned int > groupIdentifiers;
+
+	for ( Positions::iterator it = mGuidesRestPositions.begin();  it != mGuidesRestPositions.end(); ++it, ++cIt )
 	{
 		* it = cIt->mPosition.getPosition();
+		unsigned int groupId = aInterpolationGroups.getGroupId( cIt->mUVPoint.getU(), cIt->mUVPoint.getV() );
+		groupIdentifiers.push_back( groupId );
 	}
+
 	// Builds UG
-	innerBuild( aInterpolationGroups );
+	innerBuild( aInterpolationGroups, groupIdentifiers );
 }
 
 void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
@@ -48,10 +56,12 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 vector< const Vector3D< Real > * > RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
 		unsigned __int32 aN ) const
 {
+	assert( aInterpolationGroupId < mForestSize );
+
 	KdTree::CKNNQuery query( aN );
 
 	query.Init( aPosition , aN, 1e20 );
-    mKdTree.KNNQuery(query, mKdTree.truePred);
+    mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
 
 	vector< const Vector3D< Real > *> foundPoints;
 
@@ -90,18 +100,26 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 	}
 }
 
-void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups )
+void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups, const vector< unsigned int > &groupIdentifiers )
 {
-	mKdTree.Clear();
-	mKdTree.Reserve( mGuidesRestPositions.size() );
+	delete[] mKdForest;
+	mKdForest = new KdTree[ aInterpolationGroups.getGroupsCount() ];
+
+	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
+		mKdForest[ i ] = KdTree();
 
 	// filling data structure
-	for(Positions::iterator it = mGuidesRestPositions.begin(); it != mGuidesRestPositions.end(); ++it)
-		mKdTree.AddItem( & ( *it ) );
+	assert( mGuidesRestPositions.size() == groupIdentifiers.size() );
 
-	// building the tree
-	mKdTree.BuildUp();
+	vector< unsigned int >::const_iterator gIt = groupIdentifiers.begin();
+	for(Positions::iterator it = mGuidesRestPositions.begin(); it != mGuidesRestPositions.end(); ++it, ++gIt )
+		mKdForest[ *gIt ].AddItem( & ( *it ) );
 
+	// building all trees
+	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
+		mKdForest[ i ].BuildUp();
+
+	mForestSize = aInterpolationGroups.getGroupsCount();
 	mDirtyBit = false;
 }
 
