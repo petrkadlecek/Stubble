@@ -28,15 +28,17 @@ public:
   class CTreeNode {
   protected:
     T *pt;
+	unsigned int index;
     TVec3 P;
     int plane;
   public:
     CTreeNode() {}
-    CTreeNode(T *ppt) : pt(ppt), P(*ppt) {}
+    CTreeNode(T *ppt, unsigned int i) : pt(ppt), index(i), P(*ppt) {}
     const TVec3& GetP() const {return P;}
     float GetP(int i)       const {return GetP()[i];}
     int   GetPlane()        const {return plane;}
     T* GetPt()              const {return  pt;}
+	unsigned int GetIndex()	const {return index;}
     float SplitVal()        const {return GetP()[plane];}
     void  SetPlane(int p)   {plane = p;}
   };
@@ -101,15 +103,17 @@ public:
     int       got_heap;
     float     *dist2;
     const     T **index;
+	unsigned int *indeces;
 
     CKNNQuery(int maxGatherCount)
     {
       dist2 = new float [maxGatherCount + 1];
       index = new T const*[maxGatherCount + 1];
+	  indeces = new unsigned int [maxGatherCount + 1];
     }
     ~CKNNQuery()
     {
-      delete [] dist2; delete [] index;
+      delete [] dist2; delete [] index; delete[] indeces;
     }
 
     inline void Init(const TVec3 &p, int maxphotons, float initrad) 
@@ -130,7 +134,7 @@ public:
   ~KdTreeTmplPtr();
 
   /// Puts a new data item into the flat array that will form the final kd-tree.
-  inline void AddItem(T* pt);
+  inline void AddItem(T* pt, unsigned int index);
 
   /// Reserve space for a given number of points
   inline void Reserve(size_t count) {_points.reserve(count+1);}
@@ -279,10 +283,10 @@ KdTreeTmplPtr<T,TVec3>::~KdTreeTmplPtr()
 // --------------------------------------------------------------------
 template<class T, class TVec3>
 inline void
-KdTreeTmplPtr<T,TVec3>::AddItem(T* pt)
+KdTreeTmplPtr<T,TVec3>::AddItem(T* pt, unsigned int index)
 {
   _numPoints++;
-  _points.push_back(CTreeNode(pt));
+  _points.push_back(CTreeNode(pt, index));
   // Update minima and maxima
   for (int i=0; i<3; i++) {
     if ((*pt)[i] < _bbox_min[i])
@@ -599,6 +603,7 @@ KdTreeTmplPtr<T,TVec3>::_checkAddNearest(CKNNQuery *np, const CTreeNode &p, floa
       np->found++;
       np->dist2[np->found] = dist2;
       np->index[np->found] = p.GetPt();
+	  np->indeces[np->found] = p.GetIndex();
       if (maxDistSqr < dist2)
         maxDistSqr = dist2;
     }
@@ -610,10 +615,12 @@ KdTreeTmplPtr<T,TVec3>::_checkAddNearest(CKNNQuery *np, const CTreeNode &p, floa
         // Build heap
         float dst2;
         const T *phot;
+		unsigned int index;
         int half_found = np->found >> 1;
         for ( int k = half_found; k >= 1; k--) {
           parent = k;
           phot = np->index[k];
+		  index = np->indeces[k];
           dst2 = np->dist2[k];
           while ( parent <= half_found ) {
             j = parent + parent;
@@ -624,10 +631,12 @@ KdTreeTmplPtr<T,TVec3>::_checkAddNearest(CKNNQuery *np, const CTreeNode &p, floa
               break;
             np->dist2[parent] = np->dist2[j];
             np->index[parent] = np->index[j];
+			np->indeces[parent] = np->indeces[j];
             parent=j;
           }
           np->dist2[parent] = dst2;
           np->index[parent] = phot;
+		  np->indeces[parent] = index;
         }
         np->got_heap = 1;
         // the heap was built for the first time
@@ -645,11 +654,13 @@ KdTreeTmplPtr<T,TVec3>::_checkAddNearest(CKNNQuery *np, const CTreeNode &p, floa
           break;
         np->dist2[parent] = np->dist2[j];
         np->index[parent] = np->index[j];
+		np->indeces[parent] = np->indeces[j];
         parent = j;
         j += j;
       } // while
       
       np->index[parent] = p.GetPt();
+	  np->indeces[parent] = p.GetIndex();
       np->dist2[parent] = dist2;
 
       // update the maximum square distance to the farthest point in the result

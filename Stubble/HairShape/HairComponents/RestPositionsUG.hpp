@@ -23,6 +23,12 @@ namespace HairComponents
 ///----------------------------------------------------------------------------------------------------
 struct IdAndDistance
 {
+	IdAndDistance( unsigned int guideId, Real distance)
+	{
+		mGuideId = guideId;
+		mDistance = distance;
+	}
+
 	GuideId mGuideId;	// Guide id
 
 	Real mDistance;	// Distance to guide's rest position
@@ -75,9 +81,6 @@ public:
 	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
 		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const;
 
-	std::vector< const Vector3D< Real > * > getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
-		unsigned __int32 aN ) const;
-
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
 	///-------------------------------------------------------------------------------------------------
@@ -114,7 +117,7 @@ private:
 	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
 	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups,
-		const std::vector< unsigned int > &groupIdentifiers );
+		const std::vector< unsigned int > &groupIdentifiers, unsigned int *groupCounts );
 
 	bool mDirtyBit; ///< true to dirty bit
 

@@ -19,7 +19,6 @@ RestPositionsUG::RestPositionsUG():
 	mKdForest( 0 ),
 	mForestSize( 0 )
 {
-	/* TODO */
 }
 
 RestPositionsUG::~RestPositionsUG()
@@ -35,40 +34,37 @@ void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions,
 	GuidesRestPositions::const_iterator cIt = aGuidesRestPositions.begin();
 
 	vector< unsigned int > groupIdentifiers;
+	groupIdentifiers.resize( aGuidesRestPositions.size() );
+	vector< unsigned int >::iterator gIt = groupIdentifiers.begin();
 
-	for ( Positions::iterator it = mGuidesRestPositions.begin();  it != mGuidesRestPositions.end(); ++it, ++cIt )
+	unsigned int *groupCounts = new unsigned int[ aInterpolationGroups.getGroupsCount() ];
+	memset( groupCounts, 0, aInterpolationGroups.getGroupsCount() * sizeof( unsigned int ) );
+
+	for ( unsigned int i = 0; i < aGuidesRestPositions.size(); ++i, ++cIt, ++gIt )
 	{
-		* it = cIt->mPosition.getPosition();
 		unsigned int groupId = aInterpolationGroups.getGroupId( cIt->mUVPoint.getU(), cIt->mUVPoint.getV() );
-		groupIdentifiers.push_back( groupId );
+
+		mGuidesRestPositions[ i ] = cIt->mPosition.getPosition();
+		groupIdentifiers[ i ] = groupId;
+		++groupCounts[ groupId ];
 	}
 
 	// Builds UG
-	innerBuild( aInterpolationGroups, groupIdentifiers );
+	innerBuild( aInterpolationGroups, groupIdentifiers, groupCounts );
 }
 
 void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
 		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const
 {
-	/* TODO */
-}
-
-vector< const Vector3D< Real > * > RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
-		unsigned __int32 aN ) const
-{
-	assert( aInterpolationGroupId < mForestSize );
-
 	KdTree::CKNNQuery query( aN );
 
 	query.Init( aPosition , aN, 1e20 );
     mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
 
-	vector< const Vector3D< Real > *> foundPoints;
+	aClosestGuidesIds.reserve( query.found );
 
 	for(unsigned int i = 1; i <= query.found; ++i)
-		foundPoints.push_back( query.index[ i ] );
-
-	return foundPoints;
+		aClosestGuidesIds[ i ] = IdAndDistance( query.indeces[ i ], sqrt( query.dist2[ i ] ) );
 }
 
 void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const
@@ -100,20 +96,24 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 	}
 }
 
-void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups, const vector< unsigned int > &groupIdentifiers )
+void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups,
+	const vector< unsigned int > &groupIdentifiers, unsigned int *groupCounts )
 {
 	delete[] mKdForest;
 	mKdForest = new KdTree[ aInterpolationGroups.getGroupsCount() ];
 
 	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
+	{
 		mKdForest[ i ] = KdTree();
+		mKdForest[ i ].Reserve( groupCounts[ i ] );
+	}
 
 	// filling data structure
 	assert( mGuidesRestPositions.size() == groupIdentifiers.size() );
 
 	vector< unsigned int >::const_iterator gIt = groupIdentifiers.begin();
-	for(Positions::iterator it = mGuidesRestPositions.begin(); it != mGuidesRestPositions.end(); ++it, ++gIt )
-		mKdForest[ *gIt ].AddItem( & ( *it ) );
+	for(unsigned int i = 0; i < mGuidesRestPositions.size(); ++i, ++gIt )
+		mKdForest[ *gIt ].AddItem( &mGuidesRestPositions[ i ], i  );
 
 	// building all trees
 	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
@@ -121,6 +121,8 @@ void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aIn
 
 	mForestSize = aInterpolationGroups.getGroupsCount();
 	mDirtyBit = false;
+
+	delete[] groupCounts;
 }
 
 } // namespace HairComponents
