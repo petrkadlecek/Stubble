@@ -45,12 +45,30 @@ public:
 
 private:
 
+	///-------------------------------------------------------------------------------------------------
+	/// Generates a sample. 
+	///
+	/// \param	aHairShape				The HairShape node. 
+	/// \param	aNodeName				Name of the HairShape node.
+	/// \param	aSampleTime				Time of the sample. 
+	/// \param [in,out]	aBoundingBoxes	The bounding boxes of sample's voxels. 
+	///-------------------------------------------------------------------------------------------------
+	void generateSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime,
+		BoundingBoxes & amBoundingBoxes );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the stubble dll file name. 
 	///
 	/// \return	The stubble dll file name. 
 	///----------------------------------------------------------------------------------------------------
 	static std::string getStubbleDLLFileName();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the output directory. 
+	///
+	/// \return	The output directory. 
+	///-------------------------------------------------------------------------------------------------
+	static std::string getDirectory();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Generates a frame file name. 

@@ -3,6 +3,7 @@
 #include "Common/CommonFunctions.hpp"
 
 #include <maya/MFileObject.h>
+#include <maya/MFileIO.h>
 
 #include <ri.h>
 
@@ -27,27 +28,15 @@ void freeData(RtPointer data)
 CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
 	loadStubbleWorkDir();
-	Sample s; 
-	s.mFileName = generateFrameFileName( aNodeName, aSampleTime );
-	s.mSampleTime = aSampleTime;
-	mMinTime = aSampleTime;
-	// Takes first sample
-	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, mBoundingBoxes );
-	// Store sample
-	samples.push_back( s );
+	// Takes sample
+	generateSample( aHairShape, aNodeName, aSampleTime, mBoundingBoxes );
 }
 
 void CachedFrame::AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
-	Sample s; 
-	s.mFileName = generateFrameFileName( aNodeName, aSampleTime );
-	s.mSampleTime = aSampleTime;
-	mMaxTime = aSampleTime;
 	BoundingBoxes tmpBoxes;
 	// Takes sample
-	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, tmpBoxes );
-	// Store sample
-	samples.push_back( s );
+	generateSample( aHairShape, aNodeName, aSampleTime, tmpBoxes );
 	// Update bounding boxes
 	BoundingBoxes::const_iterator cIt = tmpBoxes.begin();
 	for ( BoundingBoxes::iterator it = mBoundingBoxes.begin(); it != mBoundingBoxes.end(); ++it, ++cIt )
@@ -96,9 +85,52 @@ void CachedFrame::emit()
 	}
 }
 
+void CachedFrame::generateSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime,
+	BoundingBoxes & aBoundingBoxes )
+{
+	// Get scene directory
+	std::string dir = getDirectory();
+	// Get full dir. path
+	std::string fullDirName = mStubbleWorkDir + dir;
+	// Create dir
+	if ( GetFileAttributes( fullDirName.c_str() ) == INVALID_FILE_ATTRIBUTES )
+	{
+		CreateDirectory( fullDirName.c_str(), NULL );
+	}
+	// Prepare sample properties
+	Sample s; 
+	s.mFileName = dir + "\\" + generateFrameFileName( aNodeName, aSampleTime );
+	s.mSampleTime = aSampleTime;
+	mMinTime = aSampleTime;
+	// Takes first sample
+	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, aBoundingBoxes );
+	// Store sample
+	samples.push_back( s );
+}
+
+
 std::string CachedFrame::getStubbleDLLFileName()
 {
 	return "StubbleHairGenerator.dll";
+}
+
+std::string CachedFrame::getDirectory()
+{
+	MFileObject fo;
+	// Gets file scene full name
+	fo.setRawFullName( MFileIO::currentFile() );
+	// Gets file scene name
+	MString currentFile = fo.name();
+	MStringArray arr;
+	// Remove extension
+	currentFile.split( '.', arr );
+	// Convert to std::string
+	std::string result = std::string( arr[ 0 ].asChar() );
+	for ( unsigned __int32 i = 1; i < ( arr.length() - 1 ); ++i )
+	{
+		result += std::string( arr[ i ].asChar() );
+	}
+	return result;
 }
 
 std::string CachedFrame::generateFrameFileName( std::string aNodeName, Time aSampleTime )
