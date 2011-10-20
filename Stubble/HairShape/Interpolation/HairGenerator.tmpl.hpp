@@ -791,7 +791,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// For every point
 	for ( const Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
 	{
-		aBoundingBox.expand( *it );
+		aBoundingBox.expand( Vector3D< Real >( it->x, it->y, it->z ) );
 	}
 }
 

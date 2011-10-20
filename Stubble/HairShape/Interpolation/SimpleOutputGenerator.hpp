@@ -3,6 +3,7 @@
 
 #include "Common/CommonTypes.hpp"
 #include "OutputGenerator.hpp"
+#include <ri.h>
 
 namespace Stubble
 {
@@ -22,34 +23,34 @@ struct SimpleTypes
 	/// Defines an alias representing type used to store one component of the 3 components of 
 	/// the 3D position.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real PositionType;
+	typedef RtFloat PositionType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one component of the 3 components of the color.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real ColorType;
+	typedef RtFloat ColorType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one component of the 3 components of 
 	/// the normal.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real NormalType;
+	typedef RtFloat NormalType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store width.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real WidthType;
+	typedef RtFloat WidthType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one component of the 3 components of 
 	/// the opacity.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real OpacityType;
+	typedef RtFloat OpacityType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store one of the 2 u v coordinates.
 	///-------------------------------------------------------------------------------------------------
-	typedef Real UVCoordinateType;
+	typedef RtFloat UVCoordinateType;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store hair and strand index.
