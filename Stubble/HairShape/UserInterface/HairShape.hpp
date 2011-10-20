@@ -334,16 +334,28 @@ inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesUG()
 inline void HairShape::updateGuides( bool aStoreUpdate )
 {
 	mHairGuides->updateGuides( aStoreUpdate );
+	if ( mDisplayInterpolated && aStoreUpdate )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline void HairShape::undo()
 {
-	return mHairGuides->undo();
+	mHairGuides->undo();
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline void HairShape::redo()
 {
-	return mHairGuides->redo();
+	mHairGuides->redo();
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline bool HairShape::canUndo() const

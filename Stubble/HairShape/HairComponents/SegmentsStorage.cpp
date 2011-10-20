@@ -23,7 +23,7 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 	{
 		// Get segments count
 		guideIt->mSegments.resize( aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
-			posIt->mPosition.getVCoordinate() ) );
+			posIt->mPosition.getVCoordinate() ) + 1 );
 		// For every segment
 		Vector3D< Real > segmentPos;
 		Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guideIt->mSegments.size() );
@@ -204,7 +204,8 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 			{
 				uniformlyRepositionSegments( *guideIt, 
 					// Load new segments count from interpolation groups object
-					aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() ) );
+					aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
+					posIt->mPosition.getVCoordinate() ) + 1 );
 			}
 		}
 	}
@@ -216,7 +217,8 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 	{
 		uniformlyRepositionSegments( *guideIt, 
 			// Load new segments count from interpolation groups object
-			aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() ) );
+			aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
+			posIt->mPosition.getVCoordinate() ) + 1 );
 	}
 }
 
@@ -263,7 +265,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		unsigned __int32 interpolationGroup = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(),
 																			posIt->mPosition.getVCoordinate() );
 		// Get segments count
-		guideIt->mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) ); 
+		guideIt->mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) + 1 ); 
 		// Now selected closest guides
 		ClosestGuidesIds guidesIds;
 		aOldRestPositionsUG.getNClosestGuides( posIt->mPosition.getPosition(), 

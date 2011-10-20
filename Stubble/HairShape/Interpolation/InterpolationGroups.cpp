@@ -66,10 +66,17 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 		}
 		// Now create vector with segments count
 		InterpolationGroupsSegmentsCount tempInterpolationGroupsSegmentsCount( colorMap.size(), aSegmentsCount );
+		// Copy old segments count
+		for ( InterpolationGroupsSegmentsCount::iterator newIt = tempInterpolationGroupsSegmentsCount.begin(),
+			oldIt = mInterpolationGroupsSegmentsCount.begin();
+			newIt != tempInterpolationGroupsSegmentsCount.end() && oldIt != mInterpolationGroupsSegmentsCount.end();
+			++newIt, ++oldIt )
+		{
+			*newIt = *oldIt;
+		}
 		// Finally dealocate old arrays
 		delete [] mInterpolationGroupsTexture;
 		delete [] mInterpolationGroupsColors;
-		mInterpolationGroupsSegmentsCount.clear();
 		// Copy new values
 		mInterpolationGroupsColors = tempInterpolationGroupsColors;
 		mInterpolationGroupsTexture = tempInterpolationGroupsTexture;

@@ -3,6 +3,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnNumericData.h>
 #include <maya/MFnCompoundAttribute.h>
+#include <maya/MGlobal.h>
 #include <maya/MPxSurfaceShape.h>
 
 namespace Stubble
@@ -248,9 +249,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		float float_min = std::numeric_limits< float >::min();
 
 		/* MAYA BASIC PROPERTIES */
-		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 10, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
-		updateIntArrayComponentsCount( segmentsCountAttr, 6, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
-
+		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 1, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
 		addFloatAttribute( "density_texture", "dtxt", densityTextureAttr, 1, 0, 1, 0, 1 );
 		addColorAttribute( "interpolation_groups_texture", "itxt", interpolationGroupsTextureAttr, 1, 1, 1 );
 		addIntAttribute( "interpolation_samples", "ints", numberOfGuidesToInterpolateFromAttr, 3, 3, 20, 3, 20 );
@@ -348,23 +347,28 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	aSegmentsCountChanged = aHairPropertiesChanged = false;
-	if ( aPlug == segmentsCountAttr )
+	if ( root == segmentsCountAttr )
 	{
-		mInterpolationGroups->setGroupSegmentsCount( 0, static_cast< unsigned __int32 >( aDataHandle.asInt() ) );
+		// For all interpolation groups
+		for( unsigned __int32 i = 0; i < root.numChildren(); ++i )
+		{
+			if ( root.child( i ) == aPlug )
+			{
+				// Refresh segments count
+				mInterpolationGroups->setGroupSegmentsCount( i, static_cast< unsigned __int32 >( aDataHandle.asInt() ) );
+			}
+		}
 		aSegmentsCountChanged = true;
 		return;
 	}
 	if ( aPlug == densityTextureAttr )
 	{
 		mDensityTexture->setConnection( aPlug );
-		// TODO uncomment when resample works mDensityTexture->setDirty();
 		return;
 	}
 	if ( aPlug == interpolationGroupsTextureAttr || root == interpolationGroupsTextureAttr )
 	{
 		mInterpolationGroupsTexture->setConnection( aPlug );
-		// TODO: decide if it should be root or aPlug
-		// TODO uncomment when resample works mInterpolationGroupsTexture->setDirty();
 		return;
 	}
 	if ( aPlug == numberOfGuidesToInterpolateFromAttr )
@@ -377,7 +381,6 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mAreNormalsCalculated = aDataHandle.asBool();
 		return;
 	}
-	// TODO Handle all other textures and attributes
 	if ( aPlug == aspectAttr )
 	{
 		mAspect = static_cast< Real >( aDataHandle.asFloat() );
@@ -963,8 +966,9 @@ void MayaHairProperties::refreshTextures(unsigned __int32 aTextureSamples, bool 
 	if ( mInterpolationGroupsTexture->isDirty() )
 	{
 		mInterpolationGroupsTexture->resample( aTextureSamples );
-		// TODO handle UI segments count selection
 		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
+		updateIntArrayComponentsCount( segmentsCountAttr, mInterpolationGroups->getGroupsCount(), 
+			DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
 		aInterpolationGroupsChanged = true;
 	}
 	if ( mDensityTexture->isDirty() )
@@ -1225,7 +1229,6 @@ void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFill
 		numericAttribute.setSoftMax( aSoftMax );
 		numericAttribute.setKeyable( false );
 		numericAttribute.setInternal( true );
-
 		nAttr.addChild(c);
 	}
 }
@@ -1235,7 +1238,6 @@ void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const 
 {
 	MFnCompoundAttribute nAttr;
 	aAttribute = nAttr.create(aFullName, aBriefName);
-
 	fillIntArrayAttributes( aAttribute, aComponentsCount, aDefault, aMin, aMax, aSoftMin, aSoftMax );
 
 	if ( MPxSurfaceShape::addAttribute( aAttribute ) != MStatus::kSuccess )
@@ -1262,6 +1264,12 @@ void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, un
 		}
 	else // adding new children
 		fillIntArrayAttributes( aAttribute, aComponentsCount - nAttr.numChildren(), aDefault, aMin, aMax, aSoftMin, aSoftMax );
+	MStringArray arr;
+	nAttr.getAddAttrCmds( arr, true );
+	for ( unsigned __int32 i = 0; i < arr.length(); ++i )
+	{
+		MGlobal::executeCommand( arr[ i ] );
+	}
 }
 
 void MayaHairProperties::addIntAttribute( const MString & aFullName, const MString & aBriefName,
