@@ -270,27 +270,62 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		ClosestGuidesIds guidesIds;
 		aOldRestPositionsUG.getNClosestGuides( posIt->mPosition.getPosition(), 
 			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
-		// First calculate cumulated distance
-		Real cumulatedDistance = 0;
+		// First find max and min
+		Real maxDistance = 0;
+		ClosestGuidesIds::const_iterator first = guidesIds.begin();
 		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
-			cumulatedDistance += guideIdIt->mDistance;
-		}
-		Real inverseCumulatedDistance = 1.0f / cumulatedDistance; 
-		// For every old guide segments to interpolate from
-		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
-		{
-			// Old segments iterator
-			Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
-			Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
-			// For every segment
-			for ( Segments::iterator segIt = guideIt->mSegments.begin(); segIt != guideIt->mSegments.end(); 
-				++segIt, ++oldSegIt )
+			// Check max distance
+			if ( maxDistance < guideIdIt->mDistance )
 			{
-				*segIt += *oldSegIt * weight;
+				maxDistance = guideIdIt->mDistance;
+			}
+			else
+			{
+				// Refresh closest guide
+				if ( first->mDistance > guideIdIt->mDistance )
+				{
+					first = guideIdIt;
+				}
 			}
 		}
-		uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
+		// First check, if they are not on the same position
+		if ( first->mDistance < 0.00001 )
+		{
+			// Just copy
+			* guideIt =  aOldSegments.mSegments[ first->mGuideId ];
+		}
+		else
+		{
+			// Bias distance with respect to farthest guide
+			for ( ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+			{
+				Real & distance = guideIdIt->mDistance;
+				distance = ( maxDistance - distance ) / ( maxDistance * distance );
+				distance *= distance;
+			}
+			// Finaly calculate cumulated distance
+			Real cumulatedDistance = 0;
+			for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+			{
+				cumulatedDistance += guideIdIt->mDistance;
+			}
+			Real inverseCumulatedDistance = 1.0 / cumulatedDistance;
+			// For every old guide segments to interpolate from
+			for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+			{
+				// Old segments iterator
+				Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
+				Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
+				// For every segment
+				for ( Segments::iterator segIt = guideIt->mSegments.begin(); segIt != guideIt->mSegments.end(); 
+					++segIt, ++oldSegIt )
+				{
+					*segIt += *oldSegIt * weight;
+				}
+			}
+			uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
+		}
 	}
 }
 

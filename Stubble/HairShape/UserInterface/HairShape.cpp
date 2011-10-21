@@ -3,6 +3,7 @@
 #include "Common/GLExtensions.hpp"
 #include "Common/CommonConstants.hpp"
 
+#include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnStringData.h>
 #include <maya/MFnTypedAttribute.h>
@@ -397,6 +398,7 @@ void HairShape::refreshTextures()
 	// React on refreshed textures
 	if ( interpolationGroupsChanged )
 	{
+		updateSegmentsCountAttributes( false );
 		// Update segments count of hair guides
 		mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
 		refreshPointersToGuidesForInterpolation();
@@ -457,7 +459,9 @@ void HairShape::meshChange( MObject aMeshObj )
 	mesh.getCurrentUVSetName( uvSetName );
 	if( mMayaMesh == 0 ) // No mesh exists ?
 	{
-		
+		// Updates segments attributes
+		updateSegmentsCountAttributes( true );
+
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 
@@ -536,6 +540,37 @@ inline void HairShape::refreshPointersToGuidesForInterpolation()
 {
 	MayaHairProperties::refreshPointersToGuides( & mHairGuides->getCurrentFrameSegments().mSegments,
 		& mHairGuides->getGuidesPositionsUG( getInterpolationGroups() ) );
+}
+
+// Inline, but only called inside HairGuides.cpp
+inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
+{
+	// Remove attr value from storage
+	setSegmentsCountAttr( MObject() );
+	MFnDependencyNode node( thisMObject() );
+	if ( !aFirstUpdate )
+	{
+		// Removes old attribute
+		node.removeAttribute( node.findPlug( "segments_count" ).attribute() );
+	}
+	// Creates new compound attribute
+	MStatus s;
+	MObject attr;
+	MFnCompoundAttribute nAttr;
+	attr = nAttr.create( "segments_count", "sgc", &s );
+	nAttr.setInternal( true );
+	// Add children
+	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 5, 1, 100, 1, 100 );
+	// Add attr
+	s = node.addAttribute( attr );
+	// Sets children values
+	for( unsigned __int32 i = 0; i < nAttr.numChildren(); ++i )
+	{
+		MPlug plug( thisMObject(), nAttr.child( i, &s ) );
+		s = plug.setInt( static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
+	}
+	// Finally remember attr value
+	setSegmentsCountAttr( attr );
 }
 
 /************************************************************************************************************/

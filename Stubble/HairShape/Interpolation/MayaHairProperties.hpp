@@ -255,6 +255,27 @@ protected:
 		const HairComponents::RestPositionsUG * aGuidesRestPositionsUG );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Sets the segments count attribute. 
+	///
+	/// \param	aSegmentsCountPlug	The segments count attribute. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setSegmentsCountAttr( const MObject & aSegmentsCountAttr );
+	
+	///-------------------------------------------------------------------------------------------------
+	/// Updates components count for an int array attribute. 
+	///
+	/// \param [in,out]	aAttribute	The attribute object.
+	/// \param	aComponentsCount	The component count.
+	/// \param	aDefault			The default value. 
+	/// \param	aMin				The minimum value. 
+	/// \param	aMax				The maximum value. 
+	/// \param	aSoftMin			The soft minimum value. 
+	/// \param	aSoftMax			The soft maximum value. 
+	///-------------------------------------------------------------------------------------------------
+	void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
+		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Adds a color attribute. 
 	///
 	/// \param	aFullName			Full name.
@@ -353,19 +374,8 @@ protected:
 
 private:
 
-	///-------------------------------------------------------------------------------------------------
-	/// Updates components count for an int array attribute. 
-	///
-	/// \param [in,out]	aAttribute	The attribute object.
-	/// \param	aComponentsCount	The component count.
-	/// \param	aDefault			The default value. 
-	/// \param	aMin				The minimum value. 
-	/// \param	aMax				The maximum value. 
-	/// \param	aSoftMin			The soft minimum value. 
-	/// \param	aSoftMax			The soft maximum value. 
-	///-------------------------------------------------------------------------------------------------
-	void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
-		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+
+	MObject mSegmentsCountAttr;   ///< The segments count attribute
 };
 
 // inline functions implementation
@@ -375,6 +385,11 @@ inline void MayaHairProperties::refreshPointersToGuides( const HairComponents::G
 {
 	mGuidesSegments = aGuidesSegments;
 	mGuidesRestPositionsUG = aGuidesRestPositionsUG;
+}
+
+inline void MayaHairProperties::setSegmentsCountAttr( const MObject & aSegmentsCountAttr )
+{
+	mSegmentsCountAttr = aSegmentsCountAttr;
 }
 
 } // namespace Interpolation

@@ -261,7 +261,7 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	/// Sets a current time. 
 	///
-	/// \param	aTime	The curren time. 
+	/// \param	aTime	The current time. 
 	///----------------------------------------------------------------------------------------------------
 	void setCurrentTime( Time aTime );
 
@@ -269,6 +269,14 @@ private:
 	/// Refresh pointers to guides for interpolation class. 
 	///----------------------------------------------------------------------------------------------------
 	inline void refreshPointersToGuidesForInterpolation();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Updates the segments count attributes. ( Essential after Interpolation groups change )
+	/// 
+	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
+	/// 						be removed.
+	///-------------------------------------------------------------------------------------------------
+	inline void updateSegmentsCountAttributes( bool aFirstUpdate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Registers the topology callback. 

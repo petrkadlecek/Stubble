@@ -249,7 +249,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		float float_min = std::numeric_limits< float >::min();
 
 		/* MAYA BASIC PROPERTIES */
-		addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 1, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		//addIntArrayAttribute( "segments_count", "sgc", segmentsCountAttr, 1, DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
 		addFloatAttribute( "density_texture", "dtxt", densityTextureAttr, 1, 0, 1, 0, 1 );
 		addColorAttribute( "interpolation_groups_texture", "itxt", interpolationGroupsTextureAttr, 1, 1, 1 );
 		addIntAttribute( "interpolation_samples", "ints", numberOfGuidesToInterpolateFromAttr, 3, 3, 20, 3, 20 );
@@ -347,7 +347,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	aSegmentsCountChanged = aHairPropertiesChanged = false;
-	if ( root == segmentsCountAttr )
+	if ( root == mSegmentsCountAttr )
 	{
 		// For all interpolation groups
 		for( unsigned __int32 i = 0; i < root.numChildren(); ++i )

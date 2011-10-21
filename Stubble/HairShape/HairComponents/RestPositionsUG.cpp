@@ -61,10 +61,10 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 	query.Init( aPosition , aN, 1e20 );
     mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
 
-	aClosestGuidesIds.reserve( query.found );
+	aClosestGuidesIds.resize( query.found );
 
-	for(unsigned int i = 1; i <= query.found; ++i)
-		aClosestGuidesIds[ i ] = IdAndDistance( query.indeces[ i ], sqrt( query.dist2[ i ] ) );
+	for(unsigned int i = 0; i < query.found; ++i)
+		aClosestGuidesIds[ i ] = IdAndDistance( query.indeces[ i + 1 ], query.dist2[ i + 1 ] );
 }
 
 void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const

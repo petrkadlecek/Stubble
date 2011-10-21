@@ -16,7 +16,7 @@ global proc AEHairShapeTemplate( string $nodeName )
 		editorTemplate -addControl "guides_count";
 		editorTemplate -addControl "interpolated_hair_count";
 		editorTemplate -addControl "displayed_hair_count";
-		editorTemplate -addControl "segments_count";
+		editorTemplate -addDynamicControl "segments_count";
 		editorTemplate -addControl "display_guides";
 		editorTemplate -addControl "display_hair";
 		editorTemplate -addControl "voxels_dimensions";

@@ -23,7 +23,7 @@ namespace HairComponents
 ///----------------------------------------------------------------------------------------------------
 struct IdAndDistance
 {
-	IdAndDistance( unsigned int guideId, Real distance)
+	IdAndDistance( unsigned int guideId = 0 , Real distance = 0 )
 	{
 		mGuideId = guideId;
 		mDistance = distance;
