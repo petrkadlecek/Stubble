@@ -36,9 +36,9 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
-const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
+const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-4;
-const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 3;
+const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
 const Real HairTaskProcessor::INV_MID_SGMT_WEIGHT = 2e7;
 const Real HairTaskProcessor::DELTA_SCALE = 1e-6;
@@ -289,7 +289,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 #ifndef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
 		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT - 1;
-		const Uint DERIVATIVES_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT;
+		const Uint DERIVATIVES_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT - 3;
 #else
 		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 2 * (VERTEX_COUNT - 1);
 		const Uint COL_CONSTR_OFFSET = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
@@ -308,11 +308,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// -------------------------------------------------------------------------------------
 			C = 0.0;
 			// Rigid body coupling constraints:
-			Vec3 diff = folliclePosition - hairVertices[ 0 ];
+			/*Vec3 diff = folliclePosition - hairVertices[ 0 ];
 			for (Uint i = 0; i < RIGID_BODY_COUPL_CONSTRAINTS; ++i)
 			{
 				C[ i ] = diff[ i ];
-			}
+			}*/
 
 			// Inextensibility constraints:
 			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
@@ -335,24 +335,27 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			}
 #endif
 
-			// Convergence condition:
-			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)
+			//TODO: debug - remove me
+			/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
+			std::cout << ", C = ";
+			for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
 			{
-				//TODO: debug - remove me
-				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
-				std::cout << ", C = ";
-				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
-				{
-					std::cout << C[ i ] << " ";
-				}
-				std::cout << std::endl << std::flush;*/
-				//break;
-				// ------------------------
-				Vec3 correction = Vec3(0.0, 0.0, 0.0) - hairVertices[ 0 ];
+				std::cout << C[ i ] << " ";
+			}
+			std::cout << std::endl << std::flush;*/
+			//break;
+			// ------------------------
+
+			// Convergence condition:
+			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD /*|| iterationsCount >= MAX_LOOP_ITERATIONS*/)
+			{
+				/*Vec3 correction = Vec3(0.0, 0.0, 0.0) - hairVertices[ 0 ];
 				for (Uint i = 0; i < VERTEX_COUNT; ++i)
 				{
 					hairVertices[ i ] += correction;
-				}
+				}*/
+
+				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush;
 
 				break;
 			}
@@ -366,39 +369,51 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			delta = 0.0;
 
 			// Rigid body coupling constraint derivatives:
-			for (Uint i = 0; i < RIGID_BODY_COUPL_CONSTRAINTS; ++i)
+			/*for (Uint i = 0; i < RIGID_BODY_COUPL_CONSTRAINTS; ++i)
 			{
 				NC[ i ][ i ] = 1.0;
 				NC[ i ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] = -1.0;
 
 				delta[ i ][ i ] = NC[ i ][ i ] * DELTA_SCALE * INV_ROOT_SGMT_WEIGHT;
 				delta[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ i ] = NC[ i ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] * DELTA_SCALE * INV_ROOT_SGMT_WEIGHT;
-			}
+			}*/
 
 			// Inextensibility constraint derivatives:
-			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
+			Vec3 e = (hairVertices[ 1 ] - hairVertices[ 0 ]) * 2.0;
+			NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS ] = e.x;
+			NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS + 1 ] = e.y;
+			NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS + 2 ] = e.z;
+
+			delta[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS ] =
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+			delta[ RIGID_BODY_COUPL_CONSTRAINTS + 1 ][ RIGID_BODY_COUPL_CONSTRAINTS ] =
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS + 1 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+			delta[ RIGID_BODY_COUPL_CONSTRAINTS + 2 ][ RIGID_BODY_COUPL_CONSTRAINTS ] =
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS ][ RIGID_BODY_COUPL_CONSTRAINTS + 2 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+
+			for (Uint i = 1; i < VERTEX_COUNT - 1; ++i)
 			{
-				Vec3 e = (hairVertices[ i + 1 ] - hairVertices[ i ]) * 2.0;
+				e = (hairVertices[ i + 1 ] - hairVertices[ i ]) * 2.0;
 
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ] = -e.x;
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) ] = e.x;
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1 ] = -e.y;
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 1 ] = e.y;
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2 ] = -e.z;
-				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 2 ] = e.z;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) ] = -e.x;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ] = e.x;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 1 ] = -e.y;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1 ] = e.y;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 2 ] = -e.z;
+				NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2 ] = e.z;
 
+				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
+					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
 				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
 					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
-				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
-					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 1 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
+					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 1 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
 				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
 					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
-				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 1 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
-					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 1 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 2 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
+					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i - 1) + 2 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
 				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
 					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
-				delta[ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 2 ][ RIGID_BODY_COUPL_CONSTRAINTS + i ] =
-					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 2 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
 			}
 
 #ifdef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
@@ -424,8 +439,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			//dumpToFile(system, CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); //TODO: remove me
 
 			RealN lambda(CONSTRAINTS_COUNT);
-			RealNxN sysInv = system.i();
-			lambda = sysInv * C;
+			lambda = system.i() * C;
 
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
@@ -434,11 +448,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			dX = -delta * lambda;
 
 			// Apply change to coupled rigid bodies
-			Vec3 change(dX[ 0 ], dX[ 1 ], dX[ 2 ]);
-			folliclePosition += change; // Update just the virtual position - mesh won't be moved
+			//Vec3 change(dX[ 0 ], dX[ 1 ], dX[ 2 ]);
+			//folliclePosition += change; // Update just the virtual position - mesh won't be moved
+			Vec3 change;
 
 			// Apply change to all hair vertices
-			for (Uint i = 0; i < VERTEX_COUNT; ++i)
+			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 			{
 
 #ifndef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
@@ -449,7 +464,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 					dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2] + dX[ COL_DERIV_OFFSET + 3*i + 2]);
 #endif
 
-				hairVertices[ i ] += change;
+				hairVertices[ i + 1 ] += change;
 			}
 
 			iterationsCount++;
