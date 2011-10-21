@@ -1,12 +1,32 @@
+#include <fstream> //TODO: remove me
 #include "HairTaskProcessor.hpp"
-
 #include <maya\MMeshIntersector.h>
+
+//#define STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE 1
 
 namespace Stubble
 {
 
 namespace Toolbox
 {
+
+//TODO: remove me
+void dumpToFile(const NEWMAT::Matrix &M, Uint rows, Uint cols)
+{
+	std::fstream log("C:\\Dev\\matrix.log", std::ios_base::app);
+	log.setf(std::ios::fixed, std::ios::floatfield);
+	log.precision(8);
+	for (Uint i = 0; i < rows; ++i)
+	{
+		for (Uint j = 0; j < cols; ++j)
+		{
+			log << M[ i ][ j ] << '\t';
+		}
+		log << "\n";
+	}
+	log << "\n" << std::flush;
+	log.close();
+}
 
 // ----------------------------------------------------------------------------
 // Static data members and constants:
@@ -255,13 +275,27 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	HairShape::HairComponents::SelectedGuides::iterator it;
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		const Real SEGMENT_LENGTH_SQ = (*it)->mGuideSegments.mSegmentLength * (*it)->mGuideSegments.mSegmentLength;
+		Vec3 folliclePosition(0.0, 0.0, 0.0); // Virtual follicle position, ideally this shouldn't move, but that makes the equation system below unstable
+		const Real SEGMENT_LENGTH_SQ = (*it)->mGuideSegments.mSegmentLength * (*it)->mGuideSegments.mSegmentLength; // Squared segment's length
 		HairShape::HairComponents::Segments &hairVertices = (*it)->mGuideSegments.mSegments;
 		const Uint VERTEX_COUNT = ( Uint )hairVertices.size();
-		Vec3 folliclePosition(0.0, 0.0, 0.0); // Virtual follicle position, ideally this shouldn't move, but that makes the equation system below unstable
 
+#ifdef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
+		HairShape::HairComponents::SegmentsAdditionalInfo &hairVerticesInfo = (*it)->mSegmentsAdditionalInfo;
+		assert( VERTEX_COUNT == (Uint)hairVerticesInfo.size());
+#endif
+
+		
+
+#ifndef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
 		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT - 1;
 		const Uint DERIVATIVES_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT;
+#else
+		const Uint CONSTRAINTS_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 2 * (VERTEX_COUNT - 1);
+		const Uint COL_CONSTR_OFFSET = RIGID_BODY_COUPL_CONSTRAINTS + VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
+		const Uint DERIVATIVES_COUNT = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT + VERTEX_COUNT + 2;
+		const Uint COL_DERIV_OFFSET = RIGID_BODY_COUPL_CONSTRAINTS + 3 * VERTEX_COUNT; // Offset to the beginning of collision constraint derivatives
+#endif
 
 		RealN C(CONSTRAINTS_COUNT);
 
@@ -286,6 +320,20 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				Vec3 e = hairVertices[ i + 1 ] - hairVertices[ i ];
 				C[ RIGID_BODY_COUPL_CONSTRAINTS + i ] = Vec3::dotProduct(e, e) - SEGMENT_LENGTH_SQ;
 			}
+
+#ifdef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
+			// Collision constraints:
+			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
+			{
+				Real error = 0.0;
+				if ( hairVerticesInfo[ i + 1 ].mIsColliding ) // We don't check the root vertex for obvious reasons
+				{
+					Vec3 e = hairVertices[ i + 1 ] - hairVerticesInfo[ i + 1 ].mClosestPointOnMesh;
+					error = e.size();
+				}
+				C[ COL_CONSTR_OFFSET + i ] = error;
+			}
+#endif
 
 			// Convergence condition:
 			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)
@@ -314,7 +362,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// -------------------------------------------------------------------------------------
 			RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // The "nabla C" matrix defining a direction of the constraint force
 			NC = 0.0;
-			RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // The delta matrix - a scaled NC transpose premultiplied by the inversed mass matrix (weights)
+			RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // The delta matrix - a scaled NC transpose pre-multiplied by the inversed mass matrix (weights)
 			delta = 0.0;
 
 			// Rigid body coupling constraint derivatives:
@@ -353,12 +401,31 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 					NC[ RIGID_BODY_COUPL_CONSTRAINTS + i ][ RIGID_BODY_COUPL_CONSTRAINTS + 3*(i + 1) + 2 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
 			}
 
+#ifdef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
+			// Collision constraint derivatives:
+			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
+			{
+				NC[ COL_CONSTR_OFFSET + i ][ COL_DERIV_OFFSET + i ] = 1.0;
+				NC[ COL_CONSTR_OFFSET + i ][ COL_DERIV_OFFSET + i + 3 ] = 1.0;
+
+				delta[ COL_DERIV_OFFSET + i ][ COL_CONSTR_OFFSET + i ] =
+					NC[ COL_CONSTR_OFFSET + i ][ COL_DERIV_OFFSET + i ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+				delta[ COL_DERIV_OFFSET + i + 3 ][ COL_CONSTR_OFFSET + i ] =
+					NC[ COL_CONSTR_OFFSET + i ][ COL_DERIV_OFFSET + i + 3 ] * DELTA_SCALE * INV_MID_SGMT_WEIGHT;
+			}
+#endif
+			//dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT); //TODO: remove me
+			//dumpToFile(delta, DERIVATIVES_COUNT, CONSTRAINTS_COUNT); //TODO: remove me
+
 			// Solve the equation - just part of the one from the article, this one omits velocity changes and other dynamic stuff
 			RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT);
 			system = NC * delta;
 			
+			//dumpToFile(system, CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); //TODO: remove me
+
 			RealN lambda(CONSTRAINTS_COUNT);
-			lambda = system.i() * C;
+			RealNxN sysInv = system.i();
+			lambda = sysInv * C;
 
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
@@ -373,7 +440,15 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Apply change to all hair vertices
 			for (Uint i = 0; i < VERTEX_COUNT; ++i)
 			{
+
+#ifndef STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE
 				change.set(dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ], dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1], dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2]);
+#else
+				change.set(dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i ] + dX[ COL_DERIV_OFFSET + 3*i ],
+					dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 1] + dX[ COL_DERIV_OFFSET + 3*i + 1 ],
+					dX[ RIGID_BODY_COUPL_CONSTRAINTS + 3*i + 2] + dX[ COL_DERIV_OFFSET + 3*i + 2]);
+#endif
+
 				hairVertices[ i ] += change;
 			}
 
