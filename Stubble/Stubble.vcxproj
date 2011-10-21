@@ -77,7 +77,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(ProjectDir);$(SolutionDir)..\external\chai3d\include;$(SolutionDir)..\external\opengl\include;$(SolutionDir)..\external\newmat\include;$(SolutionDir)..\external\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(ProjectDir);$(SolutionDir)..\..\external\chai3d\include;$(SolutionDir)..\..\external\opengl\include;$(SolutionDir)..\..\external\newmat\include;$(SolutionDir)..\..\external\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>QT_NO_EMIT;WIN32;_MSVC;MAYA;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -88,7 +88,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>Foundation.lib;OpenMaya.lib;OpenMayaUI.lib;OpenMayaAnim.lib;OpenMayaRender.lib;OpenGL32.lib;glu32.lib;3Delight.lib;QtCore4.lib;QtGui4.lib;qtmain.lib;QtSvg4.lib;QtTest4.lib;QtUiTools.lib;QtXml4.lib;QtXmlPatterns4.lib;QtOpenGL4.lib;chai3d-debug.lib;newmat-double-x64-debug.lib;ZLib-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(MAYA_LOCATION)\lib;$(DELIGHT)\lib;$(QT_LOCATION)\lib;$(SolutionDir)..\external\chai3d\lib;$(SolutionDir)..\external\opengl\lib;$(SolutionDir)..\external\newmat\lib;$(SolutionDir)..\external\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MAYA_LOCATION)\lib;$(DELIGHT)\lib;$(QT_LOCATION)\lib;$(SolutionDir)..\..\external\chai3d\lib;$(SolutionDir)..\..\external\opengl\lib;$(SolutionDir)..\..\external\newmat\lib;$(SolutionDir)..\..\external\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(Platform)\$(Configuration)\Stubble.mll</OutputFile>
       <ImportLibrary>$(Configuration)/Stubble.lib</ImportLibrary>
       <ProgramDatabaseFile>$(Configuration)/Stubble.pdb</ProgramDatabaseFile>

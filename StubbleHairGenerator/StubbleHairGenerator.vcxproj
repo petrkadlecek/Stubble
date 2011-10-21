@@ -89,13 +89,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\..\external\zlib\lib;</AdditionalLibraryDirectories>
       <AdditionalDependencies>3Delight.lib;ZLib-debug.lib;</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\..\external\zlib\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
