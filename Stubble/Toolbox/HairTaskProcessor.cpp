@@ -36,12 +36,16 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
+#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-4;
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
 const Real HairTaskProcessor::INV_MID_SGMT_WEIGHT = 2e7;
 const Real HairTaskProcessor::DELTA_SCALE = 1e-6;
+#else
+
+#endif
 
 // ----------------------------------------------------------------------------
 // Methods:
@@ -270,6 +274,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 	}
 }
 
+#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
 	HairShape::HairComponents::SelectedGuides::iterator it;
@@ -471,6 +476,33 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		} // while (true)
 	} // for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 }
+#else
+void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
+{
+	HairShape::HairComponents::SelectedGuides::iterator it;
+	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	{
+		// Setup
+		Uint iterationsCount = 0;
+		while (true) // Repeat until converged
+		{
+			// -------------------------------------------------------------------------------------
+			// Step 1: Update the constraint vector
+			// -------------------------------------------------------------------------------------
+
+			// -------------------------------------------------------------------------------------
+			// Step 2: Prepare solution matrices
+			// -------------------------------------------------------------------------------------
+
+			// -------------------------------------------------------------------------------------
+			// Step 3: Calculate and apply position changes
+			// -------------------------------------------------------------------------------------
+
+			iterationsCount++;
+		} // while (true)
+	} // for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+}
+#endif
 
 } // namespace Toolbox
 
