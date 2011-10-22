@@ -81,14 +81,26 @@ void HairShapeUI::draw( const MDrawRequest & request, M3dView & view ) const
 bool HairShapeUI::select( MSelectInfo &selectInfo, MSelectionList &selectionList, MPointArray &worldSpaceSelectPts ) const
 {
 	// Tell Maya that the object has been selected
-    MSelectionMask priorityMask( MSelectionMask::kSelectHairSystems );
+	MSelectionMask priorityMask( MSelectionMask::kSelectEdges );
     MSelectionList item;
     item.add( selectInfo.selectPath() );
-    MPoint xformedPt;
-    selectInfo.addSelection( item, xformedPt, selectionList, worldSpaceSelectPts, priorityMask, false );
 
-	// Select hair guides
+	//MDagPath	dagPath;	// will hold a path to the selected object
+	//MObject		component;	// will hold a list of selected components
+    
 	HairShape *hairShape = (HairShape *)surfaceShape();
+	bool isComponent = true;
+
+	MPoint xformedPt;
+	if ( selectInfo.singleSelection() ) {
+			MPoint center = hairShape->boundingBox().center();
+			xformedPt = center;
+			xformedPt *= selectInfo.selectPath().inclusiveMatrix();
+			isComponent = false;
+		}
+    selectInfo.addSelection( item, xformedPt, selectionList, worldSpaceSelectPts, priorityMask, isComponent );
+
+	// Select hair guides	
 	hairShape->mHairGuides->applySelection(selectInfo, selectionList, worldSpaceSelectPts);
 
     return true;
