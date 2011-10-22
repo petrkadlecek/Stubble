@@ -42,7 +42,7 @@ const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-4;
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
 const Real HairTaskProcessor::INV_MID_SGMT_WEIGHT = 2e7;
-const Real HairTaskProcessor::DELTA_SCALE = 1.0;
+const Real HairTaskProcessor::DELTA_SCALE = 1e-6;
 #endif
 
 
@@ -562,7 +562,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 			for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // All other segments calculated normally
 			{
-				e = (hairVertices[ i + 1 ] - hairVertices[ 1 ]) * 2.0;
+				e = (hairVertices[ i + 1 ] - hairVertices[ i ]) * 2.0;
 				NC[ i ][ 3*(i - 1) ] = -e.x;
 				delta[ 3*(i - 1) ][ i ] = NC[ i ][ 3*(i - 1) ];
 				NC[ i ][ 3*i ] = e.x;
