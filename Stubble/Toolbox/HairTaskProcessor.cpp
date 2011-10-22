@@ -36,16 +36,15 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
-#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-4;
+#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
 const Real HairTaskProcessor::INV_MID_SGMT_WEIGHT = 2e7;
-const Real HairTaskProcessor::DELTA_SCALE = 1e-6;
-#else
-
+const Real HairTaskProcessor::DELTA_SCALE = 1.0;
 #endif
+
 
 // ----------------------------------------------------------------------------
 // Methods:
@@ -218,6 +217,8 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
+		(*it)->mCollisionsCount = 0;
+
 		Matrix< Real > worldMatrix = (*it)->mPosition.mWorldTransformMatrix;
 
 		const Vector3D<Real> normal = Vector3D< Real >::transformPoint( (*it)->mNormal, worldMatrix );
@@ -236,6 +237,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 			(*it)->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vector3D< Real >
 				( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
+			(*it)->mCollisionsCount++;
 		}
 
 		// iterating all segments
@@ -263,11 +265,14 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				MPoint queryPoint( startP );
 				accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
 				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
+				(*it)->mCollisionsCount++;
 
 				intersected = !intersected;
 			}
 			else
+			{
 				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>();
+			}
 
 			(*it)->mSegmentsAdditionalInfo[ i ].mIsColliding = intersected;
 		}
@@ -482,21 +487,138 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	HairShape::HairComponents::SelectedGuides::iterator it;
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		// Setup
+		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
+		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
+		const Uint VERTEX_COUNT = (Uint)hairVertices.size(); // Number of hair vertices
+		const Uint COLLISIONS_COUNT = guide->mCollisionsCount; // Number of colliding hair vertices
+		assert( COLLISIONS_COUNT <= VERTEX_COUNT - 1 );
+		const Uint CONSTRAINTS_COUNT = (VERTEX_COUNT - 1) + COLLISIONS_COUNT; // Number of constraints
+		const Uint COL_CONSTR_OFFSET = VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
+		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1) + 3 * COLLISIONS_COUNT; // Number of constraint derivatives
+		const Uint COL_DERIV_OFFSET = 3 * (VERTEX_COUNT - 1); // Offset to the beginning of collision constraint derivatives
+
+		// Solution vectors
+		RealN C(CONSTRAINTS_COUNT); // Constraint vector
+		RealN lambda(CONSTRAINTS_COUNT); // system inverse matrix multiplied by C vector
+		RealN dX(DERIVATIVES_COUNT); // Vector containing corrections
+		RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
+		RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
+		RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+
+		// Temporary and utility variables
+		Vec3 e; // Vector for calculating error
+		Vec3 correction; // Vector for storing vertex corrections
 		Uint iterationsCount = 0;
 		while (true) // Repeat until converged
 		{
 			// -------------------------------------------------------------------------------------
 			// Step 1: Update the constraint vector
 			// -------------------------------------------------------------------------------------
+			C = 0.0;
+
+			// Inextensibility constraints - fixed part:
+			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // For all segments
+			{
+				e = hairVertices[ i + 1 ] - hairVertices[ i ];
+				C[ i ] = Vec3::dotProduct(e, e) - SEGMENT_LENGTH_SQ;
+			}
+
+			// Interpenetration constraints - flexible part:
+			if (COLLISIONS_COUNT > 0)
+			{
+				for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // Note that we are skipping the root vertex
+				{
+					if (!guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+					{
+						continue;
+					}
+					e = guide->mSegmentsAdditionalInfo[ i + 1 ].mClosestPointOnMesh - hairVertices[ i + 1 ];
+					C[ COL_CONSTR_OFFSET + i ] = Vec3::dotProduct(e, e);
+				}
+			}
+
+			// Convergence condition:
+			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD)
+			{
+				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				break;
+			}
 
 			// -------------------------------------------------------------------------------------
 			// Step 2: Prepare solution matrices
 			// -------------------------------------------------------------------------------------
+			NC = 0.0;
+			delta = 0.0;
+
+			// Inextensibility constraints derivatives:
+			e = (hairVertices[ 1 ] - hairVertices[ 0 ]) * 2.0; // First segment treated separately - only derivatives for the second vertex are calculated
+			NC[ 0 ][ 0 ] = e.x;
+			delta[ 0 ][ 0 ] = NC[ 0 ][ 0 ];
+			NC[ 0 ][ 1 ] = e.y;
+			delta[ 1 ][ 0 ] = NC[ 0 ][ 1 ];
+			NC[ 0 ][ 2 ] = e.z;
+			delta[ 2 ][ 0 ] = NC[ 9 ][ 2 ];
+
+			for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // All other segments calculated normally
+			{
+				e = (hairVertices[ i + 1 ] - hairVertices[ 1 ]) * 2.0;
+				NC[ i ][ 3*(i - 1) ] = -e.x;
+				delta[ 3*(i - 1) ][ i ] = NC[ i ][ 3*(i - 1) ];
+				NC[ i ][ 3*i ] = e.x;
+				delta[ 3*i ][ i ] = NC[ i ][ 3*i ];
+				NC[ i ][ 3*(i - 1) + 1 ] = -e.y;
+				delta[ 3*(i - 1) + 1 ][ i ] = NC[ i ][ 3*(i - 1) + 1 ];
+				NC[ i ][ 3*i + 1 ] = e.y;
+				delta[ 3*i + 1 ][ i ] = NC[ i ][ 3*i + 1 ];
+				NC[ i ][ 3*(i - 1) + 2 ] = -e.z;
+				delta[ 3*(i - 1) + 2 ][ i ] = NC[ i ][ 3*(i - 1) + 2 ];
+				NC[ i ][ 3*i + 2 ] = e.z;
+				delta[ 3*i + 2 ][ i ] = NC[ i ][ 3*i + 2 ];
+			}
+
+			// Interpenetration constraints derivatives:
+			if (COLLISIONS_COUNT > 0)
+			{
+				for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // Note that we are skipping the root vertex
+				{
+					if (!guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+					{
+						continue;
+					}
+					e = (guide->mSegmentsAdditionalInfo[ i + 1 ].mClosestPointOnMesh - hairVertices[ i + 1 ]) * 2.0;
+					NC[ i ][ COL_DERIV_OFFSET + 3*i ] = -e.x;
+					NC[ COL_DERIV_OFFSET + 3*i ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i ];
+					NC[ i ][ COL_DERIV_OFFSET + 3*i + 1 ] = -e.y;
+					NC[ COL_DERIV_OFFSET + 3*i + 1 ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i + 1 ];
+					NC[ i ][ COL_DERIV_OFFSET + 3*i + 2 ] = -e.z;
+					NC[ COL_DERIV_OFFSET + 3*i + 1 ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i + 2 ];
+				}
+			}
 
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
 			// -------------------------------------------------------------------------------------
+			system = NC * delta;
+			lambda = system.i() * C;
+			dX = -delta * lambda;
+
+			// Apply corrections to all vertices except the first one
+			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
+			{
+				// Inextensibility correction:
+				correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
+
+				// Interpenetration correction:
+				if (guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+				{
+					assert( COLLISIONS_COUNT > 0 );
+
+					correction += Vec3(dX[ COL_DERIV_OFFSET + 3*i ], dX[ COL_DERIV_OFFSET + 3*i + 1 ], dX[ COL_DERIV_OFFSET + 3*i + 2 ] );
+				}
+
+				hairVertices[ i + 1 ] += correction;
+			}
 
 			iterationsCount++;
 		} // while (true)

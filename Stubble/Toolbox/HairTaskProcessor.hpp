@@ -10,7 +10,7 @@
 #include "newmat.h"
 #include "HairTask.hpp"
 
-#define STUBBLE_ORIGINAL_HAIRSTYLING 1
+//#define STUBBLE_ORIGINAL_HAIRSTYLING 1
 
 namespace Stubble
 {
@@ -148,9 +148,9 @@ private:
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 
-#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
 	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
+#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 	static const Uint RIGID_BODY_COUPL_CONSTRAINTS; ///< Number of rigidi body coupling constraints - 3 per rigid body (in our case just the hair root)
 	static const Real INV_ROOT_SGMT_WEIGHT; ///< Inverted root segment weight (kg) - applied to the hair follicle coupling constraints
 	static const Real INV_MID_SGMT_WEIGHT; ///< Inverted middle segment weight (kg) - applied to the rest of hair segment constraints
