@@ -527,15 +527,28 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Interpenetration constraints - flexible part:
 			if (COLLISIONS_COUNT > 0)
 			{
-				for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // Note that we are skipping the root vertex
+				Uint j = 0; // Constraint vector index
+				for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // We don't check the root for obvious reasons
 				{
-					if (!guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
 					{
 						continue;
 					}
-					e = guide->mSegmentsAdditionalInfo[ i + 1 ].mClosestPointOnMesh - hairVertices[ i + 1 ];
-					C[ COL_CONSTR_OFFSET + i ] = Vec3::dotProduct(e, e);
+					e = guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - hairVertices[ i ];
+					C[ COL_CONSTR_OFFSET + j ] = Vec3::dotProduct(e, e);
+					++j;
 				}
+
+				//TODO: debug - remove me
+				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
+				std::cout << ", C = ";
+				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
+				{
+					std::cout << C[ i ] << " ";
+				}
+				std::cout << std::endl << std::flush;
+				break;*/
+				// ------------------------
 			}
 
 			// Convergence condition:
@@ -580,19 +593,21 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Interpenetration constraints derivatives:
 			if (COLLISIONS_COUNT > 0)
 			{
-				for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // Note that we are skipping the root vertex
+				Uint j = 0; // NC and delta matrices index
+				for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // We don't check the root for obvious reasons
 				{
-					if (!guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
 					{
 						continue;
 					}
-					e = (guide->mSegmentsAdditionalInfo[ i + 1 ].mClosestPointOnMesh - hairVertices[ i + 1 ]) * 2.0;
-					NC[ i ][ COL_DERIV_OFFSET + 3*i ] = -e.x;
-					NC[ COL_DERIV_OFFSET + 3*i ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i ];
-					NC[ i ][ COL_DERIV_OFFSET + 3*i + 1 ] = -e.y;
-					NC[ COL_DERIV_OFFSET + 3*i + 1 ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i + 1 ];
-					NC[ i ][ COL_DERIV_OFFSET + 3*i + 2 ] = -e.z;
-					NC[ COL_DERIV_OFFSET + 3*i + 1 ][ i ] = NC[ i ][ COL_DERIV_OFFSET + 3*i + 2 ];
+					e = (guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - hairVertices[ i ]) * 2.0;
+					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ] = -e.x;
+					NC[ COL_DERIV_OFFSET + 3*j ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ];
+					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ] = -e.y;
+					NC[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ];
+					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ] = -e.z;
+					NC[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ];
+					++j;
 				}
 			}
 
@@ -601,10 +616,20 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// -------------------------------------------------------------------------------------
 			//dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT);
 			system = NC * delta;
-			lambda = system.i() * C; //TODO: catch exceptions?
+			try
+			{
+				lambda = system.i() * C;
+			}
+			catch (NEWMAT::SingularException e)
+			{
+				std::cout << "Matice se zpucmeloudila.\n" << std::flush;
+				break;
+			}
+			
 			dX = -delta * lambda;
 
 			// Apply corrections to all vertices except the first one
+			Uint j = 0; // dX collision correction index
 			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 			{
 				// Inextensibility correction:
@@ -615,7 +640,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				{
 					assert( COLLISIONS_COUNT > 0 );
 
-					correction += Vec3(dX[ COL_DERIV_OFFSET + 3*i ], dX[ COL_DERIV_OFFSET + 3*i + 1 ], dX[ COL_DERIV_OFFSET + 3*i + 2 ] );
+					correction += Vec3(dX[ COL_DERIV_OFFSET + 3*j ], dX[ COL_DERIV_OFFSET + 3*j + 1 ], dX[ COL_DERIV_OFFSET + 3*j + 2 ] );
+					++j;
 				}
 
 				hairVertices[ i + 1 ] += correction;
