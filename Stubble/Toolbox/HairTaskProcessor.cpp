@@ -558,7 +558,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			NC[ 0 ][ 1 ] = e.y;
 			delta[ 1 ][ 0 ] = NC[ 0 ][ 1 ];
 			NC[ 0 ][ 2 ] = e.z;
-			delta[ 2 ][ 0 ] = NC[ 9 ][ 2 ];
+			delta[ 2 ][ 0 ] = NC[ 0 ][ 2 ];
 
 			for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // All other segments calculated normally
 			{
@@ -599,8 +599,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
 			// -------------------------------------------------------------------------------------
+			//dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT);
 			system = NC * delta;
-			lambda = system.i() * C;
+			lambda = system.i() * C; //TODO: catch exceptions?
 			dX = -delta * lambda;
 
 			// Apply corrections to all vertices except the first one
