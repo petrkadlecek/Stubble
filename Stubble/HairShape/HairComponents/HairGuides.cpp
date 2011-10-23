@@ -114,70 +114,63 @@ void HairGuides::draw()
 void HairGuides::importNURBS()
 {
 	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );	
-	MItSelectionList curveIt( selection, MFn::kNurbsCurve );
-	FrameSegments frameSegments;
-	for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
+	MGlobal::getActiveSelectionList( selection );		
+	for (MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
 	{
-		MDagPath path;
-		curveIt.getDagPath( path );
-		MFnNurbsCurve curve( path );		
-		MPointArray pointArray;
-		curve.getCVs( pointArray );
-
-		OneGuideSegments guideSegments;		
-		/* TODO compute segment length (from curve CV distances?) */
-		for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
+		MAnimControl::setCurrentTime( time );		
+		FrameSegments frameSegments;
+		frameSegments.mFrame = time.as( MTime::uiUnit() );
+		MItSelectionList curveIt( selection, MFn::kNurbsCurve );
+		for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
 		{
-			guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
-		}		
-		frameSegments.mSegments.push_back( guideSegments );
+			MDagPath path;
+			curveIt.getDagPath( path );
+			MFnNurbsCurve curve( path );		
+			MPointArray pointArray;
+			curve.getCVs( pointArray );
+
+			OneGuideSegments guideSegments;		
+			/* TODO compute segment length (from curve CV distances?) */
+			for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
+			{
+				guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
+			}		
+			frameSegments.mSegments.push_back( guideSegments );
+		}
+		mSegmentsStorage->importSegments( frameSegments );		
 	}
-	mSegmentsStorage->importSegments( frameSegments );
 	// All nurbs has been imported, we have to recalculate for current time	
-	mSegmentsStorage->setFrame( MAnimControl::currentTime().as( MTime::uiUnit() ) ); // XXX is this correct unit?
-	mUndoStack.clear();
-	mDisplayedGuides.setDirty();
-	mRestPositionsUG.setDirty();
-	mAllSegmentsUG.setDirty();
-	clearSelectedGuides();
-	mBoundingBoxDirtyFlag = true;
+	setCurrentTime( MAnimControl::currentTime().as( MTime::uiUnit() ) ); // XXX is this correct unit?	
 }
 
 void HairGuides::exportToNURBS()
 {
 	if ( mSegmentsStorage->imported() )
 	{
-		throw StubbleException( " HairGuides::exportNURBS : already used import command ! " );
+		throw StubbleException( " HairGuides::exportToNURBS : already used import command ! " );
 	}
-	
-	for (MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
-	{
-		MAnimControl::setCurrentTime( time );
-		setCurrentTime( time.as( MTime::uiUnit() )); // XXX correct unit?
-		GuidesCurrentPositions::const_iterator currPosIt = mCurrentPositions.begin();
-		for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); 
-			hairIt != mSelectedGuides.end(); hairIt++, currPosIt++ )
-		{
-			MPointArray pointArray;				
-			for ( Segments::const_iterator segmentIt = (*hairIt)->mGuideSegments.mSegments.begin()
-				; segmentIt != (*hairIt)->mGuideSegments.mSegments.end()
-				; segmentIt++ )
-			{			
-				// Transform to world coordinates and append
-				pointArray.append( currPosIt->mPosition.toWorld( *segmentIt ).toMayaPoint() );
-			}
-			MFnNurbsCurve nurbsCurve;
-			MStatus status;
-
-			nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
-				false, false, true, MObject::kNullObj, &status );
-			if ( status != MStatus::kSuccess )
-			{
-				throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
-			}
+		
+	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); 
+		hairIt != mSelectedGuides.end(); hairIt++ )
+	{		
+		MPointArray pointArray;			
+		for ( Segments::const_iterator segmentIt = ( *hairIt )->mGuideSegments.mSegments.begin()
+			; segmentIt != ( *hairIt )->mGuideSegments.mSegments.end()
+			; segmentIt++ )
+		{			
+			// Transform to world coordinates and append
+			pointArray.append( ( *hairIt )->mPosition.mPosition.toWorld( *segmentIt ).toMayaPoint() );
 		}
-	}
+		MFnNurbsCurve nurbsCurve;
+		MStatus status;
+
+		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
+			false, false, true, MObject::kNullObj, &status );
+		if ( status != MStatus::kSuccess )
+		{
+			throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
+		}
+	}	
 }
 
 void HairGuides::setCurrentTime( Time aTime )
