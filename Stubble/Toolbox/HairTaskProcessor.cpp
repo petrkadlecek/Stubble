@@ -162,10 +162,10 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		if ( 0 != task )
 		{
 			hairTaskProcessor->doBrush(*task->mAffectedGuides, task->mDx, task->mBrushMode);
-			//if ( task->mBrushMode->isCollisionDetectionEnabled() )
-			//{
+			if ( task->mBrushMode->isCollisionDetectionEnabled() )
+			{
 				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
-			//}
+			}
 			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
 			task->mParentHairShape->updateGuides( false );
@@ -240,7 +240,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			//accelerator->getClosestPoint( queryPoint, closest );
 			Vec3 p( closest.x, closest.y, closest.z );
 
-			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transform(p, localMatrix);
+			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
 			guide->mCollisionsCount++;
 		}
@@ -280,7 +280,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				accelerator->getClosestPoint( queryPoint, qqq );
 
 				Vec3 p( closest.x, closest.y, closest.z );
-				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transform(p, localMatrix);
+				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			}
 			else
 			{
