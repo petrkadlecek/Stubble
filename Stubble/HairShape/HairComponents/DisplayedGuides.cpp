@@ -132,7 +132,7 @@ void DisplayedGuides::drawPolyline() const
 				continue;
 			}
 			Vector3D< Real > v = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ i ], (*guideIt)->mPosition.mWorldTransformMatrix);
-			Vector3D< Real > p = Vector3D< Real >::transformPoint((*guideIt)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh, (*guideIt)->mPosition.mWorldTransformMatrix);
+			Vector3D< Real > p = Vector3D< Real >::transform((*guideIt)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh, (*guideIt)->mPosition.mWorldTransformMatrix);
 			glVertex3d(v.x, v.y, v.z);
 			glVertex3d(p.x, p.y, p.z);
 		}

@@ -237,7 +237,8 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MPoint queryPoint( firstPoint.x, firstPoint.y, firstPoint.z );
 			accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
 			Vec3 p( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
-			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+
+			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transform(p, localMatrix);
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
 			guide->mCollisionsCount++;
 		}
