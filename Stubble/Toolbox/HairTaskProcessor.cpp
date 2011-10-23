@@ -162,10 +162,10 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		if ( 0 != task )
 		{
 			hairTaskProcessor->doBrush(*task->mAffectedGuides, task->mDx, task->mBrushMode);
-			if ( task->mBrushMode->isCollisionDetectionEnabled() )
-			{
+			//if ( task->mBrushMode->isCollisionDetectionEnabled() )
+			//{
 				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
-			}
+			//}
 			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
 
 			task->mParentHairShape->updateGuides( false );
@@ -269,18 +269,20 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
 				Vec3 p( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
-
 				intersected = !intersected;
+				
 			}
 			else
 			{
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh.set(0.0, 0.0, 0.0);
+				//guide->mSegmentsAdditionalInfo[ i ].mIsColliding = false;
 			}
 
 			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = intersected;
-			guide->mCollisionsCount += (intersected) ? 1 : 0; 
+			guide->mCollisionsCount += (intersected) ? 1 : 0;
 		} // for segments from 2 to end
 		//std::cout << "# of collisions = " << guide->mCollisionsCount << std::endl << std::flush; //TODO: remove me
+		guide->mCollisionsCount = 0; //TODO: Remove me
 	} // for all guides
 }
 
@@ -545,13 +547,13 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				}
 
 				//TODO: debug - remove me
-				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
+				std::cout << "|C| = " << C.MaximumAbsoluteValue();
 				std::cout << ", C = ";
 				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
 				{
 					std::cout << C[ i ] << " ";
 				}
-				std::cout << std::endl << std::flush;*/
+				std::cout << std::endl << std::flush;
 				//break;
 				// ------------------------
 			}

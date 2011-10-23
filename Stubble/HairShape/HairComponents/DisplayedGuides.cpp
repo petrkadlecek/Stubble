@@ -123,6 +123,26 @@ void DisplayedGuides::drawPolyline() const
 
 		//-----------------------
 		//TODO: debug - remove me
+		glBegin(GL_LINES);
+		glColor3f(1.0, 0.0, 0.0);
+		for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
+		{
+			if (!(*guideIt)->mSegmentsAdditionalInfo[ i ].mIsColliding)
+			{
+				continue;
+			}
+			Vector3D< Real > v = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ i ], (*guideIt)->mPosition.mWorldTransformMatrix);
+			Vector3D< Real > p = Vector3D< Real >::transformPoint((*guideIt)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh, (*guideIt)->mPosition.mWorldTransformMatrix);
+			glVertex3d(v.x, v.y, v.z);
+			glVertex3d(p.x, p.y, p.z);
+		}
+		glColor3f(0.5f, 1.0f, 0.8f);
+		glEnd();
+		// End of debug code
+		//-----------------------
+
+		//-----------------------
+		//TODO: debug - remove me
 		/*Vector3D< Real > origin = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ 0 ], (*guideIt)->mPosition.mWorldTransformMatrix);
 		Vector3D< Real > normal = origin + (*guideIt)->mPosition.mPosition.getNormal();
 		Vector3D< Real > binormal = origin + (*guideIt)->mPosition.mPosition.getBinormal();
