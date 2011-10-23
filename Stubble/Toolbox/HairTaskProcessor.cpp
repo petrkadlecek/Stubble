@@ -217,36 +217,37 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
-		(*it)->mCollisionsCount = 0;
+		HairShape::HairComponents::SelectedGuide *guide = *it;
+		guide->mCollisionsCount = 0;
 
-		Matrix< Real > worldMatrix = (*it)->mPosition.mWorldTransformMatrix;
+		Matrix< Real > &worldMatrix = guide->mPosition.mWorldTransformMatrix;
+		Matrix< Real > &localMatrix = guide->mPosition.mLocalTransformMatrix;
 
-		const Vector3D<Real> normal = Vector3D< Real >::transformPoint( (*it)->mNormal, worldMatrix );
-		Vector3D<double> firstPoint = Vector3D< Real >::transformPoint( (*it)->mGuideSegments.mSegments.at(1), worldMatrix );
-		Vector3D<double> rootPoint = Vector3D< Real >::transformPoint( (*it)->mGuideSegments.mSegments.at(0), worldMatrix );
+		const Vec3 normal = Vec3::transformPoint( guide->mNormal, worldMatrix );
+		Vec3 firstPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(1), worldMatrix );
+		Vec3 rootPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(0), worldMatrix );
 
 		// clearing additional informations
-		Vector3D<double> r = firstPoint - rootPoint;
-		bool intersected = Vector3D<double>().dotProduct(r, normal) < 0;
+		Vec3 r = firstPoint - rootPoint;
+		bool intersected = Vec3::dotProduct(r, normal) < 0;
 
 		if(intersected)
 		{
 			MPointOnMesh closest;
 			MPoint queryPoint( firstPoint.x, firstPoint.y, firstPoint.z );
 			accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
-
-			(*it)->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vector3D< Real >
-				( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
-			(*it)->mCollisionsCount++;
+			Vec3 p( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
+			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+			guide->mCollisionsCount++;
 		}
 
 		// iterating all segments
-		for(unsigned i = 2; i < (*it)->mGuideSegments.mSegments.size(); ++i)
+		for(unsigned i = 2; i < guide->mGuideSegments.mSegments.size(); ++i)
 		{
-			Vector3D<Real> positionDirection =  Vector3D< Real >::transformPoint( (*it)->mGuideSegments.mSegments[ i ], worldMatrix )
-				- Vector3D< Real >::transformPoint( (*it)->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
+			Vec3 positionDirection =  Vec3::transformPoint( guide->mGuideSegments.mSegments[ i ], worldMatrix )
+				- Vec3::transformPoint( guide->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
 
-			Vector3D<Real> positionStart = Vector3D< Real >::transformPoint( (*it)->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
+			Vec3 positionStart = Vec3::transformPoint( guide->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
 
 			MFloatPoint startP(positionStart.x, positionStart.y, positionStart.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
@@ -264,17 +265,18 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				MPointOnMesh closest;
 				MPoint queryPoint( startP );
 				accelerator->getClosestPoint( queryPoint, closest, MSpace::kWorld);
-				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
-				(*it)->mCollisionsCount++;
+				Vec3 p( closest.getPoint().x, closest.getPoint().y, closest.getPoint().z );
+				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+				guide->mCollisionsCount++;
 
 				intersected = !intersected;
 			}
 			else
 			{
-				(*it)->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vector3D<Real>();
+				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3();
 			}
 
-			(*it)->mSegmentsAdditionalInfo[ i ].mIsColliding = intersected;
+			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = intersected;
 		}
 	}
 }
