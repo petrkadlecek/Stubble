@@ -253,10 +253,11 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		// iterating all segments
 		for(unsigned i = 2; i < guide->mGuideSegments.mSegments.size(); ++i)
 		{
-			Vec3 positionStart = Vec3::transformPoint( guide->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
-			Vec3 positionDirection =  Vec3::transformPoint( guide->mGuideSegments.mSegments[ i ], worldMatrix )	- positionStart;
+			Vec3 positionStartPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments[ i - 1 ], worldMatrix );
+			Vec3 positionEndPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments[ i ], worldMatrix );
+			Vec3 positionDirection = positionEndPoint - positionStartPoint;
 			
-			MFloatPoint startP(positionStart.x, positionStart.y, positionStart.z);
+			MFloatPoint startP(positionStartPoint.x, positionStartPoint.y, positionStartPoint.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
 
 			MFloatPoint hitPoint;
@@ -271,9 +272,13 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			if(curentPointInsideMesh)
 			{
 				MPoint closest;
-				MPoint queryPoint( startP );
+				MPoint queryPoint( positionEndPoint.x, positionEndPoint.y, positionEndPoint.z );
 				currentMesh->getClosestPoint( queryPoint, closest, MSpace::kWorld );
-				//accelerator->getClosestPoint( queryPoint, closest );
+				bool ic = accelerator->isCreated();
+
+				MPointOnMesh qqq;
+				accelerator->getClosestPoint( queryPoint, qqq );
+
 				Vec3 p( closest.x, closest.y, closest.z );
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transform(p, localMatrix);
 			}
