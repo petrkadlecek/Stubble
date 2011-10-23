@@ -528,7 +528,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			if (COLLISIONS_COUNT > 0)
 			{
 				Uint j = 0; // Constraint vector index
-				for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // We don't check the root for obvious reasons
+				for (Uint i = 1; i < VERTEX_COUNT; ++i) // We don't check the root for obvious reasons
 				{
 					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
 					{
@@ -540,19 +540,19 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				}
 
 				//TODO: debug - remove me
-				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
+				std::cout << "|C| = " << C.MaximumAbsoluteValue();
 				std::cout << ", C = ";
 				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
 				{
 					std::cout << C[ i ] << " ";
 				}
 				std::cout << std::endl << std::flush;
-				break;*/
+				//break;
 				// ------------------------
 			}
 
 			// Convergence condition:
-			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD)
+			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)
 			{
 				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
 				break;
@@ -594,7 +594,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			if (COLLISIONS_COUNT > 0)
 			{
 				Uint j = 0; // NC and delta matrices index
-				for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // We don't check the root for obvious reasons
+				for (Uint i = 1; i < VERTEX_COUNT; ++i) // We don't check the root for obvious reasons
 				{
 					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
 					{
@@ -602,11 +602,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 					}
 					e = (guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - hairVertices[ i ]) * 2.0;
 					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ] = -e.x;
-					NC[ COL_DERIV_OFFSET + 3*j ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ];
+					delta[ COL_DERIV_OFFSET + 3*j ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ];
 					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ] = -e.y;
-					NC[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ];
+					delta[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ];
 					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ] = -e.z;
-					NC[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ];
+					delta[ COL_DERIV_OFFSET + 3*j + 2 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ];
 					++j;
 				}
 			}
@@ -620,8 +620,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			{
 				lambda = system.i() * C;
 			}
-			catch (NEWMAT::SingularException e)
+			catch (NEWMAT::SingularException exception)
 			{
+				dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT);
+				dumpToFile(delta, DERIVATIVES_COUNT, CONSTRAINTS_COUNT);
+				dumpToFile(system, CONSTRAINTS_COUNT, CONSTRAINTS_COUNT);
 				std::cout << "Matice se zpucmeloudila.\n" << std::flush;
 				break;
 			}
