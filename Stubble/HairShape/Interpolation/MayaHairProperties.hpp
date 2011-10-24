@@ -67,6 +67,8 @@ public:
 
 	static MObject displacementAttr; ///< The displacement attribute
 
+	static MObject skipThresholdAttr;	///< The skip threshold attribute
+
 	/* MAYA COLOR PROPERTIES */
 
 	static MObject rootOpacityTextureAttr;  ///< The root opacity texture attribute

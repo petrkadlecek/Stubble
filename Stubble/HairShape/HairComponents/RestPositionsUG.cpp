@@ -32,38 +32,34 @@ void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions,
 	// Copies only positions to local store
 	mGuidesRestPositions.resize( aGuidesRestPositions.size() );
 	GuidesRestPositions::const_iterator cIt = aGuidesRestPositions.begin();
-
-	vector< unsigned int > groupIdentifiers;
-	groupIdentifiers.resize( aGuidesRestPositions.size() );
-	vector< unsigned int >::iterator gIt = groupIdentifiers.begin();
-
-	unsigned int *groupCounts = new unsigned int[ aInterpolationGroups.getGroupsCount() ];
-	memset( groupCounts, 0, aInterpolationGroups.getGroupsCount() * sizeof( unsigned int ) );
-
-	for ( unsigned int i = 0; i < aGuidesRestPositions.size(); ++i, ++cIt, ++gIt )
+	// For every rest position
+	for ( Positions::iterator posIt = mGuidesRestPositions.begin(); cIt != aGuidesRestPositions.end(); 
+		++cIt, ++posIt )
 	{
-		unsigned int groupId = aInterpolationGroups.getGroupId( cIt->mUVPoint.getU(), cIt->mUVPoint.getV() );
-
-		mGuidesRestPositions[ i ] = cIt->mPosition.getPosition();
-		groupIdentifiers[ i ] = groupId;
-		++groupCounts[ groupId ];
+		const Vector3D< Real > & pos = cIt->mPosition.getPosition(); // Select pos
+		posIt->mPosition = Vector3D< float >( static_cast< float >( pos.x ), static_cast< float >( pos.y ), 
+			static_cast< float >( pos.z )); // Copy to float position
+		posIt->mUCoordinate = cIt->mPosition.getUCoordinate(); // Copy U
+		posIt->mVCoordinate = cIt->mPosition.getVCoordinate(); // Copy V
 	}
-
 	// Builds UG
-	innerBuild( aInterpolationGroups, groupIdentifiers, groupCounts );
+	innerBuild( aInterpolationGroups );
 }
 
 void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
 		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const
 {
+	// Convert position to float
+	Vector3D< float > pos( static_cast< float >( aPosition.x ), static_cast< float >( aPosition.y ), 
+			static_cast< float >( aPosition.z ));
+	// Init query
 	KdTree::CKNNQuery query( aN );
-
-	query.Init( aPosition , aN, 1e20 );
+	query.Init( pos , aN, 1e20f );
+	// Execute query
     mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
-
+	// Fill results
 	aClosestGuidesIds.resize( query.found );
-
-	for(unsigned int i = 0; i < query.found; ++i)
+	for( int i = 0; i < query.found; ++i )
 		aClosestGuidesIds[ i ] = IdAndDistance( query.indeces[ i + 1 ], query.dist2[ i + 1 ] );
 }
 
@@ -76,7 +72,9 @@ void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const
 	for ( Positions::const_iterator it = mGuidesRestPositions.begin(); 
 		it != mGuidesRestPositions.end(); ++it )
 	{
-		aOutputStream << *it;
+		aOutputStream << it->mPosition;
+		aOutputStream.write( reinterpret_cast< const char * >( &it->mUCoordinate ), sizeof( Real ) );
+		aOutputStream.write( reinterpret_cast< const char * >( &it->mVCoordinate ), sizeof( Real ) );
 	}
 }
 
@@ -84,7 +82,7 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	// First import rest positions size
-	unsigned __int32 size = static_cast< unsigned __int32 >( mGuidesRestPositions.size() );
+	unsigned __int32 size;
 	aInputStream.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
 	// Prepare rest position vector
 	mGuidesRestPositions.resize( size );
@@ -92,37 +90,53 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 	for ( Positions::iterator it = mGuidesRestPositions.begin(); 
 		it != mGuidesRestPositions.end(); ++it )
 	{
-		aInputStream >> *it; // Only position is imported
+		aInputStream >> it->mPosition;
+		aInputStream.read( reinterpret_cast< char * >( &it->mUCoordinate ), sizeof( Real ) );
+		aInputStream.read( reinterpret_cast< char * >( &it->mVCoordinate ), sizeof( Real ) );
 	}
+	// Builds UG
+	innerBuild( aInterpolationGroups );
 }
 
-void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups,
-	const vector< unsigned int > &groupIdentifiers, unsigned int *groupCounts )
+void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
+	// Prepare group ids
+	GroupIds groupIds( mGuidesRestPositions.size() );
+	GroupIds::iterator gIt = groupIds.begin();
+	// Prepare group counts
+	GroupCounts groupCounts( aInterpolationGroups.getGroupsCount(), 0 );   
+	// For every rest position checks group id
+	for ( Positions::const_iterator posIt = mGuidesRestPositions.begin(); posIt != mGuidesRestPositions.end(); 
+		++gIt, ++posIt )
+	{
+		// Get interpolation group id
+		unsigned __int32 groupId = aInterpolationGroups.getGroupId( posIt->mUCoordinate, posIt->mVCoordinate );
+		*gIt = groupId; // Select group id
+		++groupCounts[ groupId ]; // Increase count for current group
+	}
+	// Allocate forest
 	delete[] mKdForest;
-	mKdForest = new KdTree[ aInterpolationGroups.getGroupsCount() ];
-
-	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
+	mForestSize = static_cast< unsigned __int32 >( groupCounts.size() );
+	mKdForest = new KdTree[ mForestSize ];
+	// Reserve trees
+	for( unsigned __int32 i = 0; i < mForestSize; ++i)
 	{
 		mKdForest[ i ] = KdTree();
 		mKdForest[ i ].Reserve( groupCounts[ i ] );
 	}
-
-	// filling data structure
-	assert( mGuidesRestPositions.size() == groupIdentifiers.size() );
-
-	vector< unsigned int >::const_iterator gIt = groupIdentifiers.begin();
-	for(unsigned int i = 0; i < mGuidesRestPositions.size(); ++i, ++gIt )
-		mKdForest[ *gIt ].AddItem( &mGuidesRestPositions[ i ], i  );
-
+	// Add items to trees
+	gIt = groupIds.begin();
+	for( unsigned __int32 i = 0; i < mGuidesRestPositions.size(); ++i, ++gIt )
+	{
+		mKdForest[ *gIt ].AddItem( &mGuidesRestPositions[ i ].mPosition, i );
+	}
 	// building all trees
-	for(unsigned int i = 0; i < aInterpolationGroups.getGroupsCount(); ++i)
+	for( unsigned __int32 i = 0; i < mForestSize; ++i )
+	{
 		mKdForest[ i ].BuildUp();
-
-	mForestSize = aInterpolationGroups.getGroupsCount();
+	}
+	// Build is done
 	mDirtyBit = false;
-
-	delete[] groupCounts;
 }
 
 } // namespace HairComponents

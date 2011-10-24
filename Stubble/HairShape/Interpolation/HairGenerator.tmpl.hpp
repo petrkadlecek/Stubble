@@ -295,12 +295,76 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	interpolateFromGuides( Point * aPoints, unsigned __int32 aCount, const MeshPoint &aRestPosition, 
 	unsigned __int32 aInterpolationGroupId )
 {
-	/* TODO : interpolate from closest guides */
-	PositionType z = 0;
-	for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
+	// First selected closest guides
+	HairComponents::ClosestGuidesIds guidesIds;
+	mHairProperties->getGuidesRestPositionsUG().getNClosestGuides( aRestPosition.getPosition(), aInterpolationGroupId,
+		mHairProperties->getNumberOfGuidesToInterpolateFrom(), guidesIds );
+	// Get distance from farthest guide
+	float maxDistance = sqrtf( guidesIds.begin()->mDistance ); // Returns max as first ( 'cos it uses max-heap )
+	// Select closest guide
+	HairComponents::ClosestGuidesIds::const_iterator closest = guidesIds.begin();
+	for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+		guideIdIt != guidesIds.end(); ++guideIdIt )
 	{
-		*it = Point( 0, 0, z );
-		z += 0.5f;
+		if ( closest->mDistance > guideIdIt->mDistance )
+		{
+			closest = guideIdIt;
+		}
+	}
+	// Too close to some guide
+	if ( closest->mDistance < 0.0001f )
+	{
+		// Guide segment points iterator
+		HairComponents::Segments::const_iterator segIt = mHairProperties->getGuidesSegments()
+			[ closest->mGuideId ].mSegments.begin();
+		// For every hair point - just copy from guide
+		for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it, ++segIt )
+		{
+			*it = Vector3D< PositionType >( static_cast< PositionType >( segIt->x ), 
+											 static_cast< PositionType >( segIt->y ),
+											 static_cast< PositionType >( segIt->z ) );
+		}
+	}
+	else
+	{
+		// Bias distance with respect to farthest guide
+		for ( HairComponents::ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); 
+			guideIdIt != guidesIds.end(); ++guideIdIt )
+		{
+			float & distance = guideIdIt->mDistance;
+			distance = ( maxDistance - distance ) / ( maxDistance * distance );
+			distance *= distance;
+		}
+		// Finaly calculate cumulated distance
+		float cumulatedDistance = 0;
+		for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+			guideIdIt != guidesIds.end(); ++guideIdIt )
+		{
+			cumulatedDistance += guideIdIt->mDistance;
+		}
+		float inverseCumulatedDistance = 1.0f / cumulatedDistance;
+		// Null points of hair
+		for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
+		{
+			*it = Point( 0, 0, 0 );
+		}
+		// For every old guide segments to interpolate from
+		for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+			guideIdIt != guidesIds.end(); ++guideIdIt )
+		{
+			// Guide segment points iterator
+			HairComponents::Segments::const_iterator segIt = mHairProperties->getGuidesSegments()
+				[ guideIdIt->mGuideId ].mSegments.begin();
+			// Calculate weight
+			const Real weight = static_cast< Real >( guideIdIt->mDistance * inverseCumulatedDistance ); 
+			// For every hair point
+			for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it, ++segIt )
+			{
+				*it += Vector3D< PositionType >( static_cast< PositionType >( segIt->x * weight ), 
+												 static_cast< PositionType >( segIt->y * weight ),
+												 static_cast< PositionType >( segIt->z * weight ) );
+			}
+		}
 	}
 }
 
@@ -469,9 +533,11 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		const Vector * aTangents, unsigned __int32 aCount )
 {
 	// Select first hair point normal
-	* aNormals = Vector( 0, 1, 0 );
+	*aNormals = Vector( 0, 1, 0 );
 	// Calculates first binormal
 	*aBinormals = Vector::crossProduct( *aTangents, *aNormals );
+	// Ortho-normalize normal to tangentBxT = N'
+	*aNormals = Vector::crossProduct( *aBinormals, *aTangents );
 	// Skip first point and tangent
 	++aTangents;
 	++aPoints;
@@ -560,10 +626,10 @@ template< typename tPositionGenerator, typename tOutputGenerator >
 inline bool HairGenerator< tPositionGenerator, tOutputGenerator >::
 	skipPoint( const Point * aPoints, const Vector * aTangents )
 {
-	static const NormalType skipTreshold = 0.1f;
-	// may not pass certain treshold inorder to skip current point
-	return Vector::dotProduct( aTangents[ 0 ], aTangents[ - 1 ] ) < skipTreshold 
-		&& Vector::dotProduct( aTangents[ 0 ], aTangents[ 1 ] ) < skipTreshold;
+	const NormalType skipThreshold = static_cast< NormalType >( mHairProperties->getSkipThreshold() );
+	// may not pass certain threshold inorder to skip current point
+	return Vector::dotProduct( aTangents[ 0 ], aTangents[ - 1 ] ) > skipThreshold 
+		&& Vector::dotProduct( aTangents[ 0 ], aTangents[ 1 ] ) > skipThreshold;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -582,6 +648,8 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	Vector normal = Vector( static_cast< NormalType >( aRestPosition.getTangent().x ),
 							static_cast< NormalType >( aRestPosition.getTangent().y ),
 							static_cast< NormalType >( aRestPosition.getTangent().z ) ); 
+	// Ortho-normalize to tangent NxT = B , BxT = N'
+	normal = Vector::crossProduct( Vector::crossProduct( *aTangents, normal ), *aTangents );
 	unsigned __int32 count = 0;
 	// Select parameter step and iteration end
 	--aCount; // Points count -> segments count

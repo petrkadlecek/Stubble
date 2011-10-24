@@ -48,7 +48,8 @@ global proc AEHairShapeTemplate( string $nodeName )
 		editorTemplate -addControl "displacement";
 		editorTemplate -callCustom "AEstubbleTextureNew"
 				"AEstubbleTextureReplace" "displacement_texture";
-		
+		editorTemplate -addControl "skip_threshold";
+
 	editorTemplate -endLayout;
 	
 	// Create the "Color" section

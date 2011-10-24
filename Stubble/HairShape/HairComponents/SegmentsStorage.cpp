@@ -271,26 +271,18 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		aOldRestPositionsUG.getNClosestGuides( posIt->mPosition.getPosition(), 
 			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
 		// First find max and min
-		Real maxDistance = 0;
+		float maxDistance = sqrtf( guidesIds.begin()->mDistance );
 		ClosestGuidesIds::const_iterator first = guidesIds.begin();
 		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
-			// Check max distance
-			if ( maxDistance < guideIdIt->mDistance )
+			// Refresh closest guide
+			if ( first->mDistance > guideIdIt->mDistance )
 			{
-				maxDistance = guideIdIt->mDistance;
-			}
-			else
-			{
-				// Refresh closest guide
-				if ( first->mDistance > guideIdIt->mDistance )
-				{
-					first = guideIdIt;
-				}
+				first = guideIdIt;
 			}
 		}
 		// First check, if they are not on the same position
-		if ( first->mDistance < 0.00001 )
+		if ( first->mDistance < 0.0001f )
 		{
 			// Just copy
 			* guideIt =  aOldSegments.mSegments[ first->mGuideId ];
@@ -300,7 +292,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 			// Bias distance with respect to farthest guide
 			for ( ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 			{
-				Real & distance = guideIdIt->mDistance;
+				float & distance = guideIdIt->mDistance;
 				distance = ( maxDistance - distance ) / ( maxDistance * distance );
 				distance *= distance;
 			}

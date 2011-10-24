@@ -32,6 +32,7 @@ MObject MayaHairProperties::tipThicknessTextureAttr;	///< The tip thickness text
 MObject MayaHairProperties::tipThicknessAttr;   ///< The tip thickness attribute
 MObject MayaHairProperties::displacementTextureAttr; ///< The displacement texture attribute
 MObject MayaHairProperties::displacementAttr; ///< The displacement attribute
+MObject MayaHairProperties::skipThresholdAttr;   ///< The skip threshold attribute
 /* MAYA COLOR PROPERTIES */
 MObject MayaHairProperties::rootOpacityTextureAttr;  ///< The root opacity texture attribute
 MObject MayaHairProperties::rootOpacityAttr;  ///< The root opacity attribute
@@ -145,6 +146,7 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	aOutputStream.write( reinterpret_cast< const char * >( & mRootThickness ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mTipThickness ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mDisplacement ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mSkipThreshold ), sizeof( Real ) );
 	aOutputStream.write( reinterpret_cast< const char * >( & mRootOpacity ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mTipOpacity ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( mRootColor ), 3 * sizeof( Real ) );	
@@ -265,6 +267,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "tip_thickness", "tthck", tipThicknessAttr,  0.1f, 0, float_max, 0, 2 );
 		addFloatAttribute( "displacement_texture", "distxt", displacementTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "displacement", "dis", displacementAttr, 0, float_min, float_max, -10, 10 );
+		addFloatAttribute( "skip_threshold", "sktr", skipThresholdAttr, 0, 0, 1, 0, 1 );
 		/* MAYA COLOR PROPERTIES */
 		addFloatAttribute( "root_opacity_texture", "roptxt", rootOpacityTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "root_opacity", "rop", rootOpacityAttr, 1, 0, 1, 0, 1 );
@@ -411,6 +414,13 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == displacementAttr )
 	{
 		mDisplacement = static_cast< Real >( aDataHandle.asFloat() );
+		aHairPropertiesChanged = true;
+		return;
+	}
+	if ( aPlug == skipThresholdAttr )
+	{
+		// map from [0,1] -> [-1,1] and swap
+		mSkipThreshold = 2 * ( static_cast< Real >( 0.5f - aDataHandle.asFloat() ) );
 		aHairPropertiesChanged = true;
 		return;
 	}
