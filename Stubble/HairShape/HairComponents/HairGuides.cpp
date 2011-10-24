@@ -114,11 +114,14 @@ void HairGuides::draw()
 void HairGuides::importNURBS()
 {
 	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );		
-	for (MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
+	MGlobal::getActiveSelectionList( selection );
+	// For every time frame
+	for ( MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
 	{
+		// Set current time ( Maya )
 		MAnimControl::setCurrentTime( time );		
 		FrameSegments frameSegments;
+		// Set current time ( internal )
 		frameSegments.mFrame = time.as( MTime::uiUnit() );
 		MItSelectionList curveIt( selection, MFn::kNurbsCurve );
 		for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
@@ -127,14 +130,16 @@ void HairGuides::importNURBS()
 			curveIt.getDagPath( path );
 			MFnNurbsCurve curve( path );		
 			MPointArray pointArray;
+			// Select control points of curve
 			curve.getCVs( pointArray );
 
 			OneGuideSegments guideSegments;		
-			/* TODO compute segment length (from curve CV distances?) */
 			for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
 			{
 				guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
-			}		
+			}
+			SegmentsStorage::uniformlyRepositionSegments( guideSegments, 
+				static_cast< unsigned __int32 >( guideSegments.mSegments.size() ) );
 			frameSegments.mSegments.push_back( guideSegments );
 		}
 		mSegmentsStorage->importSegments( frameSegments );		
@@ -149,17 +154,19 @@ void HairGuides::exportToNURBS()
 	{
 		throw StubbleException( " HairGuides::exportToNURBS : already used import command ! " );
 	}
-		
-	for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); 
-		hairIt != mSelectedGuides.end(); hairIt++ )
+	const GuidesSegments & guides = mSegmentsStorage->getCurrentSegments().mSegments;
+	GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
+	// For all current hair
+	for ( GuidesSegments::const_iterator hairIt = guides.begin(); 
+		hairIt != guides.end(); ++hairIt, ++currIt )
 	{		
 		MPointArray pointArray;			
-		for ( Segments::const_iterator segmentIt = ( *hairIt )->mGuideSegments.mSegments.begin()
-			; segmentIt != ( *hairIt )->mGuideSegments.mSegments.end()
-			; segmentIt++ )
+		for ( Segments::const_iterator segmentIt = hairIt->mSegments.begin()
+			; segmentIt != hairIt->mSegments.end()
+			; ++segmentIt )
 		{			
 			// Transform to world coordinates and append
-			pointArray.append( ( *hairIt )->mPosition.mPosition.toWorld( *segmentIt ).toMayaPoint() );
+			pointArray.append( currIt->mPosition.toWorld( *segmentIt ).toMayaPoint() );
 		}
 		MFnNurbsCurve nurbsCurve;
 		MStatus status;
