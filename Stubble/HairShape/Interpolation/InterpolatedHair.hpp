@@ -115,7 +115,13 @@ private:
 inline InterpolatedHair::InterpolatedHair():
 	mGeneratedPositions( 0 ),
 	mAllocatedHairCount( 0 ),
-	mThreadsCount( omp_get_max_threads() )
+	mThreadsCount( 
+	#ifdef _OPENMP
+		omp_get_max_threads()
+	#else
+		1
+	#endif
+	)
 {
 	mThreads = new ThreadData[ mThreadsCount ];
 	mThreadsEnd = mThreads + mThreadsCount;
