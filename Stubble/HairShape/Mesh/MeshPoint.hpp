@@ -259,18 +259,18 @@ inline void MeshPoint::getLocalTransformMatrix( Matrix< tMatrixType > & aLocalTr
 	aLocalTransformMatrix[ 0 ] = static_cast< tMatrixType >( mBinormal.x );
 	aLocalTransformMatrix[ 1 ] = static_cast< tMatrixType >( mBinormal.y );
 	aLocalTransformMatrix[ 2 ] = static_cast< tMatrixType >( mBinormal.z );
-	aLocalTransformMatrix[ 3 ] = 0;
+	aLocalTransformMatrix[ 3 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mBinormal ) );
 	aLocalTransformMatrix[ 4 ] = static_cast< tMatrixType >( mTangent.x );
 	aLocalTransformMatrix[ 5 ] = static_cast< tMatrixType >( mTangent.y );
 	aLocalTransformMatrix[ 6 ] = static_cast< tMatrixType >( mTangent.z );
-	aLocalTransformMatrix[ 7 ] = 0;
+	aLocalTransformMatrix[ 7 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mTangent ) );
 	aLocalTransformMatrix[ 8 ] = static_cast< tMatrixType >( mNormal.x );
 	aLocalTransformMatrix[ 9 ] = static_cast< tMatrixType >( mNormal.y );
 	aLocalTransformMatrix[ 10 ] = static_cast< tMatrixType >( mNormal.z );
-	aLocalTransformMatrix[ 11 ] = 0;
-	aLocalTransformMatrix[ 12 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mBinormal ) );
-	aLocalTransformMatrix[ 13 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mTangent ) );
-	aLocalTransformMatrix[ 14 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mNormal ) );
+	aLocalTransformMatrix[ 11 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mNormal ) );
+	aLocalTransformMatrix[ 12 ] = 0;
+	aLocalTransformMatrix[ 13 ] = 0;
+	aLocalTransformMatrix[ 14 ] = 0;
 	aLocalTransformMatrix[ 15 ] = 1;
 }
 
