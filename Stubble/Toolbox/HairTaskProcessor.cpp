@@ -28,6 +28,20 @@ void dumpToFile(const NEWMAT::Matrix &M, Uint rows, Uint cols)
 	log.close();
 }
 
+void dumpToFile(const NEWMAT::ColumnVector &C, Uint size)
+{
+	std::fstream log("C:\\Dev\\vector.log", std::ios_base::app);
+	log.setf(std::ios::fixed, std::ios::floatfield);
+	log.precision(8);
+	log << "|C| = " << C.MaximumAbsoluteValue() << ";";
+	for (Uint i = 0; i < size; ++i)
+	{
+		log << "\t" << C[ i ];
+	}
+	log << "\n" << std::flush;
+	log.close();
+}
+
 // ----------------------------------------------------------------------------
 // Static data members and constants:
 // ----------------------------------------------------------------------------
@@ -37,7 +51,8 @@ bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
-const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-4;
+const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-3;
+const Real HairTaskProcessor::EPSILON = 1e-4;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -292,7 +307,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			guide->mCollisionsCount += (curentPointInsideMesh) ? 1 : 0;
 		} // for segments from 2 to end
 		//std::cout << "# of collisions = " << guide->mCollisionsCount << std::endl << std::flush; //TODO: remove me
-		guide->mCollisionsCount = 0; //TODO: Remove me
+		//guide->mCollisionsCount = 0; //TODO: Remove me
 	} // for all guides
 }
 
@@ -527,6 +542,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		Vec3 e; // Vector for calculating error
 		Vec3 correction; // Vector for storing vertex corrections
 		Uint iterationsCount = 0;
+		Real absC = 0.0; // Absolute value of the constraint vector
+		Real previousAbsC = 0.0; // Previous absolute value of the constraint vector for premature convergence detection
 		while (true) // Repeat until converged
 		{
 			// -------------------------------------------------------------------------------------
@@ -557,21 +574,25 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				}
 
 				//TODO: debug - remove me
-				std::cout << "|C| = " << C.MaximumAbsoluteValue();
+				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
 				std::cout << ", C = ";
 				for (Uint i = 0; i < CONSTRAINTS_COUNT; ++i)
 				{
 					std::cout << C[ i ] << " ";
 				}
-				std::cout << std::endl << std::flush;
+				std::cout << std::endl << std::flush;*/
 				//break;
 				// ------------------------
 			}
 
+			//dumpToFile(C, CONSTRAINTS_COUNT); //TODO: remove me
+
 			// Convergence condition:
-			if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS)
+			previousAbsC = absC;
+			absC = C.MaximumAbsoluteValue();
+			if (absC <= CONVERGENCE_THRESHOLD  || (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)/*|| iterationsCount >= MAX_LOOP_ITERATIONS*/)
 			{
-				//std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
 				break;
 			}
 
@@ -639,9 +660,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			}
 			catch (NEWMAT::SingularException exception)
 			{
-				dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT);
-				dumpToFile(delta, DERIVATIVES_COUNT, CONSTRAINTS_COUNT);
-				dumpToFile(system, CONSTRAINTS_COUNT, CONSTRAINTS_COUNT);
+				//dumpToFile(NC, CONSTRAINTS_COUNT, DERIVATIVES_COUNT);
+				//dumpToFile(delta, DERIVATIVES_COUNT, CONSTRAINTS_COUNT);
+				//dumpToFile(system, CONSTRAINTS_COUNT, CONSTRAINTS_COUNT);
 				std::cout << "Matice se zpucmeloudila.\n" << std::flush;
 				break;
 			}
@@ -656,11 +677,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
 
 				// Interpenetration correction:
-				/*if (COLLISIONS_COUNT > 0 && guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
+				if (COLLISIONS_COUNT > 0 && guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
 				{
 					correction += Vec3(dX[ COL_DERIV_OFFSET + 3*j ], dX[ COL_DERIV_OFFSET + 3*j + 1 ], dX[ COL_DERIV_OFFSET + 3*j + 2 ] );
 					++j;
-				}*/
+				}
 
 				hairVertices[ i + 1 ] += correction;
 			}
