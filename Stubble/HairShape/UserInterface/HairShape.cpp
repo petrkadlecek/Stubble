@@ -114,6 +114,7 @@ MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 	}
 	if ( aPlug == timeChangeAttr ) // Handle time change
 	{
+		aDataBlock.setClean( timeChangeAttr );
 		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
 	}
 	return MS::kSuccess;

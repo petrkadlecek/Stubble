@@ -25,6 +25,7 @@
 #include <maya/MTime.h>
 #include <maya/MGlobal.h>
 #include <maya/MDagPath.h>
+#include <maya/MObjectArray.h>
 
 namespace Stubble
 {
@@ -221,6 +222,8 @@ private:
 	SelectedGuides mSelectedGuides; ///< The selected guides
 
 	BoundingBox mBoundingBox;   ///< The bounding box of current guides
+
+	MObjectArray mNurbsCurves;   ///< The nurbs curves
 
 	bool mBoundingBoxDirtyFlag; ///< true to bounding box dirty flag
 

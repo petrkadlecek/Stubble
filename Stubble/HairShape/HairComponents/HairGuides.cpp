@@ -123,24 +123,26 @@ void HairGuides::importNURBS()
 		FrameSegments frameSegments;
 		// Set current time ( internal )
 		frameSegments.mFrame = time.as( MTime::uiUnit() );
-		MItSelectionList curveIt( selection, MFn::kNurbsCurve );
-		for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
+		frameSegments.mSegments.resize( mCurrentPositions.size() );
+		GuidesSegments::iterator it = frameSegments.mSegments.begin();
+		// Select positions
+		GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
+		// For every curve
+		for ( unsigned __int32 nIt = 0; nIt < mNurbsCurves.length(); ++nIt, ++currIt, ++it )
 		{
-			MDagPath path;
-			curveIt.getDagPath( path );
-			MFnNurbsCurve curve( path );		
+			MFnNurbsCurve curve( mNurbsCurves[ nIt ] );
 			MPointArray pointArray;
 			// Select control points of curve
 			curve.getCVs( pointArray );
-
-			OneGuideSegments guideSegments;		
-			for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
+			// Resize for cv points count
+			it->mSegments.resize( pointArray.length() );
+			Segments::iterator segIt = it->mSegments.begin();
+			for ( unsigned __int32 i = 0; i < pointArray.length(); ++i, ++segIt ) // over all segments
 			{
-				guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
+				*segIt = Vector3D< Real >( pointArray[ i ] ).transform( currIt->mLocalTransformMatrix );
 			}
-			SegmentsStorage::uniformlyRepositionSegments( guideSegments, 
-				static_cast< unsigned __int32 >( guideSegments.mSegments.size() ) );
-			frameSegments.mSegments.push_back( guideSegments );
+			// Recalculate positions
+			SegmentsStorage::uniformlyRepositionSegments( *it, pointArray.length() );
 		}
 		mSegmentsStorage->importSegments( frameSegments );		
 	}
@@ -154,7 +156,9 @@ void HairGuides::exportToNURBS()
 	{
 		throw StubbleException( " HairGuides::exportToNURBS : already used import command ! " );
 	}
+	// Select guides
 	const GuidesSegments & guides = mSegmentsStorage->getCurrentSegments().mSegments;
+	// Select positions
 	GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
 	// For all current hair
 	for ( GuidesSegments::const_iterator hairIt = guides.begin(); 
@@ -171,8 +175,8 @@ void HairGuides::exportToNURBS()
 		MFnNurbsCurve nurbsCurve;
 		MStatus status;
 
-		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
-			false, false, true, MObject::kNullObj, &status );
+		mNurbsCurves.append( nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
+			false, false, true, MObject::kNullObj, &status ) );
 		if ( status != MStatus::kSuccess )
 		{
 			throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
