@@ -1,4 +1,6 @@
 #include "SegmentsStorage.hpp"
+#include <cmath>
+#include <cassert>
 
 namespace Stubble
 {
@@ -243,7 +245,40 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 
 void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
 {
-	/* TODO + calculate new mSegmentsLength*/
+	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
+	if ( aCount == currentSgmtCount )
+	{
+		return;
+	}
+	if ( aCount < 2 ) //TODO: O really? What do we exactly do?
+	{
+		throw new StubbleException("New hair segments count less than 2.");
+	}
+
+	Real currentSgmtLength = aGuideSegments.mSegmentLength;
+	Real newSgmtLegth = currentSgmtLength * ((Real)currentSgmtCount / (Real)aCount);
+
+	Segments newSegments;
+	newSegments.reserve(aCount);
+	// Position new segments except the last one
+	for (unsigned __int32 i = 0; i < aCount - 1; ++i)
+	{
+		// Interpolate new segment position
+		Real intPart;
+		Real t = modf(i * newSgmtLegth / currentSgmtLength, &intPart);
+		unsigned __int32 index = (unsigned __int32)intPart;
+		assert(index + 1 < currentSgmtCount);
+		Vector3D< Real > p = aGuideSegments.mSegments[ index ] + (aGuideSegments.mSegments[ index + 1 ] - aGuideSegments.mSegments[ index ]) * t;
+
+		newSegments.push_back(p);
+	}
+	newSegments.push_back(aGuideSegments.mSegments[ currentSgmtCount - 1 ]);
+
+	//TODO: enforce constraints
+
+	// Replace data
+	aGuideSegments.mSegmentLength = newSgmtLegth;
+	aGuideSegments.mSegments = newSegments;
 }
 
 void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,

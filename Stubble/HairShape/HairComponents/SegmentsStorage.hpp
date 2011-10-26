@@ -1,6 +1,7 @@
 #ifndef STUBBLE_SEGMENTS_STORAGE_HPP
 #define STUBBLE_SEGMENTS_STORAGE_HPP
 
+#include "Common\StubbleException.hpp"
 #include "Primitives\BoundingBox.hpp"
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\RestPositionsUG.hpp"
