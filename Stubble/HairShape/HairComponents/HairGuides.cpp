@@ -1,5 +1,13 @@
 #include "HairGuides.hpp"
 
+#include <maya/MFnNurbsCurve.h>
+#include <maya/MPointArray.h>
+#include <maya/MSelectionList.h>
+#include <maya/MItSelectionList.h>
+#include <maya/MAnimControl.h>
+#include <maya/MTime.h>
+#include <maya/MGlobal.h>
+#include <maya/MDagPath.h>
 #include <cassert>
 
 namespace Stubble
@@ -111,15 +119,17 @@ void HairGuides::draw()
 	mDisplayedGuides.draw();
 }
 
-void HairGuides::importNURBS()
+void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );
+	if ( mSegmentsStorage->imported() )
+	{
+		throw StubbleException( " HairGuides::importToNURBS : already used import command ! " );
+	}
 	// For every time frame
 	for ( MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
 	{
 		// Set current time ( Maya )
-		MAnimControl::setCurrentTime( time );		
+		MGlobal::viewFrame( time );	
 		FrameSegments frameSegments;
 		// Set current time ( internal )
 		frameSegments.mFrame = time.as( MTime::uiUnit() );
@@ -128,26 +138,46 @@ void HairGuides::importNURBS()
 		// Select positions
 		GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
 		// For every curve
-		for ( unsigned __int32 nIt = 0; nIt < mNurbsCurves.length(); ++nIt, ++currIt, ++it )
+		for ( unsigned __int32 nIt = 0; nIt < mNurbsCurvesNames.length(); ++nIt, ++currIt, ++it )
 		{
-			MFnNurbsCurve curve( mNurbsCurves[ nIt ] );
-			MPointArray pointArray;
-			// Select control points of curve
-			curve.getCVs( pointArray );
-			// Resize for cv points count
-			it->mSegments.resize( pointArray.length() );
-			Segments::iterator segIt = it->mSegments.begin();
-			for ( unsigned __int32 i = 0; i < pointArray.length(); ++i, ++segIt ) // over all segments
+			MStatus status = MGlobal::selectByName( mNurbsCurvesNames[ nIt ], MGlobal::kReplaceList );
+			MSelectionList sel;
+			MGlobal::getActiveSelectionList( sel );
+			if ( sel.length() != 1 ) // Nothing selected
 			{
-				*segIt = Vector3D< Real >( pointArray[ i ] ).transform( currIt->mLocalTransformMatrix );
+				throw StubbleException(( " Could not load curve " + mNurbsCurvesNames[ nIt ] ).asChar() );
+			}
+			MItSelectionList iterator( sel, MFn::kNurbsCurve );
+			MDagPath path;
+			iterator.getDagPath( path ); // Selected object dag path
+			MFnDependencyNode oldCurve( path.node(), &status ); // Select old curve
+			MPlug plug = oldCurve.findPlug( "worldSpace", &status ); // Select oldCurve.worldSpace
+			MPlug pl = plug.elementByPhysicalIndex( 0, &status ); // Select oldCurve.worldSpace[ 0 ]
+			MPlugArray arr;
+			pl.connectedTo( arr, false, true, &status ); // Get from oldCurve.worldSpace[ 0 ] to folicul.startPosition
+			MFnDependencyNode folicul( arr[ 0 ].node(), &status ); // Get folicul
+			MPlug outCurvePlug = folicul.findPlug( "outCurve", &status ); // Select folicul.outCurve
+			outCurvePlug.connectedTo( arr, false, true, &status ); // Get from folicul.outCurve to curve.create
+			MFnNurbsCurve curve( arr[ 0 ].node(), &status ); // Finally get curve
+			// Prepare space for segments
+			it->mSegments.resize( aInterpolationGroups.getSegmentsCount( currIt->mPosition.getUCoordinate(), 
+				currIt->mPosition.getVCoordinate() ) + 1 );
+			double param = 0, step = curve.length() / ( it->mSegments.size() - 1 );
+			for ( Segments::iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); 
+				++segIt, param += step )
+			{
+				MPoint curvePoint;
+				curve.getPointAtParam( curve.findParamFromLength( param ), curvePoint, MSpace::kWorld );
+				*segIt = Vector3D< Real >::transformPoint( curvePoint, currIt->mLocalTransformMatrix );
 			}
 			// Recalculate positions
-			SegmentsStorage::uniformlyRepositionSegments( *it, pointArray.length() );
+			SegmentsStorage::uniformlyRepositionSegments( *it, 
+				static_cast< unsigned __int32 >( it->mSegments.size() ) );
 		}
 		mSegmentsStorage->importSegments( frameSegments );		
 	}
-	// All nurbs has been imported, we have to recalculate for current time	
-	setCurrentTime( MAnimControl::currentTime().as( MTime::uiUnit() ) ); // XXX is this correct unit?	
+	// All nurbs has been imported, set time back
+	MAnimControl::setCurrentTime( MAnimControl::minTime() );
 }
 
 void HairGuides::exportToNURBS()
@@ -161,6 +191,7 @@ void HairGuides::exportToNURBS()
 	// Select positions
 	GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
 	// For all current hair
+	mNurbsCurvesNames.clear();
 	for ( GuidesSegments::const_iterator hairIt = guides.begin(); 
 		hairIt != guides.end(); ++hairIt, ++currIt )
 	{		
@@ -174,14 +205,24 @@ void HairGuides::exportToNURBS()
 		}
 		MFnNurbsCurve nurbsCurve;
 		MStatus status;
-
-		mNurbsCurves.append( nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
-			false, false, true, MObject::kNullObj, &status ) );
+		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
+			false, false, true, MObject::kNullObj, &status );
+		MString name = nurbsCurve.name();
+		mNurbsCurvesNames.append( nurbsCurve.name() );
 		if ( status != MStatus::kSuccess )
 		{
 			throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
 		}
-	}	
+	}
+	// After successfull export, select all curves
+	MSelectionList sel;
+	// Add all curves to selection list
+	for ( unsigned __int32 nIt = 0; nIt < mNurbsCurvesNames.length(); ++nIt )
+	{
+		sel.add( mNurbsCurvesNames[ nIt ] );
+	}
+	// Execute selection
+	MGlobal::setActiveSelectionList( sel );
 }
 
 void HairGuides::setCurrentTime( Time aTime )
@@ -357,7 +398,7 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
-	updateSelectedGuides();
+	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 

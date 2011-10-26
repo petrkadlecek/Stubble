@@ -1,5 +1,9 @@
 #include "RenderManCacheCommand.hpp"
 
+#include <maya/MSelectionList.h>
+#include <maya/MItSelectionList.h>
+#include <maya/MDagPath.h>
+
 namespace Stubble
 {
 

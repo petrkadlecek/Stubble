@@ -388,7 +388,7 @@ inline HairShape * HairShape::getActiveObject()
 
 inline void HairShape::importNURBS()
 {
-	mHairGuides->importNURBS();
+	mHairGuides->importNURBS( *mInterpolationGroups );
 }
 
 inline void HairShape::exportToNURBS()

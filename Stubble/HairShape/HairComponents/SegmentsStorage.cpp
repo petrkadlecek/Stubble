@@ -147,7 +147,6 @@ void SegmentsStorage::setFrame( Time aTime )
 
 		}
 	}
-	AllFramesSegments::const_iterator upperBound = mSegments.upper_bound( aTime );
 }
 
 PartialStorage * SegmentsStorage::replace( const PartialStorage & aSegmentsChange )
@@ -188,6 +187,8 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 			mCurrent.mSegments[ (*it)->mGuideId ] = (*it)->mGuideSegments; // Copy modified guide segments
 		}
 	}
+	// Current segments has been changed and need to be propagated through time
+	mAreCurrentSegmentsDirty = true;
 	return tmpStorage;
 }
 
@@ -358,7 +359,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 
 Real SegmentsStorage::timeAffectFactor( Time aTimeDifference )
 {
-	return static_cast< Real >( 1.0f - 5.0f / aTimeDifference ); // Hyperbolical through 10 frames
+	return static_cast< Real >( 1.0f - 0.2f * aTimeDifference ); // TODO SIMPLE : linear through 10 frames
 }
 
 void SegmentsStorage::propagateChangesThroughTime()
@@ -376,7 +377,6 @@ void SegmentsStorage::propagateChangesThroughTime()
 		}
 		if ( lowerBound != mSegments.begin() ) // No predecessor
 		{
-			--lowerBound;
 			// Get reverse iterator
 			AllFramesSegments::reverse_iterator rIt( lowerBound );
 			// For every preceding frame until change has no meaning

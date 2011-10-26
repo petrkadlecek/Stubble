@@ -15,17 +15,7 @@
 
 #include <fstream>
 
-#include <maya/MFnMesh.h>
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MPointArray.h>
-#include <maya/MSelectionList.h>
-#include <maya/MSelectInfo.h>
-#include <maya/MItSelectionList.h>
-#include <maya/MAnimControl.h>
-#include <maya/MTime.h>
-#include <maya/MGlobal.h>
-#include <maya/MDagPath.h>
-#include <maya/MObjectArray.h>
+#include <maya/MStringArray.h>
 
 namespace Stubble
 {
@@ -102,8 +92,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import NURBS.
+	/// 
+	/// \param	aInterpolationGroups	the interpolation groups object 
 	///----------------------------------------------------------------------------------------------------
-	void importNURBS();
+	void importNURBS( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Export to NURBS.
@@ -223,7 +215,7 @@ private:
 
 	BoundingBox mBoundingBox;   ///< The bounding box of current guides
 
-	MObjectArray mNurbsCurves;   ///< The nurbs curves
+	MStringArray mNurbsCurvesNames;   ///< The nurbs curves names
 
 	bool mBoundingBoxDirtyFlag; ///< true to bounding box dirty flag
 
