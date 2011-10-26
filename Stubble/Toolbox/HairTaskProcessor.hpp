@@ -54,9 +54,11 @@ public:
 	static void waitFinishWorkerThread ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Detects collisions for the manipulated segments and count also penetration.
+	/// Makes sure that hair retains their properties by minimizing an error functional
+	///
+	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
-	void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
+	static void enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Enqueues new hair task into the accumulator queue and creates a worker thread if there's not one
@@ -136,11 +138,9 @@ private:
 	void doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< Real > &aDx, BrushMode *aBrushMode);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Makes sure that hair retains their properties by minimizing an error functional
-	///
-	/// \param aTask The task object
+	/// Detects collisions for the manipulated segments and count also penetration.
 	///----------------------------------------------------------------------------------------------------
-	void enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides);
+	void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
 
 	static HairTaskProcessor *sInstance; ///< The class instance
 	TaskAccumulator mTaskAccumulator; ///< The task queue

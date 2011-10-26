@@ -41,6 +41,8 @@ void dumpToFile(const NEWMAT::ColumnVector &C, Uint size)
 	log << "\n" << std::flush;
 	log.close();
 }
+//end of debug code
+//----------------------
 
 // ----------------------------------------------------------------------------
 // Static data members and constants:
@@ -52,7 +54,7 @@ MSpinLock HairTaskProcessor::sIsRunningLock;
 
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-3;
-const Real HairTaskProcessor::EPSILON = 1e-4;
+const Real HairTaskProcessor::EPSILON = 1e-8;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -181,7 +183,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 			{
 				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
 			}
-			hairTaskProcessor->enforceConstraints( *task->mAffectedGuides );
+			HairTaskProcessor::enforceConstraints( *task->mAffectedGuides );
 
 			task->mParentHairShape->updateGuides( false );
 

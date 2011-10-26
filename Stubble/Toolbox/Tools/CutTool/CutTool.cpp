@@ -1,4 +1,5 @@
 #include "CutTool.hpp"
+#include "../../HairTaskProcessor.hpp"
 
 // parameters that can be passed from the UI,
 // inherited from GenericTool
@@ -210,6 +211,9 @@ void CutTool::doCut()
 		guide->mDirtyFlag = true;
 		guide->mDirtyRedrawFlag = true;
 	}
+
+	// Make sure that all segments have the same length
+	HairTaskProcessor::enforceConstraints(mAffectedGuides);
 }
 
 void CutTool::changeToolShape( void )

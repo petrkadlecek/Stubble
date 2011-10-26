@@ -22,8 +22,6 @@
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
 
-#include "../../HairTaskProcessor.hpp"
-
 #include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
 
