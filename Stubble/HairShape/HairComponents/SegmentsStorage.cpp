@@ -1,3 +1,4 @@
+#include "Toolbox\HairTaskProcessor.hpp"
 #include "SegmentsStorage.hpp"
 #include <cmath>
 #include <cassert>
@@ -246,12 +247,12 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 
 void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
 {
-	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
 	if ( aCount < 2 ) //TODO: O really? What do we exactly do?
 	{
 		throw new StubbleException("New hair segments count less than 2.");
 	}
 
+	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
 	Real currentSgmtLength = aGuideSegments.mSegmentLength;
 	Real newSgmtLegth = currentSgmtLength * (Real)(currentSgmtCount - 1) / (Real)(aCount - 1);
 
@@ -271,7 +272,7 @@ void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegm
 	}
 	newSegments.push_back(aGuideSegments.mSegments[ currentSgmtCount - 1 ]);
 
-	//TODO: enforce constraints
+	Toolbox::HairTaskProcessor::enforceConstraints(newSegments, newSgmtLegth);
 
 	// Replace data
 	aGuideSegments.mSegmentLength = newSgmtLegth;

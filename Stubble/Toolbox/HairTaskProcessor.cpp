@@ -552,11 +552,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Step 1: Update the constraint vector
 			// -------------------------------------------------------------------------------------
 			C = 0.0;
-
-			// Inextensibility constraints - fixed part:
 			HairTaskProcessor::computeInextensibilityConstraints(C, hairVertices, SEGMENT_LENGTH_SQ);
 
-			// Interpenetration constraints - flexible part:
 			if (COLLISIONS_COUNT > 0)
 			{
 				HairTaskProcessor::computeInterpenetrationConstraints(C, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
@@ -572,7 +569,6 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				//break;
 				// ------------------------
 			}
-
 			//dumpToFile(C, CONSTRAINTS_COUNT); //TODO: remove me
 
 			// Convergence condition:
@@ -583,22 +579,17 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
 				break;
 			}
-
 			// -------------------------------------------------------------------------------------
 			// Step 2: Prepare solution matrices
 			// -------------------------------------------------------------------------------------
 			NC = 0.0;
 			delta = 0.0;
-
-			// Inextensibility constraints derivatives:
 			HairTaskProcessor::computeInextensibilityGradient(NC, delta, hairVertices);
 
-			// Interpenetration constraints derivatives:
 			if (COLLISIONS_COUNT > 0)
 			{
 				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET, COL_DERIV_OFFSET);
 			}
-
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
 			// -------------------------------------------------------------------------------------
@@ -616,7 +607,6 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				std::cout << "Matice se zpucmeloudila.\n" << std::flush;
 				break;
 			}
-			
 			dX = -delta * lambda;
 
 			// Apply corrections to all vertices except the first one
@@ -645,45 +635,69 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
 {
-	//const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Segment length squared
-	//const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
-	//const Uint CONSTRAINTS_COUNT = VERTEX_COUNT - 1; // Number of constraints
-	//const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
+	const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Segment length squared
+	const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
+	const Uint CONSTRAINTS_COUNT = VERTEX_COUNT - 1; // Number of constraints
+	const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
 
-	//// Solution vectors
-	//RealN C(CONSTRAINTS_COUNT); // Constraint vector
-	//RealN lambda(CONSTRAINTS_COUNT); // system inverse matrix multiplied by C vector
-	//RealN dX(DERIVATIVES_COUNT); // Vector containing corrections
-	//RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
-	//RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
-	//RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+	// Solution vectors
+	RealN C(CONSTRAINTS_COUNT); // Constraint vector
+	RealN lambda(CONSTRAINTS_COUNT); // system inverse matrix multiplied by C vector
+	RealN dX(DERIVATIVES_COUNT); // Vector containing corrections
+	RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
+	RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
+	RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
 
-	//// Temporary and utility variables
-	//Vec3 e; // Vector for calculating error
-	//Vec3 correction; // Vector for storing vertex corrections
-	//Uint iterationsCount = 0;
-	//while (true)// Repeat until converged
-	//{
-	//	// -------------------------------------------------------------------------------------
-	//	// Step 1: Update the constraint vector
-	//	// -------------------------------------------------------------------------------------
-	//	C = 0.0;
+	// Temporary and utility variables
+	Vec3 e; // Vector for calculating error
+	Vec3 correction; // Vector for storing vertex corrections
+	Uint iterationsCount = 0;
+	while (true)// Repeat until converged
+	{
+		// -------------------------------------------------------------------------------------
+		// Step 1: Update the constraint vector
+		// -------------------------------------------------------------------------------------
+		C = 0.0;
+		HairTaskProcessor::computeInextensibilityConstraints(C, aVertices, SEGMENT_LENGTH_SQ);
 
-	//	// Convergence condition:
-	//	if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
-	//	{
-	//		break;
-	//	}
+		// Convergence condition:
+		if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
+		{
+			break;
+		}
+		// -------------------------------------------------------------------------------------
+		// Step 2: Prepare solution matrices
+		// -------------------------------------------------------------------------------------
+		NC = 0.0;
+		delta = 0.0;
+		HairTaskProcessor::computeInextensibilityGradient(NC, delta, aVertices);
 
-	//	// -------------------------------------------------------------------------------------
-	//	// Step 2: Prepare solution matrices
-	//	// -------------------------------------------------------------------------------------
+		// -------------------------------------------------------------------------------------
+		// Step 3: Calculate and apply position changes
+		// -------------------------------------------------------------------------------------
+		system = NC * delta;
+		try
+		{
+			lambda = system.i() * C;
+		}
+		catch (NEWMAT::SingularException exception)
+		{
+			std::cout << "Matice se zpucmeloudila.\n" << std::flush;
+			break;
+		}
+		dX = -delta * lambda;
 
-	//	// -------------------------------------------------------------------------------------
-	//	// Step 3: Calculate and apply position changes
-	//	// -------------------------------------------------------------------------------------
+		// Apply corrections to all vertices except the first one
+		Uint j = 0; // dX collision correction index
+		for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
+		{
+			// Inextensibility correction:
+			correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
+			aVertices[ i + 1 ] += correction;
+		}
 
-	//} // while (true)
+		iterationsCount++;
+	} // while (true)
 }
 
 } // namespace Toolbox
