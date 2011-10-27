@@ -267,7 +267,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 				tmpRestPositions.push_back( restPos );
 				// Handle current position
 				GuideCurrentPosition currPos;
-				currPos.mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+				currPos.mPosition = aMayaMesh.getMeshPoint( restPos.mUVPoint );
 				currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
 				currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
 				mCurrentPositions.push_back( currPos );

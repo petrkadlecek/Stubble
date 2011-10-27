@@ -51,10 +51,10 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 		// Copy triangle
 		Real u0 = trIt->mVertices[ 0 ].mUCoordinate = it->getVertex1().getUCoordinate();
 		Real v0 = trIt->mVertices[ 0 ].mVCoordinate = it->getVertex1().getVCoordinate();
-		Real u1 = trIt->mVertices[ 1 ].mUCoordinate = it->getVertex1().getUCoordinate();
-		Real v1 = trIt->mVertices[ 1 ].mVCoordinate = it->getVertex1().getVCoordinate();
-		Real u2 = trIt->mVertices[ 2 ].mUCoordinate = it->getVertex1().getUCoordinate();
-		Real v2 = trIt->mVertices[ 2 ].mVCoordinate = it->getVertex1().getVCoordinate();
+		Real u1 = trIt->mVertices[ 1 ].mUCoordinate = it->getVertex2().getUCoordinate();
+		Real v1 = trIt->mVertices[ 1 ].mVCoordinate = it->getVertex2().getVCoordinate();
+		Real u2 = trIt->mVertices[ 2 ].mUCoordinate = it->getVertex3().getUCoordinate();
+		Real v2 = trIt->mVertices[ 2 ].mVCoordinate = it->getVertex3().getVCoordinate();
 
 		// Calculate bounding box
 		Real uMin = MIN3( u0, u1, u2 );
