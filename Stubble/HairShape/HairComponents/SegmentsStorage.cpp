@@ -247,17 +247,13 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
 {
 	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
-	if ( aCount == currentSgmtCount )
-	{
-		return;
-	}
 	if ( aCount < 2 ) //TODO: O really? What do we exactly do?
 	{
 		throw new StubbleException("New hair segments count less than 2.");
 	}
 
 	Real currentSgmtLength = aGuideSegments.mSegmentLength;
-	Real newSgmtLegth = currentSgmtLength * ((Real)currentSgmtCount / (Real)aCount);
+	Real newSgmtLegth = currentSgmtLength * (Real)(currentSgmtCount - 1) / (Real)(aCount - 1);
 
 	Segments newSegments;
 	newSegments.reserve(aCount);
