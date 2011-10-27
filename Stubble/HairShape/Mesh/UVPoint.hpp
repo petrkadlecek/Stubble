@@ -46,6 +46,8 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getTriangleID() const;
 
+	static const unsigned __int32 NOT_TRIANGLE = 0xFFFFFFFF;
+
 private:
 	Real mU; ///< The U coordinate.
 

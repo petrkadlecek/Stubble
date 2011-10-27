@@ -56,6 +56,43 @@ public:
 	inline bool isDirty() const;
 
 private:
+
+	///-------------------------------------------------------------------------------------------------
+	/// Texture coordinates. 
+	///-------------------------------------------------------------------------------------------------
+	struct TextureCoordinates
+	{
+		Real mUCoordinate;  ///< The u coordinate
+
+		Real mVCoordinate;  ///< The v coordinate
+	};
+
+	///-------------------------------------------------------------------------------------------------
+	/// Triangle in uv texture space. 
+	///-------------------------------------------------------------------------------------------------
+	struct Triangle
+	{
+		TextureCoordinates mVertices[ 3 ];	///< The vertices of triangle
+	};
+
+	static const int GRID_SIZE = 2048; ///< Size of the grid
+
+	///-------------------------------------------------------------------------------------------------
+	/// Uniform grid. 
+	///-------------------------------------------------------------------------------------------------
+	struct Grid 
+	{
+		unsigned __int32 mTrianglesCount[ GRID_SIZE ][ GRID_SIZE ]; ///< The triangles count
+
+		Triangle ** mTriangles[ GRID_SIZE ][ GRID_SIZE ];	///< Pointer to triangles buffer part
+	};
+
+	Grid mGrid; ///< The uniform grid
+
+	Triangle * mTriangles;  ///< The triangles
+
+	Triangle ** mTrianglesInGrid;   ///< The triangles in grid
+
 	bool mDirtyBit; ///< true to dirty bit
 };
 

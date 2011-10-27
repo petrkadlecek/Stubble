@@ -260,7 +260,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		{
 			GuideRestPosition restPos;
 			restPos.mUVPoint = positionConverter.getUVPoint( restPosIt->mPosition );
-			if ( restPos.mUVPoint.getTriangleID() >= 0 ) // Topology change did not destroy the guide
+			if ( restPos.mUVPoint.getTriangleID() != UVPoint::NOT_TRIANGLE ) // Topology change did not destroy the guide
 			{
 				// Handle rest position
 				restPos.mPosition = aMayaMesh.getRestPose().getIncompleteMeshPoint( restPos.mUVPoint );
