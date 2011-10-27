@@ -52,9 +52,9 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
-const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 100;
-const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-3;
-const Real HairTaskProcessor::EPSILON = 1e-8;
+const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
+const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
+const Real HairTaskProcessor::EPSILON = 1e-5;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -554,26 +554,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			C = 0.0;
 
 			// Inextensibility constraints - fixed part:
-			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i) // For all segments
-			{
-				e = hairVertices[ i + 1 ] - hairVertices[ i ];
-				C[ i ] = Vec3::dotProduct(e, e) - SEGMENT_LENGTH_SQ;
-			}
+			HairTaskProcessor::computeInextensibilityConstraints(C, hairVertices, SEGMENT_LENGTH_SQ);
 
 			// Interpenetration constraints - flexible part:
 			if (COLLISIONS_COUNT > 0)
 			{
-				Uint j = 0; // Constraint vector index
-				for (Uint i = 1; i < VERTEX_COUNT; ++i) // We don't check the root for obvious reasons
-				{
-					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
-					{
-						continue;
-					}
-					e = guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - hairVertices[ i ];
-					C[ COL_CONSTR_OFFSET + j ] = Vec3::dotProduct(e, e);
-					++j;
-				}
+				HairTaskProcessor::computeInterpenetrationConstraints(C, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
 
 				//TODO: debug - remove me
 				/*std::cout << "|C| = " << C.MaximumAbsoluteValue();
@@ -605,50 +591,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			delta = 0.0;
 
 			// Inextensibility constraints derivatives:
-			e = (hairVertices[ 1 ] - hairVertices[ 0 ]) * 2.0; // First segment treated separately - only derivatives for the second vertex are calculated
-			NC[ 0 ][ 0 ] = e.x;
-			delta[ 0 ][ 0 ] = NC[ 0 ][ 0 ];
-			NC[ 0 ][ 1 ] = e.y;
-			delta[ 1 ][ 0 ] = NC[ 0 ][ 1 ];
-			NC[ 0 ][ 2 ] = e.z;
-			delta[ 2 ][ 0 ] = NC[ 0 ][ 2 ];
-
-			for (Uint i = 1; i < VERTEX_COUNT - 1; ++i) // All other segments calculated normally
-			{
-				e = (hairVertices[ i + 1 ] - hairVertices[ i ]) * 2.0;
-				NC[ i ][ 3*(i - 1) ] = -e.x;
-				delta[ 3*(i - 1) ][ i ] = NC[ i ][ 3*(i - 1) ];
-				NC[ i ][ 3*i ] = e.x;
-				delta[ 3*i ][ i ] = NC[ i ][ 3*i ];
-				NC[ i ][ 3*(i - 1) + 1 ] = -e.y;
-				delta[ 3*(i - 1) + 1 ][ i ] = NC[ i ][ 3*(i - 1) + 1 ];
-				NC[ i ][ 3*i + 1 ] = e.y;
-				delta[ 3*i + 1 ][ i ] = NC[ i ][ 3*i + 1 ];
-				NC[ i ][ 3*(i - 1) + 2 ] = -e.z;
-				delta[ 3*(i - 1) + 2 ][ i ] = NC[ i ][ 3*(i - 1) + 2 ];
-				NC[ i ][ 3*i + 2 ] = e.z;
-				delta[ 3*i + 2 ][ i ] = NC[ i ][ 3*i + 2 ];
-			}
+			HairTaskProcessor::computeInextensibilityGradient(NC, delta, hairVertices);
 
 			// Interpenetration constraints derivatives:
 			if (COLLISIONS_COUNT > 0)
 			{
-				Uint j = 0; // NC and delta matrices index
-				for (Uint i = 1; i < VERTEX_COUNT; ++i) // We don't check the root for obvious reasons
-				{
-					if (!guide->mSegmentsAdditionalInfo[ i ].mIsColliding)
-					{
-						continue;
-					}
-					e = (guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - hairVertices[ i ]) * 2.0;
-					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ] = -e.x;
-					delta[ COL_DERIV_OFFSET + 3*j ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j ];
-					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ] = -e.y;
-					delta[ COL_DERIV_OFFSET + 3*j + 1 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 1 ];
-					NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ] = -e.z;
-					delta[ COL_DERIV_OFFSET + 3*j + 2 ][ COL_CONSTR_OFFSET + j ] = NC[ COL_CONSTR_OFFSET + j ][ COL_DERIV_OFFSET + 3*j + 2 ];
-					++j;
-				}
+				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET, COL_DERIV_OFFSET);
 			}
 
 			// -------------------------------------------------------------------------------------
@@ -694,6 +642,49 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	} // for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 }
 #endif
+
+void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
+{
+	//const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Segment length squared
+	//const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
+	//const Uint CONSTRAINTS_COUNT = VERTEX_COUNT - 1; // Number of constraints
+	//const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
+
+	//// Solution vectors
+	//RealN C(CONSTRAINTS_COUNT); // Constraint vector
+	//RealN lambda(CONSTRAINTS_COUNT); // system inverse matrix multiplied by C vector
+	//RealN dX(DERIVATIVES_COUNT); // Vector containing corrections
+	//RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
+	//RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
+	//RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+
+	//// Temporary and utility variables
+	//Vec3 e; // Vector for calculating error
+	//Vec3 correction; // Vector for storing vertex corrections
+	//Uint iterationsCount = 0;
+	//while (true)// Repeat until converged
+	//{
+	//	// -------------------------------------------------------------------------------------
+	//	// Step 1: Update the constraint vector
+	//	// -------------------------------------------------------------------------------------
+	//	C = 0.0;
+
+	//	// Convergence condition:
+	//	if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
+	//	{
+	//		break;
+	//	}
+
+	//	// -------------------------------------------------------------------------------------
+	//	// Step 2: Prepare solution matrices
+	//	// -------------------------------------------------------------------------------------
+
+	//	// -------------------------------------------------------------------------------------
+	//	// Step 3: Calculate and apply position changes
+	//	// -------------------------------------------------------------------------------------
+
+	//} // while (true)
+}
 
 } // namespace Toolbox
 
