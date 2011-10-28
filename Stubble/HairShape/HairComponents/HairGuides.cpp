@@ -170,6 +170,7 @@ void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterp
 				curve.getPointAtParam( curve.findParamFromLength( param ), curvePoint, MSpace::kWorld );
 				*segIt = Vector3D< Real >::transformPoint( curvePoint, currIt->mLocalTransformMatrix );
 			}
+			it->mSegmentLength = static_cast< Real >( step );
 			// Recalculate positions
 			SegmentsStorage::uniformlyRepositionSegments( *it, 
 				static_cast< unsigned __int32 >( it->mSegments.size() ) );

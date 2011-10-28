@@ -126,6 +126,13 @@ public:
 	BoundingBox getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const;
 
 	///-------------------------------------------------------------------------------------------------
+	/// Calculates the segment length as division of total length by segments count 
+	///
+	/// \param [in,out]	aGuideSegments	a guide segments. 
+	///-------------------------------------------------------------------------------------------------
+	static void calculateSegmentLength( OneGuideSegments & aGuideSegments );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Uniformly reposition segments with newly set count. 
 	///
 	/// \param [in,out]	aGuideSegments	The guide segments. 

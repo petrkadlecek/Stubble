@@ -143,6 +143,7 @@ void SegmentsStorage::setFrame( Time aTime )
 					// Interpolate
 					*segIt = *upSegIt * upFactor + *lowSegIt * lowFactor;
 				}
+				calculateSegmentLength( *guideIt );
 				uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
 			}
 
@@ -243,6 +244,18 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 		}
 	}
 	return bbox;
+}
+
+void SegmentsStorage::calculateSegmentLength( OneGuideSegments & aGuideSegments )
+{
+	Real length = 0;
+	// For every segment
+	for ( Segments::const_iterator prevIt = aGuideSegments.mSegments.begin(), segIt = prevIt + 1;
+		segIt != aGuideSegments.mSegments.end(); ++segIt, ++prevIt )
+	{
+		length += Vector3D< Real >( *prevIt, *segIt ).size();
+	}
+	aGuideSegments.mSegmentLength = length / ( aGuideSegments.mSegments.size() - 1 );
 }
 
 void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
@@ -349,6 +362,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 					*segIt += *oldSegIt * weight;
 				}
 			}
+			calculateSegmentLength( *guideIt );
 			uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
 		}
 	}
@@ -401,6 +415,7 @@ void SegmentsStorage::propageteChangesToFrame( GuidesSegments & aGuides, Real aF
 		{
 			*destSegIt = *sourceSegIt * aFactor + *destSegIt * ( 1 - aFactor );
 		}
+		calculateSegmentLength( *destIt );
 		uniformlyRepositionSegments( *destIt, static_cast< unsigned __int32 >( destIt->mSegments.size() ) );
 	}
 }
