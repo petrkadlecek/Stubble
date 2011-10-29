@@ -61,6 +61,14 @@ public:
 	virtual void toolOffCleanup();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Handles the mouse press event.
+	///
+	/// \param aEvent Information on the input event.
+	/// \return	MS::kSuccess or MS::kFailure.
+	///----------------------------------------------------------------------------------------------------
+	virtual MStatus doPress( MEvent &aEvent );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse release event. Calls doCut() if left mouse button is released.
 	///
 	/// \param aEvent Information on the input event.

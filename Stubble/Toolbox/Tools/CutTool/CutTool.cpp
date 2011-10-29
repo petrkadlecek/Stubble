@@ -99,7 +99,7 @@ void CutTool::toolOnSetup ( MEvent & )
 	MGlobal::executeCommand( "selectPref -query -clickBoxSize", mClickBoxSize );
 
 	// Get the active view in which we will do the cutting.
-	mView = M3dView::active3dView();
+	getActiveView();
 	
 	setHelpString( sHelpTxt );	//	Sets the help text in the help UI item.
 
@@ -136,17 +136,24 @@ void CutTool::toolOffCleanup()
 	CutTool::deleteMouseMoveListener();
 }
 
-MStatus CutTool::doRelease( MEvent & event )
+MStatus CutTool::doPress( MEvent & aEvent )
+{
+	getActiveView();
+
+	return MPxContext::doPress( aEvent );
+}
+
+MStatus CutTool::doRelease( MEvent & aEvent )
 {	
 	MStatus stat;
 
 	// Let the base class handle release of other buttons
-	if( event.mouseButton() != MEvent::kLeftMouse ) {
-		return MPxContext::doRelease( event );
+	if( aEvent.mouseButton() != MEvent::kLeftMouse ) {
+		return MPxContext::doRelease( aEvent );
 	}
 
 	// Get the new location of the cursor
-    event.getPosition( mPosition[ 0 ], mPosition[ 1 ] );
+    aEvent.getPosition( mPosition[ 0 ], mPosition[ 1 ] );
 		
 	filterAffectedGuides();
 	

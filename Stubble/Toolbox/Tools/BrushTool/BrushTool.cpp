@@ -164,13 +164,13 @@ void BrushTool::getClassName( MString &aName ) const
 	aName = "StubbleBrushTool";
 }
 
-void BrushTool::toolOnSetup ( MEvent & )
+void BrushTool::toolOnSetup ( MEvent &aEvent )
 {
 	// Get the GUI's click box size.
 	MGlobal::executeCommand( "selectPref -query -clickBoxSize", mClickBoxSize );
 
 	// Get the active view in which we will do the brushing.
-	mView = M3dView::active3dView();
+	getActiveView();
 	
 	setHelpString( sHelpTxt );	//	Sets the help text in the help UI item.
 
@@ -207,23 +207,23 @@ void BrushTool::toolOffCleanup()
 	BrushTool::deleteMouseMoveListener();
 }
 
-MStatus BrushTool::doPress( MEvent &event )
+MStatus BrushTool::doPress( MEvent &aEvent )
 {
 	//std::cout << "doPress()\n" << std::flush;
 
 	// If we have a left mouse click, start the selection.
-	if( event.mouseButton() == MEvent::kLeftMouse )
+	if( aEvent.mouseButton() == MEvent::kLeftMouse )
 	{
 		// We need to keep a reference of the view in which this command
 		// was called. This basically lets us know which viewport to draw in.
-		mView = M3dView::active3dView();
+		getActiveView();
 
 		// We'll only handle the event if the left mouse button is the only thing held down.
-		if( !event.isModifierShift() &&	!event.isModifierControl() && !event.isModifierMiddleMouseButton() )
+		if( !aEvent.isModifierShift() &&	!aEvent.isModifierControl() && !aEvent.isModifierMiddleMouseButton() )
 		{
 			// Get the current position of the cursor. We need to know this so we can
 			// start drawing our BrushToolShape and to be able to calculate the deltas for the brushing.
-			event.getPosition( mStartPos[0], mStartPos[1] );
+			aEvent.getPosition( mStartPos[0], mStartPos[1] );
 
 			// make sure both the start and end points are in the same place.
 			mEndPos[ 0 ] = mPrevPos[ 0 ] = mStartPos[ 0 ];
@@ -236,22 +236,22 @@ MStatus BrushTool::doPress( MEvent &event )
 	}
 
 	// In every other case, just let the base class handle the event.
-	return MPxContext::doPress( event );
+	return MPxContext::doPress( aEvent );
 }
 
-MStatus BrushTool::doDrag( MEvent &event )
+MStatus BrushTool::doDrag( MEvent &aEvent )
 {
 	//std::cout << "doDrag()\n" << std::flush;
 
 	// If we are dragging and left mouse button is pressed, then handle the event.
-	if( !event.isModifierLeftMouseButton() )
+	if( !aEvent.isModifierLeftMouseButton() )
 	{
 		// Save the old coordinates
 		mPrevPos[ 0 ] = mEndPos[ 0 ];
 		mPrevPos[ 1 ] = mEndPos[ 1 ];
 
 		// Get the new location of the cursor
-		event.getPosition( mEndPos[ 0 ], mEndPos[ 1 ] );
+		aEvent.getPosition( mEndPos[ 0 ], mEndPos[ 1 ] );
 
 		// Dispatch brushing event
 		short dX = mEndPos[ 0 ] - mPrevPos[ 0 ];
@@ -260,18 +260,18 @@ MStatus BrushTool::doDrag( MEvent &event )
 	}
 
 	// In every other case, just let the base class handle the event.
-	return MPxContext::doDrag( event );
+	return MPxContext::doDrag( aEvent );
 }
 
-MStatus BrushTool::doRelease( MEvent & event )
+MStatus BrushTool::doRelease( MEvent & aEvent )
 {
 	//std::cout << "doRelease()\n" << std::flush;
 
 	MStatus stat;
 
 	// only bother handling the release of a left mouse button.
-	if( event.mouseButton() != MEvent::kLeftMouse ) {
-		return MPxContext::doRelease( event );
+	if( aEvent.mouseButton() != MEvent::kLeftMouse ) {
+		return MPxContext::doRelease( aEvent );
 	}
 	
 	// nullify selection area
