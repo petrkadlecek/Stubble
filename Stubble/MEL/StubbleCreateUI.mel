@@ -69,6 +69,76 @@ global proc StubbleCreateUI()
 	   }
 	}
 
+	// create Stubble Select Guides icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble: Select Guides"
+				-label "Select Guides"
+				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "optionVar -iv \"stubbleSelectionMode\" 1;refresh;"`;
+
+	// create Stubble Select Vertices icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble: Select Vertices"
+				-label "Select Vertices"
+				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "optionVar -iv \"stubbleSelectionMode\" 2;refresh;"`;
+				
+	// create Stubble Select Tips icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble: Select Tips"
+				-label "Select Tips"
+				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "optionVar -iv \"stubbleSelectionMode\" 3;refresh;"`;
+
+	// create Stubble Select Roots icon
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 1
+				-width 34
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble: Select Roots"
+				-label "Select Roots"
+				-image1 "art3dPaint.png"
+				-style "iconOnly"
+				-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"`;
+
+	// insert separator
+	string $brushButton = 	`shelfButton
+				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
+				-enable 0
+				-width 17
+				-height 34
+				-manage 1
+				-visible 1
+				-annotation "Stubble: Separator"
+				-image1 "vacantCell.png"
+				-style "iconOnly"
+				-marginWidth 1
+				-marginHeight 1`;
+
 	// create Stubble Brush tool icon
 	string $brushButton = 	`shelfButton
 				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"

@@ -167,6 +167,34 @@ public:
 	inline void updateGuides( bool aStoreUpdate );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Associates the components (guides or vertices) with the node's attributes (and corresponding plugs). 
+	/// 
+	/// \param	aComponent	the component that is passed in (with type of e.g. kMeshVertComponent)
+	/// \param	aList	the selection list to which the corresponding plugs will be added
+	///----------------------------------------------------------------------------------------------------
+	virtual void componentToPlugs( MObject &aComponent,  MSelectionList &aList ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Validates component names and indices which are specified as a string and adds the corresponding
+	/// component to the passed in selection list. (e.g."select shape1.vtx[0:7]")   
+	/// 
+	/// \param	aItem	DAG selection item for the object being matched
+	/// \param	aSpec	attribute specification object
+	/// \param	aList	list to add components to
+	///----------------------------------------------------------------------------------------------------
+	virtual MatchResult matchComponent( const MSelectionList& aItem, 
+										const MAttributeSpecArray& aSpec, 
+										MSelectionList& aList );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Check for matches between selection type / component list, and the type of this shape or its components.  
+	/// 
+	/// \param	aMask			selection type mask
+	/// \param	aComponentList	possible component list
+	///----------------------------------------------------------------------------------------------------
+	virtual bool match(	const MSelectionMask & aMask, const MObjectArray& aComponentList ) const;
+
+	///----------------------------------------------------------------------------------------------------
 	/// Undoes changed to hair guides.
 	///----------------------------------------------------------------------------------------------------
 	void undo();
@@ -284,6 +312,13 @@ private:
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
 	MStatus registerTopologyCallback();
+
+	/*TODO Test and replace with proper documentation*/
+	bool					value( int pntInd, int vlInd, double & val ) const;
+	bool					value( int pntInd, MPoint & val ) const;
+	bool					setValue( int pntInd, int vlInd, double val );
+	bool					setValue( int pntInd, const MPoint & val );
+
 
 	// Inner objects 
 
