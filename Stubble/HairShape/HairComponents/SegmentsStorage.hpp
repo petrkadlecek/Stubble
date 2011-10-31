@@ -8,6 +8,11 @@
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
+
+#include <sstream>
+#include <string>
 
 namespace Stubble
 {
@@ -139,6 +144,19 @@ public:
 	/// \param aCount					The new number of segments;
 	///-------------------------------------------------------------------------------------------------
 	static void uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount );
+		
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 
@@ -208,6 +226,38 @@ inline const FrameSegments & SegmentsStorage::getCurrentSegments() const
 inline bool SegmentsStorage::imported() const
 {
 	return !mSegments.empty();
+}
+
+inline std::string SegmentsStorage::serialize() const
+{
+	std::ostringstream oss;		
+
+	oss << Stubble::serialize< bool >( mAreCurrentSegmentsDirty )
+		<< mCurrent.serialize()
+		<< Stubble::serialize< size_t >( mSegments.size() );
+
+	// over all frames
+	for ( AllFramesSegments::const_iterator it = mSegments.begin(); it != mSegments.end(); it++ )
+	{
+		oss << Stubble::serialize< Time >( it->first )
+			<< it->second.serialize();		
+	}
+	return oss.str();
+}
+
+inline size_t SegmentsStorage::deserialize( const std::string &aStr, size_t aPos )
+{	
+	mAreCurrentSegmentsDirty = Stubble::deserialize< bool >( aStr, aPos );
+	aPos = mCurrent.deserialize( aStr, aPos );
+	size_t frameCount = Stubble::deserialize< size_t >( aStr, aPos );
+	mSegments.clear();
+	for ( size_t i = 0; i < frameCount; i++ )
+	{
+		FrameSegments frameSegments;
+		aPos = frameSegments.deserialize( aStr, aPos );
+		mSegments.insert( std::make_pair( frameSegments.mFrame, frameSegments ) );
+	}	
+	return aPos;	
 }
 
 } // namespace HairComponents
