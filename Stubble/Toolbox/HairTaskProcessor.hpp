@@ -148,7 +148,7 @@ private:
 	///
 	/// \param aTask The task object
 	///----------------------------------------------------------------------------------------------------
-	void doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< Real > &aDx, BrushMode *aBrushMode);
+	void doBrush (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Detects collisions for the manipulated segments and count also penetration.

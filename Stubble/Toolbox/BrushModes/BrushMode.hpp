@@ -17,6 +17,16 @@ class BrushMode
 {
 public:
 	///----------------------------------------------------------------------------------------------------
+	/// Optional move vector transformation function called once before processing a whole bunch of
+	/// guides affected by single move vector. The default implementation is identity
+	/// 
+	/// \param aDX				Move vector to be transformed
+	/// \param aTransformInfo	Transform information - any arbitrary object
+	/// \return					The transformed move vector
+	///----------------------------------------------------------------------------------------------------
+	inline virtual Vector3D< double > preBrushTransform( const Vector3D< double > &aDX, void *aTransformInfo);
+
+	///----------------------------------------------------------------------------------------------------
 	/// The method in which the derived classes implement the different brushing transformations.
 	///
 	/// \param aDX	Cursor change in world coordinates
@@ -51,6 +61,11 @@ protected:
 
 	bool mEnableCollisionDetection; ///< Tells whether the brush collision detection is enabled or disabled
 };
+
+inline Vector3D< double > BrushMode::preBrushTransform( const Vector3D< double > &aDX, void *aTransformInfo)
+{
+	return aDX;
+}
 
 inline void BrushMode::setFalloffSwitch ( bool aValue )
 {

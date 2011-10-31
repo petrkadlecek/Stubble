@@ -178,7 +178,7 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 
 		if ( 0 != task )
 		{
-			hairTaskProcessor->doBrush(*task->mAffectedGuides, task->mDx, task->mBrushMode);
+			hairTaskProcessor->doBrush(task);
 			if ( task->mBrushMode->isCollisionDetectionEnabled() )
 			{
 				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
@@ -217,12 +217,13 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 	return queueSize;
 }
 
-void HairTaskProcessor::doBrush (HairShape::HairComponents::SelectedGuides &aSelectedGuides, const Vector3D< Real > &aDx, BrushMode *aBrushMode)
+void HairTaskProcessor::doBrush (HairTask *aTask)
 {
+	Vector3D< Real > dX = aTask->mBrushMode->preBrushTransform(aTask->mDx, (void *)(&aTask->mView));
 	HairShape::HairComponents::SelectedGuides::iterator it;
-	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
 	{
-		aBrushMode->doBrush(aDx, **it);
+		aTask->mBrushMode->doBrush(dX, **it);
 		(*it)->mDirtyFlag = true;
 		(*it)->mDirtyRedrawFlag = true;
 	}

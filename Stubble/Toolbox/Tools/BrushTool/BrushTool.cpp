@@ -296,18 +296,19 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	}
 
 	// Transform the move vector into the world coordinates
-	MDagPath cameraPath;
+	/*MDagPath cameraPath;
 	mView.getCamera(cameraPath);
 	MFnCamera camera(cameraPath);
 
 	MStatus status;
 	MVector right = camera.rightDirection(MSpace::kWorld, &status);
-	MVector up = camera.upDirection(MSpace::kWorld, &status);
+	MVector up = camera.upDirection(MSpace::kWorld, &status);*/
 	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
-	Vector3D< Real > moveVector(ratio * aDX.x * right + ratio * aDX.y * up);
+	//Vector3D< Real > moveVector(ratio * aDX.x * right + ratio * aDX.y * up);
+	Vector3D< Real > moveVector(ratio * aDX.x, ratio * aDX.y, 0.0);
 
 	// Create the hair task
-	HairTask *task = new HairTask(activeHairShape, &mAffectedGuides, mBrushMode, moveVector);
+	HairTask *task = new HairTask(mView, moveVector, activeHairShape, &mAffectedGuides, mBrushMode);
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
 
