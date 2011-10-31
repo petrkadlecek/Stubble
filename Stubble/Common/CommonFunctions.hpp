@@ -292,6 +292,7 @@ inline std::string serializeObjects( const std::vector< Type > &aVector )
 template < typename Type >
 inline Type deserialize( const std::string &aStr, size_t &aPos )
 {
+	assert( aStr.size() > aPos );
 	size_t nextSeparator = aStr.find( SEPARATOR, aPos );
 	std::istringstream iss( aStr.substr( aPos, nextSeparator - aPos ) );
 	aPos = nextSeparator + 1; // jump to the beginning of next object
@@ -313,6 +314,7 @@ inline Type deserialize( const std::string &aStr, size_t &aPos )
 template < typename Type >
 inline std::vector< Type > deserializePrimitives( const std::string &aStr, size_t &aPos )
 {
+	assert( aStr.size() > aPos );
 	size_t count = deserialize< size_t >( aStr, aPos );
 	std::vector< Type > out;
 	out.reserve( count );
@@ -335,6 +337,7 @@ inline std::vector< Type > deserializePrimitives( const std::string &aStr, size_
 template < typename Type >
 inline std::vector< Type > deserializeObjects( const std::string &aStr, size_t &aPos )
 {
+	assert( aStr.size() > aPos );
 	size_t count = deserialize< size_t >( aStr, aPos );
 	std::vector< Type > out;
 	out.reserve( count );

@@ -239,8 +239,7 @@ inline std::string SegmentsStorage::serialize() const
 	// over all frames
 	for ( AllFramesSegments::const_iterator it = mSegments.begin(); it != mSegments.end(); it++ )
 	{
-		oss << Stubble::serialize< Time >( it->first )
-			<< it->second.serialize();		
+		oss << it->second.serialize();		
 	}
 	return oss.str();
 }
