@@ -3,8 +3,12 @@
 
 #include <ostream>
 #include <istream>
+#include <sstream>
+#include <string>
 
 #include "Matrix.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
 #ifdef MAYA
 #include <maya/MVector.h>
@@ -211,6 +215,19 @@ public:
 	/// \return Transformed vector.
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D & transform( const Matrix< Type > & aTransformMatrix );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 #ifdef MAYA
 
@@ -510,6 +527,23 @@ inline Vector3D< Type > & Vector3D< Type >::transform( const Matrix< Type > & aT
 	y = ty;
 	z = tz;
 	return *this;
+}
+
+template < typename Type >
+inline std::string Vector3D< Type >::serialize() const
+{
+	std::ostringstream oss;
+	oss << Stubble::serialize< Type >( x )
+		<< Stubble::serialize< Type >( y )
+		<< Stubble::serialize< Type >( z );
+}
+
+template < typename Type >
+inline size_t Vector3D< Type >::deserialize( const std::string &aStr, size_t aPos )
+{
+	x = Stubble::deserialize< Type >( aStr, aPos );
+	y = Stubble::deserialize< Type >( aStr, aPos );
+	z = Stubble::deserialize< Type >( aStr, aPos );	
 }
 
 #ifdef MAYA

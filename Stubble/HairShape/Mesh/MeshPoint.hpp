@@ -2,11 +2,15 @@
 #define STUBBLE_MESH_POINT_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 #include "Primitives\Matrix.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #include <ostream>
 #include <istream>
+#include <sstream>
+#include <string>
 
 namespace Stubble
 {
@@ -124,6 +128,19 @@ public:
 	/// \param	aInStream		input file stream
 	///----------------------------------------------------------------------------------------------------
 	inline void importPosition( std::istream & aStreamIn );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 
@@ -338,6 +355,31 @@ inline std::istream & operator>>( std::istream & aStreamIn, MeshPoint & aPointOn
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
 	return aStreamIn;
+}
+
+inline std::string MeshPoint::serialize() const
+{
+	std::ostringstream oss;	
+	
+	oss << mPosition.serialize()
+		<< mNormal.serialize()
+		<< mTangent.serialize()
+		<< mBinormal.serialize()
+		<< Stubble::serialize< Real >( mUCoordinate )
+		<< Stubble::serialize< Real >( mVCoordinate );		
+
+	return oss.str();
+}
+
+inline size_t MeshPoint::deserialize( const std::string &aStr, size_t aPos )
+{
+	aPos = mPosition.deserialize( aStr, aPos );
+	aPos = mNormal.deserialize( aStr, aPos );
+	aPos = mTangent.deserialize( aStr, aPos );
+	aPos = mBinormal.deserialize( aStr, aPos );
+	mUCoordinate = Stubble::deserialize< Real >( aStr, aPos );
+	mVCoordinate = Stubble::deserialize< Real >( aStr, aPos );
+	return aPos;
 }
 
 } // namespace HairShape
