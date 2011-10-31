@@ -77,7 +77,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			aSelectedGuides.push_back(guide);
 		}
 	} // for each guide
-	std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
+	//std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
 	build(aSelectedGuides, true);
 }
 
