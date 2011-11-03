@@ -31,14 +31,13 @@ struct HairTask
 
 inline HairTask::HairTask (const M3dView &aView, const Vector3D< double > &aDx, HairShape::HairShape *aParentHairShape,
 	HairShape::HairComponents::SelectedGuides *aAffectedGuides,	BrushMode *aBrushMode) :
-	mView(mView),
+	//mView(mView),
 	mDx(aDx),
 	mParentHairShape(aParentHairShape),
 	mAffectedGuides(aAffectedGuides),
 	mBrushMode(aBrushMode)
 {
-	mView = M3dView::active3dView(); //FIXME: M3dView apparently doesn't have copy constructor, or whatever is happenening
-	//empty
+	mView = aView; //FIXME: M3dView apparently doesn't have copy constructor, or whatever is happenening
 }
 
 } // namespace Toolbox

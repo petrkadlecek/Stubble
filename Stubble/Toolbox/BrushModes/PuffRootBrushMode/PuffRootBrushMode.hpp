@@ -19,7 +19,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which implements the actual brush transformations.
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair );
+	virtual void doBrush ( HairTask *aTask );
 };
 
 } // namespace Toolbox

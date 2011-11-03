@@ -178,7 +178,8 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 
 		if ( 0 != task )
 		{
-			hairTaskProcessor->doBrush(task);
+			task->mBrushMode->doBrush(task);
+			//hairTaskProcessor->doBrush(task);
 			if ( task->mBrushMode->isCollisionDetectionEnabled() )
 			{
 				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
@@ -215,18 +216,6 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 	// ------------------------------------
 
 	return queueSize;
-}
-
-void HairTaskProcessor::doBrush (HairTask *aTask)
-{
-	Vector3D< Real > dX = aTask->mBrushMode->preBrushTransform(aTask->mDx, (void *)(&aTask->mView));
-	HairShape::HairComponents::SelectedGuides::iterator it;
-	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
-	{
-		aTask->mBrushMode->doBrush(dX, **it);
-		(*it)->mDirtyFlag = true;
-		(*it)->mDirtyRedrawFlag = true;
-	}
 }
 
 void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides )

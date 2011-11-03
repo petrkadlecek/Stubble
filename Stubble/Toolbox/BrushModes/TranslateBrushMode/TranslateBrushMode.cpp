@@ -1,7 +1,5 @@
-#include <maya/M3dView.h>
-#include <maya/MDagPath.h>
-#include <maya/MFnCamera.h>
 #include "TranslateBrushMode.hpp"
+#include "Toolbox/HairTask.hpp"
 
 namespace Stubble
 {
@@ -9,35 +7,45 @@ namespace Stubble
 namespace Toolbox
 {
 
-Vector3D< double > TranslateBrushMode::preBrushTransform( const Vector3D< double > &aDX, void *aTransformInfo)
+void TranslateBrushMode::doBrush( HairTask *aTask )
 {
-	// Obtain the camera information from the supplied transform info
+	Vector3D< double > wdX = transformDxToWorld(aTask->mDx, aTask->mView);
+
+	// Loop through all guides
+	Vector3D< double > dX;
+	HairShape::HairComponents::SelectedGuides::iterator it;
+	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
+	{
+		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		dX = Vector3D< double >::transform(wdX, guide->mPosition.mLocalTransformMatrix);
+		const size_t SEGMENT_COUNT = guide->mGuideSegments.mSegments.size();
+
+		// Loop through all guide segments except the first one (that's a follicle and should not move)
+		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
+		{
+			if ( guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
+			{
+				guide->mGuideSegments.mSegments[ i ] += (mEnableFalloff == true) ? dX * guide->mSegmentsAdditionalInfo[ i ].mFallOff : dX;
+			}
+		}
+
+		guide->mDirtyFlag = true;
+		guide->mDirtyRedrawFlag = true;
+	}
+}
+
+Vector3D< double > TranslateBrushMode::transformDxToWorld( const Vector3D< double > &aDx, M3dView &aView )
+{
+	// Obtain the camera information
 	MDagPath cameraPath;
-	M3dView *view = (M3dView *)(aTransformInfo);
-	view->getCamera(cameraPath);
+	aView.getCamera(cameraPath);
 	MFnCamera camera(cameraPath);
 
-	// Transform the aDX to the world space
+	// Transform the dX vector to the world space
 	MStatus status;
 	MVector right = camera.rightDirection(MSpace::kWorld, &status);
 	MVector up = camera.upDirection(MSpace::kWorld, &status);
-
-	return Vector3D< double > (aDX.x * right + aDX.y * up);
-}
-
-void TranslateBrushMode::doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair )
-{
-	Vector3D< double > dX = Vector3D< double >::transform(aDX, aGuideHair.mPosition.mLocalTransformMatrix);
-	const size_t SEGMENT_COUNT = aGuideHair.mGuideSegments.mSegments.size();
-
-	// Loop through all guide segments except the first one (that's a follicle and should not move)
-	for (size_t i = 1; i < SEGMENT_COUNT; ++i)
-	{
-		if ( aGuideHair.mSegmentsAdditionalInfo[ i ].mInsideBrush )
-		{
-			aGuideHair.mGuideSegments.mSegments[ i ] += (mEnableFalloff == true) ? dX * aGuideHair.mSegmentsAdditionalInfo[ i ].mFallOff : dX;
-		}
-	}
+	return aDx.x * right + aDx.y * up;
 }
 
 } // namespace Toolbox

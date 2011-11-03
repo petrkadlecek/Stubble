@@ -144,13 +144,6 @@ private:
 	size_t getTask (HairTask *&aTask);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Calls doBrush method contained within the aTask object
-	///
-	/// \param aTask The task object
-	///----------------------------------------------------------------------------------------------------
-	void doBrush (HairTask *aTask);
-
-	///----------------------------------------------------------------------------------------------------
 	/// Detects collisions for the manipulated segments and count also penetration.
 	///
 	/// \param aSelectedGuides Selection of guides for collision calculation
