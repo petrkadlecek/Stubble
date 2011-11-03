@@ -175,6 +175,14 @@ void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterp
 			SegmentsStorage::uniformlyRepositionSegments( *it, 
 				static_cast< unsigned __int32 >( it->mSegments.size() ) );
 		}
+		// Uniformly reposition segments
+		#pragma omp parallel for schedule( guided )
+		for ( int i = 0; i < static_cast< int >( frameSegments.mSegments.size() ); ++i )
+		{
+			OneGuideSegments & guide = frameSegments.mSegments[ i ];
+			SegmentsStorage::uniformlyRepositionSegments( guide,
+				static_cast< unsigned __int32 >( guide.mSegments.size() ) );
+		}
 		mSegmentsStorage->importSegments( frameSegments );		
 	}
 	// All nurbs has been imported, set time back

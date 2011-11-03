@@ -20,23 +20,24 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 	// Prepare size
 	mCurrent.mSegments.resize( aRestPositions.size() );
 	// For every guide
-	GuidesSegments::iterator guideIt = mCurrent.mSegments.begin();
-	for ( GuidesRestPositions::const_iterator posIt = aRestPositions.begin(); 
-		posIt != aRestPositions.end(); ++posIt, ++guideIt )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( aRestPositions.size() ); ++i )
 	{
+		const GuideRestPosition & pos = aRestPositions[ i ];
+		OneGuideSegments & guide = mCurrent.mSegments[ i ];
 		// Get segments count
-		guideIt->mSegments.resize( aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
-			posIt->mPosition.getVCoordinate() ) + 1 );
+		guide.mSegments.resize( aInterpolationGroups.getSegmentsCount( pos.mPosition.getUCoordinate(), 
+			pos.mPosition.getVCoordinate() ) + 1 );
 		// For every segment
 		Vector3D< Real > segmentPos;
-		Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guideIt->mSegments.size() );
-		for ( Segments::iterator segIt = guideIt->mSegments.begin(); segIt != guideIt->mSegments.end(); ++segIt )
+		Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guide.mSegments.size() );
+		for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); ++segIt )
 		{
 			*segIt = segmentPos;
 			segmentPos += segmentSize; // Next segment position
 		}
 		// Set segment length
-		guideIt->mSegmentLength = segmentSize.z;
+		guide.mSegmentLength = segmentSize.z;
 	}
 }
 
@@ -73,23 +74,23 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Gui
 			FrameSegments & aOutputSegments = mSegments.insert( std::make_pair( it->first, FrameSegments() ) ).first->second;
 			aOutputSegments.mFrame = it->first;
 			aOutputSegments.mSegments.resize( aRemainingGuides.size() );
-			GuidesIds::const_iterator idIt = aRemainingGuides.begin();
 			// For every guide
-			for ( GuidesSegments::iterator guideIt = aOutputSegments.mSegments.begin(); 
-				guideIt != aOutputSegments.mSegments.end(); ++guideIt, ++ idIt )
+			#pragma omp parallel for schedule( guided )
+			for ( int i = 0; i < static_cast< int >( aRemainingGuides.size() ); ++i )
 			{
-				*guideIt = it->second.mSegments[ *idIt ]; // Copy guide segments
+				// Copy selected guide's segments
+				aOutputSegments.mSegments[ i ] = it->second.mSegments[ aRemainingGuides[ i ] ];
 			}
 		}
 	}
 	// Import current segments
 	mCurrent.mSegments.resize( aRemainingGuides.size() );
-	GuidesIds::const_iterator idIt = aRemainingGuides.begin();
 	// For every guide
-	for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
-		guideIt != mCurrent.mSegments.end(); ++guideIt, ++ idIt )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( aRemainingGuides.size() ); ++i )
 	{
-		*guideIt = aOldStorage.mCurrent.mSegments[ *idIt ]; // Copy guide segments
+		// Copy selected guide's segments
+		mCurrent.mSegments[ i ] = aOldStorage.mCurrent.mSegments[ aRemainingGuides[ i ] ];
 	}
 }
 
@@ -131,20 +132,22 @@ void SegmentsStorage::setFrame( Time aTime )
 			// Finaly we can begin to copy
 			mCurrent.mSegments.resize( lowerBound->second.mSegments.size() );
 			// For every guide
-			for ( GuidesSegments::iterator guideIt = mCurrent.mSegments.begin(); 
-				guideIt != mCurrent.mSegments.end(); ++guideIt, ++upIt, ++lowIt )
+			#pragma omp parallel for schedule( guided )
+			for ( int i = 0; i < static_cast< int >( mCurrent.mSegments.size() ); ++i )
 			{
+				// Select destination and 2 source guides
+				OneGuideSegments & guide = mCurrent.mSegments[ i ];
+				Segments::const_iterator upSegIt = upIt[ i ].mSegments.begin();
+				Segments::const_iterator lowSegIt = lowIt[ i ].mSegments.begin();
 				// For every segment
-				Segments::const_iterator upSegIt = upIt->mSegments.begin();	
-				Segments::const_iterator lowSegIt = lowIt->mSegments.begin();
-				for ( Segments::iterator segIt = guideIt->mSegments.begin(); 
-					segIt != guideIt->mSegments.end(); ++segIt, ++upSegIt, ++lowSegIt )
+				for ( Segments::iterator segIt = guide.mSegments.begin(); 
+					segIt != guide.mSegments.end(); ++segIt, ++upSegIt, ++lowSegIt )
 				{
 					// Interpolate
 					*segIt = *upSegIt * upFactor + *lowSegIt * lowFactor;
 				}
-				calculateSegmentLength( *guideIt );
-				uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
+				calculateSegmentLength( guide );
+				uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
 			}
 
 		}
@@ -203,27 +206,29 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 		for ( AllFramesSegments::iterator frmIt = mSegments.begin(); frmIt != mSegments.end(); ++frmIt )
 		{
 			GuidesSegments & guides = frmIt->second.mSegments;
-			GuidesRestPositions::const_iterator posIt = aRestPositions.begin();
 			// For every guide
-			for ( GuidesSegments::iterator guideIt = guides.begin(); guideIt != guides.end(); ++guideIt, ++posIt )
+			#pragma omp parallel for schedule( guided )
+			for ( int i = 0; i < static_cast< int >( guides.size() ); ++i )
 			{
-				uniformlyRepositionSegments( *guideIt, 
+				const GuideRestPosition & pos = aRestPositions[ i ];
+				uniformlyRepositionSegments( guides[ i ], 
 					// Load new segments count from interpolation groups object
-					aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
-					posIt->mPosition.getVCoordinate() ) + 1 );
+					aInterpolationGroups.getSegmentsCount( pos.mPosition.getUCoordinate(), 
+					pos.mPosition.getVCoordinate() ) + 1 );
 			}
 		}
 	}
 	// Set segments count for current frame
 	GuidesSegments & guides = mCurrent.mSegments;
-	GuidesRestPositions::const_iterator posIt = aRestPositions.begin();
 	// For every guide
-	for ( GuidesSegments::iterator guideIt = guides.begin(); guideIt != guides.end(); ++guideIt, ++posIt )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( guides.size() ); ++i )
 	{
-		uniformlyRepositionSegments( *guideIt, 
+		const GuideRestPosition & pos = aRestPositions[ i ];
+		uniformlyRepositionSegments( guides[ i ], 
 			// Load new segments count from interpolation groups object
-			aInterpolationGroups.getSegmentsCount( posIt->mPosition.getUCoordinate(), 
-			posIt->mPosition.getVCoordinate() ) + 1 );
+			aInterpolationGroups.getSegmentsCount( pos.mPosition.getUCoordinate(), 
+			pos.mPosition.getVCoordinate() ) + 1 );
 	}
 }
 
@@ -303,18 +308,19 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 	// Copy frame time
 	aOutputSegments.mFrame = aOldSegments.mFrame;
 	// For every guide
-	GuidesSegments::iterator guideIt = aOutputSegments.mSegments.begin();
-	for ( GuidesRestPositions::const_iterator posIt = aRestPositions.begin(); 
-	posIt != aRestPositions.end(); ++posIt, ++guideIt )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( aOutputSegments.mSegments.size() ); ++i )
 	{
+		const GuideRestPosition & pos = aRestPositions[ i ];
+		OneGuideSegments & guide = aOutputSegments.mSegments[ i ];
 		// Get interpolation group
-		unsigned __int32 interpolationGroup = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(),
-																			posIt->mPosition.getVCoordinate() );
+		unsigned __int32 interpolationGroup = aInterpolationGroups.getGroupId( pos.mPosition.getUCoordinate(),
+																			pos.mPosition.getVCoordinate() );
 		// Get segments count
-		guideIt->mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) + 1 ); 
+		guide.mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) + 1 ); 
 		// Now selected closest guides
 		ClosestGuidesIds guidesIds;
-		aOldRestPositionsUG.getNClosestGuides( posIt->mPosition.getPosition(), 
+		aOldRestPositionsUG.getNClosestGuides( pos.mPosition.getPosition(), 
 			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
 		// First find max and min
 		float maxDistance = sqrtf( guidesIds.begin()->mDistance );
@@ -331,7 +337,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		if ( first->mDistance < 0.0001f )
 		{
 			// Just copy
-			* guideIt =  aOldSegments.mSegments[ first->mGuideId ];
+			guide =  aOldSegments.mSegments[ first->mGuideId ];
 		}
 		else
 		{
@@ -356,14 +362,14 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
 				Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
 				// For every segment
-				for ( Segments::iterator segIt = guideIt->mSegments.begin(); segIt != guideIt->mSegments.end(); 
+				for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); 
 					++segIt, ++oldSegIt )
 				{
 					*segIt += *oldSegIt * weight;
 				}
 			}
-			calculateSegmentLength( *guideIt );
-			uniformlyRepositionSegments( *guideIt, static_cast< unsigned __int32 >( guideIt->mSegments.size() ) );
+			calculateSegmentLength( guide );
+			uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
 		}
 	}
 }
@@ -404,19 +410,20 @@ void SegmentsStorage::propagateChangesThroughTime()
 
 void SegmentsStorage::propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor )
 {
-	GuidesSegments::const_iterator sourceIt = mCurrent.mSegments.begin();
 	// For every guide
-	for ( GuidesSegments::iterator destIt = aGuides.begin(); destIt != aGuides.end(); ++destIt, ++sourceIt )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( aGuides.size() ); ++i )
 	{
-		Segments::const_iterator sourceSegIt = sourceIt->mSegments.begin();
+		OneGuideSegments & guide = aGuides[ i ]; // Select guide
+		Segments::const_iterator sourceSegIt = mCurrent.mSegments[ i ].mSegments.begin(); // Select source guide
 		// For every segment
-		for ( Segments::iterator destSegIt = destIt->mSegments.begin(); destSegIt != destIt->mSegments.end(); 
+		for ( Segments::iterator destSegIt = guide.mSegments.begin(); destSegIt != guide.mSegments.end(); 
 			++destSegIt, ++sourceSegIt )
 		{
 			*destSegIt = *sourceSegIt * aFactor + *destSegIt * ( 1 - aFactor );
 		}
-		calculateSegmentLength( *destIt );
-		uniformlyRepositionSegments( *destIt, static_cast< unsigned __int32 >( destIt->mSegments.size() ) );
+		calculateSegmentLength( guide );
+		uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
 	}
 }
 
