@@ -25,16 +25,16 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	/// Calculates new length of hair segments
 	///
-	/// \param aMouseX	Mouse movement in the x axis
+	/// \param aMeasure	Measure of the rotation (typically movement of the mouse along the X axis
 	/// \param aLength	Current segment length
 	/// \return			New segment length
 	///----------------------------------------------------------------------------------------------------
-	inline double getNewSegmentLength ( Real aMouseX, Real aLength );
+	inline double getNewSegmentLength ( Real aMeasure, Real aLength );
 };
 
-inline double ScaleBrushMode::getNewSegmentLength ( Real aMouseX, Real aLength )
+inline double ScaleBrushMode::getNewSegmentLength ( Real aMeasure, Real aLength )
 {
-	Real length = aLength + aMouseX;
+	Real length = aLength + aMeasure;
 	return (length < 0.0) ? 0.0 : length;
 }
 
