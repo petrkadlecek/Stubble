@@ -62,6 +62,8 @@ public:
 
 	static MObject sampleTextureDimensionAttr; ///< Texture dimension for sampling attribute
 
+	static MObject serializedDataAttr; ///< Serialized plugin data (used for scene load/save)
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------
@@ -244,6 +246,31 @@ public:
 	/// Gets the currect maya mesh.
 	///----------------------------------------------------------------------------------------------------
 	inline MayaMesh * getCurrentMesh() const;
+		
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize plugin data.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize and reconstruct plugin data.
+	///-------------------------------------------------------------------------------------------------
+	inline void deserialize( const std::string &data );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Return this as MObject
+	///-------------------------------------------------------------------------------------------------
+	inline MObject asMObject();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Save plugin data in the next compute()
+	///-------------------------------------------------------------------------------------------------
+	inline void doSave();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Load plugin data in the next compute()
+	///-------------------------------------------------------------------------------------------------
+	inline void doLoad();
 
 private:
 	
@@ -318,6 +345,10 @@ private:
 	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed
 
 	unsigned __int32 mSampleTextureDimension; ///< Texture dimension for sampling attribute
+
+	bool mDoLoad; ///< Should we load data from serializedDataAttr?
+
+	bool mDoSave; ///< Should we save data into serializedDataAttr?
 
 	// Mesh topology callback
 
@@ -399,6 +430,31 @@ inline void HairShape::exportToNURBS()
 inline MayaMesh * HairShape::getCurrentMesh() const
 {
 	return mMayaMesh;
+}
+
+inline std::string HairShape::serialize() const
+{
+	return mHairGuides->serialize();
+}
+
+inline void HairShape::deserialize( const std::string &data )
+{
+	mHairGuides->deserialize( data, 0 );
+}
+
+inline MObject HairShape::asMObject()
+{
+	return thisMObject();
+}
+
+inline void HairShape::doSave()
+{
+	mDoSave = true;
+}
+
+inline void HairShape::doLoad()
+{
+	mDoLoad = true;
 }
 
 } // namespace HairShape

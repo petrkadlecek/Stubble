@@ -129,7 +129,6 @@ inline size_t FrameSegments::deserialize( const std::string &aStr, size_t aPos )
 {	
 	mFrame = Stubble::deserialize< Time >( aStr, aPos );
 	mSegments = Stubble::deserializeObjects< OneGuideSegments >( aStr, aPos );
-
 	return aPos;	
 }
 

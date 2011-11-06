@@ -11,6 +11,7 @@
 #include <maya/MPlugArray.h>
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
+#include <maya/MSceneMessage.h>
 
 #include <fstream>
 #include <limits>
@@ -41,6 +42,7 @@ MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::sampleTextureDimensionAttr;
+MObject HairShape::serializedDataAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -61,7 +63,9 @@ HairShape::HairShape():
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
-	mSampleTextureDimension( 128 )
+	mSampleTextureDimension( 128 ),
+	mDoLoad( false ),
+	mDoSave( false )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -116,6 +120,21 @@ MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 	{
 		aDataBlock.setClean( timeChangeAttr );
 		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
+	}
+	if ( aPlug == serializedDataAttr ) // Handle load/save
+	{
+		aDataBlock.setClean( serializedDataAttr );
+		if ( mDoLoad )
+		{
+			mDoLoad = false;
+			std::string data( aDataBlock.inputValue( serializedDataAttr ).asString().asChar() );
+			deserialize( data );			
+		}
+		else if ( mDoSave )
+		{
+			mDoSave = false;
+			aDataBlock.outputValue( serializedDataAttr ).setString( serialize().c_str() );
+		}
 	}
 	return MS::kSuccess;
 }
@@ -265,6 +284,34 @@ void HairShape::draw()
 	}
 }
 
+// serialization callbacks
+
+static void saveSceneCallback( void * )
+{
+	HairShape *hairShape = 0;
+	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
+	{
+		hairShape->doSave();
+		MObject thisNode = hairShape->asMObject();
+		int val;	
+		MPlug RedrawPlug( thisNode, HairShape::serializedDataAttr );
+		RedrawPlug.getValue( val );	
+	}		
+}
+
+static void loadSceneCallback( void * )
+{
+	HairShape *hairShape = 0;
+	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
+	{
+		hairShape->doLoad();
+		MObject thisNode = hairShape->asMObject();		
+		int val;	
+		MPlug RedrawPlug( thisNode, HairShape::serializedDataAttr );
+		RedrawPlug.getValue( val );	
+	}
+}
+
 MStatus HairShape::initialize()
 {	
 	try 
@@ -330,6 +377,24 @@ MStatus HairShape::initialize()
 		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
 		//define number of samples in one dimension of texture
 		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 128, 1, 4096, 32, 1024);
+
+		//serialized data attribute
+		MFnTypedAttribute sAttr;
+		serializedDataAttr = sAttr.create( "serialized_data", "sdata", MFnData::Type::kString, MObject::kNullObj, &status );
+		sAttr.setHidden( true );
+		sAttr.setInternal( true );
+		if ( !addAttribute( serializedDataAttr ) )
+		{
+			status.perror( "Adding serialized data attr has failed" );
+			return status;
+		}	
+
+		// register serialization callbacks		
+		MSceneMessage::addCallback( MSceneMessage::kAfterOpen, loadSceneCallback, 0, &status );
+		MSceneMessage::addCallback( MSceneMessage::kAfterImport, loadSceneCallback, 0, &status );		
+
+		MSceneMessage::addCallback( MSceneMessage::kBeforeExport, saveSceneCallback, 0, &status );
+		MSceneMessage::addCallback( MSceneMessage::kBeforeSave, saveSceneCallback, 0, &status );
 	}
 	catch( const StubbleException & ex )
 	{

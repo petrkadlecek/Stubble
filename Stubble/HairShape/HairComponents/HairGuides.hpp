@@ -12,7 +12,11 @@
 #include "HairShape\HairComponents\UndoStack.hpp"
 #include "HairShape\Mesh\MayaMesh.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <fstream>
 
 #include <maya/MStringArray.h>
@@ -182,6 +186,19 @@ public:
 	/// \return	The current frame segments. 
 	///----------------------------------------------------------------------------------------------------
 	inline const FrameSegments & getCurrentFrameSegments() const;
+			
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:	
 
@@ -247,6 +264,19 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 								method can not be called before segments generation " );
 	}
 	return mSegmentsStorage->getCurrentSegments();
+}
+
+inline std::string HairGuides::serialize() const
+{
+	std::ostringstream oss;		
+	// TODO
+	return oss.str();
+}
+
+inline size_t HairGuides::deserialize( const std::string &aStr, size_t aPos )
+{	
+	// TODO
+	return aPos;	
 }
 
 } // namespace HairComponents
