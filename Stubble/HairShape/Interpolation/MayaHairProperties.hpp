@@ -43,6 +43,8 @@ public:
 
 	static MObject segmentsCountAttr; ///< The segments count attribute
 
+	static MObject interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
+
 	static MObject numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 
 	static MObject areNormalsCalculatedAttr;	///< The are normals calculated attribute
@@ -373,6 +375,14 @@ protected:
 	/// \param	aSoftMax			The soft maximum value. 
 	///-------------------------------------------------------------------------------------------------
 	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Fill color array attributes. 
+	///
+	/// \param [in,out]	aAttribute		The attribute object. 
+	/// \param	aInterpolationGroups	Interpolation groups object.
+	///-------------------------------------------------------------------------------------------------
+	static void fillColorArrayAttributes( MObject & aAttribute, const InterpolationGroups & aInterpolationGroups );
 
 private:
 

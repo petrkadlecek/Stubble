@@ -52,6 +52,11 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 	// Convert position to float
 	Vector3D< float > pos( static_cast< float >( aPosition.x ), static_cast< float >( aPosition.y ), 
 			static_cast< float >( aPosition.z ));
+	if ( mKdForest[ aInterpolationGroupId ].GetNumPoints() < 1 )
+	{
+		aClosestGuidesIds.clear();
+		return;
+	}
 	// Init query
 	KdTree::CKNNQuery query( aN );
 	query.Init( pos , aN, 1e20f );

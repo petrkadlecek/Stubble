@@ -322,54 +322,73 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		ClosestGuidesIds guidesIds;
 		aOldRestPositionsUG.getNClosestGuides( pos.mPosition.getPosition(), 
 			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
-		// First find max and min
-		float maxDistance = sqrtf( guidesIds.begin()->mDistance );
-		ClosestGuidesIds::const_iterator first = guidesIds.begin();
-		for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+		if ( guidesIds.size() == 0 ) // No guides in this interpolation group
 		{
-			// Refresh closest guide
-			if ( first->mDistance > guideIdIt->mDistance )
+			// Get segments count
+			guide.mSegments.resize( aInterpolationGroups.getSegmentsCount( pos.mPosition.getUCoordinate(), 
+				pos.mPosition.getVCoordinate() ) + 1 );
+			// For every segment
+			Vector3D< Real > segmentPos;
+			Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guide.mSegments.size() );
+			for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); ++segIt )
 			{
-				first = guideIdIt;
+				*segIt = segmentPos;
+				segmentPos += segmentSize; // Next segment position
 			}
+			// Set segment length
+			guide.mSegmentLength = segmentSize.z;
 		}
-		// First check, if they are not on the same position
-		if ( first->mDistance < 0.0001f )
+		else // There are some guides to interpolate from
 		{
-			// Just copy
-			guide =  aOldSegments.mSegments[ first->mGuideId ];
-		}
-		else
-		{
-			// Bias distance with respect to farthest guide
-			for ( ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
-			{
-				float & distance = guideIdIt->mDistance;
-				distance = ( maxDistance - distance ) / ( maxDistance * distance );
-				distance *= distance;
-			}
-			// Finaly calculate cumulated distance
-			Real cumulatedDistance = 0;
+			// First find max and min
+			float maxDistance = sqrtf( guidesIds.begin()->mDistance );
+			ClosestGuidesIds::const_iterator first = guidesIds.begin();
 			for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 			{
-				cumulatedDistance += guideIdIt->mDistance;
-			}
-			Real inverseCumulatedDistance = 1.0 / cumulatedDistance;
-			// For every old guide segments to interpolate from
-			for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
-			{
-				// Old segments iterator
-				Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
-				Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
-				// For every segment
-				for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); 
-					++segIt, ++oldSegIt )
+				// Refresh closest guide
+				if ( first->mDistance > guideIdIt->mDistance )
 				{
-					*segIt += *oldSegIt * weight;
+					first = guideIdIt;
 				}
 			}
-			calculateSegmentLength( guide );
-			uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
+			// First check, if they are not on the same position
+			if ( first->mDistance < 0.0001f )
+			{
+				// Just copy
+				guide =  aOldSegments.mSegments[ first->mGuideId ];
+			}
+			else
+			{
+				// Bias distance with respect to farthest guide
+				for ( ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				{
+					float & distance = guideIdIt->mDistance;
+					distance = ( maxDistance - distance ) / ( maxDistance * distance );
+					distance *= distance;
+				}
+				// Finaly calculate cumulated distance
+				Real cumulatedDistance = 0;
+				for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				{
+					cumulatedDistance += guideIdIt->mDistance;
+				}
+				Real inverseCumulatedDistance = 1.0 / cumulatedDistance;
+				// For every old guide segments to interpolate from
+				for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				{
+					// Old segments iterator
+					Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
+					Real weight = guideIdIt->mDistance * inverseCumulatedDistance; 
+					// For every segment
+					for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); 
+						++segIt, ++oldSegIt )
+					{
+						*segIt += *oldSegIt * weight;
+					}
+				}
+				calculateSegmentLength( guide );
+				uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
+			}
 		}
 	}
 }

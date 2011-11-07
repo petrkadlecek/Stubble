@@ -20,6 +20,7 @@ MObject MayaHairProperties::densityTextureAttr; ///< The density texture attribu
 MObject MayaHairProperties::interpolationGroupsTextureAttr; ///< The interpolation groups texture attribute
 MObject MayaHairProperties::cutTextureAttr;  ///< The cut texture attribute
 MObject MayaHairProperties::segmentsCountAttr; ///< The segments count attribute
+MObject MayaHairProperties::interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
 MObject MayaHairProperties::numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 MObject MayaHairProperties::areNormalsCalculatedAttr;	///< The are normals calculated attribute
 MObject MayaHairProperties::scaleTextureAttr;	///< The scale texture attribute
@@ -1239,6 +1240,25 @@ void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFill
 		numericAttribute.setSoftMax( aSoftMax );
 		numericAttribute.setKeyable( false );
 		numericAttribute.setInternal( true );
+		nAttr.addChild(c);
+	}
+}
+
+void MayaHairProperties::fillColorArrayAttributes( MObject & aAttribute, const InterpolationGroups & aInterpolationGroups )
+{
+	MStatus status;
+	MFnCompoundAttribute nAttr(aAttribute, &status);
+
+	for( unsigned __int32 i = 0; i < aInterpolationGroups.getGroupsCount() ; ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "color_";
+		s += nAttr.numChildren();
+		MObject c = numericAttribute.createColor( s, s );
+		const float * color = aInterpolationGroups.getColorOfGroup( i );
+		numericAttribute.setDefault( color[ 0 ] , color[ 1 ], color[ 2 ] );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setWritable( false );
 		nAttr.addChild(c);
 	}
 }

@@ -359,7 +359,7 @@ MStatus HairShape::initialize()
 
 		//serialized data attribute
 		MFnTypedAttribute sAttr;
-		serializedDataAttr = sAttr.create( "serialized_data", "sdata", MFnData::Type::kString, MObject::kNullObj, &status );
+		serializedDataAttr = sAttr.create( "serialized_data", "sdata", MFnData::kString, MObject::kNullObj, &status );
 		sAttr.setHidden( true );
 		sAttr.setInternal( true );
 		sAttr.setWritable( true );
@@ -599,6 +599,7 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	{
 		// Removes old attribute
 		node.removeAttribute( node.findPlug( "segments_count" ).attribute() );
+		node.removeAttribute( node.findPlug( "interpolation_groups_colors" ).attribute() );
 	}
 	// Creates new compound attribute
 	MStatus s;
@@ -606,18 +607,25 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	MFnCompoundAttribute nAttr;
 	attr = nAttr.create( "segments_count", "sgc", &s );
 	nAttr.setInternal( true );
-	// Add children
+	// Add children -> counts
 	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 5, 1, 100, 1, 100 );
 	// Add attr
 	s = node.addAttribute( attr );
 	// Sets children values
-	for( unsigned __int32 i = 0; i < nAttr.numChildren(); ++i )
+	for( unsigned __int32 i = 0; i < mInterpolationGroups->getGroupsCount(); ++i )
 	{
-		MPlug plug( thisMObject(), nAttr.child( i, &s ) );
+		MPlug plug( thisMObject(), nAttr.child( i, &s ) ); 
 		s = plug.setInt( static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
 	}
 	// Finally remember attr value
 	setSegmentsCountAttr( attr );
+	// Creates colors
+	attr = nAttr.create( "interpolation_groups_colors", "igc", &s );
+	nAttr.setWritable( false );
+	// Add children -> colors
+	fillColorArrayAttributes( attr, *mInterpolationGroups );
+	// Add attr
+	s = node.addAttribute( attr );
 }
 
 /************************************************************************************************************/
