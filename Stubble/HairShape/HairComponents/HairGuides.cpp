@@ -406,6 +406,7 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	// Segments has changed...
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
+	mRestPositionsUG.setDirty(); // Interpolation groups may have changed
 	mAllSegmentsUG.setDirty();
 	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
