@@ -8,11 +8,6 @@ namespace Stubble
 namespace HairShape
 {
 
-#define MIN( a, b ) ( ( a ) < ( b ) ? ( a ) : ( b ) )
-#define MIN3( a, b, c ) ( ( a ) < ( b ) ? MIN( a, c ) : MIN( b, c ) )
-#define MAX( a, b ) ( ( a ) > ( b ) ? ( a ) : ( b ) )
-#define MAX3( a, b, c ) ( ( a ) > ( b ) ? MAX( a, c ) : MAX( b, c ) )
-
 MeshUVCoordUG::MeshUVCoordUG():
 	mDirtyBit( true ),
 	mTriangles( 0 ),

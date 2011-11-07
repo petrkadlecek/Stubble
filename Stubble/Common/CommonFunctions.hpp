@@ -119,13 +119,29 @@ inline void mixColor( tOutType * aResult, const tInType1 & aColor1, const tInTyp
 }
 
 ///-------------------------------------------------------------------------------------------------
+/// Determines the minimum of the given parameters. 
+///
+/// \param	a	The first value. 
+/// \param	b	The second value. 
+///-------------------------------------------------------------------------------------------------
+#define MIN( a, b ) ( ( a ) < ( b ) ? ( a ) : ( b ) )
+
+///-------------------------------------------------------------------------------------------------
+/// Determines the maximum of the given parameters. 
+///
+/// \param	a	The first value. 
+/// \param	b	The second value. 
+///-------------------------------------------------------------------------------------------------
+#define MAX( a, b ) ( ( a ) > ( b ) ? ( a ) : ( b ) )
+
+///-------------------------------------------------------------------------------------------------
 /// Minimum from 3 values. 
 ///
 /// \param	x	The first value.
 /// \param	y	The second value. 
 /// \param	z	The third value. 
 ///-------------------------------------------------------------------------------------------------
-#define MIN3(x,y,z)  ((y) <= (z) ? ((x) <= (y) ? (x) : (y)) : ((x) <= (z) ? (x) : (z)))
+#define MIN3( x, y, z )  (( y ) <= ( z ) ? (( x ) <= ( y ) ? ( x ) : ( y )) : (( x ) <= ( z ) ? ( x ) : ( z )))
 
 ///-------------------------------------------------------------------------------------------------
 /// Maximum from 3 values. 
@@ -134,7 +150,7 @@ inline void mixColor( tOutType * aResult, const tInType1 & aColor1, const tInTyp
 /// \param	y	The second value. 
 /// \param	z	The third value. 
 ///-------------------------------------------------------------------------------------------------
-#define MAX3(x,y,z)  ((y) >= (z) ? ((x) >= (y) ? (x) : (y)) : ((x) >= (z) ? (x) : (z)))
+#define MAX3( x, y, z )  (( y ) >= ( z ) ? (( x ) >= ( y ) ? ( x ) : ( y )) : (( x ) >= ( z ) ? ( x ) : ( z )))
 
 ///-------------------------------------------------------------------------------------------------
 /// Converts RGB to HSV

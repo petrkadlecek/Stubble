@@ -314,7 +314,7 @@ private:
 
 	const HairProperties * mHairProperties; ///< The hair properties
 
-	HairShape::RandomGenerator mRandom;	///< The random generator
+	RandomGenerator mRandom;	///< The random generator
 
 	// Generated hair tmp properties
 
