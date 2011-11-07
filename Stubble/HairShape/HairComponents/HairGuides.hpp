@@ -269,13 +269,19 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 inline std::string HairGuides::serialize() const
 {
 	std::ostringstream oss;		
-	// TODO
+	oss << mSegmentsStorage->serialize()
+		<< Stubble::serializeObjects< GuideRestPosition >( mRestPositions );
 	return oss.str();
 }
 
 inline size_t HairGuides::deserialize( const std::string &aStr, size_t aPos )
 {	
-	// TODO
+	aPos = mSegmentsStorage->deserialize( aStr, aPos );
+	mRestPositions = Stubble::deserializeObjects< GuideRestPosition >( aStr, aPos );
+	mDisplayedGuides.setDirty();
+	mAllSegmentsUG.setDirty();
+	mUndoStack.clear();
+	mBoundingBoxDirtyFlag = true;
 	return aPos;	
 }
 

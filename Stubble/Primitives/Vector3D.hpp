@@ -536,6 +536,7 @@ inline std::string Vector3D< Type >::serialize() const
 	oss << Stubble::serialize< Type >( x )
 		<< Stubble::serialize< Type >( y )
 		<< Stubble::serialize< Type >( z );
+	return oss.str();
 }
 
 template < typename Type >
@@ -544,6 +545,7 @@ inline size_t Vector3D< Type >::deserialize( const std::string &aStr, size_t aPo
 	x = Stubble::deserialize< Type >( aStr, aPos );
 	y = Stubble::deserialize< Type >( aStr, aPos );
 	z = Stubble::deserialize< Type >( aStr, aPos );	
+	return aPos;
 }
 
 #ifdef MAYA

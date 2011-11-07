@@ -262,16 +262,6 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline MObject asMObject();
 
-	///-------------------------------------------------------------------------------------------------
-	/// Save plugin data in the next compute()
-	///-------------------------------------------------------------------------------------------------
-	inline void doSave();
-
-	///-------------------------------------------------------------------------------------------------
-	/// Load plugin data in the next compute()
-	///-------------------------------------------------------------------------------------------------
-	inline void doLoad();
-
 private:
 	
 	friend class HairShapeUI;
@@ -345,10 +335,6 @@ private:
 	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed
 
 	unsigned __int32 mSampleTextureDimension; ///< Texture dimension for sampling attribute
-
-	bool mDoLoad; ///< Should we load data from serializedDataAttr?
-
-	bool mDoSave; ///< Should we save data into serializedDataAttr?
 
 	// Mesh topology callback
 
@@ -445,16 +431,6 @@ inline void HairShape::deserialize( const std::string &data )
 inline MObject HairShape::asMObject()
 {
 	return thisMObject();
-}
-
-inline void HairShape::doSave()
-{
-	mDoSave = true;
-}
-
-inline void HairShape::doLoad()
-{
-	mDoLoad = true;
 }
 
 } // namespace HairShape
