@@ -198,7 +198,7 @@ public:
 	/// \param	aStr	String from which to read.
 	/// \param	aPos	Position at which to start.
 	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
+	inline size_t deserialize( const std::string &aStr, size_t aPos, const MayaMesh *aMayaMesh );
 
 private:	
 
@@ -268,16 +268,40 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 
 inline std::string HairGuides::serialize() const
 {
-	std::ostringstream oss;		
+	std::ostringstream oss;
+	std::vector< std::string > curvesNames;		
+	for ( size_t i = 0; i < mNurbsCurvesNames.length(); i++ )
+	{
+		curvesNames.push_back( mNurbsCurvesNames[ i ].asChar() );
+	}
+
 	oss << mSegmentsStorage->serialize()
-		<< Stubble::serializeObjects< GuideRestPosition >( mRestPositions );
+		<< Stubble::serializeObjects< GuideRestPosition >( mRestPositions )
+		<< Stubble::serializePrimitives< std::string >( curvesNames );
 	return oss.str();
 }
 
-inline size_t HairGuides::deserialize( const std::string &aStr, size_t aPos )
+inline size_t HairGuides::deserialize( const std::string &aStr, size_t aPos, const MayaMesh *aMayaMesh )
 {	
 	aPos = mSegmentsStorage->deserialize( aStr, aPos );
 	mRestPositions = Stubble::deserializeObjects< GuideRestPosition >( aStr, aPos );
+	std::vector< std::string > curvesNames = Stubble::deserializePrimitives< std::string >( aStr, aPos );
+	for ( std::vector< std::string >::const_iterator it = curvesNames.begin(); it != curvesNames.end(); it++ )
+	{
+		mNurbsCurvesNames.append( it->c_str() );
+	}
+		
+	mCurrentPositions.clear();
+	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+		++restPosIt )
+	{		
+		GuideCurrentPosition currPos;			
+		currPos.mPosition = aMayaMesh->getMeshPoint( restPosIt->mUVPoint );
+		currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
+		currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
+		mCurrentPositions.push_back( currPos );				
+	}
+	
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
