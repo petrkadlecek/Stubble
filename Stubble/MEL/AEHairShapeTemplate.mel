@@ -364,7 +364,7 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		$groupCount = size($groupSegmentsLength);
 	}
 	
-	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1;
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 "segmentsUI";
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
@@ -396,18 +396,11 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 	float $groupSegmentsLength[] = `getAttr $attrName`;
 	int $groupCount = size($groupSegmentsLength);
 
-	for( $i = $groupCount; $i < $MAX_INTERPOLATION_GROUPS; ++$i )
+	if ( `rowColumnLayout -exists "segmentsUI"` )
 	{
-		$groupName = $groupPrefix + $i;
-		$groupNameCol = $groupName + "c";
-		string $label = "Group " + $i;
-		if (`attrFieldSliderGrp -exists $groupName`)
-		{
-			picture -e -image "" -m false $groupNameCol;
-			attrFieldSliderGrp -e -m false $groupName;
-		}
+		deleteUI -lay "segmentsUI";
 	}
-	//rowLayout  -numberOfColumns 2  -columnWidth 1 1;
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 "segmentsUI";
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
