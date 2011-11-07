@@ -338,6 +338,10 @@ global proc AEstubbleCutTextureReplace (string $attrName)
 
 global proc AEstubbleInterpolationGroupsNew (string $attrName)
 {
+	if (!`objExists $attrName`) 
+	{
+		return; 
+	}
 	string $buffer[];
 	string $groupPrefix;
 	string $groupName;
