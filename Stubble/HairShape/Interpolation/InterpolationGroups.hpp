@@ -133,6 +133,9 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< unsigned __int32 > InterpolationGroupsSegmentsCount;
 
+
+	static const unsigned __int32 MAX_INTERPOLATION_GROUP_ID = 29;	///< Maximum id of interpolation groups
+
 	unsigned __int32 mTextureHeight;   ///< The texture height
 
 	unsigned __int32 mTextureWidth;	///< The texture width

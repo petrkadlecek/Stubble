@@ -364,7 +364,7 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		$groupCount = size($groupSegmentsLength);
 	}
 	
-	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 "segmentsUI";
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 ( $nodeName + "segmentsUI" );
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
@@ -380,7 +380,6 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 
 global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 {
-	int $MAX_INTERPOLATION_GROUPS = 30;
 	string $buffer[];
 	string $groupPrefix;
 	string $groupName;
@@ -396,27 +395,20 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 	float $groupSegmentsLength[] = `getAttr $attrName`;
 	int $groupCount = size($groupSegmentsLength);
 
-	if ( `rowColumnLayout -exists "segmentsUI"` )
+	string $layoutName = ( $nodeName + "segmentsUI" );
+	if ( `rowColumnLayout -exists $layoutName` )
 	{
-		deleteUI -lay "segmentsUI";
+		deleteUI -lay $layoutName;
 	}
-	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 "segmentsUI";
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 $layoutName;
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
 		string $label = "Group " + $i;
 		$groupNameCol = $groupName + "c";
 		float $cs[] = `getAttr ( $nodeName + ".color_" + $i ) `;
-		if (`attrFieldSliderGrp -exists $groupName`)
-		{
-			picture -e -m true -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
-			attrFieldSliderGrp -e -m true -enable true -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
-		}
-		else
-		{
-			picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
-			attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
-		}
+		picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
+		attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
 	}
 
 	setUITemplate -ppt;

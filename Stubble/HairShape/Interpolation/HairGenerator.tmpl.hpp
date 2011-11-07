@@ -299,6 +299,15 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	HairComponents::ClosestGuidesIds guidesIds;
 	mHairProperties->getGuidesRestPositionsUG().getNClosestGuides( aRestPosition.getPosition(), aInterpolationGroupId,
 		mHairProperties->getNumberOfGuidesToInterpolateFrom(), guidesIds );
+	if ( guidesIds.size() == 0 ) // Nothing to interpolate from
+	{
+		// Null points of hair
+		for ( Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
+		{
+			*it = Point( 0, 0, 0 );
+		}
+		return;
+	}
 	// Get distance from farthest guide
 	float maxDistance = sqrtf( guidesIds.begin()->mDistance ); // Returns max as first ( 'cos it uses max-heap )
 	// Select closest guide

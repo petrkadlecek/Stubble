@@ -138,7 +138,7 @@ inline Matrix< Type > & Matrix< Type >::operator= ( const Matrix< Type > &aM )
 template < typename Type >
 inline const Matrix< Type > & Matrix< Type >::operator+= ( const Matrix< Type > &aM )
 {
-	for (size_t i = 0; i < SIZE; ++i)
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
 	{
 		m[ i ] += aM[ i ];
 	}
@@ -149,7 +149,7 @@ inline const Matrix< Type > & Matrix< Type >::operator+= ( const Matrix< Type > 
 template < typename Type >
 inline const Matrix< Type > & Matrix< Type >::operator-= ( const Matrix< Type > &aM )
 {
-	for (size_t i = 0; i < SIZE; ++i)
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
 	{
 		m[ i ] -= aM[ i ];
 	}
@@ -160,7 +160,7 @@ inline const Matrix< Type > & Matrix< Type >::operator-= ( const Matrix< Type > 
 template < typename Type >
 inline const Matrix< Type > & Matrix< Type >::operator*= ( Type aScalar )
 {
-	for (size_t i = 0; i < SIZE; ++i)
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
 	{
 		m[ i ] *= aScalar;
 	}
