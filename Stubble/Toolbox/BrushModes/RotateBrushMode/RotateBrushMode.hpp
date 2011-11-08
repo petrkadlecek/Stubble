@@ -26,32 +26,33 @@ public:
 
 private:
 	///----------------------------------------------------------------------------------------------------
-	/// This method calculates the rotation transformation along the axis perpendicular to the screen
-	/// going through the middle of the brush.
+	/// This method calculates the rotation transformation matrix along the given axis,
 	///
 	/// \param aMeasure	Measure of the rotation (typically movement of the mouse along the X axis
-	/// \param aView	Viewport information
-	/// \return			World coordinate rotation transformation
+	/// \param aAxis	Axis of rotation
+	/// \return			Resulting rotation transformation
 	///----------------------------------------------------------------------------------------------------
-	Matrix< Real > getRotationMatrix ( Real aMeasure, M3dView &aView );
+	Matrix< Real > getRotationMatrix ( Real aMeasure, const Vector3D< Real > &aAxis );
 
 	///----------------------------------------------------------------------------------------------------
-	/// This method returns the rotation axis from a given viewport informatin.
+	/// This method returns the rotation axis and position (in world coordinates) from a given viewport
+	/// information.
 	///
-	/// \param aView	Viewport information
-	/// \return			World coordinate rotation axis
+	/// \param aView		Viewport information
+	/// \param aAxis		Out - axis of rotation
+	/// \param aPosition	Out - position of the camera (and the rotation)
 	///----------------------------------------------------------------------------------------------------
-	Vector3D< Real > getRotationAxis ( M3dView &aView );
+	void getRotationAxis ( M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition );
 
 	///----------------------------------------------------------------------------------------------------
 	/// This method calculates world coordinates translation matrices to be applied during arbitrary
-	/// rotation - moving the rotation matrix from the camera position to the origin and back
+	/// rotation.
 	///
-	/// \param aView		Viewport information
+	/// \param aPosition	Guide position (hair root)
 	/// \param aToOrigin	Out - translation matrix to the origin
 	/// \param aFromOrigin	Out - inverse translation
 	///----------------------------------------------------------------------------------------------------
-	void getTranslationMatrices ( M3dView &aView, Matrix< Real > &aToOrigin, Matrix< Real > &aFromOrigin);
+	void getTranslationMatrices ( const Vector3D< Real > &aPosition, Matrix< Real > &aToOrigin, Matrix< Real > &aFromOrigin);
 };
 
 } // namespace Toolbox
