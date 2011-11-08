@@ -39,7 +39,7 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 		// For each p of the guide: p' = T^-1 * R * T * p
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
 		Vector3D< Real > axisLocal = Vector3D< Real >::transform(axis, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
-		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(axis, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
+		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(position, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
 		const size_t SEGMENT_COUNT = guide->mGuideSegments.mSegments.size();
 
 		getTranslationMatrices( positionLocal, T, Tinv );
