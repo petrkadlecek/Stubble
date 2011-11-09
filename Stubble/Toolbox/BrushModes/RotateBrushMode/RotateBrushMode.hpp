@@ -38,11 +38,13 @@ private:
 	/// This method returns the rotation axis and position (in world coordinates) from a given viewport
 	/// information.
 	///
+	/// \param aX			Cursor x coordinate
+	/// \param aY			Cursor y coordinate
 	/// \param aView		Viewport information
 	/// \param aAxis		Out - axis of rotation
 	/// \param aPosition	Out - position of the camera (and the rotation)
 	///----------------------------------------------------------------------------------------------------
-	void getRotationAxis ( M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition );
+	void getRotationAxis ( short aX, short aY, M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition );
 
 	///----------------------------------------------------------------------------------------------------
 	/// This method calculates world coordinates translation matrices to be applied during arbitrary

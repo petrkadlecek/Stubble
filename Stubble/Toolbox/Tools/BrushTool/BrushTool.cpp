@@ -277,6 +277,9 @@ MStatus BrushTool::doRelease( MEvent & aEvent )
 	// nullify selection area
 	mStartPos[ 0 ] = mStartPos[ 1 ] = mPrevPos[ 0 ] = mPrevPos[ 1 ] = mEndPos[ 0 ] = mEndPos[ 1 ] = 0;
 
+	HairTaskProcessor::getInstance()->purgeAccumulator();
+	HairTaskProcessor::waitFinishWorkerThread();
+
 	// Put the change into the undo stack
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
 	if ( 0 != activeHairShape )
@@ -295,20 +298,11 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 		return;
 	}
 
-	// Transform the move vector into the world coordinates
-	/*MDagPath cameraPath;
-	mView.getCamera(cameraPath);
-	MFnCamera camera(cameraPath);
-
-	MStatus status;
-	MVector right = camera.rightDirection(MSpace::kWorld, &status);
-	MVector up = camera.upDirection(MSpace::kWorld, &status);*/
 	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
-	//Vector3D< Real > moveVector(ratio * aDX.x * right + ratio * aDX.y * up);
 	Vector3D< Real > moveVector(ratio * aDX.x, ratio * aDX.y, 0.0);
 
 	// Create the hair task
-	HairTask *task = new HairTask(mView, moveVector, activeHairShape, &mAffectedGuides, mBrushMode);
+	HairTask *task = new HairTask(mView, mStartPos[ 0 ], mStartPos[ 1 ], moveVector, activeHairShape, &mAffectedGuides, mBrushMode);
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
 

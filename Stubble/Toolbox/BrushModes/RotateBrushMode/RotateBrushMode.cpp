@@ -29,7 +29,7 @@ void dumpToFile ( Matrix< Real > &M ) //TODO: remove me
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
 	Vector3D< Real> axis, position; // Axis of rotation and its position respectively
-	getRotationAxis(aTask->mView, axis, position);
+	getRotationAxis(aTask->mMousePos[ 0 ], aTask->mMousePos[ 0 ], aTask->mView, axis, position);
 	Matrix< Real > R, T, Tinv;  // Rotation matrix, translation matrix to the origin and its inverse
 
 	// For each guide
@@ -43,10 +43,10 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 		const size_t SEGMENT_COUNT = guide->mGuideSegments.mSegments.size();
 
 		getTranslationMatrices( positionLocal, T, Tinv );
-		R = getRotationMatrix( aTask->mDx.x, axisLocal );
 		Matrix< Real > A; // A = Tinv * R * T => p' = A * p
 		if ( !mEnableFalloff )
 		{
+			R = getRotationMatrix( aTask->mDx.x, axisLocal );
 			A = T * R * Tinv; // Note that * is left associative
 		}
 
@@ -118,21 +118,24 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 	return R;
 }
 
-void RotateBrushMode::getRotationAxis ( M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition )
+void RotateBrushMode::getRotationAxis ( short aX, short aY, M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition )
 {
 	// Obtain the camera information
-	MDagPath cameraPath;
-	aView.getCamera(cameraPath);
-	MFnCamera camera(cameraPath);
+	//MDagPath cameraPath;
+	//aView.getCamera(cameraPath);
+	//MFnCamera camera(cameraPath);
 
 	// Get the viewing vector in world coordinates
 	MStatus status;
-	MVector view = camera.viewDirection(MSpace::kWorld, &status);
-	MPoint eye = camera.eyePoint(MSpace::kWorld, &status);
+	//MVector view = camera.viewDirection(MSpace::kWorld, &status);
+	// Get the cursor position in world coordinates
+	MPoint pos;
+	MVector dir;
+	status = aView.viewToWorld(aX, aY, pos, dir);
 	
-	Vector3D< Real > axis(view.x, view.y, view.z);
+	Vector3D< Real > axis(dir.x, dir.y, dir.z);
 	axis.normalize();
-	Vector3D< Real > position(eye.x, eye.y, eye.z);
+	Vector3D< Real > position(pos.x, pos.y, pos.z);
 
 	aAxis = axis;
 	aPosition = position;
