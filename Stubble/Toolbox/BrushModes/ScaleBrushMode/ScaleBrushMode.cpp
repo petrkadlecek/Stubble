@@ -19,8 +19,8 @@ void ScaleBrushMode::doBrush ( HairTask *aTask )
 		guide->mGuideSegments.mSegmentLength = getNewSegmentLength(aTask->mDx.x, guide->mGuideSegments.mSegmentLength);
 
 		// Loop through all guide segments except the first one
-		Vector3D< double > previousVertex = hairVertices[ 0 ];
-		Vector3D< double > v;
+		Vector3D< Real > previousVertex = hairVertices[ 0 ];
+		Vector3D< Real > v;
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			v = hairVertices[ i ] - previousVertex;
