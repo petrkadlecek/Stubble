@@ -17,15 +17,16 @@ void TranslateBrushMode::doBrush( HairTask *aTask )
 	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		const size_t SEGMENT_COUNT = hairVertices.size();
 		dX = Vector3D< double >::transform(wdX, guide->mPosition.mLocalTransformMatrix);
-		const size_t SEGMENT_COUNT = guide->mGuideSegments.mSegments.size();
 
 		// Loop through all guide segments except the first one (that's a follicle and should not move)
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
 			{
-				guide->mGuideSegments.mSegments[ i ] += (mEnableFalloff == true) ? dX * guide->mSegmentsAdditionalInfo[ i ].mFallOff : dX;
+				hairVertices[ i ] += (mEnableFalloff == true) ? dX * guide->mSegmentsAdditionalInfo[ i ].mFallOff : dX;
 			}
 		}
 

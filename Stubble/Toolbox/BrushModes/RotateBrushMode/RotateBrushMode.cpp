@@ -38,9 +38,10 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 	{
 		// For each p of the guide: p' = T^-1 * R * T * p
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		const size_t SEGMENT_COUNT = hairVertices.size();
 		Vector3D< Real > axisLocal = Vector3D< Real >::transform(axis, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
 		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(position, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
-		const size_t SEGMENT_COUNT = guide->mGuideSegments.mSegments.size();
 
 		getTranslationMatrices( positionLocal, T, Tinv );
 		Matrix< Real > A; // A = Tinv * R * T => p' = A * p
@@ -63,7 +64,7 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 				A = T * R * Tinv; // Note that * is left associative
 			}
 			
-			guide->mGuideSegments.mSegments[ i ] = Vector3D< Real >::transformPoint(guide->mGuideSegments.mSegments[ i ], A);
+			hairVertices[ i ] = Vector3D< Real >::transformPoint(hairVertices[ i ], A);
 		}
 
 		guide->mDirtyFlag = true;
