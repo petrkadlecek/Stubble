@@ -12,10 +12,9 @@ namespace HairShape
 namespace HairComponents
 {
 
-const Real HAIR_LENGTH = 5.0f;
-
 SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions, 
-	const Interpolation::InterpolationGroups & aInterpolationGroups )
+	const Interpolation::InterpolationGroups & aInterpolationGroups, Real aLength ):
+	mStartLength ( aLength )
 {
 	// Prepare size
 	mCurrent.mSegments.resize( aRestPositions.size() );
@@ -30,7 +29,7 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 			pos.mPosition.getVCoordinate() ) + 1 );
 		// For every segment
 		Vector3D< Real > segmentPos;
-		Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guide.mSegments.size() );
+		Vector3D< Real > segmentSize( 0, 0, aLength / guide.mSegments.size() );
 		for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); ++segIt )
 		{
 			*segIt = segmentPos;
@@ -44,7 +43,8 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
 	const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups,
-	unsigned __int32 aNumberOfGuidesToInterpolateFrom )
+	unsigned __int32 aNumberOfGuidesToInterpolateFrom ):
+	mStartLength( aOldStorage.mStartLength )
 {
 	if ( aOldStorage.imported() )
 	{
@@ -63,7 +63,8 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Res
 		aNumberOfGuidesToInterpolateFrom, mCurrent );
 }
 
-SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const GuidesIds & aRemainingGuides )
+SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const GuidesIds & aRemainingGuides ) :
+	mStartLength( aOldStorage.mStartLength )
 {
 	if ( aOldStorage.imported() )
 	{
@@ -329,7 +330,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				pos.mPosition.getVCoordinate() ) + 1 );
 			// For every segment
 			Vector3D< Real > segmentPos;
-			Vector3D< Real > segmentSize( 0, 0, HAIR_LENGTH / guide.mSegments.size() );
+			Vector3D< Real > segmentSize( 0, 0, mStartLength / guide.mSegments.size() );
 			for ( Segments::iterator segIt = guide.mSegments.begin(); segIt != guide.mSegments.end(); ++segIt )
 			{
 				*segIt = segmentPos;

@@ -35,9 +35,11 @@ public:
 	///
 	/// \param	aRestPositions			the rest positions of guides. 
 	/// \param	aInterpolationGroups	Interpolation groups.
+	/// \param	aLength					Hair guides length.
 	///-------------------------------------------------------------------------------------------------
 	SegmentsStorage( const GuidesRestPositions & aRestPositions, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups );
+		const Interpolation::InterpolationGroups & aInterpolationGroups,
+		Real aLength );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, interpolates segments from old segments in aOldStorage
@@ -204,6 +206,8 @@ private:
 	FrameSegments mCurrent; ///< The current frame segments
 
 	bool mAreCurrentSegmentsDirty;  ///< true if are current segments dirty and need to be propagated
+
+	Real mStartLength;  ///< The start length of hair guides
 };
 
 // inline functions implementation

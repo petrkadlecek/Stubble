@@ -385,7 +385,8 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	}
 	else
 	{
-		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups );
+		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups, 
+			aMayaMesh.getRestPose().getBoundingBox().minSize() * 0.25f );
 	}
 	// Now we can throw away old data
 	std::swap( tmpRestPositions, mRestPositions );

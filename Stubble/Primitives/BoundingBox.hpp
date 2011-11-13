@@ -78,6 +78,13 @@ public:
 	inline const BoundingBox & operator= ( const BoundingBox & aBoundingBox );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Gets the minimum size of bounding box. 
+	///
+	/// \return	The minimum size. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real minSize() const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
 	///-------------------------------------------------------------------------------------------------
 	inline std::string serialize() const;	
@@ -164,6 +171,12 @@ inline const BoundingBox & BoundingBox::operator= ( const BoundingBox & aBoundin
 	mMin = aBoundingBox.mMin;
 	mMax = aBoundingBox.mMax;
 	return *this;
+}
+
+inline Real BoundingBox::minSize() const
+{
+	Vector3D< Real > size = mMax - mMin;
+	return size.x > size.y ? ( size.x > size.z ? size.x : size.z ) : ( size.y > size.z ? size.y : size.z );
 }
 
 inline std::string BoundingBox::serialize() const
