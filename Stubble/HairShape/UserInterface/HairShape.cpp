@@ -133,6 +133,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	if ( aPlug == countAttr ) // Guides hair count was changed
 	{
 		mGuidesHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+		{
+			return false;
+		}
 		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
 			mGuidesHairCount, true );
 		refreshPointersToGuidesForInterpolation();
