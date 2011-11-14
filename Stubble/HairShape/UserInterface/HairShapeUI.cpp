@@ -124,7 +124,10 @@ bool HairShapeUI::select( MSelectInfo &aSelectInfo, MSelectionList &aSelectionLi
 		// Select hair guides	
 		// hairShape->mHairGuides->applySelection( aSelectInfo, aSelectionList, aWorldSpaceSelectPts );
 	}
-    
+    // let the shape know that its selected components list might have changed
+	HairShape* hairShape = ( HairShape* ) surfaceShape();
+	hairShape->setSelectionModified( selected );                                                      
+	
 	return selected;
 }
 
@@ -161,10 +164,9 @@ bool HairShapeUI::selectVertices( MSelectInfo &aSelectInfo, MSelectionList &aSel
 	HairShape* hairShape = ( HairShape* ) surfaceShape();
 
 	// Select hair guides	
-	hairShape->mHairGuides->applySelection( aSelectInfo, aSelectionList, aWorldSpaceSelectPts );
+	return ( hairShape->mHairGuides->applySelection( aSelectInfo, aSelectionList, aWorldSpaceSelectPts ) );
 
-	/*TODO propagate the return value from the above method */
-	return true;
+	
 }
 
 HairShapeUI::SelectionMode HairShapeUI::getSelectionMode()

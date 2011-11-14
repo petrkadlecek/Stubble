@@ -24,7 +24,7 @@ HairGuides::~HairGuides()
 	delete mSegmentsStorage;
 }
 
-void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
+bool HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
 {
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
@@ -34,7 +34,29 @@ void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides);
+	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
+	// Display selection
+	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+
+	return isAnythingSelected;
+}
+
+void HairGuides::applySelection( MIntArray &aSelectedComponentIndices )
+{
+	/*if ( aSelectedComponentIndices.length() == 0 )
+	{
+		return;
+	}*/
+	
+	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
+	{
+		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
+	}
+	// Hide old selection
+	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
+	// Rebuild selected segments UG
+	clearSelectedGuides();
+	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectedComponentIndices, mSelectedGuides);
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }

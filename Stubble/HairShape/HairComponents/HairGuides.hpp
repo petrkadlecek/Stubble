@@ -58,8 +58,18 @@ public:
 	/// \param	aSelectInfo				structure containing selection region and various other information
 	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
 	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	/// \return Has anything been seleted?
 	///----------------------------------------------------------------------------------------------------
-	void applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
+	bool applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Applies the selection received from Maya's global selection list.
+	/// This method is used to synchronize the node's internal selection list, which has no other way
+	/// of accessing information about the keyboard modifiers being pressed during selection.
+	///
+	/// \param	aSelectedComponentIndices		The component list received from Maya's global selection list
+	///----------------------------------------------------------------------------------------------------
+	void applySelection( MIntArray &aSelectedComponentIndices );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the bounding box. 

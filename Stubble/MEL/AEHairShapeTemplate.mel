@@ -5,18 +5,17 @@ global proc AEHairShapeTemplate( string $nodeName )
 
 	// Create the "General" section
 	editorTemplate -beginLayout "General Properties" -collapse false;
-
-	   // Add a "special" control for the scale attribute that allow
-	   // "quick set" options for scales of 5, 10, and 15.
-	   //editorTemplate -callCustom "transCircleScaleNew"
-	   //				  "transCircleScaleReplace"
-	   //			  "scale";
-
+	
 		// Add the general controls
 		editorTemplate -addControl "guides_count";
 		editorTemplate -addControl "interpolated_hair_count";
 		editorTemplate -addControl "displayed_hair_count";
-		editorTemplate -addDynamicControl "segments_count";
+		
+		editorTemplate -beginLayout "Segments Count" -collapse false;
+			editorTemplate -callCustom "AEstubbleInterpolationGroupsNew"
+					"AEstubbleInterpolationGroupsReplace" "segments_count";
+		editorTemplate -endLayout;
+		
 		editorTemplate -addControl "display_guides";
 		editorTemplate -addControl "display_hair";
 		editorTemplate -addControl "voxels_dimensions";
@@ -335,4 +334,81 @@ global proc AEstubbleCutTextureReplace (string $attrName)
 	attrNavigationControlGrp -edit
 		-at $attrName
 		"cut_texture";
+}
+
+global proc AEstubbleInterpolationGroupsNew (string $attrName)
+{
+	string $buffer[];
+	string $groupPrefix;
+	string $groupName;
+	string $nodeName;
+	int $numTokens = `tokenize $attrName "." $buffer`;
+	$nodeName = $buffer[0];
+	$groupPrefix = $buffer[1];
+	$groupPrefix = $groupPrefix + "_group_";
+	
+	setUITemplate -pst attributeEditorTemplate;
+
+	float $groupSegmentsLength[];
+	int $groupCount = 1;
+	if ( catchQuiet ( $groupSegmentsLength = `getAttr $attrName`) )
+	{
+	}
+	else
+	{
+		$groupCount = size($groupSegmentsLength);
+	}
+	
+	for( $i = 0; $i < $groupCount; ++$i )
+	{
+		$groupName = $groupPrefix + $i;
+		string $label = "Group " + $i;
+		catchQuiet ( `attrFieldSliderGrp -l $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName` ); 
+	}
+	
+	setUITemplate -ppt;
+}
+
+global proc AEstubbleInterpolationGroupsReplace (string $attrName)
+{
+	int $MAX_INTERPOLATION_GROUPS = 30;
+	string $buffer[];
+	string $groupPrefix;
+	string $groupName;
+	string $nodeName;
+	int $numTokens = `tokenize $attrName "." $buffer`;
+	$nodeName = $buffer[0];
+	$groupPrefix = $buffer[1];
+	$groupPrefix = $groupPrefix + "_group_";
+	
+	setUITemplate -pst attributeEditorTemplate;
+
+	float $groupSegmentsLength[] = `getAttr $attrName`;
+	int $groupCount = size($groupSegmentsLength);
+	
+	for( $i = 0; $i < $groupCount; ++$i )
+	{
+		$groupName = $groupPrefix + $i;
+		string $label = "Group " + $i;
+		if (`attrFieldSliderGrp -exists $groupName`)
+		{
+			attrFieldSliderGrp -e -visible true -enable true -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
+		}
+		else
+		{
+			attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
+		}
+	}
+
+	for( $i = $groupCount; $i < $MAX_INTERPOLATION_GROUPS; ++$i )
+	{
+		$groupName = $groupPrefix + $i;
+		string $label = "Group " + $i;
+		if (`attrFieldSliderGrp -exists $groupName`)
+		{
+			attrFieldSliderGrp -e -visible false -enable false -at "" $groupName;
+		}
+	}
+		
+	setUITemplate -ppt;
 }

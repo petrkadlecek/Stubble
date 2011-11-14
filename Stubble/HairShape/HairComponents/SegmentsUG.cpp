@@ -27,7 +27,7 @@ SegmentsUG::~SegmentsUG()
 	/* TODO */
 }
 
-void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	const FrameSegments & aFrameSegments,
 	MSelectInfo & aSelectInfo,
 	MSelectionList & aSelectionList,
@@ -132,7 +132,101 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			mask, true );
 	}
 
-	std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
+	//std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
+	build( aSelectedGuides, true );
+
+	return isAnythingSelected;
+}
+
+void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+		const FrameSegments & aFrameSegments,
+		MIntArray &aSelectedComponentIndices,
+		SelectedGuides & aSelectedGuides)
+{
+	assert(aGuidesCurrentPositions.size() == aFrameSegments.mSegments.size());
+	aSelectedGuides.clear();
+
+	// if the list is not empty, then update the selection,
+	// else just skip and deselect everything
+	if ( aSelectedComponentIndices.length() )
+	{
+
+		// retrieve the selection mask from the Maya UI
+		HairShapeUI::SelectionMode selMode = HairShapeUI::getSelectionMode();
+
+		int selectedComponentArrayIndex = 0;
+
+		// for each guide
+		GuideId gId = 0;
+		GuidesCurrentPositions::const_iterator posIt = aGuidesCurrentPositions.begin();
+		for (GuidesSegments::const_iterator guideIt = aFrameSegments.mSegments.begin();
+			guideIt != aFrameSegments.mSegments.end(); ++guideIt, ++posIt, ++gId)
+		{
+			bool selected = false; // Denotes whether the current guide is selected or not
+			SegmentsAdditionalInfo additionalInfo;
+		
+			// for each guide segment (vertex)
+			SegmentId sId = 0;
+			// the index of the last segment on the guide
+			unsigned int lastSegment = guideIt->mSegments.size() - 1;
+			for (Segments::const_iterator segIt = guideIt->mSegments.begin();
+				segIt != guideIt->mSegments.end(); ++segIt, ++sId)
+			{
+				OneSegmentAdditionalInfo sgmtInfo;
+			
+				// propagate the selection condition (tips, roots, whole guides) from the Maya UI
+				bool selectionCondition = false;
+				switch ( selMode )
+				{
+				case HairShapeUI::kSelectRoots : if ( sId == 0)
+												 {
+													 selectionCondition = true;
+												 }
+												break;
+				case HairShapeUI::kSelectTips : if ( sId == lastSegment)
+												 {
+													 selectionCondition = true;
+												 }
+												break;
+				default :
+					selectionCondition = false;
+				}
+
+				// If a hit has been recorded
+				if ((gId == aSelectedComponentIndices[ selectedComponentArrayIndex ]) && ( selectionCondition )) // for now we are just selecting the roots or the tips
+				{
+					sgmtInfo.mSelected = true; //TODO: use selection filter
+					selected = true;
+					// move on to the next selected component
+					selectedComponentArrayIndex++;
+				}
+				additionalInfo.push_back(sgmtInfo);
+			}
+
+			if (selected)
+			{
+				SelectedGuide *guide = new SelectedGuide();
+				guide->mDirtyFlag = false;
+				guide->mDirtyRedrawFlag = false;
+				guide->mNormal = posIt->mPosition.getNormal();
+				guide->mGuideId = gId;
+				guide->mGuideSegments.mSegmentLength = guideIt->mSegmentLength;
+				guide->mGuideSegments.mSegments = Segments(guideIt->mSegments);
+				guide->mPosition = *posIt;
+				guide->mSegmentsAdditionalInfo = additionalInfo;
+
+				aSelectedGuides.push_back(guide);
+			}
+
+			// if we have checked all of the selected component indices,
+			// then there is no need to go through all the guides
+			if ( selectedComponentArrayIndex >= aSelectedComponentIndices.length() )
+			{
+				break;
+			}
+		} // for each guide
+	}
+	//std::cout << "Number of selected guides: " << aSelectedGuides.size() << "\n" << std::flush;
 	build( aSelectedGuides, true );
 }
 

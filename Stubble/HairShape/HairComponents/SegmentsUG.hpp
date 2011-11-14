@@ -45,12 +45,27 @@ public:
 	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
 	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
 	///	\param	aSelectedGuides			out parameter for returning currently selected guides.
+	/// \return Has anything been selected?
 	///-------------------------------------------------------------------------------------------------
-	void build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+	bool build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
 		MSelectInfo & aSelectInfo,
 		MSelectionList & aSelectionList,
 		MPointArray & aWorldSpaceSelectedPts,
+		SelectedGuides & aSelectedGuides);
+
+	///-------------------------------------------------------------------------------------------------
+	/// Builds the uniform grid using selection information, the end product is a grid built using only
+	/// selected guides. TODO: add selection filter support
+	///
+	/// \param	aGuidesCurrentPositions		the guides current positions. 
+	/// \param	aFrameSegments				the guides segments in current frame. 
+	/// \param	aSelectedComponentIndices	the component list received from Maya's global selection list
+	///	\param	aSelectedGuides				out parameter for returning currently selected guides.
+	///-------------------------------------------------------------------------------------------------
+	void build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+		const FrameSegments & aFrameSegments,
+		MIntArray &aSelectedComponentIndices,
 		SelectedGuides & aSelectedGuides);
 
 	///-------------------------------------------------------------------------------------------------

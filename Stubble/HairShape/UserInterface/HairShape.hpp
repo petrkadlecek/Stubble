@@ -238,6 +238,17 @@ public:
 	/// Refresh all dirty textures. 
 	///----------------------------------------------------------------------------------------------------
 	void refreshTextures();
+		
+	///----------------------------------------------------------------------------------------------------
+	/// Notifies the shape when its list of selected components might have changed.
+	/// \param aFlag	True when the selection list changes.
+	///----------------------------------------------------------------------------------------------------
+	void setSelectionModified( bool aFlag );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Has the shape's list of selected components been modified?
+	///----------------------------------------------------------------------------------------------------
+	bool isSelectionModified();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets this HairShape as active object. 
@@ -272,6 +283,7 @@ public:
 	/// Gets the currect maya mesh.
 	///----------------------------------------------------------------------------------------------------
 	inline MayaMesh * getCurrentMesh() const;
+
 
 private:
 	
@@ -359,6 +371,8 @@ private:
 	bool mIsTopologyCallbackRegistered; ///< true if is topology callback registered
 
 	bool mIsTopologyModified;   ///< true if is topology modified
+
+	bool mIsSelectionModified; ///< true if the selection has changed
 
 	static MCallbackIdArray mCallbackIds;	///< List of identifiers for the callbacks
 

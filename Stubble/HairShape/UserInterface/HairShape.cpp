@@ -12,6 +12,8 @@
 #include <maya/MFnStringData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
+#include <maya/MItMeshEdge.h>
+#include <maya/MItMeshVertex.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
@@ -66,7 +68,8 @@ HairShape::HairShape():
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
-	mSampleTextureDimension( 128 )
+	mSampleTextureDimension( 128 ),
+	mIsSelectionModified( false )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -290,6 +293,106 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
+	if ( this->isSelectionModified() )
+	{
+		MSelectionList selList;
+		
+		// Get the list of selected items 
+		MGlobal::getActiveSelectionList( selList );
+
+		//if the list is empty, just deselect everything
+		if ( !(selList.length()) )
+		{			
+			MIntArray arr;
+			this->mHairGuides->applySelection( arr );
+		}
+
+		 // we will use an iterator this time to walk over the selection list.
+		MItSelectionList it( selList );
+		while ( !it.isDone() ) 
+		{
+
+			MDagPath dagPath; 
+			MObject	component;
+			MStatus stat;
+
+			// we retrieve a dag path to a transform or shape, and an MObject
+			// to any components that are selected on that object (if any).
+			//
+			it.getDagPath( dagPath, component );
+
+			// attach a function set to the object
+			MFnDependencyNode fn(dagPath.node());
+		
+			// print the object name
+			std::cout << "\nOBJECT: " << fn.name().asChar() << std::endl;
+
+			/*MObjectArray activeComponents = this->activeComponents();
+			std::cout << "Number of vertices: " << activeComponents.length() << std::endl;*/
+
+			// If we have components to iterate over
+			if (!component.isNull()) 
+			{
+				// determine the component type
+				switch (component.apiType()) {
+
+					// we have mesh vertices
+					case MFn::kMeshVertComponent: {
+
+						// Single-indexed components
+						MFnSingleIndexedComponent *iComp = new MFnSingleIndexedComponent( component );
+						MIntArray arr;
+						iComp->getElements( arr );
+						cout << "Index array length: " << arr.length() << endl;
+						for ( int i = 0; i < arr.length(); i++ )
+						{
+							cout << arr[i] << " ";
+						}
+
+						cout << endl;
+
+						// tell the node that it needs to rebuild its internal selection list
+						this->mHairGuides->applySelection( arr );
+
+						break;
+					}
+
+					case MFn::kMeshEdgeComponent: {
+						MItMeshEdge itEdge( dagPath, component, &stat );
+						while ( !itEdge.isDone() )
+						{
+							MPoint point = itEdge.center(MSpace::kWorld );
+
+							// write the index and the position
+							std::cout << "\t" << itEdge.index()
+									  << ") " << point.x 
+									  << " "  << point.y 
+									  << " "  << point.z 
+									  << (itEdge.isSmooth() ? " smooth\n" : " hard\n");
+
+							itEdge.next();
+						}
+						break;
+					}
+											  				
+					// do the default
+					default:
+						{
+							std::cout << "HairShape::Draw() - Unknown Component Type!" << endl;
+						}
+						break;
+
+				}
+
+			}			
+			it.next();
+		}
+
+		// important: let the shape know that its list of selected components is up to date
+		this->setSelectionModified( false );
+	}
+	//--------------------------------------------------------------------------------
+	
 	// First init gl extensions
 	if ( !GLExt::isInited() )
 	{
@@ -333,7 +436,6 @@ MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aI
 										const MAttributeSpecArray& aSpec, 
 										MSelectionList& aList )
 {
-	cout << "Method HairShape::matchComponent: " << endl;
 	MPxSurfaceShape::MatchResult result = MPxSurfaceShape::kMatchOk;
 	
 	MAttributeSpec attrSpec = aSpec[0];
@@ -435,7 +537,30 @@ MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aI
 
 bool HairShape::match(	const MSelectionMask & aMask, const MObjectArray& aComponentList ) const
 {
-	return true;
+	bool result = false;
+
+	if( aComponentList.length() == 0 ) {
+		result = aMask.intersects( MSelectionMask::kSelectMeshes );
+	}
+	else {
+		for ( int i = 0; i < ( int ) aComponentList.length(); i++ ) {
+			if ( ( aComponentList[i].apiType() == MFn::kMeshVertComponent ) &&
+				 ( aMask.intersects( MSelectionMask::kSelectMeshVerts ) )
+			) 
+			{
+				result = true;
+				break;
+			}
+			else if ( ( aComponentList[i].apiType() == MFn::kMeshEdgeComponent ) &&
+				( aMask.intersects( MSelectionMask::kSelectMeshEdges ) )
+			) 
+			{
+				result = true;
+				break;
+			}
+		}
+	}
+	return result;
 }
 
 MStatus HairShape::initialize()
@@ -618,6 +743,16 @@ void HairShape::refreshTextures()
 			mInterpolatedHair.propertiesUpdate( *this );
 		}
 	}
+}
+
+void HairShape::setSelectionModified( bool aFlag )
+{
+	mIsSelectionModified = aFlag;
+}
+
+bool HairShape::isSelectionModified()
+{
+	return mIsSelectionModified;
 }
 
 /************************************************************************************************************/
