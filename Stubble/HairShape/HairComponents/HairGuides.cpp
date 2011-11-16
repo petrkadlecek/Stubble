@@ -19,6 +19,8 @@ namespace HairShape
 namespace HairComponents
 {
 
+Real GUIDE_SIZE = 0.2f;  ///< Size of the guide before scaling for huge/small mesh
+
 HairGuides::HairGuides():
 	mSegmentsStorage( 0 ),
 	mBoundingBoxDirtyFlag( false ),
@@ -185,6 +187,8 @@ void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterp
 		}
 		mSegmentsStorage->importSegments( frameSegments );		
 	}
+	// Refresh interpolation groups ids
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	// All nurbs has been imported, set time back
 	MAnimControl::setCurrentTime( MAnimControl::minTime() );
 }
@@ -250,7 +254,8 @@ void HairGuides::setCurrentTime( Time aTime )
 	mBoundingBoxDirtyFlag = true;
 }
 
-GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
+GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
+	bool aTopologyChanged )
 {
 	if ( aTopologyChanged )
 	{
@@ -291,6 +296,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		std::swap( tmpSegmentsStorage, mSegmentsStorage );
 		delete tmpSegmentsStorage;
 		// Rest positions has changed...
+		refreshInterpolationGroupIds( aInterpolationGroups );
 		mRestPositionsUG.setDirty();
 		clearSelectedGuides();
 	}
@@ -373,6 +379,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
 		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
 	}
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	// Now we can create new segments
 	if ( aInterpolateFromPrevious )
 	{
@@ -386,7 +393,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	else
 	{
 		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups, 
-			aMayaMesh.getRestPose().getBoundingBox().minSize() * 0.25f );
+			aMayaMesh.getRestPose().getBoundingBox().diagonal() * GUIDE_SIZE );
 	}
 	// Now we can throw away old data
 	std::swap( tmpRestPositions, mRestPositions );
@@ -403,6 +410,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	mSegmentsStorage->setSegmentsCount( mRestPositions, aInterpolationGroups );
 	// Segments has changed...
 	mUndoStack.clear();
@@ -444,6 +452,24 @@ void HairGuides::updateSelectedGuides()
 	// We will not update all segments ug, it will be updated when necessary
 	// for each guide, we will only set selected segments as dirty
 	mSelectedSegmentsUG.setDirty();
+}
+
+void HairGuides::refreshInterpolationGroupIds( const Interpolation::InterpolationGroups & aInterpolationGroups )
+{
+	unsigned __int32 lastId = 0;
+	// Realloc arrays
+	mGuidesVerticesStartIndex.resize( mRestPositions.size() );
+	mGuidesInterpolationGroupIds.resize( mRestPositions.size() );
+	Indices::iterator index = mGuidesVerticesStartIndex.begin();
+	Indices::iterator groupId = mGuidesInterpolationGroupIds.begin();
+	// For every guide
+	for ( GuidesRestPositions::const_iterator posIt = mRestPositions.begin(); posIt != mRestPositions.end();
+		++posIt, ++index, ++groupId )
+	{
+		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );
+		*index = lastId;
+		lastId = aInterpolationGroups.getGroupSegmentsCount( *groupId );
+	}
 }
 
 } // namespace HairComponents

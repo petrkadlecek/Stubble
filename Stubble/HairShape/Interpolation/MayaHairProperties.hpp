@@ -264,7 +264,14 @@ protected:
 	/// \param	aSegmentsCountPlug	The segments count attribute. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setSegmentsCountAttr( const MObject & aSegmentsCountAttr );
-	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Sets a scale factor. 
+	///
+	/// \param	aScaleFactor	a scale factor. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setScaleFactor( Real aScaleFactor );
+
 	///-------------------------------------------------------------------------------------------------
 	/// Updates components count for an int array attribute. 
 	///
@@ -388,6 +395,8 @@ private:
 
 
 	MObject mSegmentsCountAttr;   ///< The segments count attribute
+
+	Real mScaleFactor;  ///< The scale factor for all size dependent attributes
 };
 
 // inline functions implementation
@@ -402,6 +411,32 @@ inline void MayaHairProperties::refreshPointersToGuides( const HairComponents::G
 inline void MayaHairProperties::setSegmentsCountAttr( const MObject & aSegmentsCountAttr )
 {
 	mSegmentsCountAttr = aSegmentsCountAttr;
+}
+
+inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
+{
+	aScaleFactor *= 0.02f; // Reasonable scaling..
+	Real change = aScaleFactor / mScaleFactor;
+	mScaleFactor = aScaleFactor;
+	// Rescale all size depented attributes :
+	mRootThickness *= change;
+	mTipThickness *= change;
+	mRootFrizz *= change;
+	mTipFrizz *= change;
+	mFrizzXFrequency *= change;
+	mFrizzYFrequency *= change;
+	mFrizzZFrequency *= change;
+	mFrizzAnimSpeed *= change;
+	mRootKink *= change;
+	mTipKink *= change;
+	mKinkXFrequency *= change;
+	mKinkYFrequency *= change;
+	mKinkZFrequency *= change;
+	mRootSplay *= change;
+	mTipSplay *= change;
+	mCenterSplay *= change;
+	mOffset *= change;
+	mAspect *= change;
 }
 
 } // namespace Interpolation

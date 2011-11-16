@@ -527,6 +527,9 @@ void HairShape::meshChange( MObject aMeshObj )
 			mGuidesHairCount );
 		mHairGuides->setCurrentTime( mTime );
 		refreshPointersToGuidesForInterpolation();
+		// Set interpolated params scaling
+		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
+
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )
 		{
@@ -546,7 +549,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			delete mVoxelization;
 			mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 				mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
-			mHairGuides->meshUpdate( *mMayaMesh, true );
+			mHairGuides->meshUpdate( *mMayaMesh, *mInterpolationGroups, true );
 			refreshPointersToGuidesForInterpolation();
 			// Interpolated hair construction
 			if ( mDisplayInterpolated )
@@ -558,7 +561,7 @@ void HairShape::meshChange( MObject aMeshObj )
 		else
 		{
 			mMayaMesh->meshUpdate( aMeshObj, uvSetName );
-			mHairGuides->meshUpdate( *mMayaMesh, false );
+			mHairGuides->meshUpdate( *mMayaMesh, *mInterpolationGroups, false );
 			// Interpolated hair positions recalculation
 			if ( mDisplayInterpolated )
 			{

@@ -1,7 +1,9 @@
 #include "RestPositionsUG.hpp"
 
-#include <vector>
+
 #include <assert.h>
+#include <limits>
+#include <vector>
 
 using namespace std;
 
@@ -59,7 +61,7 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 	}
 	// Init query
 	KdTree::CKNNQuery query( aN );
-	query.Init( pos , aN, 1e20f );
+	query.Init( pos , aN, std::numeric_limits< float >::max() );
 	// Execute query
     mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
 	// Fill results
