@@ -29,7 +29,7 @@ void dumpToFile ( Matrix< Real > &M ) //TODO: remove me
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
 	Vector3D< Real> axis, position; // Axis of rotation and its position respectively
-	getRotationAxis(aTask->mMousePos[ 0 ], aTask->mMousePos[ 0 ], aTask->mView, axis, position);
+	getRotationAxis(aTask->mMousePos[ 0 ], aTask->mMousePos[ 1 ], aTask->mView, axis, position);
 	Matrix< Real > R, T, Tinv;  // Rotation matrix, translation matrix to the origin and its inverse
 
 	// For each guide

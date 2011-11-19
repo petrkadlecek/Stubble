@@ -564,9 +564,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Convergence condition:
 			previousAbsC = absC;
 			absC = C.MaximumAbsoluteValue();
-			if (absC <= CONVERGENCE_THRESHOLD  || (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)/*|| iterationsCount >= MAX_LOOP_ITERATIONS*/)
+			if (absC <= CONVERGENCE_THRESHOLD  /*|| (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)*/ || iterationsCount >= MAX_LOOP_ITERATIONS)
 			{
-				//std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
 				break;
 			}
 			// -------------------------------------------------------------------------------------
