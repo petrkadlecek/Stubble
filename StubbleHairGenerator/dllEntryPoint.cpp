@@ -2,6 +2,12 @@
 #include "Common/CommonTypes.hpp"
 #include "Common/CommonFunctions.hpp"
 
+// If report is defined, subdivide running time will be measured and outputed
+#define REPORT
+
+// If defined bounding box of generated hair points will be calculated
+#define CALCULATE_BBOX
+
 #include "HairShape/Interpolation/HairGenerator.tmpl.hpp"
 #include "HairShape/Interpolation/RMHairProperties.hpp"
 #include "HairShape/Interpolation/RMOutputGenerator.hpp"
@@ -36,8 +42,7 @@ RtVoid DLLEXPORT Free( RtPointer aData );
 }
 #endif
 
-// If report is defined, subdivide running time will be measured and outputed
-#define REPORT
+
 
 ///----------------------------------------------------------------------------------------------------
 /// Defines an alias representing list of names of the files .
@@ -141,6 +146,12 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
 		// Finally begin generating hair
 		hairGenerator.generate( hairProperties );
+#ifdef CALCULATE_BBOX
+		if ( !positionGenerator.getVoxelBoundingBox().contains( hairGenerator.getBoundingBox() ) )
+		{
+			std::cerr << "StubbleHairGenerator.dll::Subdivide containment failed !!!";
+		}
+#endif
 	}
 	if ( bp.mSamplesCount > 1 )
 	{

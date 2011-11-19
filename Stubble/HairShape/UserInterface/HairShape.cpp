@@ -431,7 +431,11 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 			// Write id
 			zipper.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
 			// Write voxel to file and stores voxel bounding box
-			aVoxelBoundingBoxes.push_back( mVoxelization->exportVoxel( zipper, i ) );
+			BoundingBox box = mVoxelization->exportVoxel( zipper, i );
+			aVoxelBoundingBoxes.push_back( box );
+			// Write voxel bounding box
+			zipper << box.max();
+			zipper << box.min();
 			// Flush zipper
 			zipper.zflush();
 			// Closes voxel file

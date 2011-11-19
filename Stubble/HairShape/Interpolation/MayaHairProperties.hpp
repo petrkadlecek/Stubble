@@ -436,7 +436,6 @@ inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
 	mTipSplay *= change;
 	mCenterSplay *= change;
 	mOffset *= change;
-	mAspect *= change;
 }
 
 } // namespace Interpolation

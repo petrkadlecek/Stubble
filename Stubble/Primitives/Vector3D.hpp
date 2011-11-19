@@ -40,6 +40,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline Vector3D( Type aX, Type aY, Type aZ );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Creates a vector from vector with different precision.
+	///
+	/// \param	aVector	a vector. 
+	///-------------------------------------------------------------------------------------------------
+	template < typename DifferentType >
+	explicit inline Vector3D( const Vector3D< DifferentType > & aVector );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Creates a vector with direction given by 2 points. 
 	///
@@ -355,6 +363,15 @@ inline Vector3D< Type >::Vector3D( Type aX, Type aY, Type aZ ):
 	x( aX ),
 	y( aY ),
 	z( aZ ) 
+{
+}
+
+template < typename Type >
+template < typename DifferentType >
+inline Vector3D< Type >::Vector3D( const Vector3D< DifferentType > & aVector ):
+	x( static_cast< Type >( aVector.x ) ),
+	y( static_cast< Type >( aVector.y ) ),
+	z( static_cast< Type >( aVector.z ) )
 {
 }
 
