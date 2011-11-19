@@ -3,7 +3,11 @@
 
 #include "Common\CommonTypes.hpp"
 #include "Primitives\Vector3D.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <map>
 #include <vector>
 
@@ -28,6 +32,19 @@ struct OneGuideSegments
 {
 	Real mSegmentLength;	///< Length of the segment
 	Segments mSegments; ///< The segments
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -43,6 +60,19 @@ struct FrameSegments
 	GuidesSegments mSegments;  ///< The segments of all guides
 
 	Time mFrame; ///< The time frame
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -75,6 +105,38 @@ struct PartialStorage
 
 	GuidesIds mIds; ///< The identifiers of guides
 };
+
+// implementations of inline functions
+
+inline std::string OneGuideSegments::serialize() const
+{
+	std::ostringstream oss;		
+	oss << Stubble::serialize< Real >( mSegmentLength )
+		<< Stubble::serializeObjects< Vector3D< Real > >( mSegments );
+	return oss.str();
+}
+
+inline size_t OneGuideSegments::deserialize( const std::string &aStr, size_t aPos )
+{	
+	mSegmentLength = Stubble::deserialize< Real >( aStr, aPos );
+	mSegments = Stubble::deserializeObjects< Vector3D< Real > >( aStr, aPos );
+	return aPos;	
+}
+
+inline std::string FrameSegments::serialize() const
+{
+	std::ostringstream oss;	
+	oss << Stubble::serialize< Time >( mFrame )
+		<< Stubble::serializeObjects< OneGuideSegments >( mSegments );
+	return oss.str();
+}
+
+inline size_t FrameSegments::deserialize( const std::string &aStr, size_t aPos )
+{	
+	mFrame = Stubble::deserialize< Time >( aStr, aPos );
+	mSegments = Stubble::deserializeObjects< OneGuideSegments >( aStr, aPos );
+	return aPos;	
+}
 
 } // namespace HairComponents
 

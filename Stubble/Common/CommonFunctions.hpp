@@ -2,9 +2,13 @@
 #define STUBBLE_COMMON_FUNCTIONS_HPP
 
 #include "StubbleException.hpp"
+#include "CommonConstants.hpp"
 
 #include <stdlib.h>
 #include <string>
+#include <sstream>
+#include <vector>
+#include <cassert>
 
 namespace Stubble 
 {
@@ -115,13 +119,29 @@ inline void mixColor( tOutType * aResult, const tInType1 & aColor1, const tInTyp
 }
 
 ///-------------------------------------------------------------------------------------------------
+/// Determines the minimum of the given parameters. 
+///
+/// \param	a	The first value. 
+/// \param	b	The second value. 
+///-------------------------------------------------------------------------------------------------
+#define MIN( a, b ) ( ( a ) < ( b ) ? ( a ) : ( b ) )
+
+///-------------------------------------------------------------------------------------------------
+/// Determines the maximum of the given parameters. 
+///
+/// \param	a	The first value. 
+/// \param	b	The second value. 
+///-------------------------------------------------------------------------------------------------
+#define MAX( a, b ) ( ( a ) > ( b ) ? ( a ) : ( b ) )
+
+///-------------------------------------------------------------------------------------------------
 /// Minimum from 3 values. 
 ///
 /// \param	x	The first value.
 /// \param	y	The second value. 
 /// \param	z	The third value. 
 ///-------------------------------------------------------------------------------------------------
-#define MIN3(x,y,z)  ((y) <= (z) ? ((x) <= (y) ? (x) : (y)) : ((x) <= (z) ? (x) : (z)))
+#define MIN3( x, y, z )  (( y ) <= ( z ) ? (( x ) <= ( y ) ? ( x ) : ( y )) : (( x ) <= ( z ) ? ( x ) : ( z )))
 
 ///-------------------------------------------------------------------------------------------------
 /// Maximum from 3 values. 
@@ -130,7 +150,7 @@ inline void mixColor( tOutType * aResult, const tInType1 & aColor1, const tInTyp
 /// \param	y	The second value. 
 /// \param	z	The third value. 
 ///-------------------------------------------------------------------------------------------------
-#define MAX3(x,y,z)  ((y) >= (z) ? ((x) >= (y) ? (x) : (y)) : ((x) >= (z) ? (x) : (z)))
+#define MAX3( x, y, z )  (( y ) >= ( z ) ? (( x ) >= ( y ) ? ( x ) : ( y )) : (( x ) >= ( z ) ? ( x ) : ( z )))
 
 ///-------------------------------------------------------------------------------------------------
 /// Converts RGB to HSV
@@ -222,6 +242,130 @@ inline void HSVtoRGB( tType * aRGB, const tType * aHSV )
 		case 4 : aRGB[ 0 ] = t; aRGB[ 1 ] = p; aRGB[ 2 ] = aHSV[ 2 ]; break;
 		case 5 : aRGB[ 0 ] = aHSV[ 2 ]; aRGB[ 1 ] = p; aRGB[ 2 ] = q; break;
 	}
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Serialize a primitive type.
+///
+/// \param	aVar				Variable to be serialized.
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline std::string serialize( Type aVar )
+{
+	std::ostringstream oss;
+	oss << aVar << SEPARATOR;
+	return oss.str();
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Serialize primitive types from an STL vector.
+///
+/// \param	aVector				Reference to vector that is serialized.
+/// \param	aIsPrimitiveType	Is Type a primitive type?
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline std::string serializePrimitives( const std::vector< Type > &aVector )
+{
+	std::ostringstream oss;
+	oss << aVector.size() << SEPARATOR; // store the number of elements
+
+	std::vector< Type >::const_iterator it;
+	for ( it = aVector.begin(); it != aVector.end(); it++ ) // store the individual elements
+	{		
+		oss << serialize< Type >( *it );
+	}
+
+	return oss.str();
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Serialize objects from an STL vector.
+///
+/// \param	aVector				Reference to vector that is serialized.
+/// \param	aIsPrimitiveType	Is Type a primitive type?
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline std::string serializeObjects( const std::vector< Type > &aVector )
+{
+	std::ostringstream oss;
+	oss << aVector.size() << SEPARATOR; // store the number of elements
+
+	std::vector< Type >::const_iterator it;
+	for ( it = aVector.begin(); it != aVector.end(); it++ ) // store the individual elements
+	{		
+		oss << it->serialize();	
+	}
+
+	return oss.str();
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Deserialize a primitive type.
+///
+/// \param	aStr				String from which to read.
+/// \param	[in,out] aPos		Position at which to start.
+///								Is set to point after the last deserialized object.
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline Type deserialize( const std::string &aStr, size_t &aPos )
+{
+	assert( aStr.size() > aPos );
+	size_t nextSeparator = aStr.find( SEPARATOR, aPos );
+	std::istringstream iss( aStr.substr( aPos, nextSeparator - aPos ) );
+	aPos = nextSeparator + 1; // jump to the beginning of next object
+
+	Type out;
+	iss >> out;
+	return out;
+}
+
+
+///-------------------------------------------------------------------------------------------------
+/// Deserialize primitive types into an STL vector.
+///
+/// \param	aStr				String from which to read.
+/// \param	[in,out] aPos		Position at which to start.
+///								Is set to point after the last deserialized object.
+/// \param	aIsPrimitiveType	Is Type a primitive type?
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline std::vector< Type > deserializePrimitives( const std::string &aStr, size_t &aPos )
+{
+	assert( aStr.size() > aPos );
+	size_t count = deserialize< size_t >( aStr, aPos );
+	std::vector< Type > out;
+	out.reserve( count );
+	for ( size_t i = 0; i < count; i++ )
+	{		
+		out.push_back( deserialize< Type >( aStr, aPos ) );	
+	}
+
+	return out;
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Deserialize objects into an STL vector.
+///
+/// \param	aStr				String from which to read.
+/// \param	[in,out] aPos		Position at which to start.
+///								Is set to point after the last deserialized object.
+/// \param	aIsPrimitiveType	Is Type a primitive type?
+///-------------------------------------------------------------------------------------------------
+template < typename Type >
+inline std::vector< Type > deserializeObjects( const std::string &aStr, size_t &aPos )
+{
+	assert( aStr.size() > aPos );
+	size_t count = deserialize< size_t >( aStr, aPos );
+	std::vector< Type > out;
+	out.reserve( count );
+	for ( size_t i = 0; i < count; i++ )
+	{		
+		Type newElement;
+		aPos = newElement.deserialize( aStr, aPos );
+		out.push_back( newElement );		
+	}
+
+	return out;
 }
 
 } // namespace Stubble

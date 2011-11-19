@@ -23,26 +23,32 @@ namespace HairComponents
 ///----------------------------------------------------------------------------------------------------
 struct IdAndDistance
 {
-	IdAndDistance( unsigned int guideId = 0 , Real distance = 0 )
+	///-------------------------------------------------------------------------------------------------
+	/// Constructor. 
+	///
+	/// \param	aGuideId	Identifier for a guide. 
+	/// \param	aDistance	The distance from guide. 
+	///-------------------------------------------------------------------------------------------------
+	IdAndDistance( GuideId aGuideId = 0 , float aDistance = 0 )
 	{
-		mGuideId = guideId;
-		mDistance = distance;
+		mGuideId = aGuideId;
+		mDistance = aDistance;
 	}
 
 	GuideId mGuideId;	// Guide id
 
-	Real mDistance;	// Distance to guide's rest position
+	float mDistance;	// Distance to guide's rest position
 };
 
 ///----------------------------------------------------------------------------------------------------
 /// Defines an alias representing list of identifiers for the closest guides .
 ///----------------------------------------------------------------------------------------------------
-typedef std::vector< IdAndDistance> ClosestGuidesIds;
+typedef std::vector< IdAndDistance > ClosestGuidesIds;
 
 ///----------------------------------------------------------------------------------------------------
 /// Defines a KDTree for finding N closest points for the query point.
 ///----------------------------------------------------------------------------------------------------
-typedef KdTreeTmplPtr<Stubble::Vector3D<Real>, Stubble::Vector3D<Real>> KdTree;
+typedef KdTreeTmplPtr< Stubble::Vector3D< float >, Stubble::Vector3D< float > > KdTree;
 
 ///-------------------------------------------------------------------------------------------------
 /// Guides segments uniform grid
@@ -113,18 +119,38 @@ private:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid from already stored guides rest position. 
-	///
+	/// 
 	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
-	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups,
-		const std::vector< unsigned int > &groupIdentifiers, unsigned int *groupCounts );
+	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
-	bool mDirtyBit; ///< true to dirty bit
+	///-------------------------------------------------------------------------------------------------
+	/// Rest position of guide
+	///-------------------------------------------------------------------------------------------------
+	struct Position
+	{
+		Vector3D< float > mPosition;	///< The position ( in float, kd-tree is also float )
 
+		Real mUCoordinate;  ///< The u texture coordinate
+
+		Real mVCoordinate;  ///< The v texture coordinate
+	};
 	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the positions .
 	///----------------------------------------------------------------------------------------------------
-	typedef std::vector< Vector3D< Real > > Positions;
+	typedef std::vector< Position > Positions;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing list of identifiers for the groups .
+	///-------------------------------------------------------------------------------------------------
+	typedef std::vector< unsigned __int32 > GroupIds;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the group counts .
+	///-------------------------------------------------------------------------------------------------
+	typedef GroupIds GroupCounts;
+
+	bool mDirtyBit; ///< true to dirty bit
 
 	Positions mGuidesRestPositions;   ///< The guides rest positions
 

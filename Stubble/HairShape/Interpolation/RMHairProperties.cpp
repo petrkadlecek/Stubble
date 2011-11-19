@@ -72,6 +72,7 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	unzipper.read( reinterpret_cast< char * >( & mRootThickness ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( & mTipThickness ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( & mDisplacement ), sizeof( Real ) );	
+	unzipper.read( reinterpret_cast< char * >( & mSkipThreshold ), sizeof( Real ) );
 	unzipper.read( reinterpret_cast< char * >( & mRootOpacity ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( & mTipOpacity ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( mRootColor ), 3 * sizeof( Real ) );	

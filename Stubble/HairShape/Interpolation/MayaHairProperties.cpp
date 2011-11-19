@@ -20,6 +20,7 @@ MObject MayaHairProperties::densityTextureAttr; ///< The density texture attribu
 MObject MayaHairProperties::interpolationGroupsTextureAttr; ///< The interpolation groups texture attribute
 MObject MayaHairProperties::cutTextureAttr;  ///< The cut texture attribute
 MObject MayaHairProperties::segmentsCountAttr; ///< The segments count attribute
+MObject MayaHairProperties::interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
 MObject MayaHairProperties::numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 MObject MayaHairProperties::areNormalsCalculatedAttr;	///< The are normals calculated attribute
 MObject MayaHairProperties::scaleTextureAttr;	///< The scale texture attribute
@@ -32,6 +33,7 @@ MObject MayaHairProperties::tipThicknessTextureAttr;	///< The tip thickness text
 MObject MayaHairProperties::tipThicknessAttr;   ///< The tip thickness attribute
 MObject MayaHairProperties::displacementTextureAttr; ///< The displacement texture attribute
 MObject MayaHairProperties::displacementAttr; ///< The displacement attribute
+MObject MayaHairProperties::skipThresholdAttr;   ///< The skip threshold attribute
 /* MAYA COLOR PROPERTIES */
 MObject MayaHairProperties::rootOpacityTextureAttr;  ///< The root opacity texture attribute
 MObject MayaHairProperties::rootOpacityAttr;  ///< The root opacity attribute
@@ -145,6 +147,7 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	aOutputStream.write( reinterpret_cast< const char * >( & mRootThickness ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mTipThickness ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mDisplacement ), sizeof( Real ) );	
+	aOutputStream.write( reinterpret_cast< const char * >( & mSkipThreshold ), sizeof( Real ) );
 	aOutputStream.write( reinterpret_cast< const char * >( & mRootOpacity ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mTipOpacity ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( mRootColor ), 3 * sizeof( Real ) );	
@@ -202,6 +205,7 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 
 MayaHairProperties::MayaHairProperties()
 {
+	mScaleFactor = 1;
 	mInterpolationGroupsTexture = new Texture( 1, 1, 1 );
 	mDensityTexture = new Texture( 1 );
 	mInterpolationGroups = new Interpolation::InterpolationGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
@@ -265,6 +269,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "tip_thickness", "tthck", tipThicknessAttr,  0.1f, 0, float_max, 0, 2 );
 		addFloatAttribute( "displacement_texture", "distxt", displacementTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "displacement", "dis", displacementAttr, 0, float_min, float_max, -10, 10 );
+		addFloatAttribute( "skip_threshold", "sktr", skipThresholdAttr, 0, 0, 1, 0, 1 );
 		/* MAYA COLOR PROPERTIES */
 		addFloatAttribute( "root_opacity_texture", "roptxt", rootOpacityTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "root_opacity", "rop", rootOpacityAttr, 1, 0, 1, 0, 1 );
@@ -383,7 +388,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == aspectAttr )
 	{
-		mAspect = static_cast< Real >( aDataHandle.asFloat() );
+		mAspect = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -394,7 +399,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == centerSplayAttr )
 	{
-		mCenterSplay = static_cast< Real >( aDataHandle.asFloat() );
+		mCenterSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -411,6 +416,13 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == displacementAttr )
 	{
 		mDisplacement = static_cast< Real >( aDataHandle.asFloat() );
+		aHairPropertiesChanged = true;
+		return;
+	}
+	if ( aPlug == skipThresholdAttr )
+	{
+		// map from [0,1] -> [-1,1] and swap
+		mSkipThreshold = 2 * ( static_cast< Real >( 0.5f - aDataHandle.asFloat() ) );
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -453,7 +465,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == frizzAnimSpeedAttr )
 	{
-		mFrizzAnimSpeed = static_cast< Real >( aDataHandle.asFloat() );
+		mFrizzAnimSpeed = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -469,7 +481,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == frizzXFrequencyAttr )
 	{
-		mFrizzXFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mFrizzXFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -480,7 +492,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == frizzYFrequencyAttr )
 	{
-		mFrizzYFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mFrizzYFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -491,7 +503,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == frizzZFrequencyAttr )
 	{
-		mFrizzZFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mFrizzZFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -513,7 +525,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == kinkXFrequencyAttr )
 	{
-		mKinkXFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mKinkXFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -524,7 +536,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == kinkYFrequencyAttr )
 	{
-		mKinkYFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mKinkYFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -535,7 +547,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == kinkZFrequencyAttr )
 	{
-		mKinkZFrequency = static_cast< Real >( aDataHandle.asFloat() );
+		mKinkZFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -565,7 +577,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == offsetAttr )
 	{
-		mOffset = static_cast< Real >( aDataHandle.asFloat() );
+		mOffset = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -622,7 +634,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == rootFrizzAttr )
 	{
-		mRootFrizz = static_cast< Real >( aDataHandle.asFloat() );
+		mRootFrizz = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -633,7 +645,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == rootKinkAttr )
 	{
-		mRootKink = static_cast< Real >( aDataHandle.asFloat() );
+		mRootKink = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -655,7 +667,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == rootSplayAttr )
 	{
-		mRootSplay = static_cast< Real >( aDataHandle.asFloat() );
+		mRootSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -666,7 +678,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == rootThicknessAttr )
 	{
-		mRootThickness = static_cast< Real >( aDataHandle.asFloat() );
+		mRootThickness = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -701,7 +713,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == tipFrizzAttr )
 	{
-		mTipFrizz = static_cast< Real >( aDataHandle.asFloat() );
+		mTipFrizz = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -712,7 +724,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == tipKinkAttr )
 	{
-		mTipKink = static_cast< Real >( aDataHandle.asFloat() );
+		mTipKink = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -734,7 +746,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == tipSplayAttr )
 	{
-		mTipSplay = static_cast< Real >( aDataHandle.asFloat() );
+		mTipSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -745,7 +757,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == tipThicknessAttr )
 	{
-		mTipThickness = static_cast< Real >( aDataHandle.asFloat() );
+		mTipThickness = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
 		return;
 	}
@@ -1229,6 +1241,25 @@ void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFill
 		numericAttribute.setSoftMax( aSoftMax );
 		numericAttribute.setKeyable( false );
 		numericAttribute.setInternal( true );
+		nAttr.addChild(c);
+	}
+}
+
+void MayaHairProperties::fillColorArrayAttributes( MObject & aAttribute, const InterpolationGroups & aInterpolationGroups )
+{
+	MStatus status;
+	MFnCompoundAttribute nAttr(aAttribute, &status);
+
+	for( unsigned __int32 i = 0; i < aInterpolationGroups.getGroupsCount() ; ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "color_";
+		s += nAttr.numChildren();
+		MObject c = numericAttribute.createColor( s, s );
+		const float * color = aInterpolationGroups.getColorOfGroup( i );
+		numericAttribute.setDefault( color[ 0 ] , color[ 1 ], color[ 2 ] );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setWritable( false );
 		nAttr.addChild(c);
 	}
 }

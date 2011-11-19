@@ -52,20 +52,24 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 			// First find if there is existing interpolation group with selected color or create new group
 			std::pair< ColorMap::iterator, bool > color = 
 				colorMap.insert( std::make_pair( iter, static_cast< unsigned __int32 > ( colorMap.size() ) ) );
-			// Set group id
-			*iterCpy = color.first->second;
+			// Set group id ( check for max group id )
+			*iterCpy = std::min( color.first->second, MAX_INTERPOLATION_GROUP_ID );
 		}
+		size_t groupsCount = std::min( colorMap.size(), static_cast< size_t >( MAX_INTERPOLATION_GROUP_ID + 1 ) );
 		// Now prepare array with colors
-		tempInterpolationGroupsColors = new float[ colorMap.size() * tempColorComponentCount ];
+		tempInterpolationGroupsColors = new float[ groupsCount * tempColorComponentCount ];
 		// For every color in map
 		for( ColorMap::iterator it = colorMap.begin(); it != colorMap.end(); ++it )
 		{
-			// Copy color from map to array
-			memcpy( tempInterpolationGroupsColors + it->second * tempColorComponentCount, it->first, 
-				tempColorComponentCount * sizeof( float ) );
+			if ( it->second <= MAX_INTERPOLATION_GROUP_ID ) // Check max group id
+			{
+				// Copy color from map to array
+				memcpy( tempInterpolationGroupsColors + it->second * tempColorComponentCount, it->first, 
+					tempColorComponentCount * sizeof( float ) );
+			}
 		}
 		// Now create vector with segments count
-		InterpolationGroupsSegmentsCount tempInterpolationGroupsSegmentsCount( colorMap.size(), aSegmentsCount );
+		InterpolationGroupsSegmentsCount tempInterpolationGroupsSegmentsCount( groupsCount, aSegmentsCount );
 		// Copy old segments count
 		for ( InterpolationGroupsSegmentsCount::iterator newIt = tempInterpolationGroupsSegmentsCount.begin(),
 			oldIt = mInterpolationGroupsSegmentsCount.begin();

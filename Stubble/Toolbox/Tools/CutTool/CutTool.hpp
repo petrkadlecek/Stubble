@@ -22,8 +22,6 @@
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
 
-#include "../../HairTaskProcessor.hpp"
-
 #include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
 
@@ -61,6 +59,14 @@ public:
 	/// Cleans up when the user switches to a different tool.
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOffCleanup();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Handles the mouse press event.
+	///
+	/// \param aEvent Information on the input event.
+	/// \return	MS::kSuccess or MS::kFailure.
+	///----------------------------------------------------------------------------------------------------
+	virtual MStatus doPress( MEvent &aEvent );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse release event. Calls doCut() if left mouse button is released.

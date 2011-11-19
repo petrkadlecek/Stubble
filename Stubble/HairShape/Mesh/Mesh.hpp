@@ -5,8 +5,12 @@
 #include "HairShape/Mesh/UVPoint.hpp"
 #include "HairShape/Texture/Texture.hpp"
 #include "Primitives/BoundingBox.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
 #include <fstream>
+#include <string>
+#include <sstream>
 
 namespace Stubble
 {
@@ -116,6 +120,19 @@ public:
 	/// Gets mesh's bounding box
 	///----------------------------------------------------------------------------------------------------
 	inline BoundingBox getBoundingBox() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer.
@@ -282,6 +299,21 @@ inline unsigned __int32 Mesh::getTriangleCount() const
 inline BoundingBox Mesh::getBoundingBox() const
 {
 	return mBoundingBox;
+}
+
+inline std::string Mesh::serialize() const
+{
+	std::ostringstream oss;	
+	oss << Stubble::serializeObjects< Triangle >( mTriangles )
+		<< mBoundingBox.serialize();
+	return oss.str();
+}
+
+inline size_t Mesh::deserialize( const std::string &aStr, size_t aPos )
+{
+	mTriangles = Stubble::deserializeObjects< Triangle >( aStr, aPos );
+	aPos = mBoundingBox.deserialize( aStr, aPos );
+	return aPos;
 }
 
 inline Mesh::~Mesh()

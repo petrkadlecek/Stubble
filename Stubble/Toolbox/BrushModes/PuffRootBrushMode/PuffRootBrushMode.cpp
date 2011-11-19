@@ -1,4 +1,5 @@
 #include "PuffRootBrushMode.hpp"
+#include "Toolbox/HairTask.hpp"
 
 namespace Stubble
 {
@@ -6,12 +7,10 @@ namespace Stubble
 namespace Toolbox
 {
 
-	void PuffRootBrushMode::doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair )
-	{
-		std::cout << "PuffRootBrushMode::doBrush()" << std::endl;
-		/*TODO*/
-		//implement the actual transformations
-	}
+void PuffRootBrushMode::doBrush ( HairTask *aTask )
+{
+	
+}
 
 } // namespace Toolbox
 

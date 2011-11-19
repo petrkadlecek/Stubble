@@ -2,7 +2,11 @@
 #define STUBBLE_UV_POINT_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <ostream>
 #include <istream>
 
@@ -45,6 +49,21 @@ public:
 	/// Gets ID of the triangle.
 	///----------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getTriangleID() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
+
+	static const unsigned __int32 NOT_TRIANGLE = 0xFFFFFFFF;
 
 private:
 	Real mU; ///< The U coordinate.
@@ -109,6 +128,23 @@ inline std::istream & operator>>( std::istream & aStreamIn, UVPoint & aUVPoint )
 	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mV ), sizeof( Real ) );
 	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mTriangleID ), sizeof( unsigned __int32 ) );
 	return aStreamIn;
+}
+
+inline std::string UVPoint::serialize() const
+{
+	std::ostringstream oss;		
+	oss << Stubble::serialize< Real >( mU )
+		<< Stubble::serialize< Real >( mV )
+		<< Stubble::serialize< unsigned __int32 >( mTriangleID );
+	return oss.str();
+}
+
+inline size_t UVPoint::deserialize( const std::string &aStr, size_t aPos )
+{	
+	mU = Stubble::deserialize< Real >( aStr, aPos );
+	mV = Stubble::deserialize< Real >( aStr, aPos );
+	mTriangleID = Stubble::deserialize< unsigned __int32 >( aStr, aPos );
+	return aPos;	
 }
 
 } // namespace HairShape

@@ -19,23 +19,27 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 struct HairTask
 {
-	inline HairTask (HairShape::HairShape *aParentHairShape, HairShape::HairComponents::SelectedGuides *aAffectedGuides,
-		BrushMode *aBrushMode, const Vector3D< double > &aDx);
+	inline HairTask (const M3dView &aView, short aX, short aY, const Vector3D< double > &aDx, HairShape::HairShape *aParentHairShape,
+		HairShape::HairComponents::SelectedGuides *aAffectedGuides,	BrushMode *aBrushMode);
 
+	M3dView mView; ///< View information for the move vector
+	short mMousePos[2]; ///< Mouse position in the screen coordinates
+	Vector3D< double > mDx; ///< Cursor move vector in the camera coordinates
 	HairShape::HairShape *mParentHairShape; ///< The fluffy object the changes will be made upon
 	HairShape::HairComponents::SelectedGuides *mAffectedGuides; ///< Selection of guides affected by this operation
 	BrushMode *mBrushMode; ///< Brush state containing the brush operation method - points to an effective singleton, no deletion takes place!
-	Vector3D< double > mDx; ///< Cursor change projected into the world coordinates
 };
 
-inline HairTask::HairTask (HairShape::HairShape *aParentHairShape, HairShape::HairComponents::SelectedGuides *aAffectedGuides,
-	BrushMode *aBrushMode, const Vector3D< double > &aDx) :
+inline HairTask::HairTask (const M3dView &aView, short aX, short aY, const Vector3D< double > &aDx, HairShape::HairShape *aParentHairShape,
+	HairShape::HairComponents::SelectedGuides *aAffectedGuides,	BrushMode *aBrushMode) :
+	mDx(aDx),
 	mParentHairShape(aParentHairShape),
 	mAffectedGuides(aAffectedGuides),
-	mBrushMode(aBrushMode),
-	mDx(aDx)
+	mBrushMode(aBrushMode)
 {
-	//empty
+	mMousePos[ 0 ] = aX;
+	mMousePos[ 1 ] = aY;
+	mView = aView; // M3dView apparently doesn't have copy constructor, or whatever is happening
 }
 
 } // namespace Toolbox

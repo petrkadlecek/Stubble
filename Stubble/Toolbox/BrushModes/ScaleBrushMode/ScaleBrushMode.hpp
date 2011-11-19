@@ -19,8 +19,24 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method which implements the actual brush transformations.
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair );
+	virtual void doBrush ( HairTask *aTask );
+
+private:
+	///----------------------------------------------------------------------------------------------------
+	/// Calculates new length of hair segments
+	///
+	/// \param aMeasure	Measure of the rotation (typically movement of the mouse along the X axis
+	/// \param aLength	Current segment length
+	/// \return			New segment length
+	///----------------------------------------------------------------------------------------------------
+	inline double getNewSegmentLength ( Real aMeasure, Real aLength );
 };
+
+inline double ScaleBrushMode::getNewSegmentLength ( Real aMeasure, Real aLength )
+{
+	Real length = aLength + aMeasure;
+	return (length < 0.0) ? 0.0 : length;
+}
 
 } // namespace Toolbox
 

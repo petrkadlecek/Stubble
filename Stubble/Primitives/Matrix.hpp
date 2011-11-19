@@ -14,11 +14,47 @@ class Matrix
 { 
 public:
 
+	static const unsigned __int32 SIZE = 16;
+
 	inline Matrix();
 
 	inline Matrix( const Matrix< Type > &aM );
 
+	///----------------------------------------------------------------------------------------------------
+	/// Assignment operator.
+	/// 
+	/// \param aM	The matrix to be assigned
+	///
+	/// \return		The result of the operation
+	///----------------------------------------------------------------------------------------------------
 	inline Matrix< Type > & operator= ( const Matrix< Type > &aM );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Addition assignment operator.
+	///
+	/// \param aM	Matrix to be added up
+	///
+	/// \return		The result of the operation
+	///----------------------------------------------------------------------------------------------------
+	inline const Matrix< Type > & operator+= ( const Matrix< Type > &aM );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Subtraction assignment operator.
+	///
+	/// \param aM	Matrix to be subtracted
+	///
+	/// \return		The result of the operation
+	///----------------------------------------------------------------------------------------------------
+	inline const Matrix< Type > & operator-= ( const Matrix< Type > &aM );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Multiplication assignment operator.
+	///
+	/// \param aScalar	A scalar value
+	///
+	/// \return			The result of the operation
+	///----------------------------------------------------------------------------------------------------
+	inline const Matrix< Type > & operator*= ( Type aScalar );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Const array indexer operator. 
@@ -47,9 +83,34 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline Matrix< Type > operator* ( const Matrix< Type > & aMat ) const;
 
-private:
+	///-------------------------------------------------------------------------------------------------
+	/// Multiplication operator. 
+	///
+	/// \param	aScalar	A scalar value
+	///
+	/// \return			The result of the operation. 
+	///-------------------------------------------------------------------------------------------------
+	inline Matrix< Type > operator* ( Type aScalar ) const;
 
-	static const unsigned __int32 SIZE = 16;
+	///-------------------------------------------------------------------------------------------------
+	/// Addition operator. 
+	///
+	/// \param	aM	The matrix. 
+	///
+	/// \return	The result of the operation. 
+	///-------------------------------------------------------------------------------------------------
+	inline Matrix< Type > operator+ ( const Matrix< Type > & aM ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Addition operator. 
+	///
+	/// \param	aM	The matrix. 
+	///
+	/// \return	The result of the operation. 
+	///-------------------------------------------------------------------------------------------------
+	inline Matrix< Type > operator- ( const Matrix< Type > & aM ) const;
+
+private:
 
 	Type m[ Matrix::SIZE ];   ///< The matrix data
 };
@@ -70,6 +131,39 @@ template < typename Type >
 inline Matrix< Type > & Matrix< Type >::operator= ( const Matrix< Type > &aM )
 {
 	std::uninitialized_copy( aM.m, aM.m + Matrix::SIZE, m );
+
+	return *this;
+}
+
+template < typename Type >
+inline const Matrix< Type > & Matrix< Type >::operator+= ( const Matrix< Type > &aM )
+{
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
+	{
+		m[ i ] += aM[ i ];
+	}
+
+	return *this;
+}
+
+template < typename Type >
+inline const Matrix< Type > & Matrix< Type >::operator-= ( const Matrix< Type > &aM )
+{
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
+	{
+		m[ i ] -= aM[ i ];
+	}
+
+	return *this;
+}
+
+template < typename Type >
+inline const Matrix< Type > & Matrix< Type >::operator*= ( Type aScalar )
+{
+	for (unsigned __int32 i = 0; i < SIZE; ++i)
+	{
+		m[ i ] *= aScalar;
+	}
 
 	return *this;
 }
@@ -111,6 +205,30 @@ inline Matrix< Type > Matrix< Type >::operator* ( const Matrix< Type > & aMat ) 
 	tmp.m[ 14 ] = aMat.m[ 12 ] * m[ 2 ] + aMat.m[ 13 ] * m[ 6 ] + aMat.m[ 14 ] * m[ 10 ] + aMat.m[ 15 ] * m[ 14 ];
 	tmp.m[ 15 ] = aMat.m[ 12 ] * m[ 3 ] + aMat.m[ 13 ] * m[ 7 ] + aMat.m[ 14 ] * m[ 11 ] + aMat.m[ 15 ] * m[ 15 ];
 	return tmp;
+}
+
+template < typename Type >
+inline Matrix< Type > Matrix< Type >::operator* ( Type aScalar ) const
+{
+	Matrix< Type > M(*this);
+	M *= aScalar;
+	return M;
+}
+
+template < typename Type >
+inline Matrix< Type > Matrix< Type >::operator+ ( const Matrix< Type > & aM ) const
+{
+	Matrix< Type > M(*this);
+	M += aM;
+	return M;
+}
+
+template < typename Type >
+inline Matrix< Type > Matrix< Type >::operator- ( const Matrix< Type > & aM ) const
+{
+	Matrix< Type > M(*this);
+	M -= aM;
+	return M;
 }
 
 } //namespace Stubble

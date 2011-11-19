@@ -156,6 +156,13 @@ public:
 	inline Real getDisplacement() const;
 
 	///-------------------------------------------------------------------------------------------------
+	/// Gets the skip threshold, which controls minimum angle between tangents for skipping hair point.
+	///
+	/// \return	The skip threshold. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real getSkipThreshold() const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Gets the root opacity texture. 
 	///
 	/// \return	The root opacity texture. 
@@ -596,6 +603,8 @@ protected:
 
 	Real mDisplacement; ///< The displacement
 
+	Real mSkipThreshold; ///< The skip threshold [-1,1 ]
+
 	Texture * mRootOpacityTexture;  ///< The root opacity texture
 
 	Real mRootOpacity;  ///< The root opacity
@@ -799,6 +808,11 @@ return *mDisplacementTexture;
 inline Real HairProperties::getDisplacement() const
 {
 	return mDisplacement;
+}
+
+inline Real HairProperties::getSkipThreshold() const
+{
+	return mSkipThreshold;
 }
 
 inline const Texture & HairProperties::getRootOpacityTexture() const

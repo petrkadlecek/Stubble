@@ -12,11 +12,14 @@
 #include <maya/MFnStringData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
+#include <maya/MGlobal.h>
 #include <maya/MItMeshEdge.h>
 #include <maya/MItMeshVertex.h>
+#include <maya/MItSelectionList.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
+#include <maya/MSceneMessage.h>
 
 #include <exception>
 #include <fstream>
@@ -48,6 +51,7 @@ MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::sampleTextureDimensionAttr;
+MObject HairShape::serializedDataAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -113,7 +117,7 @@ MBoundingBox HairShape::boundingBox() const
 }
 
 MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
-{
+{	
 	MStatus status; // Error code
 	if ( aPlug == surfaceChangeAttr ) // Handle mesh change
 	{
@@ -122,8 +126,9 @@ MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 	}
 	if ( aPlug == timeChangeAttr ) // Handle time change
 	{
+		aDataBlock.setClean( timeChangeAttr );
 		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
-	}
+	}	
 	return MS::kSuccess;
 }
 
@@ -175,6 +180,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	if ( aPlug == countAttr ) // Guides hair count was changed
 	{
 		mGuidesHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+		{
+			return false;
+		}
 		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
 			mGuidesHairCount, true );
 		refreshPointersToGuidesForInterpolation();
@@ -563,6 +572,30 @@ bool HairShape::match(	const MSelectionMask & aMask, const MObjectArray& aCompon
 	return result;
 }
 
+// serialization callbacks
+
+static void saveSceneCallback( void * )
+{	
+	HairShape *hairShape = 0;
+	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
+	{	
+		MObject thisNode = hairShape->asMObject();	
+		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
+		dataPlug.setString( hairShape->serialize().c_str() );
+	}		
+}
+
+static void loadSceneCallback( void * )
+{
+	HairShape *hairShape = 0;
+	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
+	{
+		MObject thisNode = hairShape->asMObject();	
+		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
+		hairShape->deserialize( dataPlug.asString().asChar() );
+	}
+}
+
 MStatus HairShape::initialize()
 {	
 	try 
@@ -634,6 +667,26 @@ MStatus HairShape::initialize()
 		attributeAffects( mControlValueX, surfaceAttr );
 		attributeAffects( mControlValueY, surfaceAttr );
 		attributeAffects( mControlValueZ, surfaceAttr );
+
+		//serialized data attribute
+		MFnTypedAttribute sAttr;
+		serializedDataAttr = sAttr.create( "serialized_data", "sdata", MFnData::kString, MObject::kNullObj, &status );
+		sAttr.setHidden( true );
+		sAttr.setInternal( true );
+		sAttr.setWritable( true );
+		sAttr.setStorable( true );
+		if ( !addAttribute( serializedDataAttr ) )
+		{
+			status.perror( "Adding serialized data attr has failed" );
+			return status;
+		}
+
+		// register serialization callbacks		
+		MSceneMessage::addCallback( MSceneMessage::kAfterOpen, loadSceneCallback, 0, &status );		
+		MSceneMessage::addCallback( MSceneMessage::kAfterImport, loadSceneCallback, 0, &status );		
+		
+		MSceneMessage::addCallback( MSceneMessage::kBeforeExport, saveSceneCallback, 0, &status );		
+		MSceneMessage::addCallback( MSceneMessage::kBeforeSave, saveSceneCallback, 0, &status );
 	}
 	catch( const StubbleException & ex )
 	{
@@ -791,6 +844,9 @@ void HairShape::meshChange( MObject aMeshObj )
 			mGuidesHairCount );
 		mHairGuides->setCurrentTime( mTime );
 		refreshPointersToGuidesForInterpolation();
+		// Set interpolated params scaling
+		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
+
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )
 		{
@@ -810,7 +866,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			delete mVoxelization;
 			mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 				mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
-			mHairGuides->meshUpdate( *mMayaMesh, true );
+			mHairGuides->meshUpdate( *mMayaMesh, *mInterpolationGroups, true );
 			refreshPointersToGuidesForInterpolation();
 			// Interpolated hair construction
 			if ( mDisplayInterpolated )
@@ -822,7 +878,7 @@ void HairShape::meshChange( MObject aMeshObj )
 		else
 		{
 			mMayaMesh->meshUpdate( aMeshObj, uvSetName );
-			mHairGuides->meshUpdate( *mMayaMesh, false );
+			mHairGuides->meshUpdate( *mMayaMesh, *mInterpolationGroups, false );
 			// Interpolated hair positions recalculation
 			if ( mDisplayInterpolated )
 			{
@@ -867,6 +923,7 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	{
 		// Removes old attribute
 		node.removeAttribute( node.findPlug( "segments_count" ).attribute() );
+		node.removeAttribute( node.findPlug( "interpolation_groups_colors" ).attribute() );
 	}
 	// Creates new compound attribute
 	MStatus s;
@@ -874,18 +931,25 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	MFnCompoundAttribute nAttr;
 	attr = nAttr.create( "segments_count", "sgc", &s );
 	nAttr.setInternal( true );
-	// Add children
+	// Add children -> counts
 	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 5, 1, 100, 1, 100 );
 	// Add attr
 	s = node.addAttribute( attr );
 	// Sets children values
-	for( unsigned __int32 i = 0; i < nAttr.numChildren(); ++i )
+	for( unsigned __int32 i = 0; i < mInterpolationGroups->getGroupsCount(); ++i )
 	{
-		MPlug plug( thisMObject(), nAttr.child( i, &s ) );
+		MPlug plug( thisMObject(), nAttr.child( i, &s ) ); 
 		s = plug.setInt( static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
 	}
 	// Finally remember attr value
 	setSegmentsCountAttr( attr );
+	// Creates colors
+	attr = nAttr.create( "interpolation_groups_colors", "igc", &s );
+	nAttr.setWritable( false );
+	// Add children -> colors
+	fillColorArrayAttributes( attr, *mInterpolationGroups );
+	// Add attr
+	s = node.addAttribute( attr );
 }
 
 /************************************************************************************************************/

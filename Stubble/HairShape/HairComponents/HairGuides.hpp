@@ -12,19 +12,14 @@
 #include "HairShape\HairComponents\UndoStack.hpp"
 #include "HairShape\Mesh\MayaMesh.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <fstream>
 
-#include <maya/MFnMesh.h>
-#include <maya/MFnNurbsCurve.h>
-#include <maya/MPointArray.h>
-#include <maya/MSelectionList.h>
-#include <maya/MSelectInfo.h>
-#include <maya/MItSelectionList.h>
-#include <maya/MAnimControl.h>
-#include <maya/MTime.h>
-#include <maya/MGlobal.h>
-#include <maya/MDagPath.h>
+#include <maya/MStringArray.h>
 
 namespace Stubble
 {
@@ -111,8 +106,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import NURBS.
+	/// 
+	/// \param	aInterpolationGroups	the interpolation groups object 
 	///----------------------------------------------------------------------------------------------------
-	void importNURBS();
+	void importNURBS( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Export to NURBS.
@@ -130,11 +127,13 @@ public:
 	/// Informs the object, that the underlying mesh was changed.
 	///
 	/// \param	aMayaMesh			Maya mesh object.
+	/// \param	aInterpolationGroups	the interpolation groups object 
 	/// \param	aTopologyChanged	true if topology of the mesh has changed.
 	/// 
 	/// \return number of guides	
 	///----------------------------------------------------------------------------------------------------
-	GuideId meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged = false );
+	GuideId meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
+		bool aTopologyChanged = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Undoes changed to hair guides.
@@ -199,6 +198,34 @@ public:
 	/// \return	The current frame segments. 
 	///----------------------------------------------------------------------------------------------------
 	inline const FrameSegments & getCurrentFrameSegments() const;
+	
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the indices .
+	///-------------------------------------------------------------------------------------------------
+	typedef std::vector< unsigned __int32 > Indices;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the index to first vertex of guide in all guides vertices array
+	///
+	/// \return	Index to first vertex of guide in all guides vertices array. 
+	///-------------------------------------------------------------------------------------------------
+	inline const Indices & GuidesVerticesStartIndex() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr						String from which to read.
+	/// \param	aPos						Position at which to start.
+	/// \param	aMayaMesh					a maya mesh. 
+	/// \param	aInterpolationGroups		the interpolation groups object 
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos, const MayaMesh *aMayaMesh,
+		 const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 private:	
 
@@ -211,6 +238,13 @@ private:
 	/// Clears the selected guides. 
 	///-------------------------------------------------------------------------------------------------
 	void clearSelectedGuides();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Refresh interpolation group identifiers. 
+	/// 
+	/// \param	aInterpolationGroups	the interpolation groups object 
+	///-------------------------------------------------------------------------------------------------
+	void refreshInterpolationGroupIds( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	RestPositionsUG mRestPositionsUG;   ///< The rest positions uniform grid
 
@@ -232,9 +266,15 @@ private:
 
 	BoundingBox mBoundingBox;   ///< The bounding box of current guides
 
+	MStringArray mNurbsCurvesNames;   ///< The nurbs curves names
+
 	bool mBoundingBoxDirtyFlag; ///< true to bounding box dirty flag
 
 	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< The number of guides to interpolate from
+
+	Indices mGuidesVerticesStartIndex;  ///< Index to first vertex of guide in all guides vertices array
+
+	Indices mGuidesInterpolationGroupIds;	///< Identifiers for the guides interpolation group
 };
 
 // inline functions implementation
@@ -262,6 +302,55 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 								method can not be called before segments generation " );
 	}
 	return mSegmentsStorage->getCurrentSegments();
+}
+
+inline const HairGuides::Indices & HairGuides::GuidesVerticesStartIndex() const
+{
+	return mGuidesVerticesStartIndex;
+}
+
+inline std::string HairGuides::serialize() const
+{
+	std::ostringstream oss;
+	std::vector< std::string > curvesNames;		
+	for ( unsigned int i = 0; i < mNurbsCurvesNames.length(); i++ )
+	{
+		curvesNames.push_back( mNurbsCurvesNames[ i ].asChar() );
+	}
+
+	oss << mSegmentsStorage->serialize()
+		<< Stubble::serializeObjects< GuideRestPosition >( mRestPositions )
+		<< Stubble::serializePrimitives< std::string >( curvesNames );
+	return oss.str();
+}
+
+inline size_t HairGuides::deserialize( const std::string &aStr, size_t aPos, const MayaMesh *aMayaMesh,
+	 const Interpolation::InterpolationGroups & aInterpolationGroups )
+{	
+	aPos = mSegmentsStorage->deserialize( aStr, aPos );
+	mRestPositions = Stubble::deserializeObjects< GuideRestPosition >( aStr, aPos );
+	std::vector< std::string > curvesNames = Stubble::deserializePrimitives< std::string >( aStr, aPos );
+	for ( std::vector< std::string >::const_iterator it = curvesNames.begin(); it != curvesNames.end(); it++ )
+	{
+		mNurbsCurvesNames.append( it->c_str() );
+	}
+		
+	mCurrentPositions.clear();
+	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+		++restPosIt )
+	{		
+		GuideCurrentPosition currPos;			
+		currPos.mPosition = aMayaMesh->getMeshPoint( restPosIt->mUVPoint );
+		currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
+		currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
+		mCurrentPositions.push_back( currPos );				
+	}
+	refreshInterpolationGroupIds( aInterpolationGroups );
+	mDisplayedGuides.setDirty();
+	mAllSegmentsUG.setDirty();
+	mUndoStack.clear();
+	mBoundingBoxDirtyFlag = true;
+	return aPos;	
 }
 
 } // namespace HairComponents

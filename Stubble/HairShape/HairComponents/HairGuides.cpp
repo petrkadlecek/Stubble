@@ -1,5 +1,13 @@
 #include "HairGuides.hpp"
 
+#include <maya/MFnNurbsCurve.h>
+#include <maya/MPointArray.h>
+#include <maya/MSelectionList.h>
+#include <maya/MItSelectionList.h>
+#include <maya/MAnimControl.h>
+#include <maya/MTime.h>
+#include <maya/MGlobal.h>
+#include <maya/MDagPath.h>
 #include <cassert>
 
 namespace Stubble
@@ -10,6 +18,8 @@ namespace HairShape
 	
 namespace HairComponents
 {
+
+Real GUIDE_SIZE = 0.2f;  ///< Size of the guide before scaling for huge/small mesh
 
 HairGuides::HairGuides():
 	mSegmentsStorage( 0 ),
@@ -133,73 +143,121 @@ void HairGuides::draw()
 	mDisplayedGuides.draw();
 }
 
-void HairGuides::importNURBS()
+void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	MSelectionList selection;
-	MGlobal::getActiveSelectionList( selection );	
-	MItSelectionList curveIt( selection, MFn::kNurbsCurve );
-	FrameSegments frameSegments;
-	for ( ; !curveIt.isDone(); curveIt.next() ) // over all curves
+	if ( mSegmentsStorage->imported() )
 	{
-		MDagPath path;
-		curveIt.getDagPath( path );
-		MFnNurbsCurve curve( path );		
-		MPointArray pointArray;
-		curve.getCVs( pointArray );
-
-		OneGuideSegments guideSegments;		
-		/* TODO compute segment length (from curve CV distances?) */
-		for ( unsigned __int32 i = 0; i < pointArray.length(); i++ ) // over all segments
-		{
-			guideSegments.mSegments.push_back( Vector3D< Real >( pointArray[ i ] ) );
-		}		
-		frameSegments.mSegments.push_back( guideSegments );
+		throw StubbleException( " HairGuides::importToNURBS : already used import command ! " );
 	}
-	mSegmentsStorage->importSegments( frameSegments );
-	// All nurbs has been imported, we have to recalculate for current time	
-	mSegmentsStorage->setFrame( MAnimControl::currentTime().as( MTime::uiUnit() ) ); // XXX is this correct unit?
-	mUndoStack.clear();
-	mDisplayedGuides.setDirty();
-	mRestPositionsUG.setDirty();
-	mAllSegmentsUG.setDirty();
-	clearSelectedGuides();
-	mBoundingBoxDirtyFlag = true;
+	// For every time frame
+	for ( MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
+	{
+		// Set current time ( Maya )
+		MGlobal::viewFrame( time );	
+		FrameSegments frameSegments;
+		// Set current time ( internal )
+		frameSegments.mFrame = time.as( MTime::uiUnit() );
+		frameSegments.mSegments.resize( mCurrentPositions.size() );
+		GuidesSegments::iterator it = frameSegments.mSegments.begin();
+		// Select positions
+		GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
+		// For every curve
+		for ( unsigned __int32 nIt = 0; nIt < mNurbsCurvesNames.length(); ++nIt, ++currIt, ++it )
+		{
+			MStatus status = MGlobal::selectByName( mNurbsCurvesNames[ nIt ], MGlobal::kReplaceList );
+			MSelectionList sel;
+			MGlobal::getActiveSelectionList( sel );
+			if ( sel.length() != 1 ) // Nothing selected
+			{
+				throw StubbleException(( " Could not load curve " + mNurbsCurvesNames[ nIt ] ).asChar() );
+			}
+			MItSelectionList iterator( sel, MFn::kNurbsCurve );
+			MDagPath path;
+			iterator.getDagPath( path ); // Selected object dag path
+			MFnDependencyNode oldCurve( path.node(), &status ); // Select old curve
+			MPlug plug = oldCurve.findPlug( "worldSpace", &status ); // Select oldCurve.worldSpace
+			MPlug pl = plug.elementByPhysicalIndex( 0, &status ); // Select oldCurve.worldSpace[ 0 ]
+			MPlugArray arr;
+			pl.connectedTo( arr, false, true, &status ); // Get from oldCurve.worldSpace[ 0 ] to folicul.startPosition
+			MFnDependencyNode folicul( arr[ 0 ].node(), &status ); // Get folicul
+			MPlug outCurvePlug = folicul.findPlug( "outCurve", &status ); // Select folicul.outCurve
+			outCurvePlug.connectedTo( arr, false, true, &status ); // Get from folicul.outCurve to curve.create
+			MFnNurbsCurve curve( arr[ 0 ].node(), &status ); // Finally get curve
+			// Prepare space for segments
+			it->mSegments.resize( aInterpolationGroups.getSegmentsCount( currIt->mPosition.getUCoordinate(), 
+				currIt->mPosition.getVCoordinate() ) + 1 );
+			double param = 0, step = curve.length() / ( it->mSegments.size() - 1 );
+			for ( Segments::iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); 
+				++segIt, param += step )
+			{
+				MPoint curvePoint;
+				curve.getPointAtParam( curve.findParamFromLength( param ), curvePoint, MSpace::kWorld );
+				*segIt = Vector3D< Real >::transformPoint( curvePoint, currIt->mLocalTransformMatrix );
+			}
+			it->mSegmentLength = static_cast< Real >( step );
+			// Recalculate positions
+			SegmentsStorage::uniformlyRepositionSegments( *it, 
+				static_cast< unsigned __int32 >( it->mSegments.size() ) );
+		}
+		// Uniformly reposition segments
+		#pragma omp parallel for schedule( guided )
+		for ( int i = 0; i < static_cast< int >( frameSegments.mSegments.size() ); ++i )
+		{
+			OneGuideSegments & guide = frameSegments.mSegments[ i ];
+			SegmentsStorage::uniformlyRepositionSegments( guide,
+				static_cast< unsigned __int32 >( guide.mSegments.size() ) );
+		}
+		mSegmentsStorage->importSegments( frameSegments );		
+	}
+	// Refresh interpolation groups ids
+	refreshInterpolationGroupIds( aInterpolationGroups );
+	// All nurbs has been imported, set time back
+	MAnimControl::setCurrentTime( MAnimControl::minTime() );
 }
 
 void HairGuides::exportToNURBS()
 {
 	if ( mSegmentsStorage->imported() )
 	{
-		throw StubbleException( " HairGuides::exportNURBS : already used import command ! " );
+		throw StubbleException( " HairGuides::exportToNURBS : already used import command ! " );
 	}
-	
-	for (MTime time = MAnimControl::minTime(); time <= MAnimControl::maxTime(); time++ )
-	{
-		MAnimControl::setCurrentTime( time );
-		setCurrentTime( time.as( MTime::uiUnit() )); // XXX correct unit?
-		GuidesCurrentPositions::const_iterator currPosIt = mCurrentPositions.begin();
-		for ( SelectedGuides::const_iterator hairIt = mSelectedGuides.begin(); 
-			hairIt != mSelectedGuides.end(); hairIt++, currPosIt++ )
+	// Select guides
+	const GuidesSegments & guides = mSegmentsStorage->getCurrentSegments().mSegments;
+	// Select positions
+	GuidesCurrentPositions::const_iterator currIt = mCurrentPositions.begin();
+	// For all current hair
+	mNurbsCurvesNames.clear();
+	for ( GuidesSegments::const_iterator hairIt = guides.begin(); 
+		hairIt != guides.end(); ++hairIt, ++currIt )
+	{		
+		MPointArray pointArray;			
+		for ( Segments::const_iterator segmentIt = hairIt->mSegments.begin()
+			; segmentIt != hairIt->mSegments.end()
+			; ++segmentIt )
+		{			
+			// Transform to world coordinates and append
+			pointArray.append( currIt->mPosition.toWorld( *segmentIt ).toMayaPoint() );
+		}
+		MFnNurbsCurve nurbsCurve;
+		MStatus status;
+		nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
+			false, false, true, MObject::kNullObj, &status );
+		MString name = nurbsCurve.name();
+		mNurbsCurvesNames.append( nurbsCurve.name() );
+		if ( status != MStatus::kSuccess )
 		{
-			MPointArray pointArray;				
-			for ( Segments::const_iterator segmentIt = (*hairIt)->mGuideSegments.mSegments.begin()
-				; segmentIt != (*hairIt)->mGuideSegments.mSegments.end()
-				; segmentIt++ )
-			{			
-				// Transform to world coordinates and append
-				pointArray.append( currPosIt->mPosition.toWorld( *segmentIt ).toMayaPoint() );
-			}
-			MFnNurbsCurve nurbsCurve;
-			MStatus status;
-
-			nurbsCurve.createWithEditPoints( pointArray, 1, MFnNurbsCurve::kOpen, 
-				false, false, true, MObject::kNullObj, &status );
-			if ( status != MStatus::kSuccess )
-			{
-				throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
-			}
+			throw StubbleException( " HairGuides::exportNURBS : Failed to create NURBS curve. " );
 		}
 	}
+	// After successfull export, select all curves
+	MSelectionList sel;
+	// Add all curves to selection list
+	for ( unsigned __int32 nIt = 0; nIt < mNurbsCurvesNames.length(); ++nIt )
+	{
+		sel.add( mNurbsCurvesNames[ nIt ] );
+	}
+	// Execute selection
+	MGlobal::setActiveSelectionList( sel );
 }
 
 void HairGuides::setCurrentTime( Time aTime )
@@ -218,7 +276,8 @@ void HairGuides::setCurrentTime( Time aTime )
 	mBoundingBoxDirtyFlag = true;
 }
 
-GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChanged )
+GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
+	bool aTopologyChanged )
 {
 	if ( aTopologyChanged )
 	{
@@ -237,14 +296,14 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		{
 			GuideRestPosition restPos;
 			restPos.mUVPoint = positionConverter.getUVPoint( restPosIt->mPosition );
-			if ( restPos.mUVPoint.getTriangleID() >= 0 ) // Topology change did not destroy the guide
+			if ( restPos.mUVPoint.getTriangleID() != UVPoint::NOT_TRIANGLE ) // Topology change did not destroy the guide
 			{
 				// Handle rest position
 				restPos.mPosition = aMayaMesh.getRestPose().getIncompleteMeshPoint( restPos.mUVPoint );
 				tmpRestPositions.push_back( restPos );
 				// Handle current position
 				GuideCurrentPosition currPos;
-				currPos.mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+				currPos.mPosition = aMayaMesh.getMeshPoint( restPos.mUVPoint );
 				currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
 				currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
 				mCurrentPositions.push_back( currPos );
@@ -259,6 +318,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, bool aTopologyChange
 		std::swap( tmpSegmentsStorage, mSegmentsStorage );
 		delete tmpSegmentsStorage;
 		// Rest positions has changed...
+		refreshInterpolationGroupIds( aInterpolationGroups );
 		mRestPositionsUG.setDirty();
 		clearSelectedGuides();
 	}
@@ -341,6 +401,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
 		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
 	}
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	// Now we can create new segments
 	if ( aInterpolateFromPrevious )
 	{
@@ -353,7 +414,8 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	}
 	else
 	{
-		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups );
+		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups, 
+			aMayaMesh.getRestPose().getBoundingBox().diagonal() * GUIDE_SIZE );
 	}
 	// Now we can throw away old data
 	std::swap( tmpRestPositions, mRestPositions );
@@ -370,12 +432,14 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 
 void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	mSegmentsStorage->setSegmentsCount( mRestPositions, aInterpolationGroups );
 	// Segments has changed...
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
+	mRestPositionsUG.setDirty(); // Interpolation groups may have changed
 	mAllSegmentsUG.setDirty();
-	updateSelectedGuides();
+	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
@@ -410,6 +474,24 @@ void HairGuides::updateSelectedGuides()
 	// We will not update all segments ug, it will be updated when necessary
 	// for each guide, we will only set selected segments as dirty
 	mSelectedSegmentsUG.setDirty();
+}
+
+void HairGuides::refreshInterpolationGroupIds( const Interpolation::InterpolationGroups & aInterpolationGroups )
+{
+	unsigned __int32 lastId = 0;
+	// Realloc arrays
+	mGuidesVerticesStartIndex.resize( mRestPositions.size() );
+	mGuidesInterpolationGroupIds.resize( mRestPositions.size() );
+	Indices::iterator index = mGuidesVerticesStartIndex.begin();
+	Indices::iterator groupId = mGuidesInterpolationGroupIds.begin();
+	// For every guide
+	for ( GuidesRestPositions::const_iterator posIt = mRestPositions.begin(); posIt != mRestPositions.end();
+		++posIt, ++index, ++groupId )
+	{
+		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );
+		*index = lastId;
+		lastId = aInterpolationGroups.getGroupSegmentsCount( *groupId );
+	}
 }
 
 } // namespace HairComponents

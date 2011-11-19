@@ -64,6 +64,8 @@ struct SelectedGuide
 
 	SegmentsAdditionalInfo mSegmentsAdditionalInfo; ///< Information describing the segments additional params
 
+	Uint mCollisionsCount; ///< How many guide vertices are colliding?
+
 	Vector3D<Real> mNormal; ///< Normal of guide
 
 	bool mDirtyRedrawFlag; ///< True if segments has been changed and needs to be redrawn

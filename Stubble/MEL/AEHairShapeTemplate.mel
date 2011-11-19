@@ -47,7 +47,7 @@ global proc AEHairShapeTemplate( string $nodeName )
 		editorTemplate -addControl "displacement";
 		editorTemplate -callCustom "AEstubbleTextureNew"
 				"AEstubbleTextureReplace" "displacement_texture";
-		
+		editorTemplate -addControl "skip_threshold"; 
 	editorTemplate -endLayout;
 	
 	// Create the "Color" section
@@ -338,9 +338,14 @@ global proc AEstubbleCutTextureReplace (string $attrName)
 
 global proc AEstubbleInterpolationGroupsNew (string $attrName)
 {
+	if (!`objExists $attrName`) 
+	{
+		return; 
+	}
 	string $buffer[];
 	string $groupPrefix;
 	string $groupName;
+	string $groupNameCol;
 	string $nodeName;
 	int $numTokens = `tokenize $attrName "." $buffer`;
 	$nodeName = $buffer[0];
@@ -359,10 +364,14 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		$groupCount = size($groupSegmentsLength);
 	}
 	
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 ( $nodeName + "segmentsUI" );
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
 		string $label = "Group " + $i;
+		$groupNameCol = $groupName + "c";
+		float $cs[] = `getAttr ( $nodeName + ".color_" + $i ) `;
+		picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
 		catchQuiet ( `attrFieldSliderGrp -l $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName` ); 
 	}
 	
@@ -371,10 +380,10 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 
 global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 {
-	int $MAX_INTERPOLATION_GROUPS = 30;
 	string $buffer[];
 	string $groupPrefix;
 	string $groupName;
+	string $groupNameCol;
 	string $nodeName;
 	int $numTokens = `tokenize $attrName "." $buffer`;
 	$nodeName = $buffer[0];
@@ -385,30 +394,22 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 
 	float $groupSegmentsLength[] = `getAttr $attrName`;
 	int $groupCount = size($groupSegmentsLength);
-	
+
+	string $layoutName = ( $nodeName + "segmentsUI" );
+	if ( `rowColumnLayout -exists $layoutName` )
+	{
+		deleteUI -lay $layoutName;
+	}
+	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 $layoutName;
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
 		string $label = "Group " + $i;
-		if (`attrFieldSliderGrp -exists $groupName`)
-		{
-			attrFieldSliderGrp -e -visible true -enable true -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
-		}
-		else
-		{
-			attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
-		}
+		$groupNameCol = $groupName + "c";
+		float $cs[] = `getAttr ( $nodeName + ".color_" + $i ) `;
+		picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
+		attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
 	}
 
-	for( $i = $groupCount; $i < $MAX_INTERPOLATION_GROUPS; ++$i )
-	{
-		$groupName = $groupPrefix + $i;
-		string $label = "Group " + $i;
-		if (`attrFieldSliderGrp -exists $groupName`)
-		{
-			attrFieldSliderGrp -e -visible false -enable false -at "" $groupName;
-		}
-	}
-		
 	setUITemplate -ppt;
 }

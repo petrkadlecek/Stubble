@@ -15,6 +15,9 @@ static const unsigned __int32 VOXEL_FILE_ID_SIZE = sizeof( char ) * 20; ///< Siz
 static const unsigned __int32 BUFFER_SIZE = 1 << 24;	///< Size of the buffer for gzip
 
 static const unsigned __int32 COMPRESSION = 3;  ///< The compression quality of gzip ( 1 = FASTEST - 9 = BEST )
+
+static const char * SEPARATOR = " "; ///< Object separator used in (de)serialization.
+
 } // namespace Stubble
 
 #endif // STUBBLE_COMMON_CONSTANTS_HPP

@@ -10,6 +10,8 @@ namespace Stubble
 namespace Toolbox
 {
 
+struct HairTask; // Forward declaration
+
 ///----------------------------------------------------------------------------------------------------
 /// The interface for all of the brush mode classes.
 ///----------------------------------------------------------------------------------------------------
@@ -19,10 +21,9 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// The method in which the derived classes implement the different brushing transformations.
 	///
-	/// \param aDX	Cursor change in world coordinates
-	/// \param aGuideHair	Guide selection affected by the transformation
+	/// \param aTask	Structure holding necessary information to apply transformation
 	///----------------------------------------------------------------------------------------------------
-	virtual void doBrush ( const Vector3D< double > &aDX, HairShape::HairComponents::SelectedGuide &aGuideHair ) = 0;
+	virtual void doBrush ( HairTask *aTask ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets whether the brush falloff is enabled or disabled

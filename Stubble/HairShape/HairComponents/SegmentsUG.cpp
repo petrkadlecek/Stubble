@@ -113,6 +113,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			guide->mGuideSegments.mSegments = Segments(guideIt->mSegments);
 			guide->mPosition = *posIt;
 			guide->mSegmentsAdditionalInfo = additionalInfo;
+			guide->mCollisionsCount = 0;
 
 			aSelectedGuides.push_back(guide);
 		}
@@ -214,6 +215,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 				guide->mGuideSegments.mSegments = Segments(guideIt->mSegments);
 				guide->mPosition = *posIt;
 				guide->mSegmentsAdditionalInfo = additionalInfo;
+				guide->mCollisionsCount = 0;
 
 				aSelectedGuides.push_back(guide);
 			}
@@ -249,6 +251,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		
 		OneSegmentAdditionalInfo sgmtInfo;
 		guide->mSegmentsAdditionalInfo = SegmentsAdditionalInfo(guide->mGuideSegments.mSegments.size(), sgmtInfo);
+		guide->mCollisionsCount = 0;
 
 		mStoredGuides.push_back(guide);
 	}

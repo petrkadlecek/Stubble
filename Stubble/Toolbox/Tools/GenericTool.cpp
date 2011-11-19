@@ -30,12 +30,13 @@ GenericTool::GenericTool(ToolShape *aToolShape) :
 
 M3dView* GenericTool::getActiveView()
 {
+	mView = M3dView::active3dView();
 	return &mView;
 }
 
 void GenericTool::drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType )
 {
-	mShape->draw( &mView, aScreenCoords, aEventType );
+	mShape->draw( getActiveView(), aScreenCoords, aEventType );
 }
 
 ToolShape *GenericTool::getToolShape()

@@ -29,6 +29,7 @@ HairProperties::HairProperties():
 	mTipThickness( 0.1f ),
 	mDisplacementTexture( 0 ),
 	mDisplacement( 0 ),
+	mSkipThreshold( 1 ),
 	mRootOpacityTexture( 0 ),
 	mRootOpacity( 1 ),
 	mTipOpacityTexture( 0 ),

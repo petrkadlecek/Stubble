@@ -43,6 +43,8 @@ public:
 
 	static MObject segmentsCountAttr; ///< The segments count attribute
 
+	static MObject interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
+
 	static MObject numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 
 	static MObject areNormalsCalculatedAttr;	///< The are normals calculated attribute
@@ -66,6 +68,8 @@ public:
 	static MObject displacementTextureAttr; ///< The displacement texture attribute
 
 	static MObject displacementAttr; ///< The displacement attribute
+
+	static MObject skipThresholdAttr;	///< The skip threshold attribute
 
 	/* MAYA COLOR PROPERTIES */
 
@@ -260,7 +264,14 @@ protected:
 	/// \param	aSegmentsCountPlug	The segments count attribute. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setSegmentsCountAttr( const MObject & aSegmentsCountAttr );
-	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Sets a scale factor. 
+	///
+	/// \param	aScaleFactor	a scale factor. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setScaleFactor( Real aScaleFactor );
+
 	///-------------------------------------------------------------------------------------------------
 	/// Updates components count for an int array attribute. 
 	///
@@ -372,10 +383,20 @@ protected:
 	///-------------------------------------------------------------------------------------------------
 	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Fill color array attributes. 
+	///
+	/// \param [in,out]	aAttribute		The attribute object. 
+	/// \param	aInterpolationGroups	Interpolation groups object.
+	///-------------------------------------------------------------------------------------------------
+	static void fillColorArrayAttributes( MObject & aAttribute, const InterpolationGroups & aInterpolationGroups );
+
 private:
 
 
 	MObject mSegmentsCountAttr;   ///< The segments count attribute
+
+	Real mScaleFactor;  ///< The scale factor for all size dependent attributes
 };
 
 // inline functions implementation
@@ -390,6 +411,32 @@ inline void MayaHairProperties::refreshPointersToGuides( const HairComponents::G
 inline void MayaHairProperties::setSegmentsCountAttr( const MObject & aSegmentsCountAttr )
 {
 	mSegmentsCountAttr = aSegmentsCountAttr;
+}
+
+inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
+{
+	aScaleFactor *= 0.02f; // Reasonable scaling..
+	Real change = aScaleFactor / mScaleFactor;
+	mScaleFactor = aScaleFactor;
+	// Rescale all size depented attributes :
+	mRootThickness *= change;
+	mTipThickness *= change;
+	mRootFrizz *= change;
+	mTipFrizz *= change;
+	mFrizzXFrequency *= change;
+	mFrizzYFrequency *= change;
+	mFrizzZFrequency *= change;
+	mFrizzAnimSpeed *= change;
+	mRootKink *= change;
+	mTipKink *= change;
+	mKinkXFrequency *= change;
+	mKinkYFrequency *= change;
+	mKinkZFrequency *= change;
+	mRootSplay *= change;
+	mTipSplay *= change;
+	mCenterSplay *= change;
+	mOffset *= change;
+	mAspect *= change;
 }
 
 } // namespace Interpolation

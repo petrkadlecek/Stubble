@@ -18,7 +18,7 @@ global proc StubbleBrushToolProperties()
 				string $group1 = `radioButtonGrp -numberOfRadioButtons 3
 				    -label "Brush Mode: " -labelArray3 "Translate" "Rotate" "Scale" stubbleBrushToolBrushMode1`;
 				radioButtonGrp -numberOfRadioButtons 3 -shareCollection $group1
-				    -label "" -labelArray3 "Clump" "Puff Root" "Puff End" stubbleBrushToolBrushMode2;
+				    -label "" -labelArray3 "Clump" "Puff Root" "Stand on End" stubbleBrushToolBrushMode2;
 
 					separator -style "none";
 

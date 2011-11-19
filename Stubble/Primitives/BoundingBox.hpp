@@ -2,6 +2,8 @@
 #define STUBBLE_BOUNDING_BOX_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #ifdef MAYA
@@ -11,6 +13,8 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <string>
+#include <sstream>
 
 namespace Stubble
 {
@@ -72,6 +76,33 @@ public:
 	/// \param	aBoundingBox	a bounding box. 
 	///----------------------------------------------------------------------------------------------------
 	inline const BoundingBox & operator= ( const BoundingBox & aBoundingBox );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the size of the minimum side of bounding box. 
+	///
+	/// \return	The minimum size. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real minSize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the size of diagonal
+	///
+	/// \return	The diagonal size. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real diagonal() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 	Vector3D< Real > mMin; ///<	Minimum coordinate values.
@@ -149,6 +180,31 @@ inline const BoundingBox & BoundingBox::operator= ( const BoundingBox & aBoundin
 	return *this;
 }
 
+inline Real BoundingBox::minSize() const
+{
+	Vector3D< Real > size = mMax - mMin;
+	return size.x > size.y ? ( size.x > size.z ? size.x : size.z ) : ( size.y > size.z ? size.y : size.z );
+}
+
+inline Real BoundingBox::diagonal() const
+{
+	return ( mMax - mMin ).size();
+}
+
+inline std::string BoundingBox::serialize() const
+{
+	std::ostringstream oss;
+	oss << mMin.serialize()
+		<< mMax.serialize();
+	return oss.str();
+}
+
+inline size_t BoundingBox::deserialize( const std::string &aStr, size_t aPos )
+{
+	aPos = mMin.deserialize( aStr, aPos );
+	aPos = mMax.deserialize( aStr, aPos );
+	return aPos;
+}
 
 } // Stubble
 

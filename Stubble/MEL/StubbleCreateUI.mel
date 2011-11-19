@@ -10,8 +10,14 @@ global proc StubbleCreateUI()
 	menuItem -label "Cut Tool" -command "source StubbleCutTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
-	menuItem -label "Export selection to NURBS" -command "StubbleExportToNURBS;";
-	menuItem -label "Import selected NURBS" -command "StubbleImportNURBS;";
+	menuItem -label "Export to NURBS" -command "StubbleExportToNURBS; \
+												string $name = `StubbleSelectCommand`; \
+												string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
+												string $node = plugNode( $surface );\
+												string $parent[] = `listRelatives -p $node`;\
+												select -add $parent[ 0 ]; \
+												MakeCurvesDynamic;";
+	menuItem -label "Import from NURBS" -command "StubbleImportNURBS;";
 	menuItem -label "Update textures" -command "StubbleResetTextures;refresh;";
 	// Create Stubble select menu
 	setParent $gMainWindow;
@@ -24,21 +30,21 @@ global proc StubbleCreateUI()
 	if ( !`contextInfo -exists stubbleCutTool` )
 	{
 		StubbleCutToolCommand stubbleCutTool;
-		print ( "Created the stubbleCutTool context.\n" );
+		print ( "Stubble: Created the stubbleCutTool context.\n" );
 	}
 
 	// Create Stubble brush tool
 	if ( !`contextInfo -exists stubbleBrushTool` )
 	{
 		StubbleBrushToolCommand stubbleBrushTool;
-		print ( "Created the stubbleBrushTool context.\n" );
+		print ( "Stubble: Created the stubbleBrushTool context.\n" );
 	}
 
 	// Create Stubble haptic settings tool
 	if ( !`contextInfo -exists stubbleHapticSettingsTool` )
 	{
 		StubbleHapticSettingsToolCommand stubbleHapticSettingsTool;
-		print ( "Created the stubbleHapticSettingsTool context.\n" );
+		print ( "Stubble: Created the stubbleHapticSettingsTool context.\n" );
 	}
 
 	//
@@ -48,12 +54,16 @@ global proc StubbleCreateUI()
 	int $StubbleShelfNameEx = `layout -q -ex $StubbleShelfName`;
 	if ($StubbleShelfNameEx == 1)
 	{
+		global string $gShelfTopLevel;
+		shelfTabLayout -edit -selectTabIndex 1 $gShelfTopLevel; 
+		shelfTabChange();
+		print ( "Stubble: Deleting current Stubble shelve.\n" );
 		deleteUI -layout $StubbleShelfName;
 	}
 
 	//add shelf
+	print ( "Stubble: Adding new Stubble shelve.\n" );
 	$StubbleShelfTab = `addNewShelfTab $StubbleShelfName`;
-	
 	
 	string $shelfButtons[] = `shelfLayout -q -childArray $StubbleShelfTab`;
 
@@ -210,5 +220,8 @@ global proc StubbleCreateUI()
 				-command "StubbleRedoCommand;refresh;"`;
 
 	// enable rendering with 3Delight
+	print ( "Stubble: Enabling rendering with 3Delight.\n" );
 	source Stubble3DelightRendering.mel;
+
+	print ( "Stubble: Initialization completed.\n" );
 }

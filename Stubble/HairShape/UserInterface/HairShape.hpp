@@ -62,6 +62,8 @@ public:
 
 	static MObject sampleTextureDimensionAttr; ///< Texture dimension for sampling attribute
 
+	static MObject serializedDataAttr; ///< Serialized plugin data (used for scene load/save)
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------
@@ -283,7 +285,21 @@ public:
 	/// Gets the currect maya mesh.
 	///----------------------------------------------------------------------------------------------------
 	inline MayaMesh * getCurrentMesh() const;
+		
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize plugin data.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize and reconstruct plugin data.
+	///-------------------------------------------------------------------------------------------------
+	inline void deserialize( const std::string &data );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Return this as MObject
+	///-------------------------------------------------------------------------------------------------
+	inline MObject asMObject();
 
 private:
 	
@@ -437,7 +453,7 @@ inline HairShape * HairShape::getActiveObject()
 
 inline void HairShape::importNURBS()
 {
-	mHairGuides->importNURBS();
+	mHairGuides->importNURBS( *mInterpolationGroups );
 }
 
 inline void HairShape::exportToNURBS()
@@ -448,6 +464,21 @@ inline void HairShape::exportToNURBS()
 inline MayaMesh * HairShape::getCurrentMesh() const
 {
 	return mMayaMesh;
+}
+
+inline std::string HairShape::serialize() const
+{
+	return mHairGuides->serialize();
+}
+
+inline void HairShape::deserialize( const std::string &data )
+{
+	mHairGuides->deserialize( data, 0, mMayaMesh, *mInterpolationGroups );
+}
+
+inline MObject HairShape::asMObject()
+{
+	return thisMObject();
 }
 
 } // namespace HairShape

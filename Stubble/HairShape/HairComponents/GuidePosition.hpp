@@ -5,7 +5,11 @@
 #include "HairShape\Mesh\MeshPoint.hpp"
 #include "HairShape\Mesh\UVPoint.hpp"
 #include "Primitives\Matrix.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace Stubble
@@ -43,12 +47,42 @@ struct GuideRestPosition
 	MeshPoint mPosition;	///< The position on rest pose mesh
 
 	UVPoint mUVPoint;   ///< The uv point ( position immutable to transformations )
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 };
 
 ///-------------------------------------------------------------------------------------------------
 /// Defines an alias representing the guides rest positions .
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< GuideRestPosition > GuidesRestPositions;
+
+// inline function implementations
+
+inline std::string GuideRestPosition::serialize() const
+{
+	std::ostringstream oss;		
+	oss << mPosition.serialize()
+		<< mUVPoint.serialize();
+	return oss.str();
+}
+
+inline size_t GuideRestPosition::deserialize( const std::string &aStr, size_t aPos )
+{		
+	aPos = mPosition.deserialize( aStr, aPos );
+	aPos = mUVPoint.deserialize( aStr, aPos );
+	return aPos;	
+}
 
 } // namespace HairComponents
 

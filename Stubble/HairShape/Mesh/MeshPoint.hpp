@@ -2,11 +2,15 @@
 #define STUBBLE_MESH_POINT_HPP
 
 #include "Common\CommonTypes.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 #include "Primitives\Matrix.hpp"
 #include "Primitives\Vector3D.hpp"
 
 #include <ostream>
 #include <istream>
+#include <sstream>
+#include <string>
 
 namespace Stubble
 {
@@ -124,6 +128,19 @@ public:
 	/// \param	aInStream		input file stream
 	///----------------------------------------------------------------------------------------------------
 	inline void importPosition( std::istream & aStreamIn );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 
@@ -259,18 +276,18 @@ inline void MeshPoint::getLocalTransformMatrix( Matrix< tMatrixType > & aLocalTr
 	aLocalTransformMatrix[ 0 ] = static_cast< tMatrixType >( mBinormal.x );
 	aLocalTransformMatrix[ 1 ] = static_cast< tMatrixType >( mBinormal.y );
 	aLocalTransformMatrix[ 2 ] = static_cast< tMatrixType >( mBinormal.z );
-	aLocalTransformMatrix[ 3 ] = 0;
+	aLocalTransformMatrix[ 3 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mBinormal ) );
 	aLocalTransformMatrix[ 4 ] = static_cast< tMatrixType >( mTangent.x );
 	aLocalTransformMatrix[ 5 ] = static_cast< tMatrixType >( mTangent.y );
 	aLocalTransformMatrix[ 6 ] = static_cast< tMatrixType >( mTangent.z );
-	aLocalTransformMatrix[ 7 ] = 0;
+	aLocalTransformMatrix[ 7 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mTangent ) );
 	aLocalTransformMatrix[ 8 ] = static_cast< tMatrixType >( mNormal.x );
 	aLocalTransformMatrix[ 9 ] = static_cast< tMatrixType >( mNormal.y );
 	aLocalTransformMatrix[ 10 ] = static_cast< tMatrixType >( mNormal.z );
-	aLocalTransformMatrix[ 11 ] = 0;
-	aLocalTransformMatrix[ 12 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mBinormal ) );
-	aLocalTransformMatrix[ 13 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mTangent ) );
-	aLocalTransformMatrix[ 14 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mNormal ) );
+	aLocalTransformMatrix[ 11 ] = static_cast< tMatrixType >( - Vector3D< Real >::dotProduct( mPosition, mNormal ) );
+	aLocalTransformMatrix[ 12 ] = 0;
+	aLocalTransformMatrix[ 13 ] = 0;
+	aLocalTransformMatrix[ 14 ] = 0;
 	aLocalTransformMatrix[ 15 ] = 1;
 }
 
@@ -338,6 +355,31 @@ inline std::istream & operator>>( std::istream & aStreamIn, MeshPoint & aPointOn
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mUCoordinate ), sizeof( Real ) );
 	aStreamIn.read( reinterpret_cast< char * >( &aPointOnMesh.mVCoordinate ), sizeof( Real ) );
 	return aStreamIn;
+}
+
+inline std::string MeshPoint::serialize() const
+{
+	std::ostringstream oss;	
+	
+	oss << mPosition.serialize()
+		<< mNormal.serialize()
+		<< mTangent.serialize()
+		<< mBinormal.serialize()
+		<< Stubble::serialize< Real >( mUCoordinate )
+		<< Stubble::serialize< Real >( mVCoordinate );		
+
+	return oss.str();
+}
+
+inline size_t MeshPoint::deserialize( const std::string &aStr, size_t aPos )
+{
+	aPos = mPosition.deserialize( aStr, aPos );
+	aPos = mNormal.deserialize( aStr, aPos );
+	aPos = mTangent.deserialize( aStr, aPos );
+	aPos = mBinormal.deserialize( aStr, aPos );
+	mUCoordinate = Stubble::deserialize< Real >( aStr, aPos );
+	mVCoordinate = Stubble::deserialize< Real >( aStr, aPos );
+	return aPos;
 }
 
 } // namespace HairShape
