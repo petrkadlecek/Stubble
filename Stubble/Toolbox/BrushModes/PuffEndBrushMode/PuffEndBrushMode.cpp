@@ -22,7 +22,7 @@ void PuffEndBrushMode::doBrush ( HairTask *aTask )
 		Vector3D< Real > vertexAtNormal;
 		Vector3D< Real > distance;
 		Vector3D< Real > d;
-		for (size_t i = 0; i < SEGMENT_COUNT; ++i)
+		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( !guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
 			{
