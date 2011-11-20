@@ -64,6 +64,8 @@ public:
 
 	static MObject serializedDataAttr; ///< Serialized plugin data (used for scene load/save)
 
+	static MObject operationCountAttr; ///< Notify Maya that plugin data have changed
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------

@@ -43,6 +43,7 @@ MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::sampleTextureDimensionAttr;
 MObject HairShape::serializedDataAttr;
+MObject HairShape::operationCountAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -388,6 +389,21 @@ MStatus HairShape::initialize()
 		
 		MSceneMessage::addCallback( MSceneMessage::kBeforeExport, saveSceneCallback, 0, &status );		
 		MSceneMessage::addCallback( MSceneMessage::kBeforeSave, saveSceneCallback, 0, &status );
+
+		// operation counter attribute
+		// - increments after each undoable operation
+		// - notifies Maya that there are changes to save
+		MFnNumericAttribute ocAttr;
+		operationCountAttr = ocAttr.create( "operation_count", "opcount", MFnNumericData::kInt, 0, &status );
+		sAttr.setHidden( true );
+		sAttr.setInternal( true );
+		sAttr.setWritable( true );
+		sAttr.setStorable( true );
+		if ( !addAttribute( operationCountAttr ) )
+		{
+			status.perror( "Adding opcount attr has failed" );
+			return status;
+		}		
 	}
 	catch( const StubbleException & ex )
 	{

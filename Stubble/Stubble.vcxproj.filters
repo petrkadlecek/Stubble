@@ -214,6 +214,9 @@
     <ClCompile Include="HairShape\UserInterface\HistoryCommands.cpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\UndoStack.cpp">
+      <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
