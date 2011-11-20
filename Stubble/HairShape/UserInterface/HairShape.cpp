@@ -187,6 +187,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mGenDisplayCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 		if ( mDisplayInterpolated )
 		{
+			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+			{
+				return false;
+			}
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
 		}
@@ -202,6 +206,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mDisplayInterpolated = aDataHandle.asBool();
 		if ( mDisplayInterpolated )
 		{
+			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+			{
+				return false;
+			}
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
 		}
