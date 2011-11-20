@@ -426,6 +426,7 @@ inline std::string HairShape::serialize() const
 inline void HairShape::deserialize( const std::string &data )
 {
 	mHairGuides->deserialize( data, 0, mMayaMesh, *mInterpolationGroups );
+	mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(), *this, mGenDisplayCount );
 }
 
 inline MObject HairShape::asMObject()
