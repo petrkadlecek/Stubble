@@ -3,6 +3,7 @@
 
 #include "HairShape\Mesh\MeshPoint.hpp"
 #include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
 #include <vector>
 #include <sstream>

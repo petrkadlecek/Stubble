@@ -2,9 +2,6 @@
 
 #include "HairShape\UserInterface\HairShape.hpp"
 
-#include <cassert>
-#include <list>
-
 namespace Stubble
 {
 
