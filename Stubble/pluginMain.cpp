@@ -21,6 +21,7 @@
 
 #include "RibExport/RenderManCacheCommand.hpp"
 
+#include "Toolbox/Tools/TabletSettingsTool.hpp"
 #include "Toolbox/Tools/HapticSettingsTool.hpp"
 #include "Toolbox/Tools/HapticListener.hpp"
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
@@ -78,7 +79,7 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
-	// register HapticToolCommand
+	// register HapticSettingsToolCommand
 	status = plugin.registerContextCommand( Stubble::Toolbox::HapticSettingsToolCommand::sCommandName, 
 		Stubble::Toolbox::HapticSettingsToolCommand::creator );
 
@@ -89,6 +90,18 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
+	// register TabletSettingsToolCommand
+	status = plugin.registerContextCommand( Stubble::Toolbox::TabletSettingsToolCommand::sCommandName, 
+		Stubble::Toolbox::TabletSettingsToolCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register TabletSettingsToolCommand." );
+		return status;
+	}
+
+  // register HapticListener
   status = plugin.registerNode( Stubble::Toolbox::HapticListener::typeName,
 		              Stubble::Toolbox::HapticListener::typeId,
 		              Stubble::Toolbox::HapticListener::creator,

@@ -232,6 +232,9 @@
     <ClCompile Include="Toolbox\Tools\HapticListener.cpp">
       <Filter>Toolbox\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="Toolbox\Tools\TabletSettingsTool.cpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -445,6 +448,9 @@
       <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
     <ClInclude Include="Toolbox\Tools\HapticListener.hpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\Tools\TabletSettingsTool.hpp">
       <Filter>Toolbox\Tools</Filter>
     </ClInclude>
   </ItemGroup>

@@ -41,10 +41,17 @@ global proc StubbleCreateUI()
 	}
 
 	// Create Stubble haptic settings tool
-	if ( !`contextInfo -exists stubbleHapticSettingsTool` )
+	if ( !`contextInfo -exists StubbleHapticSettingsToolContext1` )
 	{
 		StubbleHapticSettingsToolCommand StubbleHapticSettingsToolContext1;
-		print ( "Stubble: Created the stubbleHapticSettingsTool context.\n" );
+		print ( "Stubble: Created the StubbleHapticSettingsToolContext1 context.\n" );
+	}
+
+	// Create Stubble tablet settings tool
+	if ( !`contextInfo -exists StubbleTabletSettingsToolContext1` )
+	{
+		StubbleTabletSettingsToolCommand StubbleTabletSettingsToolContext1;
+		print ( "Stubble: Created the StubbleTabletSettingsToolContext1 context.\n" );
 	}
 
 	//
