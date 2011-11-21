@@ -1,6 +1,8 @@
 #include <fstream> //TODO: remove me
 #include "HairTaskProcessor.hpp"
+#include "HairShape\UserInterface\HairShape.hpp"
 #include <maya\MMeshIntersector.h>
+#include <maya\MFloatPointArray.h>
 
 //#define STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE 1
 
@@ -222,6 +224,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 {
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMayaMesh();
+	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
@@ -241,11 +244,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 		if(curentPointInsideMesh)
 		{
-			MPoint closest;
-			MPoint queryPoint( firstPoint.x, firstPoint.y, firstPoint.z );
-			currentMesh->getClosestPoint( queryPoint, closest, MSpace::kWorld );
-			//accelerator->getClosestPoint( queryPoint, closest );
-			Vec3 p( closest.x, closest.y, closest.z );
+			MPointOnMesh closestPoint;
+			MStatus status = accelerator->getClosestPoint( firstPoint.toMayaPoint(), closestPoint );
+
+			Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
+				closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
+				closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
 
 			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
@@ -267,40 +271,35 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MFloatPoint startP(positionStartPoint.x, positionStartPoint.y, positionStartPoint.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
 
-			MFloatPoint hitPoint;
+			MFloatPointArray hitPoints;
 			MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
-			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam,	hitPoint, 0, 0, 0, 0, 0 );
+			bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 			// current segment has an intersection -> so we change hair intersection
-			if(intersect)
+			if(intersect && hitPoints.length() % 2)
 				curentPointInsideMesh = !curentPointInsideMesh;
 
 			// nearest point on mesh
 			if(curentPointInsideMesh)
 			{
-				MPoint closest;
-				MPoint queryPoint( positionEndPoint.x, positionEndPoint.y, positionEndPoint.z );
-				currentMesh->getClosestPoint( queryPoint, closest, MSpace::kWorld );
-				bool ic = accelerator->isCreated();
+				MPointOnMesh closestPoint;
+				MStatus status = accelerator->getClosestPoint( positionEndPoint.toMayaPoint(), closestPoint );
 
-				MPointOnMesh qqq;
-				accelerator->getClosestPoint( queryPoint, qqq );
+				Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
+					closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
+					closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
 
-				Vec3 p( closest.x, closest.y, closest.z );
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			}
 			else
 			{
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh.set(0.0, 0.0, 0.0);
-				//guide->mSegmentsAdditionalInfo[ i ].mIsColliding = false;
 			}
 
 			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = curentPointInsideMesh;
 			guide->mCollisionsCount += (curentPointInsideMesh) ? 1 : 0;
-		} // for segments from 2 to end
-		//std::cout << "# of collisions = " << guide->mCollisionsCount << std::endl << std::flush; //TODO: remove me
-		//guide->mCollisionsCount = 0; //TODO: Remove me
-	} // for all guides
+		}	
+	}
 }
 
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING

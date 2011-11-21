@@ -254,6 +254,11 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline std::string serialize() const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the current maya mesh inclusive matrix
+	///----------------------------------------------------------------------------------------------------
+	inline MMatrix getCurrentInclusiveMatrix() const;
+
 	///-------------------------------------------------------------------------------------------------
 	/// Deserialize and reconstruct plugin data.
 	///-------------------------------------------------------------------------------------------------
@@ -319,6 +324,8 @@ private:
 	Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
 
 	Interpolation::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
+
+	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
 	// Stored attributes values
 
@@ -418,6 +425,11 @@ inline void HairShape::exportToNURBS()
 inline MayaMesh * HairShape::getCurrentMesh() const
 {
 	return mMayaMesh;
+}
+
+inline MMatrix HairShape::getCurrentInclusiveMatrix() const
+{
+	return mConnectedMeshPath.inclusiveMatrix();
 }
 
 inline std::string HairShape::serialize() const

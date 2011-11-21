@@ -60,7 +60,7 @@ typedef RtFloat * TimeSamples;
 struct BinaryParams
 {
 	TimeSamples mTimeSamples;   ///< The time samples
-
+	
 	FileNames mFileNames;   ///< List of names of the files
 
 	unsigned __int32 mSamplesCount; ///< Number of samples

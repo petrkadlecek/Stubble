@@ -707,6 +707,7 @@ MStatus HairShape::registerTopologyCallback()
 	if ( MS::kSuccess == MDagPath::getAPathTo( shapeNode, meshDag )
 			&& MS::kSuccess == meshDag.extendToShape() )
 	{
+		mConnectedMeshPath = meshDag;
 	    shapeNode = meshDag.node();
 	}
 	else
