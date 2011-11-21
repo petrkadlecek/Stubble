@@ -42,6 +42,12 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 		mCurrentMesh = new Mesh( unzipper, true );
 		// Create uv point generator
 		mUVPointGenerator = new UVPointGenerator( aDensityTexture, mRestPoseMesh->getTriangleConstIterator(), randomGenerator );
+		// Read bounding box
+		Vector3D< Real > tmp;
+		unzipper >> tmp;
+		mVoxelBoundingBox.expand( tmp );
+		unzipper >> tmp;
+		mVoxelBoundingBox.expand( tmp );
 		// Close file
 		file.close();
 	}

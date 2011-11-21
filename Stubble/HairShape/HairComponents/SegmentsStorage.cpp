@@ -273,6 +273,12 @@ void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegm
 
 	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
 	Real currentSgmtLength = aGuideSegments.mSegmentLength;
+	static const Real EPSILON = 0.0000001f;
+	if ( currentSgmtLength < EPSILON )
+	{
+		aGuideSegments.mSegments.resize( aCount, Vector3D< Real >() ); // Increase count
+		return;
+	}
 	Real newSgmtLegth = currentSgmtLength * (Real)(currentSgmtCount - 1) / (Real)(aCount - 1);
 
 	Segments newSegments;

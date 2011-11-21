@@ -25,6 +25,7 @@ namespace Interpolation
 template< typename tPositionGenerator, typename tOutputGenerator >
 void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const HairProperties & aHairProperties )
 {
+	mBoundingBox.clear();
 	// Store pointer to hair properties, so we don't need to send it to every function
 	mHairProperties = & aHairProperties;
 	// Get max points count = segments + 1 ( + 2 for duplicate of first and last point )
@@ -238,6 +239,8 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		// Calculate local space to current world space transform
 		currPos.getWorldTransformMatrix( localToCurr );
+		// Fake select hair color, opacity and width -> only executes several random number calculations
+		fakeSelectHairColorOpacityWidth();
 		if ( aHairProperties.getMultiStrandCount() ) // Uses multi strands ?
 		{
 			// Duplicate first and last point ( last points need to be duplicated, 
@@ -260,26 +263,34 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 					normals, binormals );
 				// Convert positions to current world space
 				transformPoints( pointsStrandPlusOne, ptsCountAfterCut, localToCurr );
-				// Cuts hair
-				if ( cutFactor < 1 )
-				{
-					cutHair( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, cutFactor );
-				}
+				// Duplicate first and last point ( last points need to be duplicated, 
+				// only if cut has not decreased points count, so we will use total points count )
+				// These duplicated points are used for curve points calculation at any given param t
+				copyToLastAndFirst( pointsStrand, ptsCountBeforeCut + 2 );
+				// Calculate tangents
+				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterCut );
+				// Duplicate tangents ( same reason as with points duplication )
+				copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 				// Finally updates bounding box
-				updateBoundingBox( pointsStrandPlusOne, ptsCountAfterCut, aBoundingBox );
+				updateBoundingBox( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterCut, 
+					ptsCountBeforeCut, aBoundingBox, cutFactor );
 			}
 		}
 		else // Single hair only
 		{
 			// Convert positions to current world space
 			transformPoints( pointsPlusOne, ptsCountAfterCut, localToCurr );
-			// Cuts hair
-			if ( cutFactor < 1 )
-			{
-				cutHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, cutFactor );
-			}
+			// Duplicate first and last point ( last points need to be duplicated, 
+			// only if cut has not decreased points count, so we will use total points count )
+			// These duplicated points are used for curve points calculation at any given param t
+			copyToLastAndFirst( points, ptsCountBeforeCut + 2 );
+			// Calculate tangents
+			calculateTangents( tangentsPlusOne, pointsPlusOne, ptsCountAfterCut );
+			// Duplicate tangents ( same reason as with points duplication )
+			copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 			// Finally updates bounding box
-			updateBoundingBox( pointsPlusOne, ptsCountAfterCut, aBoundingBox );
+			updateBoundingBox( pointsPlusOne, tangentsPlusOne, ptsCountAfterCut, 
+				ptsCountBeforeCut, aBoundingBox, cutFactor );
 		}
 	}
 	// Release memory of local buffers
@@ -570,13 +581,11 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	memcpy( reinterpret_cast< void * >( tmp ), reinterpret_cast< const void * >( mColor ), 
 			sizeof( ColorType ) * 3 );
 	// RGB -> HSV
-	RGBtoHSV( tmp, mColor );
+	RGBtoHSV( mColor, tmp );
 	// Apply hue shift
-	tmp[ 0 ] = circleValue( tmp[ 0 ] - aHueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 360 ) );
+	mColor[ 0 ] = circleValue( mColor[ 0 ] - aHueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 360 ) );
 	// Apply value shift
-	tmp[ 2 ] = clamp( tmp[ 2 ] - aValueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 1 ) );
-	// HSV -> RGB
-	HSVtoRGB( mColor, tmp );
+	mColor[ 2 ] = clamp( mColor[ 2 ] - aValueShift, static_cast< ColorType >( 0 ), static_cast< ColorType >( 1 ) );
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -589,11 +598,11 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Calculate hue shift
 	Real hueVar = mHairProperties->getHueVariation() * 
 		mHairProperties->getHueVariationTexture().realAtUV( u, v ) * 0.5f;
-	ColorType hueShift = static_cast< ColorType >( mRandom.randomReal( -hueVar, hueVar ) );
+	ColorType hueShift = static_cast< ColorType >( ( mRandom.uniformNumber() - 0.5f ) * hueVar );
 	// Calculate value shift
 	Real valueVar = mHairProperties->getValueVariation() * 
 		mHairProperties->getValueVariationTexture().realAtUV( u, v ) * 0.5f;
-	ColorType valueShift = static_cast< ColorType >( mRandom.randomReal( -valueVar, valueVar ) );
+	ColorType valueShift = static_cast< ColorType >( ( mRandom.uniformNumber() - 0.5f ) * valueVar );
 	// Determine whether the hair is mutant
 	if ( mRandom.uniformNumber() < 
 		mHairProperties->getPercentMutantHair() * mHairProperties->getPercentMutantHairTexture().realAtUV( u, v ) / 100 )
@@ -629,6 +638,15 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		mHairProperties->getRootThickness() * mHairProperties->getRootThicknessTexture().realAtUV( u, v ) );
 	mTipWidth = static_cast< WidthType >( 
 		mHairProperties->getTipThickness() * mHairProperties->getTipThicknessTexture().realAtUV( u, v ) );
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
+	fakeSelectHairColorOpacityWidth()
+{
+	mRandom.uniformNumber(); // Hue shift random
+	mRandom.uniformNumber(); // Value shift random
+	mRandom.uniformNumber(); // Mutant hair random
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -692,6 +710,10 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 				continue; // Skip this point
 			}
 		}
+		// Calculate bbox
+#ifdef CALCULATE_BBOX
+		mBoundingBox.expand( Vector3D< Real >( aPoints->x, aPoints->y, aPoints->z ) );
+#endif
 		// Begin output
 		// Output position
 		memcpy( reinterpret_cast< void * >( posOutIt ), reinterpret_cast< const void * >( aPoints  ), 
@@ -706,11 +728,18 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 				sizeof( NormalType ) * 3 );
 		normalOutIt += 3;
 		// Finally output color, opacity, width
+		ColorType tmp[ 3 ];
 		for ( unsigned __int32 j = 0; j < 3; ++j )
 		{
-			* ( colorIt++ ) = clamp( t * mTipColor[ j ] + oneMinusT * mRootColor[ j ], 0.0f, 1.0f );
+			tmp[ j ] = t * mTipColor[ j ] + oneMinusT * mRootColor[ j ];
 			* ( opacityIt++ ) = clamp( t * mTipOpacity[ j ] + oneMinusT * mRootOpacity[ j ], 0.0f, 1.0f );      
 		}
+		// Convert color from HSV to RGB before outputing
+		HSVtoRGB( colorIt, tmp );
+		clamp( colorIt[ 0 ], 0.0f, 1.0f );
+		clamp( colorIt[ 1 ], 0.0f, 1.0f );
+		clamp( colorIt[ 2 ], 0.0f, 1.0f );
+		colorIt += 3;
 		* ( widthIt++ ) = t * mTipWidth + oneMinusT * mRootWidth; 
 		// Increase segments count
 		++count;
@@ -721,31 +750,6 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	copyToLastAndFirst< PositionType, 3 > ( mOutputGenerator.positionPointer(), count );
 	// Return number of outputed hair points
 	return count;
-}
-
-template< typename tPositionGenerator, typename tOutputGenerator >
-inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
-	cutHair( Point * aPoints, unsigned __int32 aCount, 
-		unsigned __int32 aCurvePointsCount, PositionType aCutFactor )
-{
-	// Select parameter step and iteration end
-	bool iterationEnd = false;
-	PositionType step = 1.0f / ( aCount - 1); // Points count -> segments count
-	// Iterate with curve parameter t until iteration end is signaled
-	for ( PositionType t = 0; !iterationEnd; 
-		t += step, ++aPoints )
-	{
-		if ( t > aCutFactor ) // Reached curve cut end
-		{
-			// Calculate new point position
-			Point newPos;
-			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
-			t = aCutFactor;
-			iterationEnd = true;
-			// Set current point and calculate tangent
-			*aPoints = newPos;
-		}
-	}
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >
@@ -863,12 +867,54 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 
 template< typename tPositionGenerator, typename tOutputGenerator >
 inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
-	updateBoundingBox( const Point * aPoints, unsigned __int32 aCount, BoundingBox & aBoundingBox )
+	updateBoundingBox( Point * aPoints, Vector * aTangents, unsigned __int32 aCount, 
+		unsigned __int32 aCurvePointsCount, BoundingBox & aBoundingBox, PositionType aCutFactor )
 {
-	// For every point
-	for ( const Point * end = aPoints + aCount, *it = aPoints; it != end; ++it )
+	// Select parameter step and iteration end
+	--aCount; // Points count -> segments count
+	PositionType step = 1.0f / aCount;
+	bool iterationEnd = false;
+	// We have to ensure that cut procedure is only executed if needed
+	aCutFactor = aCutFactor == 1 ? 2 : aCutFactor; 
+	// Iterate with curve parameter t until iteration end is signaled
+	for ( PositionType t = 0, oneMinusT = 1; !iterationEnd; 
+		t += step, oneMinusT = 1 - t, ++aPoints, ++aTangents )
 	{
-		aBoundingBox.expand( Vector3D< Real >( it->x, it->y, it->z ) );
+		if ( t > aCutFactor ) // Reached curve cut end
+		{
+			// Calculate new point position
+			Point newPos;
+			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
+			t = aCutFactor;
+			iterationEnd = true;
+			// Move current point to next and calculate tangent
+			aTangents[ 1 ] = ( aPoints[ 2 ] - newPos ) * 0.5;
+			aPoints[ 1 ] = *aPoints;
+			// Set current point and calculate tangent
+			*aPoints = newPos;
+			*aTangents = ( aPoints[ 1 ] - *( aPoints - 1 ) ) * 0.5;
+		}
+		else // Did not reach 
+		{
+			iterationEnd = t >= 1; // Reached curve end ?
+			if ( !iterationEnd && t != 0 && skipPoint( aPoints, aTangents ) )
+			{
+				continue; // Skip this point
+			}
+		}
+		if ( iterationEnd )
+		{
+			// Expand bounding box by only first of four control point of coresponding bezier curve patch,
+			// which is exactly the current control point of catmull-rom  :
+			aBoundingBox.expand( Vector3D< Real >( *aPoints ) );
+		}
+		else
+		{
+			// Excpand bounding box by only 3 first of four control point of coresponding bezier curve :
+			aBoundingBox.expand( Vector3D< Real >( *aPoints ) );
+			aBoundingBox.expand( Vector3D< Real >( *aPoints + ( aPoints[ 1 ] - aPoints[ -1 ] ) * ( 1.0f / 6 ) ) );
+			aBoundingBox.expand( Vector3D< Real >( aPoints[ 1 ] + ( *aPoints - aPoints[ 2 ] ) * ( 1.0f / 6 ) ) );
+		}
 	}
 }
 

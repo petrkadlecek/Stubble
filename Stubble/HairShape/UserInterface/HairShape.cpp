@@ -52,6 +52,7 @@ MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::sampleTextureDimensionAttr;
 MObject HairShape::serializedDataAttr;
+MObject HairShape::operationCountAttr;
 
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
@@ -234,6 +235,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mGenDisplayCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 		if ( mDisplayInterpolated )
 		{
+			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+			{
+				return false;
+			}
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
 		}
@@ -249,6 +254,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		mDisplayInterpolated = aDataHandle.asBool();
 		if ( mDisplayInterpolated )
 		{
+			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+			{
+				return false;
+			}
 			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
 				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
 		}
@@ -353,7 +362,7 @@ void HairShape::draw()
 						MIntArray arr;
 						iComp->getElements( arr );
 						cout << "Index array length: " << arr.length() << endl;
-						for ( int i = 0; i < arr.length(); i++ )
+						for ( unsigned int i = 0; i < arr.length(); i++ )
 						{
 							cout << arr[i] << " ";
 						}
@@ -465,7 +474,7 @@ MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aI
 	//     vtx[ lower:upper ]
 	//
 	
-	if ( (1 == aSpec.length()) && (dim > 0) && (attrSpec.name() == "e") ) {
+	if ( (1 == aSpec.length()) && (dim > 0) && (attrSpec.name() == "vtx") ) {
 		//int numVertices = meshGeom()->vertices.length();
 		int numVertices = 500;
 		MAttributeIndex attrIndex = attrSpec[0];
@@ -687,6 +696,21 @@ MStatus HairShape::initialize()
 		
 		MSceneMessage::addCallback( MSceneMessage::kBeforeExport, saveSceneCallback, 0, &status );		
 		MSceneMessage::addCallback( MSceneMessage::kBeforeSave, saveSceneCallback, 0, &status );
+
+		// operation counter attribute
+		// - increments after each undoable operation
+		// - notifies Maya that there are changes to save
+		MFnNumericAttribute ocAttr;
+		operationCountAttr = ocAttr.create( "operation_count", "opcount", MFnNumericData::kInt, 0, &status );
+		sAttr.setHidden( true );
+		sAttr.setInternal( true );
+		sAttr.setWritable( true );
+		sAttr.setStorable( true );
+		if ( !addAttribute( operationCountAttr ) )
+		{
+			status.perror( "Adding opcount attr has failed" );
+			return status;
+		}		
 	}
 	catch( const StubbleException & ex )
 	{
@@ -738,7 +762,11 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 			// Write id
 			zipper.write( VOXEL_FILE_ID, VOXEL_FILE_ID_SIZE );
 			// Write voxel to file and stores voxel bounding box
-			aVoxelBoundingBoxes.push_back( mVoxelization->exportVoxel( zipper, i ) );
+			BoundingBox box = mVoxelization->exportVoxel( zipper, i );
+			aVoxelBoundingBoxes.push_back( box );
+			// Write voxel bounding box
+			zipper << box.max();
+			zipper << box.min();
 			// Flush zipper
 			zipper.zflush();
 			// Closes voxel file
@@ -1051,7 +1079,7 @@ bool HairShape::value( int pntInd, int vlInd, double & val ) const
 	if ( NULL != hairGuidesPtr )
 	{
 		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
-		unsigned int segmentCount = guideSegments.mSegments.size();
+		size_t segmentCount = guideSegments.mSegments.size();
 		Vector3D< Real > point3d = guideSegments.mSegments.at( segmentCount - 1 );
 		val = point3d[ vlInd ];
 		result = true;
@@ -1075,7 +1103,7 @@ bool HairShape::value( int pntInd, MPoint & val ) const
 	if ( NULL != hairGuidesPtr )
 	{
 		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
-		unsigned int segmentCount = guideSegments.mSegments.size();
+		size_t segmentCount = guideSegments.mSegments.size();
 		Vector3D< Real > point3d = guideSegments.mSegments.at( segmentCount - 1 );
 		/*TODO insert support for world matrix transformations - create an interface from hairGuidesPtr */
 		//val = point3d.transformAsPoint( hairGuidesPtr->mCurrentPositions.at( pntInd ).mWorldTransformMatrix ).toMayaPoint();
@@ -1101,7 +1129,7 @@ bool HairShape::setValue( int pntInd, int vlInd, double val )
 	if ( NULL != hairGuidesPtr )
 	{
 		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
-		unsigned int segmentCount = guideSegments.mSegments.size();
+		size_t segmentCount = guideSegments.mSegments.size();
 		Vector3D< Real >& point3d = guideSegments.mSegments.at( segmentCount - 1 );
 		point3d[ vlInd ] = val;
 		result = true;
@@ -1128,7 +1156,7 @@ bool HairShape::setValue( int pntInd, const MPoint & val )
 	if ( NULL != hairGuidesPtr )
 	{
 		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
-		unsigned int segmentCount = guideSegments.mSegments.size();
+		size_t segmentCount = guideSegments.mSegments.size();
 		Vector3D< Real >& point3d = guideSegments.mSegments.at( segmentCount - 1 );
 		point3d = val;
 		result = true;

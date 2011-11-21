@@ -46,7 +46,7 @@ public:
 	///
 	/// \param aPoint	new point to include in the bounding box
 	///----------------------------------------------------------------------------------------------------
-	inline void expand( const Vector3D<Real> &aPoint );
+	inline void expand( const Vector3D< Real > &aPoint );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Expands the bounding box to include the bounding box. 
@@ -90,6 +90,24 @@ public:
 	/// \return	The diagonal size. 
 	///-------------------------------------------------------------------------------------------------
 	inline Real diagonal() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Query if this object contains the given aPoint. 
+	///
+	/// \param	aPoint	The point to test for containment. 
+	///
+	/// \return	true if the object is in this bounding box, false if not. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool contains( const Vector3D< Real > & aPoint ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Query if this object contains the given aBoundingBox. 
+	///
+	/// \param	aBoundingBox	The bounding box to test for containment. 
+	///
+	/// \return	true if the object is in this bounding box, false if not. 
+	///-------------------------------------------------------------------------------------------------
+	inline bool contains( const BoundingBox & aBoundingBox ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
@@ -189,6 +207,26 @@ inline Real BoundingBox::minSize() const
 inline Real BoundingBox::diagonal() const
 {
 	return ( mMax - mMin ).size();
+}
+
+inline bool BoundingBox::contains( const Vector3D< Real > & aPoint ) const
+{
+	return	aPoint.x <= mMax.x && 
+			aPoint.y <= mMax.y &&
+			aPoint.z <= mMax.z &&
+			aPoint.x >= mMin.x &&
+			aPoint.y >= mMin.y &&
+			aPoint.z >= mMin.z;
+}
+
+inline bool BoundingBox::contains( const BoundingBox & aBoundingBox ) const
+{
+	return	aBoundingBox.mMax.x <= mMax.x && 
+			aBoundingBox.mMax.y <= mMax.y &&
+			aBoundingBox.mMax.z <= mMax.z &&
+			aBoundingBox.mMin.x >= mMin.x &&
+			aBoundingBox.mMin.y >= mMin.y &&
+			aBoundingBox.mMin.z >= mMin.z;
 }
 
 inline std::string BoundingBox::serialize() const

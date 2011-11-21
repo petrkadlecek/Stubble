@@ -11,7 +11,11 @@
 #include "HairShape\Mesh\MeshUVCoordUG.hpp"
 #include "HairShape\Mesh\MeshTriangle.hpp"
 #include "HairShape\Mesh\UVPoint.hpp"
+#include "Common\CommonConstants.hpp"
+#include "Common\CommonFunctions.hpp"
 
+#include <sstream>
+#include <string>
 #include <fstream>
 
 namespace Stubble
@@ -98,6 +102,19 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline void getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Serialize object.
+	///-------------------------------------------------------------------------------------------------
+	inline std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize object.	
+	///
+	/// \param	aStr	String from which to read.
+	/// \param	aPos	Position at which to start.
+	///-------------------------------------------------------------------------------------------------
+	inline size_t deserialize( const std::string &aStr, size_t aPos );
+	
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
@@ -177,6 +194,21 @@ inline void MayaMesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Tr
 	{
 		*outIt = getTriangle( *idIt );
 	}
+}
+
+inline std::string MayaMesh::serialize() const
+{
+	std::ostringstream oss;
+	oss << Stubble::serializeObjects< MeshTriangle >( mMeshTriangles )
+		<< mRestPose.serialize();		
+	return oss.str();
+}
+
+inline size_t MayaMesh::deserialize( const std::string &aStr, size_t aPos )
+{
+	mMeshTriangles = Stubble::deserializeObjects< MeshTriangle >( aStr, aPos );
+	aPos = mRestPose.deserialize( aStr, aPos );
+	return aPos;
 }
 
 } // namespace HairShape

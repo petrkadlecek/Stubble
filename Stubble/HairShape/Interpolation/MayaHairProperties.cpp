@@ -388,7 +388,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	}
 	if ( aPlug == aspectAttr )
 	{
-		mAspect = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
+		mAspect = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
 		return;
 	}

@@ -64,6 +64,8 @@ public:
 
 	static MObject serializedDataAttr; ///< Serialized plugin data (used for scene load/save)
 
+	static MObject operationCountAttr; ///< Notify Maya that plugin data have changed
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///----------------------------------------------------------------------------------------------------
@@ -468,12 +470,18 @@ inline MayaMesh * HairShape::getCurrentMesh() const
 
 inline std::string HairShape::serialize() const
 {
-	return mHairGuides->serialize();
+	std::ostringstream oss;
+	oss << mMayaMesh->serialize()
+		<< mHairGuides->serialize();
+	return oss.str();
 }
 
 inline void HairShape::deserialize( const std::string &data )
-{
-	mHairGuides->deserialize( data, 0, mMayaMesh, *mInterpolationGroups );
+{	
+	size_t pos = mMayaMesh->deserialize( data, 0 );
+	mHairGuides->deserialize( data, pos, mMayaMesh, *mInterpolationGroups );
+	mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(),
+		*this, mGenDisplayCount );
 }
 
 inline MObject HairShape::asMObject()

@@ -209,7 +209,7 @@ public:
 	///
 	/// \return	Index to first vertex of guide in all guides vertices array. 
 	///-------------------------------------------------------------------------------------------------
-	inline const Indices & GuidesVerticesStartIndex() const;
+	inline const Indices & guidesVerticesStartIndex() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
@@ -304,7 +304,7 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 	return mSegmentsStorage->getCurrentSegments();
 }
 
-inline const HairGuides::Indices & HairGuides::GuidesVerticesStartIndex() const
+inline const HairGuides::Indices & HairGuides::guidesVerticesStartIndex() const
 {
 	return mGuidesVerticesStartIndex;
 }

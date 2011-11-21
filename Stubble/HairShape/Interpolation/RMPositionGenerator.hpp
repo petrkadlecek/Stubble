@@ -4,6 +4,7 @@
 #include "HairShape/Generators/UVPointGenerator.hpp"
 #include "HairShape/Mesh/Mesh.hpp"
 #include "PositionGenerator.hpp"
+#include "Primitives/BoundingBox.hpp"
 
 namespace Stubble
 {
@@ -67,6 +68,13 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getHairStartIndex() const;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the voxel bounding box. 
+	///
+	/// \return	The voxel bounding box. 
+	///-------------------------------------------------------------------------------------------------
+	inline const BoundingBox & getVoxelBoundingBox() const;
+
 private:
 
 	Mesh * mCurrentMesh;	///< The current mesh
@@ -80,6 +88,8 @@ private:
 	unsigned __int32 mCount;	///< Number of the interpolated hair.
 
 	unsigned __int32 mStartIndex;   ///< The start index of hair
+
+	BoundingBox mVoxelBoundingBox;  ///< The voxel bounding box
 };
 
 // inline functions implementation
@@ -114,6 +124,11 @@ inline unsigned __int32 RMPositionGenerator::getHairCount() const
 inline unsigned __int32 RMPositionGenerator::getHairStartIndex() const
 {
 	return mStartIndex;
+}
+
+inline const BoundingBox & RMPositionGenerator::getVoxelBoundingBox() const
+{
+	return mVoxelBoundingBox;
 }
 
 } // namespace Interpolation

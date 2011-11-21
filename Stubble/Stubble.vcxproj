@@ -170,6 +170,7 @@
     <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp" />
+    <ClCompile Include="HairShape\HairComponents\UndoStack.cpp" />
     <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp" />
     <ClCompile Include="HairShape\Interpolation\HairProperties.cpp" />
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp" />

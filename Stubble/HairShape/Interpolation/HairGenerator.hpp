@@ -52,7 +52,14 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void calculateBoundingBox( const HairProperties & aHairProperties, float aHairGenerateRatio,
 		BoundingBox & aBoundingBox );
-	
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the bounding box of generated hair points. Only calculated if CALCULATE_BBOX is defined.
+	///
+	/// \return	The bounding box. 
+	///-------------------------------------------------------------------------------------------------
+	inline const BoundingBox & getBoundingBox() const;
+
 private:
 
 	/* For easier usage, we will create aliases for output types */
@@ -220,6 +227,12 @@ private:
 	inline void selectHairColorOpacityWidth( const MeshPoint & aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Only calls the same number of random values generation as selectHairColorOpacityWidth. This 
+	/// method is used during bounding box calculation.
+	///-------------------------------------------------------------------------------------------------
+	inline void fakeSelectHairColorOpacityWidth();
+
+	///-------------------------------------------------------------------------------------------------
 	/// Skips point if it is not necessary to output it ( it can be interpolated in render from
 	/// two neighbour points ). aPoints and aTangents must be part of an array, in which is stored 
 	/// previous hair point.
@@ -245,17 +258,6 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned __int32 generateHair( Point * aPoints, Vector * aTangents, unsigned __int32 aCount, 
 		unsigned __int32 aCurvePointsCount, const MeshPoint &aRestPosition, PositionType aCutFactor );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Shortens hair by selected cut factor.
-	///
-	/// \param [in,out] aPoints		Hair points ( may be modified if cut is applied ). 
-	/// \param	aCount				Number of points. 
-	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
-	/// \param  aCutFactor			Parametric representation of hair cut.
-	///-------------------------------------------------------------------------------------------------
-	inline void cutHair( Point * aPoints, unsigned __int32 aCount, 
-		unsigned __int32 aCurvePointsCount, PositionType aCutFactor );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Output hair index and u v coordinates. 
@@ -299,14 +301,20 @@ private:
 	inline void generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount,
 		const Point * aMainHairPoints, const Vector * aMainHairNormals, const Vector * aMainHairBinormals );
 
-	///-------------------------------------------------------------------------------------------------
-	/// Updates the bounding box. 
+		///-------------------------------------------------------------------------------------------------
+	/// Generates final hair points positions, normals, colors, opacities, widths.
 	///
-	/// \param [in,out]	aPoints			The hair points. 
+	/// \param [in,out] aPoints			Hair points ( may be modified if cut is applied ). 
+	/// \param [in,out] aTangents		Hair tangents ( may be modified if cut is applied ).
 	/// \param	aCount					Number of points. 
+	/// \param	aCurvePointsCount		Number of curve points, used for curve parameter t calculation. 
 	/// \param [in,out]	aBoundingBox	The bounding box. 
+	/// \param  aCutFactor				Parametric representation of hair cut.
+	/// 
+	/// \return final number of hair points.
 	///-------------------------------------------------------------------------------------------------
-	inline void updateBoundingBox( const Point * aPoints, unsigned __int32 aCount, BoundingBox & aBoundingBox );
+	inline void updateBoundingBox( Point * aPoints, Vector * aTangents, unsigned __int32 aCount, 
+		unsigned __int32 aCurvePointsCount, BoundingBox & aBoundingBox, PositionType aCutFactor );
 
 	tPositionGenerator & mPositionGenerator;	///< The position generator
 
@@ -347,6 +355,10 @@ private:
 	PositionType mOffset;   ///< The offset of tips
 
 	PositionType mAspect;   ///< The aspect ratio of disk samples
+
+	// Debug info
+
+	BoundingBox mBoundingBox;   ///< The bounding box of generated hair points
 };
 
 // inline functions implementation
@@ -357,6 +369,13 @@ inline HairGenerator< tPositionGenerator, tOutputGenerator >::HairGenerator
 	mPositionGenerator( aPositionGenerator ),
 	mOutputGenerator( aOutputGenerator )
 {
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline const BoundingBox & HairGenerator< tPositionGenerator, tOutputGenerator >::
+getBoundingBox() const
+{
+	return mBoundingBox;
 }
 
 } // namespace Interpolation

@@ -87,6 +87,8 @@ public:
 	inline void add( PartialStorage * aChange );
 
 private:
+	void incrementOp(); ///< Notify Maya that data have changed by incrementing opcount.
+
 	static const size_t MAX_STACK_SIZE = 100;  ///< Size of the maximum stack
 
 	///-------------------------------------------------------------------------------------------------
@@ -138,12 +140,14 @@ inline const PartialStorage & UndoStack::undo()
 {
 	assert( canUndo() );
 	--mCurrent; // Move lower in stack
+	incrementOp();
 	return **mCurrent;
 }
 
 inline const PartialStorage & UndoStack::redo()
 {
 	assert( canRedo() );
+	incrementOp();
 	return **( mCurrent++ ); // Return and then move upper in stack
 }
 
@@ -179,6 +183,7 @@ inline void UndoStack::add( PartialStorage * aChange )
 	mChanges.push_back( aChange );
 	// Finally set pointer to stack end
 	mCurrent = mChanges.end();
+	incrementOp();
 }
 
 } // namespace HairComponents
