@@ -198,12 +198,12 @@ public:
 	/// \return	The current frame segments. 
 	///----------------------------------------------------------------------------------------------------
 	inline const FrameSegments & getCurrentFrameSegments() const;
-	
+
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the indices .
 	///-------------------------------------------------------------------------------------------------
 	typedef std::vector< unsigned __int32 > Indices;
-
+	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the index to first vertex of guide in all guides vertices array
 	///

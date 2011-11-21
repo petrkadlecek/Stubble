@@ -29,18 +29,20 @@ SegmentsUG::~SegmentsUG()
 
 bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	const FrameSegments & aFrameSegments,
+	const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
 	MSelectInfo & aSelectInfo,
 	MSelectionList & aSelectionList,
 	MPointArray & aWorldSpaceSelectedPts,
 	SelectedGuides & aSelectedGuides)
 {
 	assert(aGuidesCurrentPositions.size() == aFrameSegments.mSegments.size());
+	assert(aGuidesVerticesStartIndices.size() > 0 );
 	aSelectedGuides.clear();
 	M3dView view = aSelectInfo.view(); // Selection view
 	
 	MPoint selectionPoint;
 	MFnSingleIndexedComponent fnComponent;
-	//selecting only vertices (segments) and for now only the tips of the hair (last segments on guides)	
+	// selecting only vertices (segments)	
 	MObject surfaceComponent = fnComponent.create( MFn::kMeshVertComponent );
 
 	// is there at least one guide tip that was selected
@@ -81,6 +83,9 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 												 selectionCondition = true;
 											 }
 											break;
+			case HairShapeUI::kSelectAllVertices :
+												 selectionCondition = true;										 
+											break;
 			default :
 				selectionCondition = false;
 			}
@@ -97,7 +102,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 				selected = true;
 				// put this segment into the selected set that will later be passed on to maya's selection list
 				isAnythingSelected = true;
-				fnComponent.addElement( gId );
+				fnComponent.addElement( aGuidesVerticesStartIndices[gId] + sId );
 			}
 			additionalInfo.push_back(sgmtInfo);
 		}
@@ -141,6 +146,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 
 void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
+		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
 		MIntArray &aSelectedComponentIndices,
 		SelectedGuides & aSelectedGuides)
 {
@@ -189,12 +195,15 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 													 selectionCondition = true;
 												 }
 												break;
+				case HairShapeUI::kSelectAllVertices :
+												 selectionCondition = true;										 
+											break;
 				default :
 					selectionCondition = false;
 				}
 
-				// If a hit has been recorded
-				if ((gId == aSelectedComponentIndices[ selectedComponentArrayIndex ]) && ( selectionCondition )) // for now we are just selecting the roots or the tips
+				// If a hit has been recorded (calculate the current vertex position in the array of all guides' vertices)
+				if ( ( aSelectedComponentIndices[ selectedComponentArrayIndex ] - aGuidesVerticesStartIndices[ gId ] - sId == 0 ) && ( selectionCondition ) )
 				{
 					sgmtInfo.mSelected = true; //TODO: use selection filter
 					selected = true;

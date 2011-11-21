@@ -85,6 +85,7 @@ HairShape::HairShape():
 void HairShape::postConstructor()
 {
 	setRenderable( true );
+	//mHairGuides->refreshInterpolationGroupIds( MayaHairProperties::getInterpolationGroups() );
 }
 
 HairShape::~HairShape()
@@ -409,6 +410,15 @@ void HairShape::draw()
 		// important: let the shape know that its list of selected components is up to date
 		this->setSelectionModified( false );
 	}
+	//--------------------------------------------------------------------------------
+	const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesStartIndex();
+	cout << "Array size: " << tmpArr.size() << endl;
+	cout << "Elements: ";
+	for( int i = 0; i < tmpArr.size(); i++ ) 
+	{
+		cout << tmpArr[i] << " ";
+	}
+	cout << endl << endl;   
 	//--------------------------------------------------------------------------------
 	
 	// First init gl extensions

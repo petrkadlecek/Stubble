@@ -1,4 +1,5 @@
 #include "HairGuides.hpp"
+#include "..\Interpolation\MayaHairProperties.hpp"
 
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MPointArray.h>
@@ -44,7 +45,7 @@ bool HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
+	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 
@@ -66,7 +67,7 @@ void HairGuides::applySelection( MIntArray &aSelectedComponentIndices )
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectedComponentIndices, mSelectedGuides);
+	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectedComponentIndices, mSelectedGuides);
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }
@@ -490,7 +491,7 @@ void HairGuides::refreshInterpolationGroupIds( const Interpolation::Interpolatio
 	{
 		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );
 		*index = lastId;
-		lastId = aInterpolationGroups.getGroupSegmentsCount( *groupId );
+		lastId += aInterpolationGroups.getGroupSegmentsCount( *groupId ) + 1; // i.e. 5 segments => 6 vertices
 	}
 }
 
