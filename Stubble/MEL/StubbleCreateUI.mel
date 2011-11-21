@@ -43,7 +43,7 @@ global proc StubbleCreateUI()
 	// Create Stubble haptic settings tool
 	if ( !`contextInfo -exists stubbleHapticSettingsTool` )
 	{
-		StubbleHapticSettingsToolCommand stubbleHapticSettingsTool;
+		StubbleHapticSettingsToolCommand StubbleHapticSettingsToolContext1;
 		print ( "Stubble: Created the stubbleHapticSettingsTool context.\n" );
 	}
 
@@ -119,7 +119,7 @@ global proc StubbleCreateUI()
 				-label "Stubble haptic settings tool"
 				-image1 "hypergraph.png"
 				-style "iconOnly"
-				-command "setToolTo stubbleHapticSettingsTool"`;
+				-command "setToolTo StubbleHapticSettingsToolContext1"`;
 
 	// create Stubble Undo icon
 	string $brushButton = 	`shelfButton

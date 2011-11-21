@@ -22,6 +22,7 @@
 #include "RibExport/RenderManCacheCommand.hpp"
 
 #include "Toolbox/Tools/HapticSettingsTool.hpp"
+#include "Toolbox/Tools/HapticListener.hpp"
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 #include "Toolbox/Tools/CutTool/CutTool.hpp"
 
@@ -85,6 +86,19 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "Could not register HapticSettingsToolCommand." );
+		return status;
+	}
+
+  status = plugin.registerNode( Stubble::Toolbox::HapticListener::typeName,
+		              Stubble::Toolbox::HapticListener::typeId,
+		              Stubble::Toolbox::HapticListener::creator,
+		              Stubble::Toolbox::HapticListener::initialize,
+		              MPxNode::kLocatorNode );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register HapticListener." );
 		return status;
 	}
 

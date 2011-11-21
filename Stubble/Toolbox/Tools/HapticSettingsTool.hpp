@@ -5,7 +5,16 @@
 #include <maya/MGlobal.h>
 #include <maya/MPxContext.h>
 #include <maya/MPxContextCommand.h>
+#include <chai3d.h> // CHAI 3D - haptics support
 
+#include <maya/MTimer.h>
+#include <maya/MThreadAsync.h>
+#include <maya/MThreadPool.h>
+#include <maya/MSpinLock.h>
+#include <maya/MMutexLock.h>
+
+#include <maya/MPoint.h>
+#include <maya/MVector.h>
 
 namespace Stubble
 {
@@ -38,9 +47,21 @@ public:
 	M3dView* getActiveView();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Provides the class name.
+	///
+	/// \param aName Placeholder for the return value.
+	///----------------------------------------------------------------------------------------------------
+	virtual void getClassName( MString &aName ) const;
+
+	///----------------------------------------------------------------------------------------------------
 	/// The method is called on tool setup
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOnSetup( MEvent &event );
+
+  ///----------------------------------------------------------------------------------------------------
+	/// Haptic Tool position getter
+	///----------------------------------------------------------------------------------------------------
+	static MVector getLastPosition();
 
 	///----------------------------------------------------------------------------------------------------
 	/// The method is called on tool cleanup
@@ -52,8 +73,53 @@ protected:
 	M3dView mView; ///< The view in which we are currently operating.
 
 private:
+  friend class HapticSettingsToolCommand;
 
 	bool mInitFlag; ///< initialization flag
+
+  ///----------------------------------------------------------------------------------------------------
+	/// CHAI 3D haptic device handlers
+	///----------------------------------------------------------------------------------------------------
+  static cHapticDeviceHandler* mHandler;  ///< handler of haptic devices CHAI 3D
+
+  static cGenericHapticDevice* mHapticDevice;  ///< haptic device CHAI 3D
+
+  ///----------------------------------------------------------------------------------------------------
+	/// CHAI 3D device control
+	///----------------------------------------------------------------------------------------------------
+  static cVector3d mDevicePosition; ///< haptic device position
+
+  static cVector3d mDeviceRotation; ///< haptic device rotation
+
+  static cVector3d mDeviceForce; ///< haptic device sent force
+
+  static bool mHapticButton1; ///< haptic device button 1
+
+	static bool mHapticButton2; ///< haptic device button 2
+
+  ///----------------------------------------------------------------------------------------------------
+	/// Stubble Haptic Tool properties
+	///----------------------------------------------------------------------------------------------------
+  MString mHapticDeviceStr; ///< haptic device string identifier
+
+  static bool mHapticThreadRunning; ///< haptic thread running flag
+
+  static MVector mLastPosition;  ///< last position of haptic device
+
+  static MVector mLastRotation;  ///< last position of haptic device
+
+
+	///----------------------------------------------------------------------------------------------------
+	/// Initialize haptic device by index aHapticDeviceIndex
+	///----------------------------------------------------------------------------------------------------
+  void initHapticDevice( int aHapticDeviceIndex );
+
+  ///----------------------------------------------------------------------------------------------------
+	/// Asynchronous haptic thread loop and callback handler
+	///----------------------------------------------------------------------------------------------------
+  static MThreadRetVal AsyncHapticLoop(void *aData);
+  
+  static void AsyncHapticCallback (void *aData);
 };
 
 

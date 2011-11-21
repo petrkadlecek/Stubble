@@ -179,6 +179,9 @@ void BrushTool::toolOnSetup ( MEvent &aEvent )
 	// initialize the mouse move listener with the current tool as its owner
 	sMouseMoveListener = new MouseMoveListener( mView.widget(), this );
 
+  // update the haptic listener with the current tool as its owner
+  HapticListener::setTool( this );
+
 	// Record current selection mode and masks
 	mPrevSelMode = MGlobal::selectionMode();
 	if( mPrevSelMode == MGlobal::kSelectComponentMode )

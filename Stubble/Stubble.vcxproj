@@ -207,6 +207,7 @@
     <ClCompile Include="Toolbox\Tools\BrushTool\BrushTool.cpp" />
     <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp" />
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp" />
+    <ClCompile Include="Toolbox\Tools\HapticListener.cpp" />
     <ClCompile Include="Toolbox\Tools\HapticSettingsTool.cpp" />
     <ClCompile Include="Toolbox\Tools\MouseMoveListener.cpp" />
   </ItemGroup>
@@ -279,6 +280,7 @@
     <ClInclude Include="Toolbox\Tools\BrushTool\BrushTool.hpp" />
     <ClInclude Include="Toolbox\Tools\CutTool\CutTool.hpp" />
     <ClInclude Include="Toolbox\Tools\GenericTool.hpp" />
+    <ClInclude Include="Toolbox\Tools\HapticListener.hpp" />
     <ClInclude Include="Toolbox\Tools\HapticSettingsTool.hpp" />
     <ClInclude Include="Toolbox\Tools\MouseMoveListener.hpp" />
   </ItemGroup>
@@ -295,6 +297,8 @@
     <None Include="MEL\StubbleCutToolValues.mel" />
     <None Include="MEL\StubbleDeleteUI.mel" />
     <None Include="MEL\StubbleHapticSettingsTool.mel" />
+    <None Include="MEL\StubbleHapticSettingsToolProperties.mel" />
+    <None Include="MEL\StubbleHapticSettingsToolValues.mel" />
     <None Include="MEL\StubbleRebuildSelectMenu.mel" />
   </ItemGroup>
   <ItemGroup>

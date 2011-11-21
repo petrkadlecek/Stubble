@@ -73,6 +73,18 @@
     <Filter Include="Toolbox\Tools\CutTool">
       <UniqueIdentifier>{e0a64e58-686b-4998-b25e-388035731f3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MEL\StubbleBrushTool">
+      <UniqueIdentifier>{c67fc146-3fa6-4f5c-a868-bf2ad33bf365}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MEL\StubbleCutTool">
+      <UniqueIdentifier>{56a27bb4-30c0-4da5-b12d-0f529f0d1b49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MEL\StubbleHapticSettingsTool">
+      <UniqueIdentifier>{3cd2c740-56e3-412b-8feb-bae5189f8b24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MEL\StubbleUI">
+      <UniqueIdentifier>{67b0cdaf-7a12-4d6f-baac-9cee11501d90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -216,6 +228,9 @@
     </ClCompile>
     <ClCompile Include="HairShape\HairComponents\UndoStack.cpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\Tools\HapticListener.cpp">
+      <Filter>Toolbox\Tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -429,30 +444,15 @@
     <ClInclude Include="HairShape\UserInterface\HistoryCommands.hpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
+    <ClInclude Include="Toolbox\Tools\HapticListener.hpp">
+      <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MEL\StubbleBrushToolProperties.mel">
-      <Filter>MEL</Filter>
-    </None>
-    <None Include="MEL\StubbleBrushToolValues.mel">
-      <Filter>MEL</Filter>
-    </None>
     <None Include="MEL\StubbleCreateHair.mel">
       <Filter>MEL</Filter>
     </None>
     <None Include="MEL\Stubble3DelightRendering.mel">
-      <Filter>MEL</Filter>
-    </None>
-    <None Include="MEL\StubbleBrushTool.mel">
-      <Filter>MEL</Filter>
-    </None>
-    <None Include="MEL\StubbleCreateUI.mel">
-      <Filter>MEL</Filter>
-    </None>
-    <None Include="MEL\StubbleDeleteUI.mel">
-      <Filter>MEL</Filter>
-    </None>
-    <None Include="MEL\StubbleHapticSettingsTool.mel">
       <Filter>MEL</Filter>
     </None>
     <None Include="MEL\AEHairShapeTemplate.mel">
@@ -461,14 +461,38 @@
     <None Include="MEL\StubbleRebuildSelectMenu.mel">
       <Filter>MEL</Filter>
     </None>
-    <None Include="MEL\StubbleCutTool.mel">
-      <Filter>MEL</Filter>
+    <None Include="MEL\StubbleBrushToolValues.mel">
+      <Filter>MEL\StubbleBrushTool</Filter>
     </None>
-    <None Include="MEL\StubbleCutToolProperties.mel">
-      <Filter>MEL</Filter>
+    <None Include="MEL\StubbleBrushToolProperties.mel">
+      <Filter>MEL\StubbleBrushTool</Filter>
+    </None>
+    <None Include="MEL\StubbleBrushTool.mel">
+      <Filter>MEL\StubbleBrushTool</Filter>
+    </None>
+    <None Include="MEL\StubbleCutTool.mel">
+      <Filter>MEL\StubbleCutTool</Filter>
     </None>
     <None Include="MEL\StubbleCutToolValues.mel">
-      <Filter>MEL</Filter>
+      <Filter>MEL\StubbleCutTool</Filter>
+    </None>
+    <None Include="MEL\StubbleCutToolProperties.mel">
+      <Filter>MEL\StubbleCutTool</Filter>
+    </None>
+    <None Include="MEL\StubbleHapticSettingsTool.mel">
+      <Filter>MEL\StubbleHapticSettingsTool</Filter>
+    </None>
+    <None Include="MEL\StubbleCreateUI.mel">
+      <Filter>MEL\StubbleUI</Filter>
+    </None>
+    <None Include="MEL\StubbleDeleteUI.mel">
+      <Filter>MEL\StubbleUI</Filter>
+    </None>
+    <None Include="MEL\StubbleHapticSettingsToolProperties.mel">
+      <Filter>MEL\StubbleHapticSettingsTool</Filter>
+    </None>
+    <None Include="MEL\StubbleHapticSettingsToolValues.mel">
+      <Filter>MEL\StubbleHapticSettingsTool</Filter>
     </None>
   </ItemGroup>
 </Project>
