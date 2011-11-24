@@ -219,6 +219,7 @@
     <ClInclude Include="Common\CommonTypes.hpp" />
     <ClInclude Include="Common\GLExtensions.hpp" />
     <ClInclude Include="Common\StubbleException.hpp" />
+    <ClInclude Include="Common\StubbleTimer.hpp" />
     <ClInclude Include="HairShape\Generators\UVPointGenerator.hpp" />
     <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp" />
     <ClInclude Include="HairShape\HairComponents\CommandsTextures.hpp" />
@@ -302,6 +303,7 @@
     <None Include="MEL\StubbleHapticSettingsToolProperties.mel" />
     <None Include="MEL\StubbleHapticSettingsToolValues.mel" />
     <None Include="MEL\StubbleRebuildSelectMenu.mel" />
+    <None Include="MEL\StubbleTextureProperties.mel" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
