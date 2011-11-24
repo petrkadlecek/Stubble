@@ -19,7 +19,7 @@ namespace HairShape
 namespace HairComponents
 {
 
-Real GUIDE_SIZE = 0.2f;  ///< Size of the guide before scaling for huge/small mesh
+Real GUIDE_SIZE = 10.0f;  ///< Size of the guide before scaling for huge/small mesh
 
 HairGuides::HairGuides():
 	mSegmentsStorage( 0 ),
@@ -101,6 +101,17 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 			(*it)->mDirtyFlag = false;
 		}
 	}
+}
+
+void HairGuides::reinitCuttedHair( Real aScaleFactor )
+{
+	// Propagate changes to all frames and update undo stack
+	mUndoStack.add( mSegmentsStorage->reinitCuttedHair( aScaleFactor * GUIDE_SIZE ) );
+	// Segments has changed...
+	mDisplayedGuides.setDirty();
+	mAllSegmentsUG.setDirty();
+	updateSelectedGuides();
+	mBoundingBoxDirtyFlag = true;
 }
 
 const RestPositionsUG & HairGuides::getGuidesPositionsUG( const Interpolation::InterpolationGroups & aInterpolationGroups )
@@ -357,7 +368,7 @@ void HairGuides::emptyHistoryStack()
 
 void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned __int32 aCount, 
-	bool aInterpolateFromPrevious )
+	Real aScaleFactor, bool aInterpolateFromPrevious )
 {
 	// Temporary hair guides
 	SegmentsStorage * tmpSegmentsStorage;
@@ -379,7 +390,6 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		currPosIt->mPosition.getLocalTransformMatrix( currPosIt->mLocalTransformMatrix );
 		currPosIt->mPosition.getWorldTransformMatrix( currPosIt->mWorldTransformMatrix );
 	}
-	refreshInterpolationGroupIds( aInterpolationGroups );
 	// Now we can create new segments
 	if ( aInterpolateFromPrevious )
 	{
@@ -393,13 +403,14 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	else
 	{
 		tmpSegmentsStorage = new SegmentsStorage( tmpRestPositions, aInterpolationGroups, 
-			aMayaMesh.getRestPose().getBoundingBox().diagonal() * GUIDE_SIZE );
+			aScaleFactor * GUIDE_SIZE );
 	}
 	// Now we can throw away old data
 	std::swap( tmpRestPositions, mRestPositions );
 	std::swap( tmpSegmentsStorage, mSegmentsStorage );
 	delete tmpSegmentsStorage;
 	// Everything has changed...
+	refreshInterpolationGroupIds( aInterpolationGroups );
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
 	mRestPositionsUG.setDirty();

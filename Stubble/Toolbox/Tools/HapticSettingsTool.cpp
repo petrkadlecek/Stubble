@@ -158,7 +158,7 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
   assert(mHandler != NULL);
 
   // add devices
-	for (int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i)
+	for ( unsigned int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i)
 	{
 		HapticSettingsTool::mHandler->getDeviceSpecifications(info, i);
 

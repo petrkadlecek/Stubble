@@ -235,6 +235,9 @@
     <ClCompile Include="Toolbox\Tools\TabletSettingsTool.cpp">
       <Filter>Toolbox\Tools</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\ReinitCommand.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -452,6 +455,9 @@
     </ClInclude>
     <ClInclude Include="Toolbox\Tools\TabletSettingsTool.hpp">
       <Filter>Toolbox\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp">
+      <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

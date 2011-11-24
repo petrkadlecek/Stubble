@@ -110,16 +110,23 @@ MBoundingBox HairShape::boundingBox() const
 MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 {	
 	MStatus status; // Error code
-	if ( aPlug == surfaceChangeAttr ) // Handle mesh change
-	{
-		aDataBlock.setClean( surfaceChangeAttr );
-		meshChange( aDataBlock.inputValue( surfaceAttr ).asMesh() );
+	try {
+		if ( aPlug == surfaceChangeAttr ) // Handle mesh change
+		{
+			aDataBlock.setClean( surfaceChangeAttr );
+			meshChange( aDataBlock.inputValue( surfaceAttr ).asMesh() );
+		}
+		if ( aPlug == timeChangeAttr ) // Handle time change
+		{
+			aDataBlock.setClean( timeChangeAttr );
+			setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
+		}	
 	}
-	if ( aPlug == timeChangeAttr ) // Handle time change
+	catch( const StubbleException & ex )
 	{
-		aDataBlock.setClean( timeChangeAttr );
-		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
-	}	
+		status.perror( ex.what() );
+		return status;
+	}
 	return MS::kSuccess;
 }
 
@@ -139,7 +146,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			return false;
 		}
 		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
-			mGuidesHairCount, true );
+			mGuidesHairCount, getScaleFactor(), true );
 		refreshPointersToGuidesForInterpolation();
 		if ( mDisplayInterpolated )
 		{
@@ -498,7 +505,7 @@ void HairShape::refreshTextures()
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
 			MayaHairProperties::getInterpolationGroups(),
-			mGuidesHairCount, true ); // Interpolates from previous hair guides
+			mGuidesHairCount, getScaleFactor(), true ); // Interpolates from previous hair guides
 		mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
 		refreshPointersToGuidesForInterpolation();
 		// Interpolated hair reconstruction
@@ -544,6 +551,9 @@ void HairShape::meshChange( MObject aMeshObj )
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 
+		// Set interpolated params scaling
+		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
+
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 
@@ -552,11 +562,9 @@ void HairShape::meshChange( MObject aMeshObj )
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
 			MayaHairProperties::getInterpolationGroups(),
-			mGuidesHairCount );
+			mGuidesHairCount, getScaleFactor() );
 		mHairGuides->setCurrentTime( mTime );
 		refreshPointersToGuidesForInterpolation();
-		// Set interpolated params scaling
-		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
 
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )

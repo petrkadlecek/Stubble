@@ -273,6 +273,13 @@ protected:
 	inline void setScaleFactor( Real aScaleFactor );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Gets the scale factor. 
+	///
+	/// \return	The scale factor. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real getScaleFactor() const;
+
+	///-------------------------------------------------------------------------------------------------
 	/// Updates components count for an int array attribute. 
 	///
 	/// \param [in,out]	aAttribute	The attribute object.
@@ -436,6 +443,11 @@ inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
 	mTipSplay *= change;
 	mCenterSplay *= change;
 	mOffset *= change;
+}
+
+inline Real MayaHairProperties::getScaleFactor() const
+{
+	return mScaleFactor;
 }
 
 } // namespace Interpolation

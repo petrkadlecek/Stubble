@@ -190,6 +190,7 @@
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="HairShape\UserInterface\HistoryCommands.cpp" />
+    <ClCompile Include="HairShape\UserInterface\ReinitCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\SelectCommand.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="RibExport\CachedFrame.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp" />
     <ClInclude Include="HairShape\UserInterface\HistoryCommands.hpp" />
+    <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\SelectCommand.hpp" />
     <ClInclude Include="Primitives\BoundingBox.hpp" />
     <ClInclude Include="Primitives\Matrix.hpp" />

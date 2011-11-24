@@ -13,11 +13,20 @@ void *UndoCommand::creator()
 
 MStatus UndoCommand::doIt( const MArgList &aArgList )
 {
- 	HairShape * active = HairShape::getActiveObject();
-	if ( active != 0 && active->canUndo() )
+	try 
 	{
-		active->undo();
-		return MStatus::kSuccess;	
+		HairShape * active = HairShape::getActiveObject();
+		if ( active != 0 && active->canUndo() )
+		{
+			active->undo();
+			return MStatus::kSuccess;	
+		}
+	}
+	catch( const StubbleException & ex )
+	{
+		MStatus s;
+		s.perror( ex.what() );
+		return s;
 	}
 	return MStatus::kFailure;
 }
@@ -29,11 +38,20 @@ void *RedoCommand::creator()
 
 MStatus RedoCommand::doIt( const MArgList &aArgList )
 {
- 	HairShape * active = HairShape::getActiveObject();
-	if ( active != 0 && active->canRedo() )
+	try 
 	{
-		active->redo();
-		return MStatus::kSuccess;	
+		HairShape * active = HairShape::getActiveObject();
+		if ( active != 0 && active->canRedo() )
+		{
+			active->redo();
+			return MStatus::kSuccess;	
+		}
+	}
+	catch( const StubbleException & ex )
+	{
+		MStatus s;
+		s.perror( ex.what() );
+		return s;
 	}
 	return MStatus::kFailure;
 }

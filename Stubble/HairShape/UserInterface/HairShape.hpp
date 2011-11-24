@@ -244,6 +244,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void exportToNURBS();
 
+	///-------------------------------------------------------------------------------------------------
+	/// Reinits all cutted hair with zero length to initial length multiplied by scale factor.
+	///-------------------------------------------------------------------------------------------------
+	inline void reinitCuttedHair();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the currect maya mesh.
 	///----------------------------------------------------------------------------------------------------
@@ -420,6 +425,11 @@ inline void HairShape::importNURBS()
 inline void HairShape::exportToNURBS()
 {
 	mHairGuides->exportToNURBS();
+}
+
+inline void HairShape::reinitCuttedHair()
+{
+	mHairGuides->reinitCuttedHair( getScaleFactor() );
 }
 
 inline MayaMesh * HairShape::getCurrentMesh() const

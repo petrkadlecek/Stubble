@@ -80,6 +80,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	void updateGuides( bool aStoreUpdate );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Reinits all cutted hair with zero length to initial length multiplied by scale factor.
+	///
+	/// \param	aScaleFactor	Scale factor.
+	///-------------------------------------------------------------------------------------------------
+	void reinitCuttedHair( Real aScaleFactor );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the guides positions uniform grid. 
 	///
@@ -163,10 +170,11 @@ public:
 	/// \param	aInterpolationGroups		the interpolation groups object 
 	/// \param	aCount						Number of hair guides. 
 	/// \param	aInterpolateFromPrevious	true to an interpolate from old guides. 
+	/// \param	aScaleFactor				scale factor.
 	///----------------------------------------------------------------------------------------------------
 	void generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aMayaMesh, 
-		const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned __int32 aCount, 
-		bool aInterpolateFromPrevious = false );
+		const Interpolation::InterpolationGroups & aInterpolationGroups, unsigned __int32 aCount,
+		Real aScaleFactor, bool aInterpolateFromPrevious = false );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Updates the segments count described by aInterpolationGroups. 

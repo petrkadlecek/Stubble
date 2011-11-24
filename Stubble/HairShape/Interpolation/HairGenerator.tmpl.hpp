@@ -87,6 +87,11 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const Hair
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
+		// Check degenerate
+		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
+		{
+			continue; // The hair has degenerated to zero length
+		}
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Apply frizz and kink to points 
@@ -232,6 +237,11 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
+		// Check degenerate
+		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
+		{
+			continue; // The hair has degenerated to zero length
+		}
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Apply frizz and kink to points 
@@ -293,6 +303,11 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 				ptsCountBeforeCut, aBoundingBox, cutFactor );
 		}
 	}
+	// Enlarge bounding box by hair thickness
+	Real maxThick = std::max( mHairProperties->getRootThickness(), mHairProperties->getTipThickness() );
+	Vector3D< Real > thickVector( maxThick, maxThick, maxThick );
+	aBoundingBox.expand( aBoundingBox.max() + thickVector );
+	aBoundingBox.expand( aBoundingBox.min() - thickVector );
 	// Release memory of local buffers
 	delete [] points;
 	delete [] pointsStrand;
@@ -332,7 +347,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 	}
 	// Too close to some guide
-	if ( closest->mDistance < 0.0001f )
+	if ( closest->mDistance < static_cast< float >( EPSILON ) )
 	{
 		// Guide segment points iterator
 		HairComponents::Segments::const_iterator segIt = mHairProperties->getGuidesSegments()
@@ -386,6 +401,27 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 			}
 		}
 	}
+}
+
+template< typename tPositionGenerator, typename tOutputGenerator >
+inline bool HairGenerator< tPositionGenerator, tOutputGenerator >::
+	checkDegenerateHair( Point * aPoints, unsigned __int32 & aCount, unsigned __int32 & aCurvePointsCount )
+{
+	// Scale every point
+	for ( Point * end = aPoints + aCount, *it = aPoints, *next = aPoints + 1; next != end; ++next )
+	{
+		if ( ( *it - *next ).sizePwr2() == 0 )
+		{
+			--aCount;
+			--aCurvePointsCount;
+		}
+		else
+		{
+			++it;
+			*it = *next;
+		}
+	}
+	return aCount == 1;
 }
 
 template< typename tPositionGenerator, typename tOutputGenerator >

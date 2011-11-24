@@ -10,14 +10,21 @@ global proc StubbleCreateUI()
 	menuItem -label "Cut Tool" -command "source StubbleCutTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
-	menuItem -label "Export to NURBS" -command "StubbleExportToNURBS; \
+	menuItem -label "Export to Dynamic NURBS" -command "StubbleExportToNURBS; \
 												string $name = `StubbleSelectCommand`; \
 												string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
 												string $node = plugNode( $surface );\
 												string $parent[] = `listRelatives -p $node`;\
 												select -add $parent[ 0 ]; \
 												MakeCurvesDynamic;";
+	menuItem -label "Export to NURBS" -command "StubbleExportToNURBS; \
+												string $name = `StubbleSelectCommand`; \
+												string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
+												string $node = plugNode( $surface );\
+												string $parent[] = `listRelatives -p $node`;\
+												select -add $parent[ 0 ]; ";
 	menuItem -label "Import from NURBS" -command "StubbleImportNURBS;";
+	menuItem -label "Restore cutted hair" -command "StubbleReinitCommand;";
 	menuItem -label "Update textures" -command "StubbleResetTextures;refresh;";
 	// Create Stubble select menu
 	setParent $gMainWindow;

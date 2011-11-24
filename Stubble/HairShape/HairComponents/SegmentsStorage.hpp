@@ -94,6 +94,15 @@ public:
 	PartialStorage * propagateChanges( const SelectedGuides & aSelectedGuides );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Reinits all cutted hair with zero length to selected length.
+	///
+	/// \param	aLength		Hair guides length.
+	///
+	/// \return	segments change in PartialStorage for undo stack 
+	///-------------------------------------------------------------------------------------------------
+	PartialStorage * reinitCuttedHair( Real aLength );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Import segments in selected time frame. 
 	///
 	/// \param	aFrameSegments	the segments in time frame. 
