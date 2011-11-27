@@ -16,17 +16,14 @@ void ScaleBrushMode::doBrush ( HairTask *aTask )
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
-		guide->mGuideSegments.mSegmentLength = getNewSegmentLength(aTask->mDx.x, guide->mGuideSegments.mSegmentLength);
+		Real newLength = getNewSegmentLength(aTask->mDx.x, guide->mGuideSegments.mSegmentLength);
+		const Real SCALE_FACTOR = newLength / guide->mGuideSegments.mSegmentLength;
+		guide->mGuideSegments.mSegmentLength = newLength;
 
 		// Loop through all guide segments except the first one
-		Vector3D< Real > previousVertex = hairVertices[ 0 ];
-		Vector3D< Real > v;
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
-			v = hairVertices[ i ] - previousVertex;
-			v.normalize();
-			previousVertex = hairVertices[ i ];
-			hairVertices[ i ] = hairVertices[ i - 1 ] + v * guide->mGuideSegments.mSegmentLength;
+			hairVertices[ i ] *= SCALE_FACTOR;
 		}
 
 		guide->mDirtyFlag = true;
