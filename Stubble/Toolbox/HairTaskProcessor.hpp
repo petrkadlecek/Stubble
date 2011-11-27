@@ -196,6 +196,23 @@ private:
 	inline static void computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
 		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset, const Uint aDerivOffset);
 
+	///----------------------------------------------------------------------------------------------------
+	/// Helper method for rescaling guide hair vertices by an arbitrary scale factor.
+	///
+	/// \param aVertices	Hair vertices to be scaled
+	/// \param aScaleFactor	Scale factor to be applied
+	///----------------------------------------------------------------------------------------------------
+	inline static void rescaleGuideHair(HairShape::HairComponents::Segments &aVertices, Real aScaleFactor);
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Helper method for rescaling closest points on mesh for all colliding hair vertices by an arbitrary
+	/// scale factor.
+	///
+	/// \param aVerticesInfo	Container containing closest points on mesh
+	/// \param aScaleFactor		Scale factor to be applied
+	///----------------------------------------------------------------------------------------------------
+	inline static void rescaleClosestPoints(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor);
+
 	static HairTaskProcessor *sInstance; ///< The class instance
 	TaskAccumulator mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
@@ -325,7 +342,7 @@ inline void HairTaskProcessor::computeInterpenetrationConstraints(RealN &aC, Hai
 	}
 }
 
-void HairTaskProcessor::computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
+inline void HairTaskProcessor::computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
 		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset, const Uint aDerivOffset)
 {
 	const Uint VERTEX_COUNT = (Uint)aHairVertices.size();
@@ -346,6 +363,24 @@ void HairTaskProcessor::computeInterpenetrationGradient(RealNxN &aNC, RealNxN &a
 		aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 2 ] = -e.z;
 		aDelta[ aDerivOffset + 3*j + 2 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 2 ];
 		++j;
+	}
+}
+
+inline void HairTaskProcessor::rescaleGuideHair(HairShape::HairComponents::Segments &aVertices, Real aScaleFactor)
+{
+	HairShape::HairComponents::Segments::iterator it;
+	for (it = aVertices.begin(); it != aVertices.end(); ++it)
+	{
+		*it *= aScaleFactor;
+	}
+}
+
+inline void HairTaskProcessor::rescaleClosestPoints(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor)
+{
+	HairShape::HairComponents::SegmentsAdditionalInfo::iterator it;
+	for (it = aVerticesInfo.begin(); it != aVerticesInfo.end(); ++it)
+	{
+		it->mClosestPointOnMesh *= aScaleFactor;
 	}
 }
 

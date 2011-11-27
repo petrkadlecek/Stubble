@@ -511,7 +511,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
-		const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
+		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
+		//const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
+		const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segments' length squared
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
 		const Uint VERTEX_COUNT = (Uint)hairVertices.size(); // Number of hair vertices
 		const Uint COLLISIONS_COUNT = guide->mCollisionsCount; // Number of colliding hair vertices
@@ -520,6 +522,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		const Uint COL_CONSTR_OFFSET = VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
 		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1) + 3 * COLLISIONS_COUNT; // Number of constraint derivatives
 		const Uint COL_DERIV_OFFSET = 3 * (VERTEX_COUNT - 1); // Offset to the beginning of collision constraint derivatives
+
+		// Rescale hair vertices before computations so all segments are of length 1.0
+		HairTaskProcessor::rescaleGuideHair(hairVertices, 1.0 / SCALE_FACTOR);
+		HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
 
 		// Solution vectors
 		RealN C(CONSTRAINTS_COUNT); // Constraint vector
@@ -565,6 +571,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			absC = C.MaximumAbsoluteValue();
 			if (absC <= CONVERGENCE_THRESHOLD  /*|| (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)*/ || iterationsCount >= MAX_LOOP_ITERATIONS)
 			{
+				// Rescale hair vertices to retain their original scale
+				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+
 				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
 				break;
 			}
@@ -624,7 +633,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
 {
-	const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Segment length squared
+	const Real SCALE_FACTOR = aSegmentLength;
+	//const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Desired segment length squared
+	const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segment length squared
 	const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
 	const Uint CONSTRAINTS_COUNT = VERTEX_COUNT - 1; // Number of constraints
 	const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
@@ -636,6 +647,9 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 	RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
 	RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
 	RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+
+	// Rescale hair vertices before computations so all segments are of length 1.0
+	HairTaskProcessor::rescaleGuideHair(aVertices, 1.0 / SCALE_FACTOR);
 
 	// Temporary and utility variables
 	Vec3 e; // Vector for calculating error
@@ -652,6 +666,9 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 		// Convergence condition:
 		if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
 		{
+			// Rescale hair vertices to retain their original scale
+			HairTaskProcessor::rescaleGuideHair(aVertices, SCALE_FACTOR);
+
 			break;
 		}
 		// -------------------------------------------------------------------------------------
