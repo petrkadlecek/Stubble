@@ -10,14 +10,17 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the scale brush transformations.
+/// The class implementing the scale brush transformation, i.e. the brush changes the scale of affected
+/// guide hair by increasing/decreasing the length of hair segments.
 ///----------------------------------------------------------------------------------------------------
 class ScaleBrushMode :
 	public BrushMode
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformations.
+	/// The method which implements the actual brush transformation
+	///
+	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 
@@ -34,7 +37,7 @@ private:
 
 inline double ScaleBrushMode::getNewSegmentLength ( Real aMeasure, Real aLength )
 {
-	Real length = aLength + aMeasure;
+	Real length = aLength + aMeasure * aLength;
 	return (length < 0.0) ? 0.0 : length;
 }
 

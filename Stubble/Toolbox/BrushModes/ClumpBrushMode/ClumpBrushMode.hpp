@@ -10,14 +10,18 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the clump brush transformations.
+/// The class implementing the clump brush transformation, i.e. clumping selected hair together by
+/// choosing centroid of selected hair roots, calculating average normal and moving hair vertices
+/// onto this normal.
 ///----------------------------------------------------------------------------------------------------
 class ClumpBrushMode :
 	public BrushMode
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformations.
+	/// The method which implements the actual brush transformation
+	///
+	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 

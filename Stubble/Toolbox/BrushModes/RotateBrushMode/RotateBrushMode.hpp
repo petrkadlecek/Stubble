@@ -13,14 +13,18 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the rotate brush transformations.
+/// The class implementing the rotate brush transformation, i.e. selected hair vertices rotate around
+/// the axis perpendicular to the projection plane going through the initial mouse position (position
+/// at which onPress event ocured).
 ///----------------------------------------------------------------------------------------------------
 class RotateBrushMode :
 	public BrushMode
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformations.
+	/// The method which implements the actual brush transformation
+	///
+	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 
