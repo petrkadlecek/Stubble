@@ -1,4 +1,5 @@
 #include <fstream> //TODO: remove me
+#include <numeric> //TODO: remove me
 #include "HairTaskProcessor.hpp"
 #include "HairShape\UserInterface\HairShape.hpp"
 #include <maya\MMeshIntersector.h>
@@ -43,6 +44,25 @@ void dumpToFile(const NEWMAT::ColumnVector &C, Uint size)
 	log << "\n" << std::flush;
 	log.close();
 }
+
+std::deque < unsigned int > samples;
+
+void updateAverageIterationsCount(unsigned int iterationsCount)
+{
+	samples.push_back(iterationsCount);
+	if ( samples.size() > 100 )
+	{
+		samples.pop_front();
+	}
+	unsigned int sum = std::accumulate(samples.begin(), samples.end(), 0);
+	Real average = (Real)sum / (Real)samples.size();
+
+	std::fstream log("C:\\Dev\\iterationsCount.log", std::ios_base::app);
+	log.setf(std::ios::fixed, std::ios::floatfield);
+	log.precision(4);
+	log << average << "\n" << std::flush;
+	log.close();
+}
 //end of debug code
 //----------------------
 
@@ -56,7 +76,7 @@ MSpinLock HairTaskProcessor::sIsRunningLock;
 
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
-const Real HairTaskProcessor::EPSILON = 1e-5;
+const Real HairTaskProcessor::EPSILON = 1e-4;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -298,7 +318,8 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = curentPointInsideMesh;
 			guide->mCollisionsCount += (curentPointInsideMesh) ? 1 : 0;
-		}	
+		}
+		//guide->mCollisionsCount = 0; //TODO: remove me
 	}
 }
 
@@ -569,12 +590,19 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Convergence condition:
 			previousAbsC = absC;
 			absC = C.MaximumAbsoluteValue();
-			if (absC <= CONVERGENCE_THRESHOLD  /*|| (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)*/ || iterationsCount >= MAX_LOOP_ITERATIONS)
+			bool localMinimum = (previousAbsC - EPSILON <= absC) && (absC <= previousAbsC + EPSILON);
+			if ( absC <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS || localMinimum )
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+				HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR); //TODO: remove me - unneeded, for it will be scrapped in the next iteration
 
-				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				//if (absC > CONVERGENCE_THRESHOLD && iterationsCount < MAX_LOOP_ITERATIONS && localMinimum) //TODO: remove me
+				//{
+				//	std::cout << "Local minimum reached, |C| = " << absC << "\t";
+				//}
+				//std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				//updateAverageIterationsCount(iterationsCount); //TODO: remove me
 				break;
 			}
 			// -------------------------------------------------------------------------------------
