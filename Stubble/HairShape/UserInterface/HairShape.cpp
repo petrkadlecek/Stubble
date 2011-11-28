@@ -1032,6 +1032,7 @@ inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirs
 	attr = nAttr.create( "interpolation_groups_selectable", "igs", &s );
 	nAttr.setInternal( true );
 	// Add children -> counts
+	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 0 );
 	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
 	// Add attr
 	s = node.addAttribute( attr );
