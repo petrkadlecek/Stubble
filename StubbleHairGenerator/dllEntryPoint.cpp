@@ -8,6 +8,10 @@
 // If defined bounding box of generated hair points will be calculated
 #define CALCULATE_BBOX
 
+// Defines internal memory for segments ( COMMIT_SIZE = max. segments count )
+// Lesser number will increase number of commits, but also decrease memory cost
+const unsigned __int32 COMMIT_SIZE = 1000000; 
+
 #include "HairShape/Interpolation/HairGenerator.tmpl.hpp"
 #include "HairShape/Interpolation/RMHairProperties.hpp"
 #include "HairShape/Interpolation/RMOutputGenerator.hpp"
@@ -127,7 +131,7 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		RiMotionBeginV( static_cast< RtInt >( bp.mSamplesCount ), bp.mTimeSamples );
 	}
 	// Create output generator
-	RMOutputGenerator outputGenerator( 1000000 ); // One million segments max. for each commit
+	RMOutputGenerator outputGenerator( COMMIT_SIZE ); // One million segments max. for each commit
 	// For every sample
 	for ( FileNames it = bp.mFileNames, end = bp.mFileNames + bp.mSamplesCount; it != end; ++it )
 	{
