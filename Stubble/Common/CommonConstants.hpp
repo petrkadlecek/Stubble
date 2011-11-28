@@ -1,6 +1,8 @@
 #ifndef STUBBLE_COMMON_CONSTANTS_HPP
 #define STUBBLE_COMMON_CONSTANTS_HPP
 
+#include "CommonTypes.hpp"
+
 namespace Stubble 
 {
 
@@ -17,6 +19,8 @@ static const unsigned __int32 BUFFER_SIZE = 1 << 24;	///< Size of the buffer for
 static const unsigned __int32 COMPRESSION = 3;  ///< The compression quality of gzip ( 1 = FASTEST - 9 = BEST )
 
 static const char * SEPARATOR = " "; ///< Object separator used in (de)serialization.
+
+static const Real EPSILON = 0.00001f; ///< The epsilon for common real operations
 
 } // namespace Stubble
 

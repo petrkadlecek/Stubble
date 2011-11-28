@@ -58,17 +58,20 @@ void DisplayedGuides::selectionRebuild( const SelectedGuides & aSelectedGuides, 
 	mDirtyBit = false;
 }
 
-void DisplayedGuides::draw() const
+void DisplayedGuides::draw( bool aDrawVerts ) const
 {
 	if ( mDirtyBit )
 	{
 		throw StubbleException(" DisplayedGuides::draw : can not draw dirty object, used build method !" );
 	}
 	// Camera must be set to world coordinates at this point
-	
-	//TODO: add decision based on selection filter
+
+	// draw hair guides, and check if we should draw the hair vertices as well
 	drawPolyline();
-	drawVertices();
+	if ( aDrawVerts )
+	{
+		drawVertices();
+	}
 }
 
 void DisplayedGuides::drawPolyline() const
@@ -136,8 +139,22 @@ void DisplayedGuides::drawPolyline() const
 			glVertex3d(v.x, v.y, v.z);
 			glVertex3d(p.x, p.y, p.z);
 		}
-		glColor3f(0.5f, 1.0f, 0.8f);
 		glEnd();
+
+		glPointSize(6.0f);
+		glBegin(GL_POINTS);
+		for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
+		{
+			if (!(*guideIt)->mSegmentsAdditionalInfo[ i ].mIsColliding)
+			{
+				continue;
+			}
+			Vector3D< Real > v = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ i ], (*guideIt)->mPosition.mWorldTransformMatrix);
+			glVertex3d(v.x, v.y, v.z);
+		}
+		glEnd();
+		glColor3f(0.5f, 1.0f, 0.8f);
+
 		// End of debug code
 		//-----------------------
 

@@ -43,6 +43,8 @@ public:
 
 	static MObject segmentsCountAttr; ///< The segments count attribute
 
+	static MObject interpolationGroupsSelectableAttr; ///< The interpolation groups selectable attribute
+
 	static MObject interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
 
 	static MObject numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
@@ -266,11 +268,25 @@ protected:
 	inline void setSegmentsCountAttr( const MObject & aSegmentsCountAttr );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Sets the selectable interpolation groups attribute. 
+	///
+	/// \param	aInterpolationGroupsSelectableAttr	The selectable interpolation groups attribute. 
+	///-------------------------------------------------------------------------------------------------
+	inline void setInterpolationGroupsSelectableAttr( const MObject & aInterpolationGroupsSelectableAttr );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Sets a scale factor. 
 	///
 	/// \param	aScaleFactor	a scale factor. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setScaleFactor( Real aScaleFactor );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Gets the scale factor. 
+	///
+	/// \return	The scale factor. 
+	///-------------------------------------------------------------------------------------------------
+	inline Real getScaleFactor() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Updates components count for an int array attribute. 
@@ -281,10 +297,11 @@ protected:
 	/// \param	aMin				The minimum value. 
 	/// \param	aMax				The maximum value. 
 	/// \param	aSoftMin			The soft minimum value. 
-	/// \param	aSoftMax			The soft maximum value. 
+	/// \param	aSoftMax			The soft maximum value.
+	/// \param	aGroupNamePrefix	The group name prefix.
 	///-------------------------------------------------------------------------------------------------
 	void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
-		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix = "group_" );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Adds a color attribute. 
@@ -379,9 +396,10 @@ protected:
 	/// \param	aMin				The minimum value. 
 	/// \param	aMax				The maximum value. 
 	/// \param	aSoftMin			The soft minimum value. 
-	/// \param	aSoftMax			The soft maximum value. 
+	/// \param	aSoftMax			The soft maximum value.
+	/// \param	aGroupNamePrefix	The group name prefix.
 	///-------------------------------------------------------------------------------------------------
-	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
+	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix = "group_" );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Fill color array attributes. 
@@ -393,8 +411,9 @@ protected:
 
 private:
 
-
 	MObject mSegmentsCountAttr;   ///< The segments count attribute
+
+	MObject mInterpolationGroupsSelectableAttr; ///< The selectable interpolation groups attribute
 
 	Real mScaleFactor;  ///< The scale factor for all size dependent attributes
 };
@@ -411,6 +430,11 @@ inline void MayaHairProperties::refreshPointersToGuides( const HairComponents::G
 inline void MayaHairProperties::setSegmentsCountAttr( const MObject & aSegmentsCountAttr )
 {
 	mSegmentsCountAttr = aSegmentsCountAttr;
+}
+
+inline void MayaHairProperties::setInterpolationGroupsSelectableAttr( const MObject & aInterpolationGroupsSelectableAttr )
+{
+	mInterpolationGroupsSelectableAttr = aInterpolationGroupsSelectableAttr;
 }
 
 inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
@@ -436,6 +460,11 @@ inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
 	mTipSplay *= change;
 	mCenterSplay *= change;
 	mOffset *= change;
+}
+
+inline Real MayaHairProperties::getScaleFactor() const
+{
+	return mScaleFactor;
 }
 
 } // namespace Interpolation

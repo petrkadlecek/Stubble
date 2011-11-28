@@ -364,13 +364,15 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		$groupCount = size($groupSegmentsLength);
 	}
 	
-	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 ( $nodeName + "segmentsUI" );
+	rowColumnLayout  -numberOfColumns 3  -columnWidth 1 60 -columnWidth 2 1 ( $nodeName + "segmentsUI" );
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
 		string $label = "Group " + $i;
 		$groupNameCol = $groupName + "c";
+		$groupNameCB = $groupName + "cb";
 		float $cs[] = `getAttr ( $nodeName + ".color_" + $i ) `;
+		checkBox -label "" -value 1 -onc ( "setAttr " + $nodeName + ".groups_selectable_" + $i + " 1") -ofc ( "setAttr " + $nodeName + ".groups_selectable_" + $i + " 0") $groupNameCB;
 		picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
 		catchQuiet ( `attrFieldSliderGrp -l $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName` ); 
 	}
@@ -400,13 +402,15 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 	{
 		deleteUI -lay $layoutName;
 	}
-	rowColumnLayout  -numberOfColumns 2  -columnWidth 1 1 $layoutName;
+	rowColumnLayout  -numberOfColumns 3  -columnWidth 1 60 -columnWidth 2 1 $layoutName;
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
 		string $label = "Group " + $i;
 		$groupNameCol = $groupName + "c";
+		$groupNameCB = $groupName + "cb";
 		float $cs[] = `getAttr ( $nodeName + ".color_" + $i ) `;
+		checkBox -label "" -value 1 -onc ( "setAttr " + $nodeName + ".groups_selectable_" + $i + " 1") -ofc ( "setAttr " + $nodeName + ".groups_selectable_" + $i + " 0") $groupNameCB;
 		picture -image "" -bgc $cs[ 0 ] $cs[ 1 ] $cs[ 2 ] -width 50 -height 20 $groupNameCol;
 		attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
 	}

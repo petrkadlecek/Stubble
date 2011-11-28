@@ -1,11 +1,10 @@
-#ifndef STUBBLE_HAPTIC_SETTINGS_TOOL_HPP
-#define STUBBLE_HAPTIC_SETTINGS_TOOL_HPP
+#ifndef STUBBLE_TABLET_SETTINGS_TOOL_HPP
+#define STUBBLE_TABLET_SETTINGS_TOOL_HPP
 
 #include <maya/M3dView.h>
 #include <maya/MGlobal.h>
 #include <maya/MPxContext.h>
 #include <maya/MPxContextCommand.h>
-#include <chai3d.h> // CHAI 3D - haptics support
 
 #include <maya/MTimer.h>
 #include <maya/MThreadAsync.h>
@@ -25,7 +24,7 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 /// This class implements the haptic settings tool.
 ///----------------------------------------------------------------------------------------------------
-class HapticSettingsTool
+class TabletSettingsTool
 	: public MPxContext
 {
 public:
@@ -33,12 +32,12 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Class constructor.
 	///----------------------------------------------------------------------------------------------------
-	HapticSettingsTool();
+	TabletSettingsTool();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Class destructor.
 	///----------------------------------------------------------------------------------------------------
-	virtual ~HapticSettingsTool();
+	virtual ~TabletSettingsTool();
 
 	///----------------------------------------------------------------------------------------------------
 	/// The method which returns the current 3D view.
@@ -58,15 +57,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOnSetup( MEvent &event );
 
-  ///----------------------------------------------------------------------------------------------------
-	/// Haptic Tool position getter
-	///----------------------------------------------------------------------------------------------------
-	static MVector getLastPosition();
-
 	///----------------------------------------------------------------------------------------------------
 	/// The method is called on tool cleanup
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOffCleanup();
+
 
 protected:
 
@@ -77,49 +72,10 @@ private:
 
 	bool mInitFlag; ///< initialization flag
 
-  ///----------------------------------------------------------------------------------------------------
-	/// CHAI 3D haptic device handlers
 	///----------------------------------------------------------------------------------------------------
-  static cHapticDeviceHandler* mHandler;  ///< handler of haptic devices CHAI 3D
-
-  static cGenericHapticDevice* mHapticDevice;  ///< haptic device CHAI 3D
-
-  ///----------------------------------------------------------------------------------------------------
-	/// CHAI 3D device control
+	/// Initialize WINTAB support
 	///----------------------------------------------------------------------------------------------------
-  static cVector3d mDevicePosition; ///< haptic device position
-
-  static cVector3d mDeviceRotation; ///< haptic device rotation
-
-  static cVector3d mDeviceForce; ///< haptic device sent force
-
-  static bool mHapticButton1; ///< haptic device button 1
-
-	static bool mHapticButton2; ///< haptic device button 2
-
-  ///----------------------------------------------------------------------------------------------------
-	/// Stubble Haptic Tool properties
-	///----------------------------------------------------------------------------------------------------
-  MString mHapticDeviceStr; ///< haptic device string identifier
-
-  static bool mHapticThreadRunning; ///< haptic thread running flag
-
-  static MVector mLastPosition;  ///< last position of haptic device
-
-  static MVector mLastRotation;  ///< last position of haptic device
-
-
-	///----------------------------------------------------------------------------------------------------
-	/// Initialize haptic device by index aHapticDeviceIndex
-	///----------------------------------------------------------------------------------------------------
-  void initHapticDevice( int aHapticDeviceIndex );
-
-  ///----------------------------------------------------------------------------------------------------
-	/// Asynchronous haptic thread loop and callback handler
-	///----------------------------------------------------------------------------------------------------
-  static MThreadRetVal AsyncHapticLoop(void *aData);
-  
-  static void AsyncHapticCallback (void *aData);
+  void initTablet();
 };
 
 
@@ -128,7 +84,7 @@ private:
 /// the user to enter a context for our tool. It simply has to return
 /// an instance of the Context class.
 ///----------------------------------------------------------------------------------------------------
-class HapticSettingsToolCommand :
+class TabletSettingsToolCommand :
 	public MPxContextCommand
 {
 public:
@@ -144,12 +100,12 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Class constructor.
 	///----------------------------------------------------------------------------------------------------
-	HapticSettingsToolCommand();
+	TabletSettingsToolCommand();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Class destructor.
 	///----------------------------------------------------------------------------------------------------
-	virtual ~HapticSettingsToolCommand();
+	virtual ~TabletSettingsToolCommand();
 
 	virtual	MStatus	doEditFlags();
 	virtual MStatus	doQueryFlags();
@@ -158,12 +114,12 @@ public:
 	static const MString sCommandName;
 
 protected:
-	HapticSettingsTool *mCurrentObject; ///< The current HapticSettingsTool object.
+	TabletSettingsTool *mCurrentObject; ///< The current TabletSettingsTool object.
 
-}; // class HapticSettingsToolCommand
+}; // class TabletSettingsToolCommand
 
 } // namespace Toolbox
 
 } // namespace Stubble
 
-#endif  // STUBBLE_HAPTIC_SETTINGS_TOOL_HPP
+#endif  // STUBBLE_TABLET_SETTINGS_TOOL_HPP

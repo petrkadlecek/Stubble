@@ -283,6 +283,11 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void exportToNURBS();
 
+	///-------------------------------------------------------------------------------------------------
+	/// Reinits all cutted hair with zero length to initial length multiplied by scale factor.
+	///-------------------------------------------------------------------------------------------------
+	inline void reinitCuttedHair();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the currect maya mesh.
 	///----------------------------------------------------------------------------------------------------
@@ -292,6 +297,11 @@ public:
 	/// Serialize plugin data.
 	///-------------------------------------------------------------------------------------------------
 	inline std::string serialize() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the current maya mesh inclusive matrix
+	///----------------------------------------------------------------------------------------------------
+	inline MMatrix getCurrentInclusiveMatrix() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Deserialize and reconstruct plugin data.
@@ -336,6 +346,14 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline void updateSegmentsCountAttributes( bool aFirstUpdate );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Updates the selectable interpolation groups attribute. ( Essential after Interpolation groups change )
+	/// 
+	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
+	/// 						be removed.
+	///-------------------------------------------------------------------------------------------------
+	inline void updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Registers the topology callback. 
 	///
@@ -365,6 +383,8 @@ private:
 	Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
 
 	Interpolation::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
+
+	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
 	// Stored attributes values
 
@@ -463,9 +483,19 @@ inline void HairShape::exportToNURBS()
 	mHairGuides->exportToNURBS();
 }
 
+inline void HairShape::reinitCuttedHair()
+{
+	mHairGuides->reinitCuttedHair( getScaleFactor() );
+}
+
 inline MayaMesh * HairShape::getCurrentMesh() const
 {
 	return mMayaMesh;
+}
+
+inline MMatrix HairShape::getCurrentInclusiveMatrix() const
+{
+	return mConnectedMeshPath.inclusiveMatrix();
 }
 
 inline std::string HairShape::serialize() const

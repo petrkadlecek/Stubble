@@ -126,6 +126,19 @@ private:
 		unsigned __int32 aInterpolationGroupId );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Checks for hair degeneration. Deletes duplicate points and returns true if hair has degenerated
+	/// to single point.
+	///
+	/// \param [in,out]	aPoints				If non-null, a points. 
+	/// \param [in,out] aCount				Number of points. 
+	/// \param [in,out] aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
+	/// 				
+	/// \return true if hair has degenerated to single point.
+	///-------------------------------------------------------------------------------------------------
+	inline bool checkDegenerateHair( Point * aPoints, unsigned __int32 & aCount, 
+		unsigned __int32 & aCurvePointsCount );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Applies the scale to hair points. 
 	///
 	/// \param [in,out]	aPoints	If non-null, a hair points. 

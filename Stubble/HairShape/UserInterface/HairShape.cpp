@@ -1,4 +1,5 @@
 #include "HairShape.hpp"
+#include "HairShapeUI.hpp"
 
 #include "Common/GLExtensions.hpp"
 #include "Common/CommonConstants.hpp"
@@ -80,12 +81,13 @@ HairShape::HairShape():
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
 	// Sets active object
 	mActiveHairShapeNode = this;
+	int size = mInterpolationGroupsSelectable.size();
+	int dummy = 0;
 }
 
 void HairShape::postConstructor()
 {
 	setRenderable( true );
-	//mHairGuides->refreshInterpolationGroupIds( MayaHairProperties::getInterpolationGroups() );
 }
 
 HairShape::~HairShape()
@@ -121,16 +123,23 @@ MBoundingBox HairShape::boundingBox() const
 MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 {	
 	MStatus status; // Error code
-	if ( aPlug == surfaceChangeAttr ) // Handle mesh change
-	{
-		aDataBlock.setClean( surfaceChangeAttr );
-		meshChange( aDataBlock.inputValue( surfaceAttr ).asMesh() );
+	try {
+		if ( aPlug == surfaceChangeAttr ) // Handle mesh change
+		{
+			aDataBlock.setClean( surfaceChangeAttr );
+			meshChange( aDataBlock.inputValue( surfaceAttr ).asMesh() );
+		}
+		if ( aPlug == timeChangeAttr ) // Handle time change
+		{
+			aDataBlock.setClean( timeChangeAttr );
+			setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
+		}	
 	}
-	if ( aPlug == timeChangeAttr ) // Handle time change
+	catch( const StubbleException & ex )
 	{
-		aDataBlock.setClean( timeChangeAttr );
-		setCurrentTime( static_cast< Time >( aDataBlock.inputValue( timeAttr ).asTime().value() ) );
-	}	
+		status.perror( ex.what() );
+		return status;
+	}
 	return MS::kSuccess;
 }
 
@@ -187,7 +196,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			return false;
 		}
 		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
-			mGuidesHairCount, true );
+			mGuidesHairCount, getScaleFactor(), true );
 		refreshPointersToGuidesForInterpolation();
 		if ( mDisplayInterpolated )
 		{
@@ -312,6 +321,14 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
+	std::cout << "===============================================================================" << endl;
+	for ( int i = 0; i < this->mInterpolationGroups->getGroupsCount(); i++)
+	{
+		std::cout << this->mInterpolationGroupsSelectable[ i ] << " ";
+	}
+	std::cout << "===============================================================================" << endl;
+	std::cout << endl;
+	
 	if ( this->isSelectionModified() )
 	{
 		MSelectionList selList;
@@ -428,8 +445,10 @@ void HairShape::draw()
 	}
 	// Display guides & interpolated hair
 	if ( mDisplayGuides )
-	{
-		mHairGuides->draw();
+	{		
+		// check if we should draw vertices as well
+		bool drawVertices = ( HairShapeUI::getDrawingState() == HairShapeUI::kDrawVertices );
+		mHairGuides->draw( drawVertices );
 	}
 	if ( mDisplayInterpolated )
 	{
@@ -795,6 +814,7 @@ void HairShape::refreshTextures()
 	if ( interpolationGroupsChanged )
 	{
 		updateSegmentsCountAttributes( false );
+		updateInterpolationGroupsSelectableAttributes( false );
 		// Update segments count of hair guides
 		mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
 		refreshPointersToGuidesForInterpolation();
@@ -815,7 +835,7 @@ void HairShape::refreshTextures()
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
 			MayaHairProperties::getInterpolationGroups(),
-			mGuidesHairCount, true ); // Interpolates from previous hair guides
+			mGuidesHairCount, getScaleFactor(), true ); // Interpolates from previous hair guides
 		mBoundingBox = mHairGuides->getBoundingBox().toMBoundingBox();
 		refreshPointersToGuidesForInterpolation();
 		// Interpolated hair reconstruction
@@ -868,8 +888,14 @@ void HairShape::meshChange( MObject aMeshObj )
 		// Updates segments attributes
 		updateSegmentsCountAttributes( true );
 
+		// Updates selectable interpolation groups attribute
+		updateInterpolationGroupsSelectableAttributes( true );
+
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
+
+		// Set interpolated params scaling
+		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
 
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
@@ -879,11 +905,9 @@ void HairShape::meshChange( MObject aMeshObj )
 		mHairGuides->generate( *mUVPointGenerator,
 			*mMayaMesh,
 			MayaHairProperties::getInterpolationGroups(),
-			mGuidesHairCount );
+			mGuidesHairCount, getScaleFactor() );
 		mHairGuides->setCurrentTime( mTime );
 		refreshPointersToGuidesForInterpolation();
-		// Set interpolated params scaling
-		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
 
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )
@@ -990,6 +1014,31 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	s = node.addAttribute( attr );
 }
 
+// Inline, but only called inside HairGuides.cpp
+inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate )
+{
+	// Remove attr value from storage
+	setInterpolationGroupsSelectableAttr( MObject() );
+	MFnDependencyNode node( thisMObject() );
+	if ( !aFirstUpdate )
+	{
+		// Removes old attribute
+		node.removeAttribute( node.findPlug( "interpolation_groups_selectable" ).attribute() );
+	}
+	// Creates new compound attribute
+	MStatus s;
+	MObject attr;
+	MFnCompoundAttribute nAttr;
+	attr = nAttr.create( "interpolation_groups_selectable", "igs", &s );
+	nAttr.setInternal( true );
+	// Add children -> counts
+	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
+	// Add attr
+	s = node.addAttribute( attr );
+	// Finally remember attr value
+	setInterpolationGroupsSelectableAttr( attr );
+}
+
 /************************************************************************************************************/
 /*										TOPOLOGY CALLBACKS HANDLING											*/
 /************************************************************************************************************/
@@ -1034,6 +1083,7 @@ MStatus HairShape::registerTopologyCallback()
 	if ( MS::kSuccess == MDagPath::getAPathTo( shapeNode, meshDag )
 			&& MS::kSuccess == meshDag.extendToShape() )
 	{
+		mConnectedMeshPath = meshDag;
 	    shapeNode = meshDag.node();
 	}
 	else

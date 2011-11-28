@@ -573,6 +573,8 @@ protected:
 
 	InterpolationGroups * mInterpolationGroups;  ///< Interpolation groups object
 
+	std::vector<unsigned __int32> mInterpolationGroupsSelectable;	///< Selectable interpolation groups object
+
 	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< Number of guides to interpolate from
 
 	const HairComponents::GuidesSegments * mGuidesSegments;   ///< The guides segments

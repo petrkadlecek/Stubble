@@ -13,14 +13,17 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the translate brush transformations.
+/// The class implementing the translate brush transformation, i.e. the brush repositions hair
+/// vertices in a plane parallel to the projection plane.
 ///----------------------------------------------------------------------------------------------------
 class TranslateBrushMode :
 	public BrushMode
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformations.
+	/// The method which implements the actual brush transformation
+	///
+	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 

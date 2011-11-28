@@ -20,10 +20,20 @@ void *ImportNURBSCommand::creator()
 
 MStatus ImportNURBSCommand::doIt( const MArgList &aArgList )
 {
-	if ( HairShape::getActiveObject() != 0 )
+	try 
 	{
-		HairShape::getActiveObject()->importNURBS();
-		return MStatus::kSuccess;	
+		HairShape * active = HairShape::getActiveObject();
+		if ( active != 0 )
+		{
+			active->importNURBS();
+			return MStatus::kSuccess;	
+		}
+	}
+	catch( const StubbleException & ex )
+	{
+		MStatus s;
+		s.perror( ex.what() );
+		return s;
 	}
 	return MStatus::kFailure;
 }
@@ -39,10 +49,20 @@ void *ExportToNURBSCommand::creator()
 
 MStatus ExportToNURBSCommand::doIt( const MArgList &aArgList )
 {
- 	if ( HairShape::getActiveObject() != 0 )
+	try 
 	{
-		HairShape::getActiveObject()->exportToNURBS();
-		return MStatus::kSuccess;	
+		HairShape * active = HairShape::getActiveObject();
+		if ( active != 0 )
+		{
+			active->exportToNURBS();
+			return MStatus::kSuccess;	
+		}
+	}
+	catch( const StubbleException & ex )
+	{
+		MStatus s;
+		s.perror( ex.what() );
+		return s;
 	}
 	return MStatus::kFailure;
 }

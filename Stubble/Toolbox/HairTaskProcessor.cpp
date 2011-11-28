@@ -1,6 +1,9 @@
 #include <fstream> //TODO: remove me
+#include <numeric> //TODO: remove me
 #include "HairTaskProcessor.hpp"
+#include "HairShape\UserInterface\HairShape.hpp"
 #include <maya\MMeshIntersector.h>
+#include <maya\MFloatPointArray.h>
 
 //#define STUBBLE_CONSTRAINT_BASED_COLLISION_RESPONSE 1
 
@@ -41,6 +44,25 @@ void dumpToFile(const NEWMAT::ColumnVector &C, Uint size)
 	log << "\n" << std::flush;
 	log.close();
 }
+
+std::deque < unsigned int > samples;
+
+void updateAverageIterationsCount(unsigned int iterationsCount)
+{
+	samples.push_back(iterationsCount);
+	if ( samples.size() > 100 )
+	{
+		samples.pop_front();
+	}
+	unsigned int sum = std::accumulate(samples.begin(), samples.end(), 0);
+	Real average = (Real)sum / (Real)samples.size();
+
+	std::fstream log("C:\\Dev\\iterationsCount.log", std::ios_base::app);
+	log.setf(std::ios::fixed, std::ios::floatfield);
+	log.precision(4);
+	log << average << "\n" << std::flush;
+	log.close();
+}
 //end of debug code
 //----------------------
 
@@ -54,7 +76,7 @@ MSpinLock HairTaskProcessor::sIsRunningLock;
 
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
-const Real HairTaskProcessor::EPSILON = 1e-5;
+const Real HairTaskProcessor::EPSILON = 1e-4;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -222,6 +244,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 {
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh()->getMayaMesh();
+	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
@@ -241,11 +264,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 		if(curentPointInsideMesh)
 		{
-			MPoint closest;
-			MPoint queryPoint( firstPoint.x, firstPoint.y, firstPoint.z );
-			currentMesh->getClosestPoint( queryPoint, closest, MSpace::kWorld );
-			//accelerator->getClosestPoint( queryPoint, closest );
-			Vec3 p( closest.x, closest.y, closest.z );
+			MPointOnMesh closestPoint;
+			MStatus status = accelerator->getClosestPoint( firstPoint.toMayaPoint(), closestPoint );
+
+			Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
+				closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
+				closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
 
 			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
@@ -267,40 +291,36 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MFloatPoint startP(positionStartPoint.x, positionStartPoint.y, positionStartPoint.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
 
-			MFloatPoint hitPoint;
+			MFloatPointArray hitPoints;
 			MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
-			bool intersect = currentMesh->anyIntersection( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam,	hitPoint, 0, 0, 0, 0, 0 );
+			bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 			// current segment has an intersection -> so we change hair intersection
-			if(intersect)
+			if(intersect && hitPoints.length() % 2)
 				curentPointInsideMesh = !curentPointInsideMesh;
 
 			// nearest point on mesh
 			if(curentPointInsideMesh)
 			{
-				MPoint closest;
-				MPoint queryPoint( positionEndPoint.x, positionEndPoint.y, positionEndPoint.z );
-				currentMesh->getClosestPoint( queryPoint, closest, MSpace::kWorld );
-				bool ic = accelerator->isCreated();
+				MPointOnMesh closestPoint;
+				MStatus status = accelerator->getClosestPoint( positionEndPoint.toMayaPoint(), closestPoint );
 
-				MPointOnMesh qqq;
-				accelerator->getClosestPoint( queryPoint, qqq );
+				Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
+					closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
+					closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
 
-				Vec3 p( closest.x, closest.y, closest.z );
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			}
 			else
 			{
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh.set(0.0, 0.0, 0.0);
-				//guide->mSegmentsAdditionalInfo[ i ].mIsColliding = false;
 			}
 
 			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = curentPointInsideMesh;
 			guide->mCollisionsCount += (curentPointInsideMesh) ? 1 : 0;
-		} // for segments from 2 to end
-		//std::cout << "# of collisions = " << guide->mCollisionsCount << std::endl << std::flush; //TODO: remove me
-		//guide->mCollisionsCount = 0; //TODO: Remove me
-	} // for all guides
+		}
+		//guide->mCollisionsCount = 0; //TODO: remove me
+	}
 }
 
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
@@ -512,7 +532,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
-		const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
+		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
+		//const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
+		const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segments' length squared
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
 		const Uint VERTEX_COUNT = (Uint)hairVertices.size(); // Number of hair vertices
 		const Uint COLLISIONS_COUNT = guide->mCollisionsCount; // Number of colliding hair vertices
@@ -521,6 +543,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		const Uint COL_CONSTR_OFFSET = VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
 		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1) + 3 * COLLISIONS_COUNT; // Number of constraint derivatives
 		const Uint COL_DERIV_OFFSET = 3 * (VERTEX_COUNT - 1); // Offset to the beginning of collision constraint derivatives
+
+		// Rescale hair vertices before computations so all segments are of length 1.0
+		HairTaskProcessor::rescaleGuideHair(hairVertices, 1.0 / SCALE_FACTOR);
+		HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
 
 		// Solution vectors
 		RealN C(CONSTRAINTS_COUNT); // Constraint vector
@@ -564,9 +590,19 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Convergence condition:
 			previousAbsC = absC;
 			absC = C.MaximumAbsoluteValue();
-			if (absC <= CONVERGENCE_THRESHOLD  /*|| (previousAbsC - EPSILON <= absC && absC <= previousAbsC + EPSILON)*/ || iterationsCount >= MAX_LOOP_ITERATIONS)
+			bool localMinimum = (previousAbsC - EPSILON <= absC) && (absC <= previousAbsC + EPSILON);
+			if ( absC <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS || localMinimum )
 			{
-				std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				// Rescale hair vertices to retain their original scale
+				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+				HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR); //TODO: remove me - unneeded, for it will be scrapped in the next iteration
+
+				//if (absC > CONVERGENCE_THRESHOLD && iterationsCount < MAX_LOOP_ITERATIONS && localMinimum) //TODO: remove me
+				//{
+				//	std::cout << "Local minimum reached, |C| = " << absC << "\t";
+				//}
+				//std::cout << "# of iterations = " << iterationsCount << std::endl << std::flush; //TODO: remove me
+				//updateAverageIterationsCount(iterationsCount); //TODO: remove me
 				break;
 			}
 			// -------------------------------------------------------------------------------------
@@ -625,7 +661,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
 {
-	const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Segment length squared
+	const Real SCALE_FACTOR = aSegmentLength;
+	//const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Desired segment length squared
+	const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segment length squared
 	const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
 	const Uint CONSTRAINTS_COUNT = VERTEX_COUNT - 1; // Number of constraints
 	const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
@@ -637,6 +675,9 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 	RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
 	RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
 	RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+
+	// Rescale hair vertices before computations so all segments are of length 1.0
+	HairTaskProcessor::rescaleGuideHair(aVertices, 1.0 / SCALE_FACTOR);
 
 	// Temporary and utility variables
 	Vec3 e; // Vector for calculating error
@@ -653,6 +694,9 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 		// Convergence condition:
 		if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
 		{
+			// Rescale hair vertices to retain their original scale
+			HairTaskProcessor::rescaleGuideHair(aVertices, SCALE_FACTOR);
+
 			break;
 		}
 		// -------------------------------------------------------------------------------------

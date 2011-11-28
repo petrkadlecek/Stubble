@@ -19,7 +19,8 @@ void TranslateBrushMode::doBrush( HairTask *aTask )
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
-		dX = Vector3D< double >::transform(wdX, guide->mPosition.mLocalTransformMatrix);
+		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength; // Scale factor to be applied, so the brush behaves equally on all scales
+		dX = Vector3D< double >::transform(wdX, guide->mPosition.mLocalTransformMatrix) * SCALE_FACTOR;
 
 		// Loop through all guide segments except the first one (that's a follicle and should not move)
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)

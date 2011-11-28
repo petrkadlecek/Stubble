@@ -84,6 +84,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 											 }
 											break;
 			case HairShapeUI::kSelectAllVertices :
+			case HairShapeUI::kSelectGuides :
 												 selectionCondition = true;										 
 											break;
 			default :
@@ -98,11 +99,36 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			// If a hit has been recorded
 			if ((view.endSelect() > 0) && ( selectionCondition )) // for now we are just selecting the roots or the tips
 			{
-				sgmtInfo.mSelected = true; //TODO: use selection filter
-				selected = true;
-				// put this segment into the selected set that will later be passed on to maya's selection list
-				isAnythingSelected = true;
-				fnComponent.addElement( aGuidesVerticesStartIndices[gId] + sId );
+				if ( selMode == HairShapeUI::kSelectGuides )
+				{
+					selected = true;
+					// put all segments into the selected set that will later be passed on to maya's selection list
+					isAnythingSelected = true;
+					int start = aGuidesVerticesStartIndices[ gId ]; 
+					int end = start;
+					if ( gId == aGuidesVerticesStartIndices.size() - 1 )
+					{
+
+					}
+					else
+					{
+						end = aGuidesVerticesStartIndices[ gId + 1 ];
+					}
+
+					for ( int k = start; k < end; k++ )
+					{
+						fnComponent.addElement( k );
+					}
+					break;
+				}
+				else
+				{				
+					sgmtInfo.mSelected = true; //TODO: use selection filter
+					selected = true;
+					// put this segment into the selected set that will later be passed on to maya's selection list
+					isAnythingSelected = true;
+					fnComponent.addElement( aGuidesVerticesStartIndices[gId] + sId );
+				}
 			}
 			additionalInfo.push_back(sgmtInfo);
 		}
@@ -196,6 +222,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 												 }
 												break;
 				case HairShapeUI::kSelectAllVertices :
+				case HairShapeUI::kSelectGuides :
 												 selectionCondition = true;										 
 											break;
 				default :

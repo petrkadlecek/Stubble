@@ -21,6 +21,7 @@
 
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
+#include "../HapticListener.hpp"
 
 #include "../../HairTaskProcessor.hpp"
 

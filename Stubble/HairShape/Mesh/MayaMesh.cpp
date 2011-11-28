@@ -1,9 +1,12 @@
 #include "MayaMesh.hpp"
+#include "HairShape\UserInterface\HairShape.hpp"
 
 #include <maya\MIntArray.h>
 #include <maya\MFnMesh.h>
 #include <maya\MItMeshPolygon.h>
 #include <maya\MPointArray.h>
+#include <maya\MFnDagNode.h>
+#include <maya\MDagPathArray.h>
 
 namespace Stubble
 {
@@ -18,7 +21,8 @@ MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet):
 	// creating acceleration structure
 	mRestPoseMesh = new MFnMesh( aMesh );
 	mMeshIntersector = new MMeshIntersector();
-	mMeshIntersector->create( aMesh );
+
+	MStatus status = mMeshIntersector->create( aMesh, HairShape::getActiveObject()->getCurrentInclusiveMatrix() );
 
 	MItMeshPolygon iter( aMesh ); // Polygon iterator
 	MFnMesh fnMesh( aMesh ); // Mesh functions
@@ -202,7 +206,7 @@ inline unsigned __int32 MayaMesh::getTriangleCount() const
 void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 {
 	// updating acceleration structure
-	mMeshIntersector->create( aUpdatedMesh );
+	MStatus status = mMeshIntersector->create( aUpdatedMesh, HairShape::getActiveObject()->getCurrentInclusiveMatrix() );
 
 	delete mUpdatedMesh;
 	mUpdatedMesh = new MFnMesh( aUpdatedMesh );

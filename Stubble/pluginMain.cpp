@@ -14,6 +14,7 @@
 #include "HairShape/UserInterface/HairShape.hpp"
 #include "HairShape/UserInterface/HairShapeUI.hpp"
 #include "HairShape/UserInterface/SelectCommand.hpp"
+#include "HairShape/UserInterface/ReinitCommand.hpp"
 #include "HairShape/UserInterface/HistoryCommands.hpp"
 
 #include "HairShape\HairComponents\CommandsNURBS.hpp"
@@ -21,7 +22,9 @@
 
 #include "RibExport/RenderManCacheCommand.hpp"
 
+#include "Toolbox/Tools/TabletSettingsTool.hpp"
 #include "Toolbox/Tools/HapticSettingsTool.hpp"
+#include "Toolbox/Tools/HapticListener.hpp"
 #include "Toolbox/Tools/BrushTool/BrushTool.hpp"
 #include "Toolbox/Tools/CutTool/CutTool.hpp"
 
@@ -77,7 +80,7 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
-	// register HapticToolCommand
+	// register HapticSettingsToolCommand
 	status = plugin.registerContextCommand( Stubble::Toolbox::HapticSettingsToolCommand::sCommandName, 
 		Stubble::Toolbox::HapticSettingsToolCommand::creator );
 
@@ -85,6 +88,31 @@ EXPORT MStatus initializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "Could not register HapticSettingsToolCommand." );
+		return status;
+	}
+
+	// register TabletSettingsToolCommand
+	status = plugin.registerContextCommand( Stubble::Toolbox::TabletSettingsToolCommand::sCommandName, 
+		Stubble::Toolbox::TabletSettingsToolCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register TabletSettingsToolCommand." );
+		return status;
+	}
+
+  // register HapticListener
+  status = plugin.registerNode( Stubble::Toolbox::HapticListener::typeName,
+		              Stubble::Toolbox::HapticListener::typeId,
+		              Stubble::Toolbox::HapticListener::creator,
+		              Stubble::Toolbox::HapticListener::initialize,
+		              MPxNode::kLocatorNode );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "Could not register HapticListener." );
 		return status;
 	}
 
@@ -170,6 +198,17 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		status.perror( "could not register the StubbleRedoCommand command" );
 		return status;
 	}
+
+	// register StubbleReinitCommand command
+	status = plugin.registerCommand( "StubbleReinitCommand", Stubble::HairShape::ReinitCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleReinitCommand command" );
+		return status;
+	}
+
 	return status;
 }
 
@@ -284,6 +323,15 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not unregister the StubbleRedoCommand command" );
+	}
+
+	// deregister StubbleReinitCommand command
+	status = plugin.deregisterCommand( "StubbleReinitCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleReinitCommand command" );
 	}
 
 	// Clean up the brush worker thread

@@ -198,6 +198,36 @@ PartialStorage * SegmentsStorage::propagateChanges( const SelectedGuides & aSele
 	return tmpStorage;
 }
 
+PartialStorage * SegmentsStorage::reinitCuttedHair( Real aLength )
+{
+	// Prepare partial storage
+	PartialStorage * tmpStorage = new PartialStorage;
+	// For every guide
+	unsigned __int32 id = 0;
+	for ( GuidesSegments::iterator it = mCurrent.mSegments.begin(); it != mCurrent.mSegments.end(); ++it, ++id )
+	{
+		if ( it->mSegmentLength <= EPSILON )
+		{
+			// Store old values to tmp storage
+			tmpStorage->mIds.push_back( id ); // Store guide id
+			tmpStorage->mSegments.push_back( *it ); // Store old guide segments
+			// For every segment
+			Vector3D< Real > segmentPos;
+			Vector3D< Real > segmentSize( 0, 0, aLength / it->mSegments.size() );
+			for ( Segments::iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); ++segIt )
+			{
+				*segIt = segmentPos;
+				segmentPos += segmentSize; // Next segment position
+			}
+			// Set segment length
+			it->mSegmentLength = segmentSize.z;
+		}
+	}
+	// Current segments has been changed and need to be propagated through time
+	mAreCurrentSegmentsDirty = true;
+	return tmpStorage;
+}
+
 void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
@@ -273,7 +303,6 @@ void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegm
 
 	unsigned __int32 currentSgmtCount = (unsigned __int32)aGuideSegments.mSegments.size();
 	Real currentSgmtLength = aGuideSegments.mSegmentLength;
-	static const Real EPSILON = 0.0000001f;
 	if ( currentSgmtLength < EPSILON )
 	{
 		aGuideSegments.mSegments.resize( aCount, Vector3D< Real >() ); // Increase count
@@ -359,7 +388,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				}
 			}
 			// First check, if they are not on the same position
-			if ( first->mDistance < 0.0001f )
+			if ( first->mDistance < EPSILON )
 			{
 				// Just copy
 				guide =  aOldSegments.mSegments[ first->mGuideId ];

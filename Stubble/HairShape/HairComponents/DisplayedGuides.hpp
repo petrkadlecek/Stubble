@@ -53,8 +53,10 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Draws the guides using additional info - selection filter, hide/unhide non-selected guides, etc.
+	///
+	/// \param	aDrawVerts	should the hair vertices be drawn?
 	///-------------------------------------------------------------------------------------------------
-	void draw() const;
+	void draw( bool aDrawVerts = false ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
