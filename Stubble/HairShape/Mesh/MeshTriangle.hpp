@@ -4,8 +4,6 @@
 #include "Common\CommonConstants.hpp"
 #include "Common\CommonFunctions.hpp"
 
-#include <sstream>
-#include <string>
 #include <vector>
 
 namespace Stubble
@@ -61,19 +59,6 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline const unsigned __int32 & getLocalVertex3() const;
 
-	///-------------------------------------------------------------------------------------------------
-	/// Serialize object.
-	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Deserialize object.	
-	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
-	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
-
 private:
 
 	///< Identifier for the face
@@ -128,26 +113,6 @@ inline const unsigned __int32 & MeshTriangle::getLocalVertex2() const
 inline const unsigned __int32 & MeshTriangle::getLocalVertex3() const
 {
 	return mLocalVertex3ID;
-}
-
-
-inline std::string MeshTriangle::serialize() const
-{
-	std::ostringstream oss;
-	oss << Stubble::serialize< unsigned __int32 >( mFaceID )
-		<< Stubble::serialize< unsigned __int32 >( mLocalVertex1ID )
-		<< Stubble::serialize< unsigned __int32 >( mLocalVertex2ID )
-		<< Stubble::serialize< unsigned __int32 >( mLocalVertex3ID );		
-	return oss.str();
-}
-
-inline size_t MeshTriangle::deserialize( const std::string &aStr, size_t aPos )
-{
-	mFaceID = Stubble::deserialize< unsigned __int32 >( aStr, aPos );
-	mLocalVertex1ID = Stubble::deserialize< unsigned __int32 >( aStr, aPos );
-	mLocalVertex2ID = Stubble::deserialize< unsigned __int32 >( aStr, aPos );
-	mLocalVertex3ID = Stubble::deserialize< unsigned __int32 >( aStr, aPos );
-	return aPos;
 }
 
 } // namespace HairShape

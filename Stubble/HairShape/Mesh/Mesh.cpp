@@ -22,7 +22,7 @@ Mesh::Mesh( std::istream & aInStream, bool aCalculateDerivatives )
 	// Bounding box will not be calculated, it is not required in 3Delight
 }
 
-Mesh::Mesh( const Triangles &aTriangles , bool aCalculateDerivatives )
+Mesh::Mesh( const Triangles &aTriangles, bool aCalculateDerivatives )
 {
 	// Load triangles count
 	mTriangles = aTriangles;
@@ -45,6 +45,24 @@ void Mesh::exportMesh( std::ostream & aOutputStream ) const
 	for ( Triangles::const_iterator it = mTriangles.begin(); it != mTriangles.end(); ++it )
 	{
 		it->exportTriangle( aOutputStream );
+	}
+}
+
+void Mesh::importMesh( std::istream & aInputStream )
+{
+	// Load triangles count
+	unsigned __int32 trianglesCount;
+	aInputStream.read( reinterpret_cast< char * >( &trianglesCount ), sizeof( unsigned __int32 ) );
+	assert( trianglesCount == mTriangles.size() );
+	mBoundingBox.clear();
+	// Load all triangles
+	for ( Triangles::iterator it = mTriangles.begin(); it != mTriangles.end(); ++it )
+	{
+		*it = Triangle( aInputStream );
+		// Expand bbox
+		mBoundingBox.expand( it->getVertex1().getPosition() );
+		mBoundingBox.expand( it->getVertex2().getPosition() );
+		mBoundingBox.expand( it->getVertex3().getPosition() );
 	}
 }
 

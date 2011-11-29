@@ -146,6 +146,8 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates new HairShape.
+	/// 
+	/// \return	New Hair Shape as void pointer.
 	///----------------------------------------------------------------------------------------------------
 	static void *creator();
 
@@ -251,26 +253,36 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the currect maya mesh.
+	/// 
+	/// \return	Current maya mesh.
 	///----------------------------------------------------------------------------------------------------
-	inline MayaMesh * getCurrentMesh() const;
+	inline const MayaMesh & getCurrentMesh() const;
 		
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize plugin data.
+	/// 
+	/// \return	Serialized Hair Shape.
 	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
+	std::string serialize() const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Deserialize and reconstruct plugin data.
+	/// 
+	/// \param	Serialized Hair Shape.
+	///-------------------------------------------------------------------------------------------------
+	void deserialize( const std::string & aData );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the current maya mesh inclusive matrix
+	/// 
+	/// \return	Get current maya mesh inclusive matrix.
 	///----------------------------------------------------------------------------------------------------
 	inline MMatrix getCurrentInclusiveMatrix() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Deserialize and reconstruct plugin data.
-	///-------------------------------------------------------------------------------------------------
-	inline void deserialize( const std::string &data );
-
-	///-------------------------------------------------------------------------------------------------
 	/// Return this as MObject
+	/// 
+	/// \return	Return this Hair Shape as MObject.
 	///-------------------------------------------------------------------------------------------------
 	inline MObject asMObject();
 
@@ -432,30 +444,14 @@ inline void HairShape::reinitCuttedHair()
 	mHairGuides->reinitCuttedHair( getScaleFactor() );
 }
 
-inline MayaMesh * HairShape::getCurrentMesh() const
+inline const MayaMesh & HairShape::getCurrentMesh() const
 {
-	return mMayaMesh;
+	return *mMayaMesh;
 }
 
 inline MMatrix HairShape::getCurrentInclusiveMatrix() const
 {
 	return mConnectedMeshPath.inclusiveMatrix();
-}
-
-inline std::string HairShape::serialize() const
-{
-	std::ostringstream oss;
-	oss << mMayaMesh->serialize()
-		<< mHairGuides->serialize();
-	return oss.str();
-}
-
-inline void HairShape::deserialize( const std::string &data )
-{	
-	size_t pos = mMayaMesh->deserialize( data, 0 );
-	mHairGuides->deserialize( data, pos, mMayaMesh, *mInterpolationGroups );
-	mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(),
-		*this, mGenDisplayCount );
 }
 
 inline MObject HairShape::asMObject()

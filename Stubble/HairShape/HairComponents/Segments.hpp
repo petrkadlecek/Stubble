@@ -35,16 +35,17 @@ struct OneGuideSegments
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
+	/// 
+	/// \param	aOutputStream	Output stream
 	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
+	inline void serialize( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Deserialize object.	
 	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
+	/// \param	aInputStream	Input stream
 	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
+	inline void deserialize( std::istream & aInputStream );
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -63,16 +64,17 @@ struct FrameSegments
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
+	/// 
+	/// \param	aOutputStream	Output stream
 	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
+	inline void serialize( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Deserialize object.	
 	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
+	/// \param	aInputStream	Input stream
 	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
+	inline void deserialize( std::istream & aInputStream );
 };
 
 ///-------------------------------------------------------------------------------------------------
@@ -102,34 +104,28 @@ struct PartialStorage
 
 // implementations of inline functions
 
-inline std::string OneGuideSegments::serialize() const
+inline void OneGuideSegments::serialize( std::ostream & aOutputStream ) const
 {
-	std::ostringstream oss;		
-	oss << Stubble::serialize< Real >( mSegmentLength )
-		<< Stubble::serializeObjects< Vector3D< Real > >( mSegments );
-	return oss.str();
+	Stubble::serialize( mSegmentLength, aOutputStream );
+	Stubble::serializePrimitives( mSegments, aOutputStream );
 }
 
-inline size_t OneGuideSegments::deserialize( const std::string &aStr, size_t aPos )
+inline void OneGuideSegments::deserialize( std::istream & aInputStream )
 {	
-	mSegmentLength = Stubble::deserialize< Real >( aStr, aPos );
-	mSegments = Stubble::deserializeObjects< Vector3D< Real > >( aStr, aPos );
-	return aPos;	
+	Stubble::deserialize( mSegmentLength, aInputStream );
+	Stubble::deserializePrimitives( mSegments, aInputStream );
 }
 
-inline std::string FrameSegments::serialize() const
+inline void FrameSegments::serialize( std::ostream & aOutputStream ) const
 {
-	std::ostringstream oss;	
-	oss << Stubble::serialize< Time >( mFrame )
-		<< Stubble::serializeObjects< OneGuideSegments >( mSegments );
-	return oss.str();
+	Stubble::serialize( mFrame, aOutputStream );
+	Stubble::serializeObjects( mSegments, aOutputStream );
 }
 
-inline size_t FrameSegments::deserialize( const std::string &aStr, size_t aPos )
+inline void FrameSegments::deserialize( std::istream & aInputStream )
 {	
-	mFrame = Stubble::deserialize< Time >( aStr, aPos );
-	mSegments = Stubble::deserializeObjects< OneGuideSegments >( aStr, aPos );
-	return aPos;	
+	Stubble::deserialize( mFrame, aInputStream );
+	Stubble::deserializeObjects( mSegments, aInputStream );
 }
 
 } // namespace HairComponents

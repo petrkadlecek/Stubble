@@ -104,16 +104,17 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
+	/// 
+	/// \param	aOutputStream	Output stream
 	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
+	void serialize( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Deserialize object.	
 	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
+	/// \param	aInputStream	Input stream
 	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
+	void deserialize( std::istream & aInputStream );
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer
@@ -194,21 +195,6 @@ inline void MayaMesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Tr
 	{
 		*outIt = getTriangle( *idIt );
 	}
-}
-
-inline std::string MayaMesh::serialize() const
-{
-	std::ostringstream oss;
-	oss << Stubble::serializeObjects< MeshTriangle >( mMeshTriangles )
-		<< mRestPose.serialize();		
-	return oss.str();
-}
-
-inline size_t MayaMesh::deserialize( const std::string &aStr, size_t aPos )
-{
-	mMeshTriangles = Stubble::deserializeObjects< MeshTriangle >( aStr, aPos );
-	aPos = mRestPose.deserialize( aStr, aPos );
-	return aPos;
 }
 
 } // namespace HairShape

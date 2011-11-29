@@ -214,6 +214,16 @@ void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 	mMeshUG.setDirty();
 }
 
+void MayaMesh::serialize( std::ostream & aOutputStream ) const
+{
+	mRestPose.exportMesh( aOutputStream );		
+}
+
+void MayaMesh::deserialize( std::istream & aInputStream  )
+{
+	mRestPose.importMesh( aInputStream );	
+}
+
 MayaMesh::~MayaMesh()
 {
 	delete mUpdatedMesh;

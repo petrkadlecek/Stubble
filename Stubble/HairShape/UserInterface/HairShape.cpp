@@ -1,5 +1,6 @@
 #include "HairShape.hpp"
 
+#include "Common/Base64.hpp"
 #include "Common/GLExtensions.hpp"
 #include "Common/CommonConstants.hpp"
 
@@ -287,6 +288,28 @@ void HairShape::draw()
 	}
 }
 
+std::string HairShape::serialize() const
+{
+	std::ostringstream oss;
+	mMayaMesh->serialize( oss );
+	mHairGuides->serialize( oss );
+	std::string s = oss.str();
+	return base64_encode( reinterpret_cast< const unsigned char* >( s.c_str() ), 
+		static_cast< unsigned int >( s.length() ) );
+}
+
+void HairShape::deserialize( const std::string &aData )
+{	
+	std::istringstream iss( base64_decode( aData ) );
+	mMayaMesh->deserialize( iss );
+	mHairGuides->deserialize( *mMayaMesh, *mInterpolationGroups, iss );
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(),
+			*this, mGenDisplayCount );
+	}
+}
+
 // serialization callbacks
 
 static void saveSceneCallback( void * )
@@ -479,7 +502,7 @@ void HairShape::refreshTextures()
 {
 	bool densityChanged, interpolationGroupsChanged, hairPropertiesChanged;
 	// Actual refresh textures
-	MayaHairProperties::refreshTextures(mSampleTextureDimension, densityChanged,
+	MayaHairProperties::refreshTextures( mSampleTextureDimension, densityChanged,
 		interpolationGroupsChanged, hairPropertiesChanged );
 	// React on refreshed textures
 	if ( interpolationGroupsChanged )

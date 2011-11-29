@@ -161,6 +161,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\Base64.cpp" />
     <ClCompile Include="Common\GLExtensions.cpp" />
     <ClCompile Include="HairShape\Generators\RandomGenerator.cpp" />
     <ClCompile Include="HairShape\Generators\UVPointGenerator.cpp" />
@@ -214,6 +215,7 @@
     <ClCompile Include="Toolbox\Tools\TabletSettingsTool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\Base64.hpp" />
     <ClInclude Include="Common\CatmullRomUtilities.hpp" />
     <ClInclude Include="Common\CommonConstants.hpp" />
     <ClInclude Include="Common\CommonFunctions.hpp" />
