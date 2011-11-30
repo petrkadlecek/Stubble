@@ -349,7 +349,7 @@ MStatus MayaHairProperties::initializeAttributes()
 }
 
 void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
-		bool & aSegmentsCountChanged, bool & aHairPropertiesChanged )
+		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged )
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	aSegmentsCountChanged = aHairPropertiesChanged = false;
@@ -378,6 +378,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 				mInterpolationGroupsSelectable[i] = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 			}
 		}
+		aInterpolationGroupsSelectableChanged = true;
 		return;
 	}
 	if ( aPlug == densityTextureAttr )

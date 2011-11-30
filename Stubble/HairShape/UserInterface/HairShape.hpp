@@ -155,6 +155,13 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Checks if the given interpolation group is currently selectable.
+	/// 
+	/// \param	aGroupIndex		The index of the interpolation group.
+	///----------------------------------------------------------------------------------------------------
+	bool isInterpolationGroupSelectable( unsigned __int32 aGroupIndex );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
 	/// demand and it's dirty flag is never set by HairGuides class.
 	///

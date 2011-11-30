@@ -81,8 +81,8 @@ HairShape::HairShape():
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
 	// Sets active object
 	mActiveHairShapeNode = this;
-	int size = mInterpolationGroupsSelectable.size();
-	int dummy = 0;
+	// initialize the vector to a random size that is greater than the max
+	mInterpolationGroupsSelectable.resize( 50, 1 );
 }
 
 void HairShape::postConstructor()
@@ -280,8 +280,9 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	// Set hair properties values
 	bool segmentsCountChanged;
+	bool interpolationGroupsSelectableChanged;
 	bool hairPropertiesChanged;
-	MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, hairPropertiesChanged );
+	MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, interpolationGroupsSelectableChanged, hairPropertiesChanged );
 	// Calls this always, it cost nothing..
 	if ( mHairGuides != 0 )
 	{
@@ -297,7 +298,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			hairPropertiesChanged = false; // Already handled
 		}
 		return false;
-	}
+	}	
 	if ( hairPropertiesChanged )
 	{
 		if ( mDisplayInterpolated )
@@ -454,6 +455,11 @@ void HairShape::draw()
 	{
 		mInterpolatedHair.draw();
 	}
+}
+
+bool HairShape::isInterpolationGroupSelectable( unsigned __int32 aGroupIndex )
+{
+	return this->mInterpolationGroupsSelectable.at( aGroupIndex );
 }
 
 void HairShape::componentToPlugs( MObject &aComponent,  MSelectionList &aList ) const
@@ -1032,7 +1038,7 @@ inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirs
 	attr = nAttr.create( "interpolation_groups_selectable", "igs", &s );
 	nAttr.setInternal( true );
 	// Add children -> counts
-	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 0 );
+	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 1 );
 	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
 	// Add attr
 	s = node.addAttribute( attr );

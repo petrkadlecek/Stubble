@@ -218,11 +218,12 @@ protected:
 	///
 	/// \param	aPlug							Which attribute is being set.
 	/// \param	aDataHandle						Handle to data storage. 
-	/// \param [in,out]	aSegmentsCountChanged	The segments count has changed. 
+	/// \param [in,out]	aSegmentsCountChanged	The segments count has changed.
+	/// \param [in,out]	aSegmentsCountChanged	The selectable interpolation groups attribute has changed.
 	/// \param [in,out]	aHairPropertiesChanged	The hair properties has changed. 
 	///----------------------------------------------------------------------------------------------------
 	void setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
-		bool & aSegmentsCountChanged, bool & aHairPropertiesChanged);
+		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Brakes a connection to plug on our node.
