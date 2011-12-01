@@ -474,6 +474,7 @@ void HairGuides::deserialize( const MayaMesh & aMayaMesh, const Interpolation::I
 	}
 	// Generate hair guides current positions
 	mCurrentPositions.clear();
+	mCurrentPositions.reserve( mRestPositions.size() );
 	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
 		++restPosIt )
 	{		
@@ -485,6 +486,7 @@ void HairGuides::deserialize( const MayaMesh & aMayaMesh, const Interpolation::I
 	}
 	// Set dirty to all internal data
 	refreshInterpolationGroupIds( aInterpolationGroups );
+	mRestPositionsUG.setDirty();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();

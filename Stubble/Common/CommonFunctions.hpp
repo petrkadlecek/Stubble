@@ -342,7 +342,7 @@ inline void deserialize( std::string & aVar, std::istream & aInputStream )
 	// Copy to string
 	aVar = buff;
 	// Free buffer
-	delete buff;
+	delete [] buff;
 }
 
 ///-------------------------------------------------------------------------------------------------

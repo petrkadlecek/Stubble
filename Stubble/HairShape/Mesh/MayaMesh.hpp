@@ -134,11 +134,9 @@ private:
 
 	Mesh mRestPose; ///< Rest pose mesh
 	
-	MFnMesh * mRestPoseMesh; ///< Rest pose maya mesh
-
 	MMeshIntersector * mMeshIntersector; ///< Acceleration structure for finding closest point on the mesh
 
-	MFnMesh * mUpdatedMesh; ///< The updated mesh
+	MFnMesh * mMayaMesh; ///< The maya mesh
 	
 	MString mUVSet; ///< UV Set name
 
@@ -161,7 +159,7 @@ inline MMeshIntersector * MayaMesh::getMeshIntersector() const
 
 inline MFnMesh * MayaMesh::getMayaMesh() const
 {
-	return mUpdatedMesh ? mUpdatedMesh : mRestPoseMesh;
+	return mMayaMesh;
 }
 
 inline const MeshUG & MayaMesh::getMeshUG() const

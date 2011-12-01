@@ -15,11 +15,10 @@ namespace HairShape
 {
 
 MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet): 
-	mUpdatedMesh( 0 ),
 	mUVSet( aUVSet )
 {
 	// creating acceleration structure
-	mRestPoseMesh = new MFnMesh( aMesh );
+	mMayaMesh = new MFnMesh( aMesh );
 	mMeshIntersector = new MMeshIntersector();
 
 	MStatus status = mMeshIntersector->create( aMesh, HairShape::getActiveObject()->getCurrentInclusiveMatrix() );
@@ -89,10 +88,6 @@ MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet):
 
 MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 {
-	if ( mUpdatedMesh == 0 )
-	{
-		return mRestPose.getMeshPoint( aPoint );
-	}
 
 	// First select full barycentric coordinates
 	double u = aPoint.getU();
@@ -105,32 +100,32 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	// Get vertices indices
 	int3 indices;
 	MIntArray vertices;
-	mUpdatedMesh->getPolygonVertices( triangle.getFaceID(), vertices );
+	mMayaMesh->getPolygonVertices( triangle.getFaceID(), vertices );
 	indices[ 0 ] = vertices[ triangle.getLocalVertex1() ];
 	indices[ 1 ] = vertices[ triangle.getLocalVertex2() ];
 	indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
 
 	// Calculate position of point
 	MPoint point, tmpPoint;
-	mUpdatedMesh->getPoint( indices[ 0 ], point, MSpace::kWorld );
-	mUpdatedMesh->getPoint( indices[ 1 ], tmpPoint, MSpace::kWorld );
+	mMayaMesh->getPoint( indices[ 0 ], point, MSpace::kWorld );
+	mMayaMesh->getPoint( indices[ 1 ], tmpPoint, MSpace::kWorld );
 	point = point * u + tmpPoint * v;
-	mUpdatedMesh->getPoint( indices[ 2 ], tmpPoint, MSpace::kWorld );
+	mMayaMesh->getPoint( indices[ 2 ], tmpPoint, MSpace::kWorld );
 	point += tmpPoint * w;
 
 	// Calculate normal
 	MVector normal1, normal2, normal3;
-	mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normal1, MSpace::kWorld );
-	mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 1 ], normal2, MSpace::kWorld );
-	mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 2 ], normal3, MSpace::kWorld );
+	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normal1, MSpace::kWorld );
+	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 1 ], normal2, MSpace::kWorld );
+	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 2 ], normal3, MSpace::kWorld );
 	MVector normal = normal1 * u + normal2 * v + normal3 * w;
 	normal.normalize();
 
 	// Calculate tangent
 	MVector tangent1, tangent2, tangent3;
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, &mUVSet );
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, &mUVSet );
-	mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, &mUVSet );
+	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, &mUVSet );
+	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, &mUVSet );
+	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, &mUVSet );
 	MVector tangent = tangent1 * u + tangent2 * v + tangent3 * w;
 
 	// Orthonormalize tangent to normal
@@ -140,13 +135,13 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	// Calculate texture coordinates
 	double textU, textV;
 	float tmpU, tmpV;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, &mUVSet);
+	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, &mUVSet);
 	textU = tmpU * u;
 	textV = tmpV * u;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, &mUVSet);
+	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, &mUVSet);
 	textU += tmpU * v;
 	textV += tmpV * v;
-	mUpdatedMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, &mUVSet);
+	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, &mUVSet);
 	textU += tmpU * ( 1 - u - v );
 	textV += tmpV * ( 1 - u - v );
 
@@ -156,46 +151,39 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 
 inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 {
-	if(mUpdatedMesh == 0)
+	// Get triangle
+	const MeshTriangle & triangle = mMeshTriangles [ aID ];
+
+	// points store variables
+	int3 indices;
+	int3 local_indices;
+	float3 textU, textV;
+	MPoint points[ 3 ];
+	MVector normals[ 3 ];
+	MVector tangents[ 3 ];
+	MeshPoint meshPoints[ 3 ];
+
+	MIntArray vertices;
+	mMayaMesh->getPolygonVertices( triangle.getFaceID(), vertices );
+	indices[ 0 ] = vertices[ triangle.getLocalVertex1() ];
+	indices[ 1 ] = vertices[ triangle.getLocalVertex2() ];
+	indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
+	local_indices[ 0 ] = triangle.getLocalVertex1();
+	local_indices[ 1 ] = triangle.getLocalVertex2();
+	local_indices[ 2 ] = triangle.getLocalVertex3();
+
+	for( unsigned __int32 i = 0; i < 3; ++i)
 	{
-		return mRestPose.getTriangle( aID );
+		mMayaMesh->getPoint( indices[ i ], points [ i ], MSpace::kWorld );
+		mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ i ], normals[ i ], MSpace::kWorld );
+		mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ i ], tangents[ i ], MSpace::kWorld, &mUVSet );
+		mMayaMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet);
+
+		meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
+			Vector3D < Real > ( points[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
 	}
-	else
-	{
-		// Get triangle
-		const MeshTriangle & triangle = mMeshTriangles [ aID ];
 
-		// points store variables
-		int3 indices;
-		int3 local_indices;
-		float3 textU, textV;
-		MPoint points[ 3 ];
-		MVector normals[ 3 ];
-		MVector tangents[ 3 ];
-		MeshPoint meshPoints[ 3 ];
-
-		MIntArray vertices;
-		mUpdatedMesh->getPolygonVertices( triangle.getFaceID(), vertices );
-		indices[ 0 ] = vertices[ triangle.getLocalVertex1() ];
-		indices[ 1 ] = vertices[ triangle.getLocalVertex2() ];
-		indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
-		local_indices[ 0 ] = triangle.getLocalVertex1();
-		local_indices[ 1 ] = triangle.getLocalVertex2();
-		local_indices[ 2 ] = triangle.getLocalVertex3();
-
-		for( unsigned __int32 i = 0; i < 3; ++i)
-		{
-			mUpdatedMesh->getPoint( indices[ i ], points [ i ], MSpace::kWorld );
-			mUpdatedMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ i ], normals[ i ], MSpace::kWorld );
-			mUpdatedMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ i ], tangents[ i ], MSpace::kWorld, &mUVSet );
-			mUpdatedMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet);
-
-			meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
-				Vector3D < Real > ( points[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
-		}
-
-		return Triangle( meshPoints[0], meshPoints[1], meshPoints[2] );
-	}
+	return Triangle( meshPoints[0], meshPoints[1], meshPoints[2] );
 }
 
 inline unsigned __int32 MayaMesh::getTriangleCount() const
@@ -208,8 +196,8 @@ void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 	// updating acceleration structure
 	MStatus status = mMeshIntersector->create( aUpdatedMesh, HairShape::getActiveObject()->getCurrentInclusiveMatrix() );
 
-	delete mUpdatedMesh;
-	mUpdatedMesh = new MFnMesh( aUpdatedMesh );
+	delete mMayaMesh;
+	mMayaMesh = new MFnMesh( aUpdatedMesh );
 	mUVSet = aUVSet;
 	mMeshUG.setDirty();
 }
@@ -226,23 +214,17 @@ void MayaMesh::deserialize( std::istream & aInputStream  )
 
 MayaMesh::~MayaMesh()
 {
-	delete mUpdatedMesh;
+	delete mMayaMesh;
+	delete mMeshIntersector;
 }
 
 void MayaMesh::getTriangles( Triangles & aResult ) const
 {
-	if ( mUpdatedMesh == 0 )
+	aResult.clear();
+	aResult.reserve( mMeshTriangles.size() );
+	for ( unsigned __int32 i = 0; i < aResult.size(); ++i )
 	{
-		aResult = mRestPose.mTriangles; // Copies from rest pose
-	}
-	else
-	{
-		aResult.clear();
-		aResult.reserve( mMeshTriangles.size() );
-		for ( unsigned __int32 i = 0; i < aResult.size(); ++i )
-		{
-			aResult.push_back( getTriangle( i ) );
-		}
+		aResult.push_back( getTriangle( i ) );
 	}
 }
 

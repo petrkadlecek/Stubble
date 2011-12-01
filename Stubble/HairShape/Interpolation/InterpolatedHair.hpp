@@ -188,20 +188,6 @@ inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, co
 
 inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const HairProperties & aHairProperties )
 {
-	// Get hair strand count
-	unsigned __int32 count = aHairProperties.getMultiStrandCount();
-	count = count == 0 ? 1 : count;
-	// For every thread - multi threaded
-	#pragma omp parallel for
-	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
-	{
-		ThreadData * it = mThreads + i;
-		if ( it->mHairCount > 0 )
-		{
-			// Move all hair points to local space
-			it->mOutputGenerator.recalculateToLocalSpace( it->mGeneratedPositions, count );
-		}
-	}
 	// Iterates over all used positions
 	const MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mHairCount;
 	for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
@@ -209,17 +195,7 @@ inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const H
 		// Alter hair points local space
 		it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
 	}
-	// For every thread - multi threaded
-	#pragma omp parallel for
-	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
-	{
-		ThreadData * it = mThreads + i;
-		if ( it->mHairCount > 0 )
-		{
-			// Move all hair points to world space
-			it->mOutputGenerator.recalculateToWorldSpace( it->mGeneratedPositions, count );
-		}
-	}
+	propertiesUpdate( aHairProperties );
 }
 
 inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProperties )

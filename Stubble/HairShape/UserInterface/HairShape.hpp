@@ -214,8 +214,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh all dirty textures. 
+	/// 
+	/// \param aForceRefresh	Should we refresh all textures ?
 	///----------------------------------------------------------------------------------------------------
-	void refreshTextures();
+	void refreshTextures( bool aForceRefresh = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets this HairShape as active object. 

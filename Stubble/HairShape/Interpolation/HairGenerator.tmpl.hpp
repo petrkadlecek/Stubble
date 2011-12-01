@@ -740,7 +740,7 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 		else // Did not reach 
 		{
-			iterationEnd = t >= 1; // Reached curve end ?
+			iterationEnd = ( t + step ) > 1; // Reached curve end ?
 			if ( !iterationEnd && t != 0 && skipPoint( aPoints, aTangents ) )
 			{
 				continue; // Skip this point
@@ -932,7 +932,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 		else // Did not reach 
 		{
-			iterationEnd = t >= 1; // Reached curve end ?
+			iterationEnd = ( t + step ) > 1; // Reached curve end ?
 			if ( !iterationEnd && t != 0 && skipPoint( aPoints, aTangents ) )
 			{
 				continue; // Skip this point
