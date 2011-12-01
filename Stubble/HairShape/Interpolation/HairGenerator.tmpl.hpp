@@ -87,16 +87,16 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const Hair
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
-		// Check degenerate
-		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
-		{
-			continue; // The hair has degenerated to zero length
-		}
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
+		// Check degenerate
+		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
+		{
+			continue; // The hair has degenerated to zero length
+		}
 		// Calculate local space to current world space transform
 		currPos.getWorldTransformMatrix( localToCurr );
 		// Select hair color, opacity and width
@@ -237,16 +237,16 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
 		interpolateFromGuides( pointsPlusOne, ptsCountAfterCut, restPos, groupId );
-		// Check degenerate
-		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
-		{
-			continue; // The hair has degenerated to zero length
-		}
 		// Apply scale to points 
 		applyScale( pointsPlusOne, ptsCountAfterCut, restPos );
 		// Apply frizz and kink to points 
 		applyFrizz( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
 		applyKink( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut, restPos );
+		// Check degenerate
+		if ( checkDegenerateHair( pointsPlusOne, ptsCountAfterCut, ptsCountBeforeCut ) )
+		{
+			continue; // The hair has degenerated to zero length
+		}
 		// Calculate local space to current world space transform
 		currPos.getWorldTransformMatrix( localToCurr );
 		// Fake select hair color, opacity and width -> only executes several random number calculations
@@ -304,7 +304,7 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 	}
 	// Enlarge bounding box by hair thickness
-	Real maxThick = std::max( mHairProperties->getRootThickness(), mHairProperties->getTipThickness() );
+	Real maxThick = std::max( mHairProperties->getRootThickness(), mHairProperties->getTipThickness() ) * 0.5;
 	Vector3D< Real > thickVector( maxThick, maxThick, maxThick );
 	aBoundingBox.expand( aBoundingBox.max() + thickVector );
 	aBoundingBox.expand( aBoundingBox.min() - thickVector );

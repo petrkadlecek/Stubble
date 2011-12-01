@@ -238,6 +238,9 @@
     <ClCompile Include="HairShape\UserInterface\ReinitCommand.cpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Base64.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -459,6 +462,10 @@
     <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
+    <ClInclude Include="Common\StubbleTimer.hpp" />
+    <ClInclude Include="Common\Base64.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="MEL\StubbleCreateHair.mel">
@@ -506,5 +513,6 @@
     <None Include="MEL\StubbleHapticSettingsToolValues.mel">
       <Filter>MEL\StubbleHapticSettingsTool</Filter>
     </None>
+    <None Include="MEL\StubbleTextureProperties.mel" />
   </ItemGroup>
 </Project>

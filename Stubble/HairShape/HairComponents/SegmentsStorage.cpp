@@ -333,6 +333,36 @@ void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegm
 	aGuideSegments.mSegments = newSegments;
 }
 
+void SegmentsStorage::serialize( std::ostream & aOutputStream ) const
+{
+	Stubble::serialize( mAreCurrentSegmentsDirty, aOutputStream );
+	mCurrent.serialize( aOutputStream );
+	Stubble::serialize( static_cast< unsigned __int32 >( mSegments.size() ), aOutputStream );
+	// over all frames
+	for ( AllFramesSegments::const_iterator it = mSegments.begin(); it != mSegments.end(); it++ )
+	{
+		Stubble::serialize( it->first, aOutputStream );
+		it->second.serialize( aOutputStream );		
+	}
+}
+
+void SegmentsStorage::deserialize( std::istream & aInputStream )
+{	
+	Stubble::deserialize( mAreCurrentSegmentsDirty, aInputStream );
+	mCurrent.deserialize( aInputStream );
+	unsigned __int32 frameCount;
+	Stubble::deserialize( frameCount, aInputStream );
+	mSegments.clear();
+	for ( unsigned __int32 i = 0; i < frameCount; ++i )
+	{
+		// First create frame and then deserialize it ( prevents copy pasting of huge data ! )
+		FrameSegments frameSegments;
+		Stubble::deserialize( frameSegments.mFrame, aInputStream );
+		mSegments.insert( std::make_pair( frameSegments.mFrame, frameSegments ) ). // Store
+			first->second.deserialize( aInputStream ); // Deserialize
+	}	
+}
+
 void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,

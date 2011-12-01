@@ -12,9 +12,6 @@
 
 #include <algorithm>
 #include <limits>
-#include <vector>
-#include <string>
-#include <sstream>
 
 namespace Stubble
 {
@@ -108,19 +105,6 @@ public:
 	/// \return	true if the object is in this bounding box, false if not. 
 	///-------------------------------------------------------------------------------------------------
 	inline bool contains( const BoundingBox & aBoundingBox ) const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Serialize object.
-	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;	
-
-	///-------------------------------------------------------------------------------------------------
-	/// Deserialize object.	
-	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
-	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 	Vector3D< Real > mMin; ///<	Minimum coordinate values.
@@ -227,21 +211,6 @@ inline bool BoundingBox::contains( const BoundingBox & aBoundingBox ) const
 			aBoundingBox.mMin.x >= mMin.x &&
 			aBoundingBox.mMin.y >= mMin.y &&
 			aBoundingBox.mMin.z >= mMin.z;
-}
-
-inline std::string BoundingBox::serialize() const
-{
-	std::ostringstream oss;
-	oss << mMin.serialize()
-		<< mMax.serialize();
-	return oss.str();
-}
-
-inline size_t BoundingBox::deserialize( const std::string &aStr, size_t aPos )
-{
-	aPos = mMin.deserialize( aStr, aPos );
-	aPos = mMax.deserialize( aStr, aPos );
-	return aPos;
 }
 
 } // Stubble

@@ -43,7 +43,7 @@ public:
 	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
 	/// 								calculated ( used for surface displacement )
 	///----------------------------------------------------------------------------------------------------
-	Mesh( const Triangles &aTriangles , bool aCalculateDerivatives = false );
+	Mesh( const Triangles &aTriangles, bool aCalculateDerivatives = false );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Exports mesh. 
@@ -51,6 +51,13 @@ public:
 	/// \param [in,out]	aOutputStream	The output stream. 
 	///-------------------------------------------------------------------------------------------------
 	void exportMesh( std::ostream & aOutputStream ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Imports mesh. 
+	///
+	/// \param [in,out]	aInputStream	The input stream. 
+	///-------------------------------------------------------------------------------------------------
+	void importMesh( std::istream & aInputStream );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets const triangle iterator.
@@ -120,19 +127,6 @@ public:
 	/// Gets mesh's bounding box
 	///----------------------------------------------------------------------------------------------------
 	inline BoundingBox getBoundingBox() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Serialize object.
-	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Deserialize object.	
-	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
-	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Finalizer.
@@ -299,21 +293,6 @@ inline unsigned __int32 Mesh::getTriangleCount() const
 inline BoundingBox Mesh::getBoundingBox() const
 {
 	return mBoundingBox;
-}
-
-inline std::string Mesh::serialize() const
-{
-	std::ostringstream oss;	
-	oss << Stubble::serializeObjects< Triangle >( mTriangles )
-		<< mBoundingBox.serialize();
-	return oss.str();
-}
-
-inline size_t Mesh::deserialize( const std::string &aStr, size_t aPos )
-{
-	mTriangles = Stubble::deserializeObjects< Triangle >( aStr, aPos );
-	aPos = mBoundingBox.deserialize( aStr, aPos );
-	return aPos;
 }
 
 inline Mesh::~Mesh()

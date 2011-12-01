@@ -247,125 +247,144 @@ inline void HSVtoRGB( tType * aRGB, const tType * aHSV )
 ///-------------------------------------------------------------------------------------------------
 /// Serialize a primitive type.
 ///
-/// \param	aVar				Variable to be serialized.
+/// \param	aVar			Variable to be serialized.
+/// \param	aOutputStream	Output stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline std::string serialize( Type aVar )
+inline void serialize( Type aVar, std::ostream & aOutputStream )
 {
-	std::ostringstream oss;
-	oss << aVar << SEPARATOR;
-	return oss.str();
+	aOutputStream.write( reinterpret_cast< const char * >( &aVar ), sizeof( Type ) );
+}
+
+///-------------------------------------------------------------------------------------------------
+/// Serialize a primitive type (string version).
+///
+/// \param	aVar			Variable to be serialized.
+/// \param	aOutputStream	Output stream
+///-------------------------------------------------------------------------------------------------
+template <>
+inline void serialize( std::string aVar, std::ostream & aOutputStream )
+{
+	unsigned __int32 length = static_cast< unsigned __int32 >( aVar.length() );
+	aOutputStream.write( reinterpret_cast< const char * >( &length ), sizeof( unsigned __int32 ) );
+	aOutputStream.write( aVar.c_str(), sizeof( char ) * length );
 }
 
 ///-------------------------------------------------------------------------------------------------
 /// Serialize primitive types from an STL vector.
 ///
-/// \param	aVector				Reference to vector that is serialized.
-/// \param	aIsPrimitiveType	Is Type a primitive type?
+/// \param	aVector			Reference to vector that will be serialized.
+/// \param	aOutputStream	Output stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline std::string serializePrimitives( const std::vector< Type > &aVector )
+inline void serializePrimitives( const std::vector< Type > &aVector, std::ostream & aOutputStream )
 {
-	std::ostringstream oss;
-	oss << aVector.size() << SEPARATOR; // store the number of elements
-
+	// Save vector size
+	unsigned __int32 size = static_cast< unsigned __int32 >( aVector.size() );
+	aOutputStream.write( reinterpret_cast< const char * >( &size ), sizeof( unsigned __int32 ) );
+	// For every member
 	std::vector< Type >::const_iterator it;
-	for ( it = aVector.begin(); it != aVector.end(); it++ ) // store the individual elements
+	for ( it = aVector.begin(); it != aVector.end(); ++it ) // store the individual elements
 	{		
-		oss << serialize< Type >( *it );
+		serialize( *it, aOutputStream );
 	}
-
-	return oss.str();
 }
 
 ///-------------------------------------------------------------------------------------------------
 /// Serialize objects from an STL vector.
 ///
-/// \param	aVector				Reference to vector that is serialized.
-/// \param	aIsPrimitiveType	Is Type a primitive type?
+/// \param	aVector			Reference to vector that will be serialized.
+/// \param	aOutputStream	Output stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline std::string serializeObjects( const std::vector< Type > &aVector )
+inline void serializeObjects( const std::vector< Type > &aVector, std::ostream & aOutputStream )
 {
-	std::ostringstream oss;
-	oss << aVector.size() << SEPARATOR; // store the number of elements
-
+	// Save vector size
+	unsigned __int32 size = static_cast< unsigned __int32 >( aVector.size() );
+	aOutputStream.write( reinterpret_cast< const char * >( &size ), sizeof( unsigned __int32 ) );
+	// For every member
 	std::vector< Type >::const_iterator it;
-	for ( it = aVector.begin(); it != aVector.end(); it++ ) // store the individual elements
+	for ( it = aVector.begin(); it != aVector.end(); ++it ) // store the individual elements
 	{		
-		oss << it->serialize();	
+		it->serialize( aOutputStream );
 	}
-
-	return oss.str();
 }
 
 ///-------------------------------------------------------------------------------------------------
 /// Deserialize a primitive type.
 ///
-/// \param	aStr				String from which to read.
-/// \param	[in,out] aPos		Position at which to start.
-///								Is set to point after the last deserialized object.
+/// \param	aVar			Variable to contain deserialized value.
+/// \param	aInputStream	Input stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline Type deserialize( const std::string &aStr, size_t &aPos )
+inline void deserialize( Type & aVar, std::istream & aInputStream )
 {
-	assert( aStr.size() > aPos );
-	size_t nextSeparator = aStr.find( SEPARATOR, aPos );
-	std::istringstream iss( aStr.substr( aPos, nextSeparator - aPos ) );
-	aPos = nextSeparator + 1; // jump to the beginning of next object
-
-	Type out;
-	iss >> out;
-	return out;
+	aInputStream.read( reinterpret_cast< char * >( &aVar ), sizeof( Type ) );
 }
 
+///-------------------------------------------------------------------------------------------------
+/// Deserialize a primitive type (string reference version).
+///
+/// \param	aVar			Variable to contain deserialized value.
+/// \param	aInputStream	Input stream
+///-------------------------------------------------------------------------------------------------
+template <>
+inline void deserialize( std::string & aVar, std::istream & aInputStream )
+{
+	// Read string length
+	unsigned __int32 length;
+	aInputStream.read( reinterpret_cast< char * >( &length ), sizeof( unsigned __int32 ) );
+	// Create buffer
+	char * buff = new char[ length + 1 ];
+	buff[ length ] = '\0';
+	// Fill buffer
+	aInputStream.read( buff, sizeof( char ) * length );
+	// Copy to string
+	aVar = buff;
+	// Free buffer
+	delete buff;
+}
 
 ///-------------------------------------------------------------------------------------------------
 /// Deserialize primitive types into an STL vector.
 ///
-/// \param	aStr				String from which to read.
-/// \param	[in,out] aPos		Position at which to start.
-///								Is set to point after the last deserialized object.
-/// \param	aIsPrimitiveType	Is Type a primitive type?
+/// \param	aVector			Vector to contain deserialized values.
+/// \param	aInputStream	Input stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline std::vector< Type > deserializePrimitives( const std::string &aStr, size_t &aPos )
+inline void deserializePrimitives( std::vector< Type > & aVector, std::istream & aInputStream )
 {
-	assert( aStr.size() > aPos );
-	size_t count = deserialize< size_t >( aStr, aPos );
-	std::vector< Type > out;
-	out.reserve( count );
-	for ( size_t i = 0; i < count; i++ )
-	{		
-		out.push_back( deserialize< Type >( aStr, aPos ) );	
+	// Load vector size
+	unsigned __int32 size;
+	aInputStream.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
+	// Resize vector
+	aVector.resize( size );
+	std::vector< Type >::iterator it;
+	for ( it = aVector.begin(); it != aVector.end(); ++it ) // store the individual elements
+	{	
+		deserialize( *it, aInputStream );
 	}
-
-	return out;
 }
 
 ///-------------------------------------------------------------------------------------------------
 /// Deserialize objects into an STL vector.
 ///
-/// \param	aStr				String from which to read.
-/// \param	[in,out] aPos		Position at which to start.
-///								Is set to point after the last deserialized object.
-/// \param	aIsPrimitiveType	Is Type a primitive type?
+/// \param	aVector			Vector to contain deserialized objects.
+/// \param	aInputStream	Input stream
 ///-------------------------------------------------------------------------------------------------
 template < typename Type >
-inline std::vector< Type > deserializeObjects( const std::string &aStr, size_t &aPos )
+inline void deserializeObjects( std::vector< Type > & aVector, std::istream & aInputStream )
 {
-	assert( aStr.size() > aPos );
-	size_t count = deserialize< size_t >( aStr, aPos );
-	std::vector< Type > out;
-	out.reserve( count );
-	for ( size_t i = 0; i < count; i++ )
-	{		
-		Type newElement;
-		aPos = newElement.deserialize( aStr, aPos );
-		out.push_back( newElement );		
+	// Load vector size
+	unsigned __int32 size;
+	aInputStream.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
+	// Resize vector
+	aVector.resize( size );
+	std::vector< Type >::iterator it;
+	for ( it = aVector.begin(); it != aVector.end(); ++it ) // store the individual elements
+	{	
+		it->deserialize( aInputStream );
 	}
-
-	return out;
 }
 
 } // namespace Stubble

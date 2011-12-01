@@ -5,10 +5,6 @@
 #include "Common\CommonConstants.hpp"
 #include "Common\CommonFunctions.hpp"
 
-#include <vector>
-#include <sstream>
-#include <string>
-
 namespace Stubble
 {
 
@@ -112,19 +108,6 @@ public:
 	/// Recalculates derivatives. 
 	///-------------------------------------------------------------------------------------------------
 	inline void recalculateDerivatives();
-
-	///-------------------------------------------------------------------------------------------------
-	/// Serialize object.
-	///-------------------------------------------------------------------------------------------------
-	inline std::string serialize() const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Deserialize object.	
-	///
-	/// \param	aStr	String from which to read.
-	/// \param	aPos	Position at which to start.
-	///-------------------------------------------------------------------------------------------------
-	inline size_t deserialize( const std::string &aStr, size_t aPos );
 
 private:
 
@@ -261,31 +244,6 @@ inline void Triangle::recalculateDerivatives()
 		mDNDU = ( dn1 * dv2 - dn2 * dv1 ) * invDet;
 		mDNDV = ( -dn1 * du2 + dn2 * du1 ) * invDet;
 	}
-}
-
-inline std::string Triangle::serialize() const
-{
-	std::ostringstream oss;
-	oss << mVertices[0].serialize()
-		<< mVertices[1].serialize()
-		<< mVertices[2].serialize()
-		<< mDPDU.serialize()
-		<< mDPDV.serialize()
-		<< mDNDU.serialize()
-		<< mDNDV.serialize();
-	return oss.str();
-}
-
-inline size_t Triangle::deserialize( const std::string &aStr, size_t aPos )
-{
-	aPos = mVertices[0].deserialize( aStr, aPos );
-	aPos = mVertices[1].deserialize( aStr, aPos );
-	aPos = mVertices[2].deserialize( aStr, aPos );
-	aPos = mDPDU.deserialize( aStr, aPos );
-	aPos = mDPDV.deserialize( aStr, aPos );
-	aPos = mDNDU.deserialize( aStr, aPos );
-	aPos = mDNDV.deserialize( aStr, aPos );
-	return aPos;
 }
 
 } // namespace HairShape

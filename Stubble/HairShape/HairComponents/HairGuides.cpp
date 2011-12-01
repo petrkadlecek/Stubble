@@ -225,6 +225,8 @@ void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterp
 	refreshInterpolationGroupIds( aInterpolationGroups );
 	// All nurbs has been imported, set time back
 	MAnimControl::setCurrentTime( MAnimControl::minTime() );
+	// Clear curves names
+	mNurbsCurvesNames.clear();
 }
 
 void HairGuides::exportToNURBS()
@@ -464,6 +466,52 @@ void HairGuides::clearSelectedGuides()
 	}
 	mSelectedGuides.clear();
 	mSelectedSegmentsUG.setDirty();
+}
+
+void HairGuides::serialize( std::ostream & aOutputStream ) const
+{
+	// Convert curvesNames to vector of strings
+	std::vector< std::string > curvesNames;		
+	for ( unsigned int i = 0; i < mNurbsCurvesNames.length(); i++ )
+	{
+		curvesNames.push_back( mNurbsCurvesNames[ i ].asChar() );
+	}
+	// Serialize object
+	mSegmentsStorage->serialize( aOutputStream );
+	serializeObjects( mRestPositions, aOutputStream );
+	serializePrimitives( curvesNames, aOutputStream );
+}
+
+void HairGuides::deserialize( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
+		std::istream & aInputStream )
+{	
+	mSegmentsStorage->deserialize( aInputStream );
+	deserializeObjects( mRestPositions, aInputStream );
+	std::vector< std::string > curvesNames;
+	deserializePrimitives( curvesNames, aInputStream );
+	// Convert curvesNames back to maya representation
+	mNurbsCurvesNames.clear();
+	for ( std::vector< std::string >::const_iterator it = curvesNames.begin(); it != curvesNames.end(); it++ )
+	{
+		mNurbsCurvesNames.append( it->c_str() );
+	}
+	// Generate hair guides current positions
+	mCurrentPositions.clear();
+	for( GuidesRestPositions::iterator restPosIt = mRestPositions.begin(); restPosIt != mRestPositions.end(); 
+		++restPosIt )
+	{		
+		GuideCurrentPosition currPos;			
+		currPos.mPosition = aMayaMesh.getMeshPoint( restPosIt->mUVPoint );
+		currPos.mPosition.getLocalTransformMatrix( currPos.mLocalTransformMatrix );
+		currPos.mPosition.getWorldTransformMatrix( currPos.mWorldTransformMatrix );
+		mCurrentPositions.push_back( currPos );				
+	}
+	// Set dirty to all internal data
+	refreshInterpolationGroupIds( aInterpolationGroups );
+	mDisplayedGuides.setDirty();
+	mAllSegmentsUG.setDirty();
+	mUndoStack.clear();
+	mBoundingBoxDirtyFlag = true;
 }
 
 void HairGuides::updateSelectedGuides()
