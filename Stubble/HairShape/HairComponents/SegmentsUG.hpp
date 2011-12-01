@@ -39,18 +39,22 @@ public:
 	/// Builds the uniform grid using selection information, the end product is a grid built using only
 	/// selected guides. TODO: add selection filter support
 	///
-	/// \param	aGuidesCurrentPositions		the guides current positions. 
-	/// \param	aFrameSegments				the guides segments in current frame.
-	/// \param	aGuidesVerticesStartIndices	the array of starting indices of vertices for each guide 	
-	/// \param	aSelectInfo					structure containing selection region and various other information
-	///	\param	aSelectionList				out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
-	///	\param	aWorldSpaceSelectedPts		out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
-	///	\param	aSelectedGuides				out parameter for returning currently selected guides.
+	/// \param	aGuidesCurrentPositions			the guides current positions. 
+	/// \param	aFrameSegments					the guides segments in current frame.
+	/// \param	aGuidesVerticesStartIndices		the array of starting indices of vertices for each guide
+	/// \param	aGuidesInterpolationGroupIds	the array of interpolation group indices for each guide
+	/// \param	aInterpolationGroupsSelectable	the array containing the "is selectable" flag for each interpolation group
+	/// \param	aSelectInfo						structure containing selection region and various other information
+	///	\param	aSelectionList					out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aWorldSpaceSelectedPts			out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aSelectedGuides					out parameter for returning currently selected guides.
 	/// \return Has anything been selected?
 	///-------------------------------------------------------------------------------------------------
 	bool build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
 		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+		const std::vector< unsigned __int32 > & aGuidesInterpolationGroupIds,
+		const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable,
 		MSelectInfo & aSelectInfo,
 		MSelectionList & aSelectionList,
 		MPointArray & aWorldSpaceSelectedPts,

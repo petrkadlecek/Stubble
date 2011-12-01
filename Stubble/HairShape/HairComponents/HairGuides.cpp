@@ -35,7 +35,7 @@ HairGuides::~HairGuides()
 	delete mSegmentsStorage;
 }
 
-bool HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
+bool HairGuides::applySelection( const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable, MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
 {
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
@@ -45,7 +45,7 @@ bool HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
+	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), this->mGuidesInterpolationGroupIds, aInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 

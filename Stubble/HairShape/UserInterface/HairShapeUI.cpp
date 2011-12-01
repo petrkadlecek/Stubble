@@ -165,9 +165,7 @@ bool HairShapeUI::selectVertices( MSelectInfo &aSelectInfo, MSelectionList &aSel
 	HairShape* hairShape = ( HairShape* ) surfaceShape();
 
 	// Select hair guides	
-	return ( hairShape->mHairGuides->applySelection( aSelectInfo, aSelectionList, aWorldSpaceSelectPts ) );
-
-	
+	return ( hairShape->mHairGuides->applySelection( hairShape->mInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts ) );
 }
 
 HairShapeUI::SelectionMode HairShapeUI::getSelectionMode()

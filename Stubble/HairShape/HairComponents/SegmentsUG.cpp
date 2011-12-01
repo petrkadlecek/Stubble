@@ -30,6 +30,8 @@ SegmentsUG::~SegmentsUG()
 bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	const FrameSegments & aFrameSegments,
 	const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+	const std::vector< unsigned __int32 > & aGuidesInterpolationGroupIds,
+	const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable,
 	MSelectInfo & aSelectInfo,
 	MSelectionList & aSelectionList,
 	MPointArray & aWorldSpaceSelectedPts,
@@ -58,6 +60,13 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		guideIt != aFrameSegments.mSegments.end(); ++guideIt, ++posIt, ++gId)
 	{
 		bool selected = false; // Denotes whether the current guide is selected or not
+
+		// if the hair guide belongs to the currently non-selectable interpolation group, then skip it
+		if ( !( aInterpolationGroupsSelectable[ aGuidesInterpolationGroupIds[ gId ] ] ))
+		{
+			continue;
+		}
+
 		SegmentsAdditionalInfo additionalInfo;
 		
 		// for each guide segment (vertex)

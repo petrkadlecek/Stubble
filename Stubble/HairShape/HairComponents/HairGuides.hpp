@@ -50,12 +50,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Applies the selection described by aSelectionMask. 
 	///
-	/// \param	aSelectInfo				structure containing selection region and various other information
-	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
-	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	/// \param	aInterpolationGroupsSelectable	the array containing the "is selectable" flag for each interpolation group
+	/// \param	aSelectInfo						structure containing selection region and various other information
+	///	\param	aSelectionList					out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aWorldSpaceSelectedPts			out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
 	/// \return Has anything been seleted?
 	///----------------------------------------------------------------------------------------------------
-	bool applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
+	bool applySelection( const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable, MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Applies the selection received from Maya's global selection list.
