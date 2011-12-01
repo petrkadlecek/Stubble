@@ -216,13 +216,15 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	/// Sets the attributes values. 
 	///
-	/// \param	aPlug							Which attribute is being set.
-	/// \param	aDataHandle						Handle to data storage. 
-	/// \param [in,out]	aSegmentsCountChanged	The segments count has changed.
-	/// \param [in,out]	aSegmentsCountChanged	The selectable interpolation groups attribute has changed.
-	/// \param [in,out]	aHairPropertiesChanged	The hair properties has changed. 
+	/// \param	aPlug											Which attribute is being set.
+	/// \param	aDataHandle										Handle to data storage. 
+	/// \param [in,out]	aSegmentsCountChanged					The segments count has changed.
+	/// \param [in,out]	aInterpolationGroupsSelectableChanged	The selectable interpolation groups attribute has changed.
+	/// \param [in,out]	aHairPropertiesChanged					The hair properties has changed. 
+	/// 	
+	/// \return Returns true, only if texture was changed ( prevent Maya errors )
 	///----------------------------------------------------------------------------------------------------
-	void setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
+	bool setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
 		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged);
 
 	///----------------------------------------------------------------------------------------------------
@@ -237,12 +239,13 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh textures. 
 	///
-	/// \param [in] aTextureSamples					The number of samples in one dimension of sampled texture.
+	/// \param aTextureSamples						The number of samples in one dimension of sampled texture.
+	/// \param aForceRefresh						Should we refresh all textures ?
 	/// \param [in,out]	aDensityChanged				The density has changed. 
 	/// \param [in,out]	aInterpolationGroupsChanged	The interpolation groups has changed. 
 	/// \param [in,out]	aHairPropertiesChanged		The hair properties has changed. 
 	///----------------------------------------------------------------------------------------------------
-	void refreshTextures(unsigned __int32 aTextureSamples, bool & aDensityChanged,
+	void refreshTextures(unsigned __int32 aTextureSamples, bool aForceRefresh, bool & aDensityChanged,
 		bool & aInterpolationGroupsChanged, bool & aHairPropertiesChanged );
 
 	///----------------------------------------------------------------------------------------------------
@@ -440,7 +443,6 @@ inline void MayaHairProperties::setInterpolationGroupsSelectableAttr( const MObj
 
 inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
 {
-	aScaleFactor *= 0.02f; // Reasonable scaling..
 	Real change = aScaleFactor / mScaleFactor;
 	mScaleFactor = aScaleFactor;
 	// Rescale all size depented attributes :

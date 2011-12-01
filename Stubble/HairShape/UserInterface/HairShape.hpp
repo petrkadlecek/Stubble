@@ -249,8 +249,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh all dirty textures. 
+	/// 
+	/// \param aForceRefresh	Should we refresh all textures ?
 	///----------------------------------------------------------------------------------------------------
-	void refreshTextures();
+	void refreshTextures( bool aForceRefresh = false );
 		
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the shape when its list of selected components might have changed.

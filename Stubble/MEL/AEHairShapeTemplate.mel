@@ -190,7 +190,9 @@ global proc AEHairShapeTemplate( string $nodeName )
 	editorTemplate -suppress "surface";
 	editorTemplate -suppress "surface_change";
 	editorTemplate -suppress "time";
-	editorTemplate -suppress "segments_count";
+	editorTemplate -suppress "operation_count";
+	editorTemplate -suppress "serialized_data";
+	editorTemplate -suppress "interpolation_groups_colors";
 	
 	// We don't want to see these inherited attributes, either.
 	editorTemplate -suppress "collisionDepthVelocityIncrement";

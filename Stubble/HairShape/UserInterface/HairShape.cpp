@@ -283,7 +283,8 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	bool segmentsCountChanged;
 	bool interpolationGroupsSelectableChanged;
 	bool hairPropertiesChanged;
-	MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, interpolationGroupsSelectableChanged, hairPropertiesChanged );
+	bool textureChanged = 
+		MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, interpolationGroupsSelectableChanged, hairPropertiesChanged );
 	// Calls this always, it cost nothing..
 	if ( mHairGuides != 0 )
 	{
@@ -298,17 +299,30 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			mInterpolatedHair.propertiesUpdate( *this );
 			hairPropertiesChanged = false; // Already handled
 		}
-		return false;
-	}	
+		return textureChanged;
+	}
+	if ( interpolationGroupsSelectableChanged )
+	{
+		// for now do nothing
+		
+		//mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
+		//refreshPointersToGuidesForInterpolation();
+		//if ( mDisplayInterpolated )
+		//{
+		//	mInterpolatedHair.propertiesUpdate( *this );
+		//	hairPropertiesChanged = false; // Already handled
+		//}
+		return textureChanged;
+	}
 	if ( hairPropertiesChanged )
 	{
 		if ( mDisplayInterpolated )
 		{
 			mInterpolatedHair.propertiesUpdate( *this );
 		}
-		return false;
+		return textureChanged;
 	}
-	return false;
+	return true;
 }
 
 MStatus HairShape::connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug,bool aAsSrc )
@@ -461,7 +475,11 @@ void HairShape::draw()
 std::string HairShape::serialize() const
 {
 	std::ostringstream oss;
+	Real factor = getScaleFactor();
+	oss.write( reinterpret_cast< const char * >( &factor ), sizeof( Real ) );
 	mMayaMesh->serialize( oss );
+	mInterpolationGroupsTexture->exportToFile( oss );
+	mInterpolationGroups->exportSegmentsCountToFile( oss );
 	mHairGuides->serialize( oss );
 	std::string s = oss.str();
 	return base64_encode( reinterpret_cast< const unsigned char* >( s.c_str() ), 
@@ -471,13 +489,24 @@ std::string HairShape::serialize() const
 void HairShape::deserialize( const std::string &aData )
 {	
 	std::istringstream iss( base64_decode( aData ) );
+	Real factor;
+	iss.read( reinterpret_cast< char * >( &factor ), sizeof( Real ) );
+	setScaleFactor( factor );
 	mMayaMesh->deserialize( iss );
+	delete mInterpolationGroupsTexture;
+	mInterpolationGroupsTexture = new Texture( iss );
+	delete mInterpolationGroups;
+	mInterpolationGroups = new Interpolation::InterpolationGroups( *mInterpolationGroupsTexture, 5 /* ANY NUMBER */ );
+	mInterpolationGroups->importSegmentsCountFromFile( iss );
 	mHairGuides->deserialize( *mMayaMesh, *mInterpolationGroups, iss );
+	refreshPointersToGuidesForInterpolation();
 	if ( mDisplayInterpolated )
 	{
 		mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(),
 			*this, mGenDisplayCount );
 	}
+	updateSegmentsCountAttributes( false );
+	updateInterpolationGroupsSelectableAttributes( false );
 }
 
 bool HairShape::isInterpolationGroupSelectable( unsigned __int32 aGroupIndex )
@@ -739,7 +768,7 @@ MStatus HairShape::initialize()
 		MFnTypedAttribute sAttr;
 		serializedDataAttr = sAttr.create( "serialized_data", "sdata", MFnData::kString, MObject::kNullObj, &status );
 		sAttr.setHidden( true );
-		sAttr.setInternal( true );
+		//sAttr.setInternal( true );
 		sAttr.setWritable( true );
 		sAttr.setStorable( true );
 		if ( !addAttribute( serializedDataAttr ) )
@@ -761,7 +790,7 @@ MStatus HairShape::initialize()
 		MFnNumericAttribute ocAttr;
 		operationCountAttr = ocAttr.create( "operation_count", "opcount", MFnNumericData::kInt, 0, &status );
 		sAttr.setHidden( true );
-		sAttr.setInternal( true );
+		//sAttr.setInternal( true );
 		sAttr.setWritable( true );
 		sAttr.setStorable( true );
 		if ( !addAttribute( operationCountAttr ) )
@@ -833,11 +862,11 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	}
 }
 
-void HairShape::refreshTextures()
+void HairShape::refreshTextures( bool aForceRefresh )
 {
 	bool densityChanged, interpolationGroupsChanged, hairPropertiesChanged;
 	// Actual refresh textures
-	MayaHairProperties::refreshTextures( mSampleTextureDimension, densityChanged,
+	MayaHairProperties::refreshTextures( mSampleTextureDimension, aForceRefresh, densityChanged,
 		interpolationGroupsChanged, hairPropertiesChanged );
 	// React on refreshed textures
 	if ( interpolationGroupsChanged )
@@ -923,8 +952,8 @@ void HairShape::meshChange( MObject aMeshObj )
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
 
-		// Set interpolated params scaling
-		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() );
+		// Set interpolated params scaling ( 2 % of diagonal )
+		setScaleFactor( mMayaMesh->getRestPose().getBoundingBox().diagonal() * 0.02f );
 
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
@@ -1023,15 +1052,24 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	attr = nAttr.create( "segments_count", "sgc", &s );
 	nAttr.setInternal( true );
 	// Add children -> counts
-	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 5, 1, 100, 1, 100 );
+	for(int i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "group_";
+		s += nAttr.numChildren();
+
+		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, 
+			static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
+		numericAttribute.setMin( 1 );
+		numericAttribute.setMax( 100 );
+		numericAttribute.setSoftMin( 1 );
+		numericAttribute.setSoftMax( 100 );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setInternal( true );
+		nAttr.addChild(c);
+	}
 	// Add attr
 	s = node.addAttribute( attr );
-	// Sets children values
-	for( unsigned __int32 i = 0; i < mInterpolationGroups->getGroupsCount(); ++i )
-	{
-		MPlug plug( thisMObject(), nAttr.child( i, &s ) ); 
-		s = plug.setInt( static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
-	}
 	// Finally remember attr value
 	setSegmentsCountAttr( attr );
 	// Creates colors
@@ -1062,7 +1100,22 @@ inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirs
 	nAttr.setInternal( true );
 	// Add children -> counts
 	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 1 );
-	fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
+	//fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
+	for(int i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "groups_selectable_";
+		s += nAttr.numChildren();
+
+		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, 1 );
+		numericAttribute.setMin( 0 );
+		numericAttribute.setMax( 1 );
+		numericAttribute.setSoftMin( 0 );
+		numericAttribute.setSoftMax( 1 );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setInternal( true );
+		nAttr.addChild(c);
+	}
 	// Add attr
 	s = node.addAttribute( attr );
 	// Finally remember attr value

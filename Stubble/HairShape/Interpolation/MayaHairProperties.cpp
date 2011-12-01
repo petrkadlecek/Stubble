@@ -348,11 +348,11 @@ MStatus MayaHairProperties::initializeAttributes()
 	return MStatus::kSuccess;
 }
 
-void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
+bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
 		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged )
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
-	aSegmentsCountChanged = aHairPropertiesChanged = false;
+	aSegmentsCountChanged = aInterpolationGroupsSelectableChanged = aHairPropertiesChanged = false;
 	if ( root == mSegmentsCountAttr )
 	{
 		// For all interpolation groups
@@ -365,7 +365,7 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 			}
 		}
 		aSegmentsCountChanged = true;
-		return;
+		return false;
 	}
 	if ( root == mInterpolationGroupsSelectableAttr )
 	{
@@ -379,78 +379,78 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 			}
 		}
 		aInterpolationGroupsSelectableChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == densityTextureAttr )
 	{
 		mDensityTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == interpolationGroupsTextureAttr || root == interpolationGroupsTextureAttr )
 	{
 		mInterpolationGroupsTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == numberOfGuidesToInterpolateFromAttr )
 	{
 		mNumberOfGuidesToInterpolateFrom = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		return;
+		return false;
 	}
 	if ( aPlug == areNormalsCalculatedAttr )
 	{
 		mAreNormalsCalculated = aDataHandle.asBool();
-		return;
+		return false;
 	}
 	if ( aPlug == aspectAttr )
 	{
 		mAspect = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == aspectTextureAttr )
 	{
 		mAspectTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == centerSplayAttr )
 	{
 		mCenterSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == centerSplayTextureAttr )
 	{
 		mCenterSplayTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == cutTextureAttr )
 	{
 		mCutTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == displacementAttr )
 	{
 		mDisplacement = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == skipThresholdAttr )
 	{
 		// map from [0,1] -> [-1,1] and swap
 		mSkipThreshold = 2 * ( static_cast< Real >( 0.5f - aDataHandle.asFloat() ) );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == displacementTextureAttr )
 	{
 		mDisplacementTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == frizzAnimAttr )
 	{
 		mFrizzAnim = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimDirectionAttr )
 	{
@@ -458,124 +458,124 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mFrizzAnimDirection.y = static_cast< Real >( aDataHandle.asFloat3()[ 1 ] );
 		mFrizzAnimDirection.z = static_cast< Real >( aDataHandle.asFloat3()[ 2 ] );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimDirectionXAttr )
 	{
 		mFrizzAnimDirection.x = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimDirectionYAttr )
 	{
 		mFrizzAnimDirection.y = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimDirectionZAttr )
 	{
 		mFrizzAnimDirection.z = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimSpeedAttr )
 	{
 		mFrizzAnimSpeed = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzAnimSpeedTextureAttr )
 	{
 		mFrizzAnimSpeedTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == frizzAnimTextureAttr )
 	{
 		mFrizzAnimTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == frizzXFrequencyAttr )
 	{
 		mFrizzXFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzXFrequencyTextureAttr )
 	{
 		mFrizzXFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == frizzYFrequencyAttr )
 	{
 		mFrizzYFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzYFrequencyTextureAttr )
 	{
 		mFrizzYFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == frizzZFrequencyAttr )
 	{
 		mFrizzZFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == frizzZFrequencyTextureAttr )
 	{
 		mFrizzZFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == hueVariationAttr )
 	{
 		mHueVariation = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == hueVariationTextureAttr )
 	{
 		mHueVariationTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == kinkXFrequencyAttr )
 	{
 		mKinkXFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == kinkXFrequencyTextureAttr )
 	{
 		mKinkXFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == kinkYFrequencyAttr )
 	{
 		mKinkYFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == kinkYFrequencyTextureAttr )
 	{
 		mKinkYFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == kinkZFrequencyAttr )
 	{
 		mKinkZFrequency = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == kinkZFrequencyTextureAttr )
 	{
 		mKinkZFrequencyTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == multiStrandCountAttr )
 	{
 		mMultiStrandCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == mutantHairColorAttr )
 	{
@@ -583,56 +583,56 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mMutantHairColor[ 1 ] = static_cast< Real >( aDataHandle.asFloat3()[ 1 ] );
 		mMutantHairColor[ 2 ] = static_cast< Real >( aDataHandle.asFloat3()[ 2 ] );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == mutantHairColorTextureAttr || root == mutantHairColorTextureAttr )
 	{
 		mMutantHairColorTexture->setConnection( root );
-		return;
+		return true;
 	}
 	if ( aPlug == offsetAttr )
 	{
 		mOffset = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == offsetTextureAttr )
 	{
 		mOffsetTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == percentMutantHairAttr )
 	{
 		mPercentMutantHair = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == percentMutantHairTextureAttr )
 	{
 		mPercentMutantHairTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == randomizeStrandAttr )
 	{
 		mRandomizeStrand = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == randomizeStrandTextureAttr )
 	{
 		mRandomizeStrandTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == randScaleAttr )
 	{
 		mRandScale = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == randScaleTextureAttr )
 	{
 		mRandScaleTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == rootColorAttr )
 	{
@@ -640,78 +640,78 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mRootColor[ 1 ] = static_cast< Real >( aDataHandle.asFloat3()[ 1 ] );
 		mRootColor[ 2 ] = static_cast< Real >( aDataHandle.asFloat3()[ 2 ] );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootColorTextureAttr || root == rootColorTextureAttr )
 	{
 		mRootColorTexture->setConnection( root );
-		return;
+		return true;
 	}
 	if ( aPlug == rootFrizzAttr )
 	{
 		mRootFrizz = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootFrizzTextureAttr )
 	{
 		mRootFrizzTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == rootKinkAttr )
 	{
 		mRootKink = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootKinkTextureAttr )
 	{
 		mRootKinkTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == rootOpacityAttr )
 	{
 		mRootOpacity = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootOpacityTextureAttr )
 	{
 		mRootOpacityTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == rootSplayAttr )
 	{
 		mRootSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootSplayTextureAttr )
 	{
 		mRootSplayTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == rootThicknessAttr )
 	{
 		mRootThickness = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == rootThicknessTextureAttr )
 	{
 		mRootThicknessTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == scaleAttr )
 	{
 		mScale = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == scaleTextureAttr )
 	{
 		mScaleTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == tipColorAttr )
 	{
@@ -719,90 +719,91 @@ void MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mTipColor[ 1 ] = static_cast< Real >( aDataHandle.asFloat3()[ 1 ] );
 		mTipColor[ 2 ] = static_cast< Real >( aDataHandle.asFloat3()[ 2 ] );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipColorTextureAttr || root == tipColorTextureAttr  )
 	{
 		mTipColorTexture->setConnection( root );
-		return;
+		return true;
 	}
 	if ( aPlug == tipFrizzAttr )
 	{
 		mTipFrizz = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipFrizzTextureAttr )
 	{
 		mTipFrizzTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == tipKinkAttr )
 	{
 		mTipKink = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipKinkTextureAttr )
 	{
 		mTipKinkTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == tipOpacityAttr )
 	{
 		mTipOpacity = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipOpacityTextureAttr )
 	{
 		mTipOpacityTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == tipSplayAttr )
 	{
 		mTipSplay = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipSplayTextureAttr )
 	{
 		mTipSplayTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == tipThicknessAttr )
 	{
 		mTipThickness = static_cast< Real >( aDataHandle.asFloat() ) * mScaleFactor;
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == tipThicknessTextureAttr )
 	{
 		mTipThicknessTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == twistAttr )
 	{
 		mTwist = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == twistTextureAttr )
 	{
 		mTwistTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
 	if ( aPlug == valueVariationAttr )
 	{
 		mValueVariation = static_cast< Real >( aDataHandle.asFloat() );
 		aHairPropertiesChanged = true;
-		return;
+		return false;
 	}
 	if ( aPlug == valueVariationTextureAttr )
 	{
 		mValueVariationTexture->setConnection( aPlug );
-		return;
+		return true;
 	}
+	return false;
 }
 
 MStatus MayaHairProperties::brakeConnection( const MPlug & aPlug )
@@ -986,11 +987,11 @@ MStatus MayaHairProperties::brakeConnection( const MPlug & aPlug )
 	return MStatus::kSuccess;
 }
 
-void MayaHairProperties::refreshTextures(unsigned __int32 aTextureSamples, bool & aDensityChanged,
+void MayaHairProperties::refreshTextures( unsigned __int32 aTextureSamples, bool aForceRefresh, bool & aDensityChanged,
 	bool & aInterpolationGroupsChanged, bool & aHairPropertiesChanged )
 {
 	aDensityChanged = aInterpolationGroupsChanged = aHairPropertiesChanged = false;
-	if ( mInterpolationGroupsTexture->isDirty() )
+	if ( mInterpolationGroupsTexture->isDirty() || aForceRefresh )
 	{
 		mInterpolationGroupsTexture->resample( aTextureSamples );
 		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
@@ -1000,168 +1001,168 @@ void MayaHairProperties::refreshTextures(unsigned __int32 aTextureSamples, bool 
 			1, 0, 1, 0, 1, "groups_selectable_" );
 		aInterpolationGroupsChanged = true;
 	}
-	if ( mDensityTexture->isDirty() )
+	if ( mDensityTexture->isDirty() || aForceRefresh )
 	{
 		mDensityTexture->resample( aTextureSamples );
 		aDensityChanged = true;
 	}
 	// Refreshes all other textures
-	if ( mAspectTexture->isDirty() )
+	if ( mAspectTexture->isDirty() || aForceRefresh )
 	{
 		mAspectTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mCenterSplayTexture->isDirty() )
+	if ( mCenterSplayTexture->isDirty() || aForceRefresh )
 	{
 		mCenterSplayTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mCutTexture->isDirty() )
+	if ( mCutTexture->isDirty() || aForceRefresh )
 	{
 		mCutTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mDisplacementTexture->isDirty() )
+	if ( mDisplacementTexture->isDirty() || aForceRefresh )
 	{
 		mDisplacementTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mFrizzAnimSpeedTexture->isDirty() )
+	if ( mFrizzAnimSpeedTexture->isDirty() || aForceRefresh )
 	{
 		mFrizzAnimSpeedTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mFrizzAnimTexture->isDirty() )
+	if ( mFrizzAnimTexture->isDirty() || aForceRefresh )
 	{
 		mFrizzAnimTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mFrizzXFrequencyTexture->isDirty() )
+	if ( mFrizzXFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mFrizzXFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mFrizzYFrequencyTexture->isDirty() )
+	if ( mFrizzYFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mFrizzYFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mFrizzZFrequencyTexture->isDirty() )
+	if ( mFrizzZFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mFrizzZFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mHueVariationTexture->isDirty() )
+	if ( mHueVariationTexture->isDirty() || aForceRefresh )
 	{
 		mHueVariationTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mKinkXFrequencyTexture->isDirty() )
+	if ( mKinkXFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mKinkXFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mKinkYFrequencyTexture->isDirty() )
+	if ( mKinkYFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mKinkYFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mKinkZFrequencyTexture->isDirty() )
+	if ( mKinkZFrequencyTexture->isDirty() || aForceRefresh )
 	{
 		mKinkZFrequencyTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mMutantHairColorTexture->isDirty() )
+	if ( mMutantHairColorTexture->isDirty() || aForceRefresh )
 	{
 		mMutantHairColorTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mOffsetTexture->isDirty() )
+	if ( mOffsetTexture->isDirty() || aForceRefresh )
 	{
 		mOffsetTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mPercentMutantHairTexture->isDirty() )
+	if ( mPercentMutantHairTexture->isDirty() || aForceRefresh )
 	{
 		mPercentMutantHairTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRandomizeStrandTexture->isDirty() )
+	if ( mRandomizeStrandTexture->isDirty() || aForceRefresh )
 	{
 		mRandomizeStrandTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRandScaleTexture->isDirty() )
+	if ( mRandScaleTexture->isDirty() || aForceRefresh )
 	{
 		mRandScaleTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRootColorTexture->isDirty() )
+	if ( mRootColorTexture->isDirty() || aForceRefresh )
 	{
 		mRootColorTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRootFrizzTexture->isDirty() )
+	if ( mRootFrizzTexture->isDirty() || aForceRefresh )
 	{
 		mRootFrizzTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRootOpacityTexture->isDirty() )
+	if ( mRootOpacityTexture->isDirty() || aForceRefresh )
 	{
 		mRootOpacityTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRootSplayTexture->isDirty() )
+	if ( mRootSplayTexture->isDirty() || aForceRefresh )
 	{
 		mRootSplayTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mRootThicknessTexture->isDirty() )
+	if ( mRootThicknessTexture->isDirty() || aForceRefresh )
 	{
 		mRootThicknessTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mScaleTexture->isDirty() )
+	if ( mScaleTexture->isDirty() || aForceRefresh )
 	{
 		mScaleTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipColorTexture->isDirty() )
+	if ( mTipColorTexture->isDirty() || aForceRefresh )
 	{
 		mTipColorTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipFrizzTexture->isDirty() )
+	if ( mTipFrizzTexture->isDirty() || aForceRefresh )
 	{
 		mTipFrizzTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipKinkTexture->isDirty() )
+	if ( mTipKinkTexture->isDirty() || aForceRefresh )
 	{
 		mTipKinkTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipOpacityTexture->isDirty() )
+	if ( mTipOpacityTexture->isDirty() || aForceRefresh )
 	{
 		mTipOpacityTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipSplayTexture->isDirty() )
+	if ( mTipSplayTexture->isDirty() || aForceRefresh )
 	{
 		mTipSplayTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTipThicknessTexture->isDirty() )
+	if ( mTipThicknessTexture->isDirty() || aForceRefresh )
 	{
 		mTipThicknessTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mTwistTexture->isDirty() )
+	if ( mTwistTexture->isDirty() || aForceRefresh )
 	{
 		mTwistTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
 	}
-	if ( mValueVariationTexture->isDirty() )
+	if ( mValueVariationTexture->isDirty() || aForceRefresh )
 	{
 		mValueVariationTexture->resample( aTextureSamples );
 		aHairPropertiesChanged = true;
