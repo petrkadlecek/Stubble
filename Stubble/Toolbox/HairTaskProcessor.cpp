@@ -244,8 +244,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 {
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh().getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
-	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();
-	MFloatPointArray hitPoints;
+	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();	
 	MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
@@ -263,6 +262,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		MFloatPoint startP(rootPoint.x, rootPoint.y, rootPoint.z );
 		MFloatVector dir(firstPoint.x - rootPoint.x, firstPoint.y - rootPoint.y, firstPoint.z - rootPoint.z);
 		
+		MFloatPointArray hitPoints;
 		bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 		// clearing additional informations
@@ -297,6 +297,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MFloatPoint startP(positionStartPoint.x, positionStartPoint.y, positionStartPoint.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
 
+			MFloatPointArray hitPoints;
 			bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 			// current segment has an intersection -> so we change hair intersection
