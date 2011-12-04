@@ -245,6 +245,8 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh().getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
 	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();
+	MFloatPointArray hitPoints;
+	MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
 	{
@@ -256,11 +258,15 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 		const Vec3 normal = guide->mNormal;
 		Vec3 firstPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(1), worldMatrix );
-		Vec3 rootPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(0), worldMatrix );
+		Vec3 rootPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(0), worldMatrix ) + normal * 0.01f;
+
+		MFloatPoint startP(rootPoint.x, rootPoint.y, rootPoint.z );
+		MFloatVector dir(firstPoint.x - rootPoint.x, firstPoint.y - rootPoint.y, firstPoint.z - rootPoint.z);
+		
+		bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 		// clearing additional informations
-		Vec3 r = firstPoint - rootPoint;
-		bool curentPointInsideMesh = Vec3::dotProduct(r, normal) < 0;
+		bool curentPointInsideMesh = hitPoints.length() % 2;
 
 		if(curentPointInsideMesh)
 		{
@@ -291,8 +297,6 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			MFloatPoint startP(positionStartPoint.x, positionStartPoint.y, positionStartPoint.z);
 			MFloatVector dir(positionDirection.x, positionDirection.y, positionDirection.z);
 
-			MFloatPointArray hitPoints;
-			MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 			bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 1, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
 			// current segment has an intersection -> so we change hair intersection
