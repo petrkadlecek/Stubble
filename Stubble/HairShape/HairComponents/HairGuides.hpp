@@ -50,11 +50,22 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Applies the selection described by aSelectionMask. 
 	///
-	/// \param	aSelectInfo				structure containing selection region and various other information
-	///	\param	aSelectionList			out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
-	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	/// \param	aInterpolationGroupsSelectable	the array containing the "is selectable" flag for each interpolation group
+	/// \param	aSelectInfo						structure containing selection region and various other information
+	///	\param	aSelectionList					out parameter for returning selected components list. (For MPxSurfaceShape::select compatibility reasons)
+	///	\param	aWorldSpaceSelectedPts			out parameter for returning selected points list. (For MPxSurfaceShape::select compatibility reasons)
+	/// \return Has anything been seleted?
 	///----------------------------------------------------------------------------------------------------
-	void applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
+	bool applySelection( const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable, MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Applies the selection received from Maya's global selection list.
+	/// This method is used to synchronize the node's internal selection list, which has no other way
+	/// of accessing information about the keyboard modifiers being pressed during selection.
+	///
+	/// \param	aSelectedComponentIndices		The component list received from Maya's global selection list
+	///----------------------------------------------------------------------------------------------------
+	void applySelection( MIntArray &aSelectedComponentIndices );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the bounding box. 
@@ -98,8 +109,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws guides and interpolated hair.
+	///
+	/// \param	aDrawVerts	should the hair vertices be drawn?
 	///----------------------------------------------------------------------------------------------------
-	void draw();
+	void draw( bool aDrawVerts = false );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import NURBS.
@@ -196,18 +209,18 @@ public:
 	/// \return	The current frame segments. 
 	///----------------------------------------------------------------------------------------------------
 	inline const FrameSegments & getCurrentFrameSegments() const;
-	
+
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the indices .
 	///-------------------------------------------------------------------------------------------------
 	typedef std::vector< unsigned __int32 > Indices;
-
+	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the index to first vertex of guide in all guides vertices array
 	///
 	/// \return	Index to first vertex of guide in all guides vertices array. 
 	///-------------------------------------------------------------------------------------------------
-	inline const Indices & GuidesVerticesStartIndex() const;
+	inline const Indices & guidesVerticesStartIndex() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
@@ -303,7 +316,7 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 	return mSegmentsStorage->getCurrentSegments();
 }
 
-inline const HairGuides::Indices & HairGuides::GuidesVerticesStartIndex() const
+inline const HairGuides::Indices & HairGuides::guidesVerticesStartIndex() const
 {
 	return mGuidesVerticesStartIndex;
 }

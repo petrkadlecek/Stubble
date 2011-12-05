@@ -58,17 +58,20 @@ void DisplayedGuides::selectionRebuild( const SelectedGuides & aSelectedGuides, 
 	mDirtyBit = false;
 }
 
-void DisplayedGuides::draw() const
+void DisplayedGuides::draw( bool aDrawVerts ) const
 {
 	if ( mDirtyBit )
 	{
 		throw StubbleException(" DisplayedGuides::draw : can not draw dirty object, used build method !" );
 	}
 	// Camera must be set to world coordinates at this point
-	
-	//TODO: add decision based on selection filter
+
+	// draw hair guides, and check if we should draw the hair vertices as well
 	drawPolyline();
-	drawVertices();
+	if ( aDrawVerts )
+	{
+		drawVertices();
+	}
 }
 
 void DisplayedGuides::drawPolyline() const

@@ -1,4 +1,5 @@
 #include "HairGuides.hpp"
+#include "..\Interpolation\MayaHairProperties.hpp"
 
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MPointArray.h>
@@ -34,7 +35,7 @@ HairGuides::~HairGuides()
 	delete mSegmentsStorage;
 }
 
-void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
+bool HairGuides::applySelection( const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable, MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts )
 {
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
@@ -44,7 +45,29 @@ void HairGuides::applySelection( MSelectInfo &aSelectInfo, MSelectionList &aSele
 	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides);
+	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), this->mGuidesInterpolationGroupIds, aInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
+	// Display selection
+	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+
+	return isAnythingSelected;
+}
+
+void HairGuides::applySelection( MIntArray &aSelectedComponentIndices )
+{
+	/*if ( aSelectedComponentIndices.length() == 0 )
+	{
+		return;
+	}*/
+	
+	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
+	{
+		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
+	}
+	// Hide old selection
+	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
+	// Rebuild selected segments UG
+	clearSelectedGuides();
+	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectedComponentIndices, mSelectedGuides);
 	// Display selection
 	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
 }
@@ -123,13 +146,13 @@ const RestPositionsUG & HairGuides::getGuidesPositionsUG( const Interpolation::I
 	return mRestPositionsUG;
 }
 
-void HairGuides::draw()
+void HairGuides::draw( bool aDrawVerts )
 {
 	if ( mDisplayedGuides.isDirty() ) // Is display list up-to-date ?
 	{
 		mDisplayedGuides.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments(), mSelectedGuides );
 	}
-	mDisplayedGuides.draw();
+	mDisplayedGuides.draw( aDrawVerts );
 }
 
 void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterpolationGroups )
@@ -529,7 +552,7 @@ void HairGuides::refreshInterpolationGroupIds( const Interpolation::Interpolatio
 	{
 		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );
 		*index = lastId;
-		lastId = aInterpolationGroups.getGroupSegmentsCount( *groupId );
+		lastId += aInterpolationGroups.getGroupSegmentsCount( *groupId ) + 1; // i.e. 5 segments => 6 vertices
 	}
 }
 

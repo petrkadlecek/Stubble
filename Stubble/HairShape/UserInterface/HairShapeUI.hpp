@@ -43,11 +43,21 @@ public:
 	/// Selection method called when selection has been detected.
 	///
 	/// \param	aSelectInfo				structure containing selection region and various other information
+	///	\param	aSelectionList			out parameter for returning selected objects list
+	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list
+	/// \return	True if the object was selected
+	///----------------------------------------------------------------------------------------------------
+    virtual bool select( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Helper selection method, called when component selection has been detected.
+	///
+	/// \param	aSelectInfo				structure containing selection region and various other information
 	///	\param	aSelectionList			out parameter for returning selected components list
 	///	\param	aWorldSpaceSelectedPts	out parameter for returning selected points list
 	/// \return	True if the object was selected
 	///----------------------------------------------------------------------------------------------------
-    virtual bool select( MSelectInfo &selectInfo, MSelectionList &selectionList,  MPointArray &worldSpaceSelectPts ) const;
+    bool selectVertices( MSelectInfo &aSelectInfo, MSelectionList &aSelectionList,  MPointArray &aWorldSpaceSelectPts ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates HairShapeUI.
@@ -60,6 +70,39 @@ public:
 	/// Finalizer
 	///----------------------------------------------------------------------------------------------------
     virtual ~HairShapeUI();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Draw tokens, which determine what request should be put on the draw queue
+	///----------------------------------------------------------------------------------------------------
+	enum DrawingState {
+		kDrawGuides,
+		kDrawVertices 
+	};
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the selection mode from the environment and derives the correct DrawingState.
+	/// (select guides -> kDrawGuides)
+	/// (select vertices, roots, tips -> kDrawVertices)
+	///----------------------------------------------------------------------------------------------------
+	static DrawingState getDrawingState();
+
+//private:
+
+	///----------------------------------------------------------------------------------------------------
+	/// Selection indicators, representing the environment variable stubbleSelectionMode
+	///----------------------------------------------------------------------------------------------------
+	enum SelectionMode {
+		kSelectGuides,
+		kSelectAllVertices,
+		kSelectTips,
+		kSelectRoots
+	};
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the selection mode from the environment by using optionVar -q "stubbleSelectionMode".
+	///----------------------------------------------------------------------------------------------------
+	static SelectionMode getSelectionMode();
+	
 };
 
 } // namespace HairShape

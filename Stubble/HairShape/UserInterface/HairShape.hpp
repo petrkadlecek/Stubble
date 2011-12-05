@@ -157,6 +157,13 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Checks if the given interpolation group is currently selectable.
+	/// 
+	/// \param	aGroupIndex		The index of the interpolation group.
+	///----------------------------------------------------------------------------------------------------
+	bool isInterpolationGroupSelectable( unsigned __int32 aGroupIndex );
+
+	///----------------------------------------------------------------------------------------------------
 	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
 	/// demand and it's dirty flag is never set by HairGuides class.
 	///
@@ -171,6 +178,34 @@ public:
 	/// 						otherwise draw update only
 	///----------------------------------------------------------------------------------------------------
 	inline void updateGuides( bool aStoreUpdate );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Associates the components (guides or vertices) with the node's attributes (and corresponding plugs). 
+	/// 
+	/// \param	aComponent	the component that is passed in (with type of e.g. kMeshVertComponent)
+	/// \param	aList	the selection list to which the corresponding plugs will be added
+	///----------------------------------------------------------------------------------------------------
+	virtual void componentToPlugs( MObject &aComponent,  MSelectionList &aList ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Validates component names and indices which are specified as a string and adds the corresponding
+	/// component to the passed in selection list. (e.g."select shape1.vtx[0:7]")   
+	/// 
+	/// \param	aItem	DAG selection item for the object being matched
+	/// \param	aSpec	attribute specification object
+	/// \param	aList	list to add components to
+	///----------------------------------------------------------------------------------------------------
+	virtual MatchResult matchComponent( const MSelectionList& aItem, 
+										const MAttributeSpecArray& aSpec, 
+										MSelectionList& aList );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Check for matches between selection type / component list, and the type of this shape or its components.  
+	/// 
+	/// \param	aMask			selection type mask
+	/// \param	aComponentList	possible component list
+	///----------------------------------------------------------------------------------------------------
+	virtual bool match(	const MSelectionMask & aMask, const MObjectArray& aComponentList ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Undoes changed to hair guides.
@@ -218,6 +253,17 @@ public:
 	/// \param aForceRefresh	Should we refresh all textures ?
 	///----------------------------------------------------------------------------------------------------
 	void refreshTextures( bool aForceRefresh = false );
+		
+	///----------------------------------------------------------------------------------------------------
+	/// Notifies the shape when its list of selected components might have changed.
+	/// \param aFlag	True when the selection list changes.
+	///----------------------------------------------------------------------------------------------------
+	void setSelectionModified( bool aFlag );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Has the shape's list of selected components been modified?
+	///----------------------------------------------------------------------------------------------------
+	bool isSelectionModified();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets this HairShape as active object. 
@@ -321,12 +367,27 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline void updateSegmentsCountAttributes( bool aFirstUpdate );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Updates the selectable interpolation groups attribute. ( Essential after Interpolation groups change )
+	/// 
+	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
+	/// 						be removed.
+	///-------------------------------------------------------------------------------------------------
+	inline void updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Registers the topology callback. 
 	///
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
 	MStatus registerTopologyCallback();
+
+	/*TODO Test and replace with proper documentation*/
+	bool					value( int pntInd, int vlInd, double & val ) const;
+	bool					value( int pntInd, MPoint & val ) const;
+	bool					setValue( int pntInd, int vlInd, double val );
+	bool					setValue( int pntInd, const MPoint & val );
+
 
 	// Inner objects 
 
@@ -369,6 +430,8 @@ private:
 	bool mIsTopologyCallbackRegistered; ///< true if is topology callback registered
 
 	bool mIsTopologyModified;   ///< true if is topology modified
+
+	bool mIsSelectionModified; ///< true if the selection has changed
 
 	static MCallbackIdArray mCallbackIds;	///< List of identifiers for the callbacks
 

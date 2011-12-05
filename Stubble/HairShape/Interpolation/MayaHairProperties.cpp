@@ -20,6 +20,7 @@ MObject MayaHairProperties::densityTextureAttr; ///< The density texture attribu
 MObject MayaHairProperties::interpolationGroupsTextureAttr; ///< The interpolation groups texture attribute
 MObject MayaHairProperties::cutTextureAttr;  ///< The cut texture attribute
 MObject MayaHairProperties::segmentsCountAttr; ///< The segments count attribute
+MObject MayaHairProperties::interpolationGroupsSelectableAttr; ///< The interpolation groups selectable attribute
 MObject MayaHairProperties::interpolationGroupsColorsAttr;   ///< The interpolation groups colors attribute
 MObject MayaHairProperties::numberOfGuidesToInterpolateFromAttr; ///< Number of guides to interpolate from attribute
 MObject MayaHairProperties::areNormalsCalculatedAttr;	///< The are normals calculated attribute
@@ -348,10 +349,10 @@ MStatus MayaHairProperties::initializeAttributes()
 }
 
 bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
-		bool & aSegmentsCountChanged, bool & aHairPropertiesChanged )
+		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged )
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
-	aSegmentsCountChanged = aHairPropertiesChanged = false;
+	aSegmentsCountChanged = aInterpolationGroupsSelectableChanged = aHairPropertiesChanged = false;
 	if ( root == mSegmentsCountAttr )
 	{
 		// For all interpolation groups
@@ -364,6 +365,20 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 			}
 		}
 		aSegmentsCountChanged = true;
+		return false;
+	}
+	if ( root == mInterpolationGroupsSelectableAttr )
+	{
+		// For all interpolation groups
+		for( unsigned __int32 i = 0; i < root.numChildren(); ++i )
+		{
+			if ( root.child( i ) == aPlug )
+			{
+				// Refresh segments count
+				mInterpolationGroupsSelectable[i] = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+			}
+		}
+		aInterpolationGroupsSelectableChanged = true;
 		return false;
 	}
 	if ( aPlug == densityTextureAttr )
@@ -982,6 +997,8 @@ void MayaHairProperties::refreshTextures( unsigned __int32 aTextureSamples, bool
 		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
 		updateIntArrayComponentsCount( segmentsCountAttr, mInterpolationGroups->getGroupsCount(), 
 			DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+		updateIntArrayComponentsCount( interpolationGroupsSelectableAttr, mInterpolationGroups->getGroupsCount(), 
+			1, 0, 1, 0, 1, "groups_selectable_" );
 		aInterpolationGroupsChanged = true;
 	}
 	if ( mDensityTexture->isDirty() || aForceRefresh )
@@ -1224,7 +1241,7 @@ void MayaHairProperties::addFloatAttribute( const MString & aFullName, const MSt
 	}
 }
 
-void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
+void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix )
 {
 	MStatus status;
 	MFnCompoundAttribute nAttr(aAttribute, &status);
@@ -1232,7 +1249,7 @@ void MayaHairProperties::fillIntArrayAttributes( MObject & aAttribute, int aFill
 	for(int i = 0; i < aFillCount; ++i)
 	{
 		MFnNumericAttribute numericAttribute;
-		MString s = "group_";
+		MString s = aGroupNamePrefix;
 		s += nAttr.numChildren();
 
 		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, aDefault );
@@ -1280,7 +1297,7 @@ void MayaHairProperties::addIntArrayAttribute( const MString & aFullName, const 
 }
 
 void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount, 
-	int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax )
+	int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix )
 {
 	MStatus s;
 	MFnCompoundAttribute nAttr(aAttribute, &s);
@@ -1295,7 +1312,7 @@ void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, un
 			numAttr.setHidden( true );
 		}
 	else // adding new children
-		fillIntArrayAttributes( aAttribute, aComponentsCount - nAttr.numChildren(), aDefault, aMin, aMax, aSoftMin, aSoftMax );
+		fillIntArrayAttributes( aAttribute, aComponentsCount - nAttr.numChildren(), aDefault, aMin, aMax, aSoftMin, aSoftMax, aGroupNamePrefix );
 	MStringArray arr;
 	nAttr.getAddAttrCmds( arr, true );
 	for ( unsigned __int32 i = 0; i < arr.length(); ++i )

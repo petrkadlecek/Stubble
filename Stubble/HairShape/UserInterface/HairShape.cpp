@@ -1,20 +1,29 @@
 #include "HairShape.hpp"
+#include "HairShapeUI.hpp"
 
 #include "Common/Base64.hpp"
 #include "Common/GLExtensions.hpp"
 #include "Common/CommonConstants.hpp"
 
+#include <maya/MAttributeSpecArray.h>
+#include <maya/MAttributeSpec.h>
+#include <maya/MAttributeIndex.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnNumericAttribute.h>
+#include <maya/MFnSingleIndexedComponent.h>   
 #include <maya/MFnStringData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MGlobal.h>
+#include <maya/MItMeshEdge.h>
+#include <maya/MItMeshVertex.h>
+#include <maya/MItSelectionList.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
 #include <maya/MSceneMessage.h>
 
+#include <exception>
 #include <fstream>
 #include <limits>
 #include <sstream>
@@ -66,12 +75,15 @@ HairShape::HairShape():
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
-	mSampleTextureDimension( 128 )	
+	mSampleTextureDimension( 128 ),
+	mIsSelectionModified( false )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
 	// Sets active object
 	mActiveHairShapeNode = this;
+	// initialize the vector to a random size that is greater than the max
+	mInterpolationGroupsSelectable.resize( 50, 1 );
 }
 
 void HairShape::postConstructor()
@@ -132,9 +144,46 @@ MStatus HairShape::compute(const MPlug &aPlug, MDataBlock &aDataBlock)
 	return MS::kSuccess;
 }
 
-bool HairShape::getInternalValueInContext( const MPlug & aPlug, MDataHandle & aDataHandle, MDGContext & aContext )
+bool HairShape::getInternalValueInContext( const MPlug & plug, MDataHandle & result, MDGContext & aContext )
 {
-	return false; // Everything is handled defaultly
+	bool isOk = true;
+
+	if( (plug == mControlPoints) ||
+		(plug == mControlValueX) ||
+		(plug == mControlValueY) ||
+		(plug == mControlValueZ) )
+	{		
+		double val = 0.0;
+		if ( (plug == mControlPoints) && !plug.isArray() ) {
+			MPoint pnt;
+			int index = plug.logicalIndex();
+			value( index, pnt );
+			result.set( pnt[0], pnt[1], pnt[2] );
+		}
+		else if ( plug == mControlValueX ) {
+			MPlug parentPlug = plug.parent();
+			int index = parentPlug.logicalIndex();
+			value( index, 0, val );
+			result.set( val );
+		}
+		else if ( plug == mControlValueY ) {
+			MPlug parentPlug = plug.parent();
+			int index = parentPlug.logicalIndex();
+			value( index, 1, val );
+			result.set( val );
+		}
+		else if ( plug == mControlValueZ ) {
+			MPlug parentPlug = plug.parent();
+			int index = parentPlug.logicalIndex();
+			value( index, 2, val );
+			result.set( val );
+		}
+	}	
+	else {
+		isOk = MPxSurfaceShape::getInternalValue( plug, result );
+	}
+
+	return isOk;
 }
 
 bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle& aDataHandle, MDGContext& aContext)
@@ -232,9 +281,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	// Set hair properties values
 	bool segmentsCountChanged;
+	bool interpolationGroupsSelectableChanged;
 	bool hairPropertiesChanged;
 	bool textureChanged = 
-		MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, hairPropertiesChanged );
+		MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, interpolationGroupsSelectableChanged, hairPropertiesChanged );
 	// Calls this always, it cost nothing..
 	if ( mHairGuides != 0 )
 	{
@@ -249,6 +299,19 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			mInterpolatedHair.propertiesUpdate( *this );
 			hairPropertiesChanged = false; // Already handled
 		}
+		return textureChanged;
+	}
+	if ( interpolationGroupsSelectableChanged )
+	{
+		// for now do nothing
+		
+		//mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
+		//refreshPointersToGuidesForInterpolation();
+		//if ( mDisplayInterpolated )
+		//{
+		//	mInterpolatedHair.propertiesUpdate( *this );
+		//	hairPropertiesChanged = false; // Already handled
+		//}
 		return textureChanged;
 	}
 	if ( hairPropertiesChanged )
@@ -274,6 +337,123 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
+	/*std::cout << "===============================================================================" << endl;
+	for ( int i = 0; i < this->mInterpolationGroups->getGroupsCount(); i++)
+	{
+		std::cout << this->mInterpolationGroupsSelectable[ i ] << " ";
+	}
+	std::cout << "===============================================================================" << endl;
+	std::cout << endl;*/
+	
+	if ( this->isSelectionModified() )
+	{
+		MSelectionList selList;
+		
+		// Get the list of selected items 
+		MGlobal::getActiveSelectionList( selList );
+
+		//if the list is empty, just deselect everything
+		if ( !(selList.length()) )
+		{			
+			MIntArray arr;
+			this->mHairGuides->applySelection( arr );
+		}
+
+		 // we will use an iterator this time to walk over the selection list.
+		MItSelectionList it( selList );
+		while ( !it.isDone() ) 
+		{
+
+			MDagPath dagPath; 
+			MObject	component;
+			MStatus stat;
+
+			// we retrieve a dag path to a transform or shape, and an MObject
+			// to any components that are selected on that object (if any).
+			//
+			it.getDagPath( dagPath, component );
+
+			// attach a function set to the object
+			MFnDependencyNode fn(dagPath.node());
+		
+			// print the object name
+			//std::cout << "\nOBJECT: " << fn.name().asChar() << std::endl;
+
+			/*MObjectArray activeComponents = this->activeComponents();
+			std::cout << "Number of vertices: " << activeComponents.length() << std::endl;*/
+
+			// If we have components to iterate over
+			if (!component.isNull()) 
+			{
+				// determine the component type
+				switch (component.apiType()) {
+
+					// we have mesh vertices
+					case MFn::kMeshVertComponent: {
+
+						// Single-indexed components
+						MFnSingleIndexedComponent *iComp = new MFnSingleIndexedComponent( component );
+						MIntArray arr;
+						iComp->getElements( arr );
+						/*cout << "Index array length: " << arr.length() << endl;
+						for ( unsigned int i = 0; i < arr.length(); i++ )
+						{
+							cout << arr[i] << " ";
+						}*/
+
+						cout << endl;
+
+						// tell the node that it needs to rebuild its internal selection list
+						this->mHairGuides->applySelection( arr );
+
+						break;
+					}
+
+					case MFn::kMeshEdgeComponent: {
+						MItMeshEdge itEdge( dagPath, component, &stat );
+						while ( !itEdge.isDone() )
+						{
+							MPoint point = itEdge.center(MSpace::kWorld );
+
+							// write the index and the position
+							/*std::cout << "\t" << itEdge.index()
+									  << ") " << point.x 
+									  << " "  << point.y 
+									  << " "  << point.z 
+									  << (itEdge.isSmooth() ? " smooth\n" : " hard\n");*/
+
+							itEdge.next();
+						}
+						break;
+					}
+											  				
+					// do the default
+					default:
+						{
+							std::cout << "HairShape::Draw() - Unknown Component Type!" << endl;
+						}
+						break;
+
+				}
+
+			}			
+			it.next();
+		}
+
+		// important: let the shape know that its list of selected components is up to date
+		this->setSelectionModified( false );
+	}
+	//--------------------------------------------------------------------------------
+	/*const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesStartIndex();
+	cout << "Array size: " << tmpArr.size() << endl;
+	cout << "Elements: ";
+	for( int i = 0; i < tmpArr.size(); i++ ) 
+	{
+		cout << tmpArr[i] << " ";
+	}
+	cout << endl << endl;   */
+	//--------------------------------------------------------------------------------
+	
 	// First init gl extensions
 	if ( !GLExt::isInited() )
 	{
@@ -281,8 +461,10 @@ void HairShape::draw()
 	}
 	// Display guides & interpolated hair
 	if ( mDisplayGuides )
-	{
-		mHairGuides->draw();
+	{		
+		// check if we should draw vertices as well
+		bool drawVertices = ( HairShapeUI::getDrawingState() == HairShapeUI::kDrawVertices );
+		mHairGuides->draw( drawVertices );
 	}
 	if ( mDisplayInterpolated )
 	{
@@ -324,6 +506,166 @@ void HairShape::deserialize( const std::string &aData )
 			*this, mGenDisplayCount );
 	}
 	updateSegmentsCountAttributes( false );
+	updateInterpolationGroupsSelectableAttributes( false );
+}
+
+bool HairShape::isInterpolationGroupSelectable( unsigned __int32 aGroupIndex )
+{
+	return this->mInterpolationGroupsSelectable.at( aGroupIndex );
+}
+
+void HairShape::componentToPlugs( MObject &aComponent,  MSelectionList &aList ) const
+{
+	if ( aComponent.hasFn(MFn::kSingleIndexedComponent) ) {
+
+		MFnSingleIndexedComponent fnEdgeComp( aComponent );
+    	MObject thisNode = thisMObject();
+		MPlug plug( thisNode, mControlPoints );
+		// If this node is connected to a tweak node, reset the
+		// plug to point at the tweak node.
+		//
+		//convertToTweakNodePlug(plug);
+
+		int len = fnEdgeComp.elementCount();
+
+		for ( int i = 0; i < len; i++ )
+		{
+			plug.selectAncestorLogicalIndex(fnEdgeComp.element(i),
+											plug.attribute());
+			aList.add(plug);
+		}
+	}
+}
+
+MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aItem, 
+										const MAttributeSpecArray& aSpec, 
+										MSelectionList& aList )
+{
+	MPxSurfaceShape::MatchResult result = MPxSurfaceShape::kMatchOk;
+	
+	MAttributeSpec attrSpec = aSpec[0];
+	int dim = attrSpec.dimensions();
+	MAttributeSpec attrSpec2;
+	int dim2 = 0;
+
+	/*if ( aSpec.length() > 1 )
+	{
+		attrSpec2 = aSpec[1];
+		dim2 = attrSpec2.dimensions();
+		cout << "aSpec.length(): " << aSpec.length() << endl;
+	}*/
+	
+
+	// Look for attributes specifications of the form :
+	//     vtx[ index ]
+	//     vtx[ lower:upper ]
+	//
+	
+	if ( (1 == aSpec.length()) && (dim > 0) && (attrSpec.name() == "vtx") ) {
+		//int numVertices = meshGeom()->vertices.length();
+		int numVertices = 500;
+		MAttributeIndex attrIndex = attrSpec[0];
+
+		int upper = 0;
+		int lower = 0;
+		if ( attrIndex.hasLowerBound() ) {
+			attrIndex.getLower( lower );
+			cout << "Has lower bound: " << lower << endl;
+		}
+		if ( attrIndex.hasUpperBound() ) {
+			attrIndex.getUpper( upper );
+			cout << "Has upper bound: " << upper << endl;
+		}
+
+		// Check the attribute index range is valid
+		//
+		if ( (lower > upper) || (upper >= numVertices) ) {
+			result = MPxSurfaceShape::kMatchInvalidAttributeRange;	
+		}
+		else {
+			MDagPath path;
+			aItem.getDagPath( 0, path );
+			MFnSingleIndexedComponent fnEdgeComp;
+			MObject edgeComp = fnEdgeComp.create( MFn::kMeshVertComponent );
+			
+			for ( int i=lower; i<=upper; i++ )
+			{
+				fnEdgeComp.addElement( i );
+				cout << i << " ";
+			}
+			aList.add( path, edgeComp );
+			cout << endl;
+		}
+	}
+	//else if ( (2 == aSpec.length()) && (dim > 0) && (dim2 > 0) && (attrSpec.name() == "cv") ) {
+	//	int numVertices = 500;
+	//	MAttributeIndex attrIndex = attrSpec[0];
+
+	//	int upper = 0;
+	//	int lower = 0;
+	//	if ( attrIndex.hasLowerBound() ) {
+	//		attrIndex.getLower( lower );
+	//		cout << "Has lower bound: " << lower << endl;
+	//	}
+	//	if ( attrIndex.hasUpperBound() ) {
+	//		attrIndex.getUpper( upper );
+	//		cout << "Has upper bound: " << upper << endl;
+	//	}
+
+	//	// Check the attribute index range is valid
+	//	//
+	//	if ( (lower > upper) || (upper >= numVertices) ) {
+	//		result = MPxSurfaceShape::kMatchInvalidAttributeRange;	
+	//	}
+	//	else {
+	//		/*MDagPath path;
+	//		aItem.getDagPath( 0, path );
+	//		MFnSingleIndexedComponent fnVtxComp;
+	//		MObject vtxComp = fnVtxComp.create( MFn::kMeshVertComponent );*/
+	//		
+	//		for ( int i=lower; i<=upper; i++ )
+	//		{
+	//			//fnVtxComp.addElement( i );
+	//			cout << i << " ";
+	//		}
+	//		//aList.add( path, vtxComp );
+	//		cout << endl;
+	//	}
+	//}
+	else {
+		// Pass this to the parent class
+		return MPxSurfaceShape::matchComponent( aItem, aSpec, aList );
+	}
+
+	return result;
+}
+
+bool HairShape::match(	const MSelectionMask & aMask, const MObjectArray& aComponentList ) const
+{
+	bool result = false;
+
+	if( aComponentList.length() == 0 ) {
+		result = aMask.intersects( MSelectionMask::kSelectMeshes );
+	}
+	else {
+		for ( int i = 0; i < ( int ) aComponentList.length(); i++ ) {
+			if ( ( aComponentList[i].apiType() == MFn::kMeshVertComponent ) &&
+				 ( aMask.intersects( MSelectionMask::kSelectMeshVerts ) )
+			) 
+			{
+				result = true;
+				break;
+			}
+			else if ( ( aComponentList[i].apiType() == MFn::kMeshEdgeComponent ) &&
+				( aMask.intersects( MSelectionMask::kSelectMeshEdges ) )
+			) 
+			{
+				result = true;
+				break;
+			}
+		}
+	}
+	return result;
 }
 
 // serialization callbacks
@@ -415,6 +757,12 @@ MStatus HairShape::initialize()
 		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
 		//define number of samples in one dimension of texture
 		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 128, 1, 4096, 32, 1024);
+
+		// shape components influence the surface as a whole
+		attributeAffects( mControlPoints, surfaceAttr );
+		attributeAffects( mControlValueX, surfaceAttr );
+		attributeAffects( mControlValueY, surfaceAttr );
+		attributeAffects( mControlValueZ, surfaceAttr );
 
 		//serialized data attribute
 		MFnTypedAttribute sAttr;
@@ -524,6 +872,7 @@ void HairShape::refreshTextures( bool aForceRefresh )
 	if ( interpolationGroupsChanged )
 	{
 		updateSegmentsCountAttributes( false );
+		updateInterpolationGroupsSelectableAttributes( false );
 		// Update segments count of hair guides
 		mHairGuides->updateSegmentsCount( MayaHairProperties::getInterpolationGroups() );
 		refreshPointersToGuidesForInterpolation();
@@ -565,6 +914,16 @@ void HairShape::refreshTextures( bool aForceRefresh )
 	}
 }
 
+void HairShape::setSelectionModified( bool aFlag )
+{
+	mIsSelectionModified = aFlag;
+}
+
+bool HairShape::isSelectionModified()
+{
+	return mIsSelectionModified;
+}
+
 /************************************************************************************************************/
 /*											PRIVATE METHODS													*/
 /************************************************************************************************************/
@@ -586,6 +945,9 @@ void HairShape::meshChange( MObject aMeshObj )
 	{
 		// Updates segments attributes
 		updateSegmentsCountAttributes( true );
+
+		// Updates selectable interpolation groups attribute
+		updateInterpolationGroupsSelectableAttributes( true );
 
 		// maya mesh construction
 		mMayaMesh = new MayaMesh( aMeshObj, uvSetName );
@@ -719,6 +1081,47 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	s = node.addAttribute( attr );
 }
 
+// Inline, but only called inside HairGuides.cpp
+inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate )
+{
+	// Remove attr value from storage
+	setInterpolationGroupsSelectableAttr( MObject() );
+	MFnDependencyNode node( thisMObject() );
+	if ( !aFirstUpdate )
+	{
+		// Removes old attribute
+		node.removeAttribute( node.findPlug( "interpolation_groups_selectable" ).attribute() );
+	}
+	// Creates new compound attribute
+	MStatus s;
+	MObject attr;
+	MFnCompoundAttribute nAttr;
+	attr = nAttr.create( "interpolation_groups_selectable", "igs", &s );
+	nAttr.setInternal( true );
+	// Add children -> counts
+	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 1 );
+	//fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
+	for(int i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i)
+	{
+		MFnNumericAttribute numericAttribute;
+		MString s = "groups_selectable_";
+		s += nAttr.numChildren();
+
+		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, 1 );
+		numericAttribute.setMin( 0 );
+		numericAttribute.setMax( 1 );
+		numericAttribute.setSoftMin( 0 );
+		numericAttribute.setSoftMax( 1 );
+		numericAttribute.setKeyable( false );
+		numericAttribute.setInternal( true );
+		nAttr.addChild(c);
+	}
+	// Add attr
+	s = node.addAttribute( attr );
+	// Finally remember attr value
+	setInterpolationGroupsSelectableAttr( attr );
+}
+
 /************************************************************************************************************/
 /*										TOPOLOGY CALLBACKS HANDLING											*/
 /************************************************************************************************************/
@@ -802,6 +1205,112 @@ void HairShape::removeCallbacks()
 	MPolyMessage::removeCallbacks( mCallbackIds );
 	mCallbackIds.clear();
 }
+
+/*TODO Test and replace with proper documentation*/
+bool HairShape::value( int pntInd, int vlInd, double & val ) const
+//
+// Description
+//
+//	  Helper function to return the value of a given vertex
+//    from the mHairGuides.
+//
+{
+	bool result = false;
+
+	HairShape* nonConstThis = (HairShape*)this;
+	HairComponents::HairGuides* hairGuidesPtr = nonConstThis->mHairGuides;
+	if ( NULL != hairGuidesPtr )
+	{
+		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
+		size_t segmentCount = guideSegments.mSegments.size();
+		Vector3D< Real > point3d = guideSegments.mSegments.at( segmentCount - 1 );
+		val = point3d[ vlInd ];
+		result = true;
+	}
+
+	return result;
+}
+
+bool HairShape::value( int pntInd, MPoint & val ) const
+//
+// Description
+//
+//	  Helper function to return the value of a given vertex
+//    from the cachedMesh.
+//
+{
+	bool result = false;
+
+	HairShape* nonConstThis = (HairShape*)this;
+	HairComponents::HairGuides* hairGuidesPtr = nonConstThis->mHairGuides;
+	if ( NULL != hairGuidesPtr )
+	{
+		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
+		size_t segmentCount = guideSegments.mSegments.size();
+		Vector3D< Real > point3d = guideSegments.mSegments.at( segmentCount - 1 );
+		/*TODO insert support for world matrix transformations - create an interface from hairGuidesPtr */
+		//val = point3d.transformAsPoint( hairGuidesPtr->mCurrentPositions.at( pntInd ).mWorldTransformMatrix ).toMayaPoint();
+		val = point3d.toMayaPoint();
+		result = true;
+	}
+
+	return result;
+}
+
+bool HairShape::setValue( int pntInd, int vlInd, double val )
+//
+// Description
+//
+//	  Helper function to set the value of a given vertex
+//    in the cachedMesh.
+//
+{
+	bool result = false;
+
+	HairShape* nonConstThis = (HairShape*)this;
+	HairComponents::HairGuides* hairGuidesPtr = nonConstThis->mHairGuides;
+	if ( NULL != hairGuidesPtr )
+	{
+		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
+		size_t segmentCount = guideSegments.mSegments.size();
+		Vector3D< Real >& point3d = guideSegments.mSegments.at( segmentCount - 1 );
+		point3d[ vlInd ] = val;
+		result = true;
+	}
+
+	childChanged( MPxSurfaceShape::kBoundingBoxChanged );
+	childChanged( MPxSurfaceShape::kObjectChanged );
+
+	return result;
+}
+
+bool HairShape::setValue( int pntInd, const MPoint & val )
+//
+// Description
+//
+//	  Helper function to set the value of a given vertex
+//    in the cachedMesh.
+//
+{
+	bool result = false;
+
+	HairShape* nonConstThis = (HairShape*)this;
+	HairComponents::HairGuides* hairGuidesPtr = nonConstThis->mHairGuides;
+	if ( NULL != hairGuidesPtr )
+	{
+		HairComponents::OneGuideSegments guideSegments = hairGuidesPtr->getCurrentFrameSegments().mSegments.at( pntInd );
+		size_t segmentCount = guideSegments.mSegments.size();
+		Vector3D< Real >& point3d = guideSegments.mSegments.at( segmentCount - 1 );
+		point3d = val;
+		result = true;
+	}
+
+	childChanged( MPxSurfaceShape::kBoundingBoxChanged );
+	childChanged( MPxSurfaceShape::kObjectChanged );
+
+	return result;
+}
+
 
 } // namespace HairShape
 
