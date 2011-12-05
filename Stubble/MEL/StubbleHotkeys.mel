@@ -1,0 +1,72 @@
+// name all necessary commands
+
+nameCommand
+	-command "source StubbleCreateHair.mel;"
+	-annotation "Create new Stubble hair"
+	StubbleCreateHairNC;
+
+nameCommand
+	-command "toolPropertyWindow; setToolTo stubbleBrushTool;"
+	-annotation "Set tool to Stubble brush tool"
+	StubbleBrushToolNC;
+
+nameCommand
+	-command "toolPropertyWindow; setToolTo stubbleCutTool;"
+	-annotation "Set tool to Stubble cut tool"
+	StubbleCutToolNC;
+
+nameCommand
+	-command "StubbleUndoCommand; refresh;"
+	-annotation "Undo last Stubble operation"
+	StubbleUndoNC;
+
+nameCommand
+	-command "StubbleRedoCommand; refresh;"
+	-annotation "Redo last Stubble operation"
+	StubbleRedoNC;
+
+nameCommand
+	-command "source StubbleCreateHair.mel"
+	-annotation "Create new Stubble hair"
+	StubbleCreateHairNC;
+
+nameCommand
+	-command " \
+		if (`currentCtx` == \"stubbleBrushTool\") { \
+			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+			$toolscale = max(0, $toolscale - 0.1); \
+			StubbleBrushToolCommand -e -toolScale $toolscale; \
+			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+		} else if (`currentCtx` == \"stubbleCutTool\") { \
+			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+			$toolScale = max(0, $toolScale - 0.1); \
+			StubbleBrushToolCommand -e -toolScale $toolscale; \
+			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+		};"
+	-annotation "Set smaller tool scale"
+	StubbleSmallerToolScaleNC;
+
+nameCommand
+	-command " \
+		if (`currentCtx` == \"stubbleBrushTool\") { \
+			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+			$toolscale = min(5, $toolscale + 0.1); \
+			StubbleBrushToolCommand -e -toolScale $toolscale; \
+			floatSliderGrp -e -v $toolscale stubbleToolScale; \
+		} else if (`currentCtx` == \"stubbleCutTool\") { \
+			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+			$toolscale = min(5, $toolscale + 0.1); \
+			StubbleBrushToolCommand -e -toolScale $toolscale; \
+			floatSliderGrp -e -v $toolscale stubbleToolScale; \
+		};"
+	-annotation "Set smaller tool scale"
+	StubbleGreaterToolScaleNC;
+
+// bind named commands to hotkeys
+hotkey -k "z" -alt -name "StubbleUndoNC";
+hotkey -k "Z" -alt -name "StubbleRedoNC";
+hotkey -k "F5" -alt -name "StubbleCreateHairNC";
+hotkey -k "F6" -alt -name "StubbleBrushToolNC";
+hotkey -k "F7" -alt -name "StubbleCutToolNC";
+hotkey -k "Up" -alt -ctl -name "StubbleSmallerToolScaleNC";
+hotkey -k "Down" -alt -ctl -name "StubbleGreaterToolScaleNC";

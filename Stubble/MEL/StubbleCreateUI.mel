@@ -167,5 +167,8 @@ global proc StubbleCreateUI()
 	print ( "Stubble: Enabling rendering with 3Delight.\n" );
 	source Stubble3DelightRendering.mel;
 
+	// asssociate keyboard shortcuts
+	source StubbleHotkeys.mel;
+
 	print ( "Stubble: Initialization completed.\n" );
 }

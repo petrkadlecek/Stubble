@@ -514,5 +514,8 @@
       <Filter>MEL\StubbleHapticSettingsTool</Filter>
     </None>
     <None Include="MEL\StubbleTextureProperties.mel" />
+    <None Include="MEL\StubbleHotkeys.mel">
+      <Filter>MEL</Filter>
+    </None>
   </ItemGroup>
 </Project>

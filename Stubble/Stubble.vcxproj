@@ -306,6 +306,7 @@
     <None Include="MEL\StubbleHapticSettingsTool.mel" />
     <None Include="MEL\StubbleHapticSettingsToolProperties.mel" />
     <None Include="MEL\StubbleHapticSettingsToolValues.mel" />
+    <None Include="MEL\StubbleHotkeys.mel" />
     <None Include="MEL\StubbleRebuildSelectMenu.mel" />
     <None Include="MEL\StubbleTextureProperties.mel" />
   </ItemGroup>
