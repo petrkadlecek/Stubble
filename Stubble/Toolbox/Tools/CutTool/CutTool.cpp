@@ -190,7 +190,7 @@ void CutTool::doCut()
 		}
 
 		Real oldSegmentLength = guide->mGuideSegments.mSegmentLength;
-		if ( oldSegmentLength == 0 )
+		if ( oldSegmentLength >= -EPSILON && oldSegmentLength <= EPSILON )
 		{
 			continue; // nothing more to cut
 		}
