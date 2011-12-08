@@ -459,13 +459,17 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 	}
 }
 
-Real SegmentsStorage::timeAffectFactor( Time aTimeDifference )
+// May be defined here - is only used inside this cpp file
+inline Real SegmentsStorage::timeAffectFactor( Time aTimeDifference, Real aInverseFramesCount )
 {
-	return static_cast< Real >( 1.0f - 0.2f * aTimeDifference ); // TODO SIMPLE : linear through 10 frames
+	// Smooth step over all frames
+	Real x = aTimeDifference * aInverseFramesCount + 1;
+	return x * x * ( 3 - 2 * x );
 }
 
 void SegmentsStorage::propagateChangesThroughTime()
 {
+	Real aInverseFramesCount = 1 / static_cast< Real >( mSegments.size() ); // Get frames count
 	if ( imported() && mAreCurrentSegmentsDirty )
 	{
 		// Gets first non-less frame 
@@ -473,7 +477,8 @@ void SegmentsStorage::propagateChangesThroughTime()
 		Real factor;
 		// For every succeeding frame until change has no meaning
 		for ( AllFramesSegments::iterator it = lowerBound; 
-			it != mSegments.end() && ( factor = timeAffectFactor( it->first - mCurrent.mFrame ) ) > 0; ++it )
+			it != mSegments.end() && ( factor = 
+			timeAffectFactor( it->first - mCurrent.mFrame, aInverseFramesCount ) ) > 0; ++it )
 		{
 			propageteChangesToFrame( it->second.mSegments, factor );
 		}
@@ -482,8 +487,8 @@ void SegmentsStorage::propagateChangesThroughTime()
 			// Get reverse iterator
 			AllFramesSegments::reverse_iterator rIt( lowerBound );
 			// For every preceding frame until change has no meaning
-			for ( ; rIt != mSegments.rend() && ( factor = timeAffectFactor( mCurrent.mFrame - rIt->first ) ) > 0; 
-				++rIt )
+			for ( ; rIt != mSegments.rend() && ( factor = 
+				timeAffectFactor( mCurrent.mFrame - rIt->first, aInverseFramesCount ) ) > 0; ++rIt )
 			{
 				propageteChangesToFrame( rIt->second.mSegments, factor );
 			}

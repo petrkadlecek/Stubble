@@ -1052,7 +1052,7 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 	attr = nAttr.create( "segments_count", "sgc", &s );
 	nAttr.setInternal( true );
 	// Add children -> counts
-	for(int i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i)
+	for( unsigned __int32 i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i )
 	{
 		MFnNumericAttribute numericAttribute;
 		MString s = "group_";
@@ -1101,7 +1101,7 @@ inline void HairShape::updateInterpolationGroupsSelectableAttributes( bool aFirs
 	// Add children -> counts
 	mInterpolationGroupsSelectable.resize( mInterpolationGroups->getGroupsCount(), 1 );
 	//fillIntArrayAttributes( attr, mInterpolationGroups->getGroupsCount(), 1, 0, 1, 0, 1, "groups_selectable_" );
-	for(int i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i)
+	for( unsigned __int32 i = 0; i <  mInterpolationGroups->getGroupsCount(); ++i )
 	{
 		MFnNumericAttribute numericAttribute;
 		MString s = "groups_selectable_";

@@ -191,11 +191,12 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Calculates how much change in one frame affects other frame.
 	///
-	/// \param	aTimeDifference	Distance between frames in time.
+	/// \param	aTimeDifference		Distance between frames in time.
+	/// \param	aInverseFrameCount	Inverse number of frames
 	///
 	/// \return	Affect factor. 
 	///-------------------------------------------------------------------------------------------------
-	Real timeAffectFactor( Time aTimeDifference );
+	inline Real timeAffectFactor( Time aTimeDifference, Real aInverseFramesCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Propagate changes from current frame to other frames.

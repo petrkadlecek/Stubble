@@ -72,7 +72,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		// for each guide segment (vertex)
 		SegmentId sId = 0;
 		// the index of the last segment on the guide
-		unsigned int lastSegment = guideIt->mSegments.size() - 1;
+		unsigned __int32 lastSegment = static_cast< unsigned __int32 >( guideIt->mSegments.size() ) - 1;
 		for (Segments::const_iterator segIt = guideIt->mSegments.begin();
 			segIt != guideIt->mSegments.end(); ++segIt, ++sId)
 		{
@@ -210,7 +210,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			// for each guide segment (vertex)
 			SegmentId sId = 0;
 			// the index of the last segment on the guide
-			unsigned int lastSegment = guideIt->mSegments.size() - 1;
+			unsigned __int32 lastSegment = static_cast< unsigned __int32 >( guideIt->mSegments.size() ) - 1;
 			for (Segments::const_iterator segIt = guideIt->mSegments.begin();
 				segIt != guideIt->mSegments.end(); ++segIt, ++sId)
 			{
@@ -262,12 +262,12 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 				guide->mSegmentsAdditionalInfo = additionalInfo;
 				guide->mCollisionsCount = 0;
 
-				aSelectedGuides.push_back(guide);
+				aSelectedGuides.push_back( guide );
 			}
 
 			// if we have checked all of the selected component indices,
 			// then there is no need to go through all the guides
-			if ( selectedComponentArrayIndex >= aSelectedComponentIndices.length() )
+			if ( selectedComponentArrayIndex >= static_cast< int >( aSelectedComponentIndices.length() ) )
 			{
 				break;
 			}
