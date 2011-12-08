@@ -15,7 +15,8 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Class that holds UV coordinates.
+/// Class that holds triangle id and barycentric coordinates of point inside this triangle.
+/// This class can be imported from/exported to binary stream.
 ///----------------------------------------------------------------------------------------------------
 class UVPoint
 {
@@ -24,50 +25,55 @@ class UVPoint
 public:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Default constructor
+	/// Default empty constructor.
 	///----------------------------------------------------------------------------------------------------
 	inline UVPoint();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Constructor
+	/// Constructor.
+	/// Creates class from point on triangle.
+	/// 
+	/// \param aU			Barycentric coordinate U of point.
+	/// \param aV			Barycentric coordinate V of point.
+	/// \param aTriangleID	ID of triangle in which point lies.
 	///----------------------------------------------------------------------------------------------------
 	inline UVPoint( Real aU, Real AV, unsigned __int32 aTriangleID );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the U part.
+	/// Gets the barycentric coordinate U of point.
+	/// 
+	/// \return The barycentric coordinate U of point.
 	///----------------------------------------------------------------------------------------------------
 	inline Real getU() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the V part.
+	/// Gets the barycentric coordinate V of point.
+	/// 
+	/// \return The barycentric coordinate V of point.
 	///----------------------------------------------------------------------------------------------------
 	inline Real getV() const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets ID of the triangle.
+	/// 
+	/// \return ID of triangle.
 	///----------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getTriangleID() const;
 
-	static const unsigned __int32 NOT_TRIANGLE = 0xFFFFFFFF;
+	static const unsigned __int32 NOT_TRIANGLE = 0xFFFFFFFF;	///< The id of non-existing triangle
 
 private:
-	Real mU; ///< The U coordinate.
+	Real mU; ///< The barycentric coordinate U.
 
-	Real mV; ///< The V coordinate.
+	Real mV; ///< The barycentric coordinate V.
 
 	unsigned __int32 mTriangleID; ///< ID of triangle.
 };
 
-///----------------------------------------------------------------------------------------------------
-/// Default constructor
-///----------------------------------------------------------------------------------------------------
 inline UVPoint::UVPoint()
 {
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Constructor
-///----------------------------------------------------------------------------------------------------
 inline UVPoint::UVPoint( Real aU, Real aV, unsigned __int32 aTriangleID ):
 	mU(aU),
 	mV(aV),
@@ -75,30 +81,29 @@ inline UVPoint::UVPoint( Real aU, Real aV, unsigned __int32 aTriangleID ):
 {
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the U part.
-///----------------------------------------------------------------------------------------------------
 inline Real UVPoint::getU() const
 {
 	return mU;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the V part.
-///----------------------------------------------------------------------------------------------------
 inline Real UVPoint::getV() const
 {
 	return mV;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets ID of the triangle.
-///----------------------------------------------------------------------------------------------------
 inline unsigned __int32 UVPoint::getTriangleID() const
 {
 	return mTriangleID;
 }
 
+///----------------------------------------------------------------------------------------------------
+/// Put uv point into stream 
+///
+/// \param [in,out]	aStreamOut	The stream out. 
+/// \param aUVPoint			The uv point. 
+///
+/// \return	The updated stream. 
+///----------------------------------------------------------------------------------------------------
 inline std::ostream & operator<<( std::ostream &aStreamOut, const UVPoint & aUVPoint )
 {
 	aStreamOut.write( reinterpret_cast< const char * >( &aUVPoint.mU ), sizeof( Real ) );
@@ -107,6 +112,14 @@ inline std::ostream & operator<<( std::ostream &aStreamOut, const UVPoint & aUVP
 	return aStreamOut;
 }
 
+///----------------------------------------------------------------------------------------------------
+/// Pull uv point from stream.
+///
+/// \param [in,out]	aStreamIn		The stream in. 
+/// \param [in,out]	aUVPoint	The uv point.
+///
+/// \return	The updated stream. 
+///----------------------------------------------------------------------------------------------------
 inline std::istream & operator>>( std::istream & aStreamIn, UVPoint & aUVPoint )
 {
 	aStreamIn.read( reinterpret_cast< char * >( &aUVPoint.mU ), sizeof( Real ) );

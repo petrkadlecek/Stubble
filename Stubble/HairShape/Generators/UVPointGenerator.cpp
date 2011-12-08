@@ -19,7 +19,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 	{
 		stack = new SubTriangle[ STACK_SIZE ];
 		BuildVertices();
-		// Cumulative distribution fuction
+		// Cumulative distribution fuction highest value
 		Real cdf = 0;
 		// Stack for subtriangles
 		SubTriangle * stackHead = stack;
@@ -72,18 +72,18 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 				--stackHead;
 				// Select sub triangle on stack
 				SubTriangle & subTriangle = *stackHead;
-				if ( father[ subTriangle.mTriangleSimpleID ] != stackHead ) // Not returning from recursion
+				if ( father[ subTriangle.mTriangleID ] != stackHead ) // Not returning from recursion
 				{
 					// Select area
 					Real area = subTriangle.mCDFValue;
 					// Until division criterium is reached
-					if ( ( 1 << subTriangle.mTriangleSimpleID ) < twoPwrMaxDepth )
+					if ( ( 1 << subTriangle.mTriangleID ) < twoPwrMaxDepth )
 					{
 						// Subdivide triangle
 						area /= 4;
 						subTriangle.mCDFValue = -1;
-						unsigned __int32 depth = subTriangle.mTriangleSimpleID + 1;
-						father[ subTriangle.mTriangleSimpleID ] = stackHead;
+						unsigned __int32 depth = subTriangle.mTriangleID + 1;
+						father[ subTriangle.mTriangleID ] = stackHead;
 						// Connect middle vertices of lines
 						unsigned __int32 differentRowFix = 1 << ( ( MAX_DIVISION_DEPTH - depth ) << 1 );
 						unsigned __int32 v1ID = subTriangle.mVertex1ID;
@@ -121,10 +121,10 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 						Real p = aTexture.realAtUV(u, v) * area;
 
 						// Do I have father ?
-						if ( subTriangle.mTriangleSimpleID != 0 ) 
+						if ( subTriangle.mTriangleID != 0 ) 
 						{
 							// Select father
-							SubTriangle * myFather = father[ subTriangle.mTriangleSimpleID - 1 ];
+							SubTriangle * myFather = father[ subTriangle.mTriangleID - 1 ];
 							// Send my probability to father, if I am first son or all previous sons have
 							// same probability as I do
 							myFather->mCDFValue = myFather->mCDFValue == p || myFather->mCDFValue == - 1 ? p : -2;
@@ -134,22 +134,22 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 						{
 							cdf += p;
 							subTriangle.mCDFValue = cdf;
-							subTriangle.mTriangleSimpleID = triangleSimpleID;
+							subTriangle.mTriangleID = triangleSimpleID;
 							mSubTriangles.push_back( subTriangle );
 						}
 					}
 				}
 				else
 				{
-					father[ subTriangle.mTriangleSimpleID ] = 0;
+					father[ subTriangle.mTriangleID ] = 0;
 					// I have same sons
 					if ( subTriangle.mCDFValue != -2)
 					{
 						// Do I have father ?
-						if ( subTriangle.mTriangleSimpleID != 0 ) 
+						if ( subTriangle.mTriangleID != 0 ) 
 						{
 							// Select father
-							SubTriangle * myFather = father[ subTriangle.mTriangleSimpleID - 1 ];
+							SubTriangle * myFather = father[ subTriangle.mTriangleID - 1 ];
 							// Send my probability to father, if I am first son or all previous sons have
 							// same probability as I do
 							myFather->mCDFValue = myFather->mCDFValue == subTriangle.mCDFValue 
@@ -164,7 +164,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 							mSubTriangles.pop_back();
 							// Insert father
 							subTriangle.mCDFValue = cdf;
-							subTriangle.mTriangleSimpleID = triangleSimpleID;
+							subTriangle.mTriangleID = triangleSimpleID;
 							mSubTriangles.push_back( subTriangle );
 						}
 					
@@ -223,7 +223,7 @@ UVPoint UVPointGenerator::next()
 				return UVPoint( // Recalculate barycentric coordinates of sub triangle to bar.coord. of triangle
 					u * v1.mU + v * v2.mU + w * v3.mU, // U coordinate
 					u * v1.mV + v * v2.mV + w * v3.mV, // V coordinate
-					mid->mTriangleSimpleID ); // Copy triangleID
+					mid->mTriangleID ); // Copy triangleID
 			}
 			else // Too large
 			{

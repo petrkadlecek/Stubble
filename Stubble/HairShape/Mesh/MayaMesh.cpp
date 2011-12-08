@@ -76,7 +76,7 @@ MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet):
 			mRestPose.mTriangles.push_back( Triangle( triangleMeshPoints[0], triangleMeshPoints[1], triangleMeshPoints[2] ) );
 
 			// Set maya triangle IDs for fast access to updated triangle
-			mMeshTriangles.push_back( MeshTriangle( polygonID, localVerticesIndices[ trianglePointsIndices[ 0 ] ],
+			mMayaTriangles.push_back( MayaTriangle( polygonID, localVerticesIndices[ trianglePointsIndices[ 0 ] ],
 				localVerticesIndices[ trianglePointsIndices[ 1 ] ],
 				localVerticesIndices[ trianglePointsIndices[ 2 ] ] ) );
 		}
@@ -95,7 +95,7 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	double w = 1 - u - v;
 
 	// Get triangle
-	const MeshTriangle & triangle = mMeshTriangles [ aPoint.getTriangleID() ];
+	const MayaTriangle & triangle = mMayaTriangles [ aPoint.getTriangleID() ];
 
 	// Get vertices indices
 	int3 indices;
@@ -152,7 +152,7 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 {
 	// Get triangle
-	const MeshTriangle & triangle = mMeshTriangles [ aID ];
+	const MayaTriangle & triangle = mMayaTriangles [ aID ];
 
 	// points store variables
 	int3 indices;
@@ -188,7 +188,7 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 
 inline unsigned __int32 MayaMesh::getTriangleCount() const
 {
-	return static_cast< unsigned __int32 >( mMeshTriangles.size() );
+	return static_cast< unsigned __int32 >( mMayaTriangles.size() );
 }
 
 void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
@@ -199,7 +199,6 @@ void MayaMesh::meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet )
 	delete mMayaMesh;
 	mMayaMesh = new MFnMesh( aUpdatedMesh );
 	mUVSet = aUVSet;
-	mMeshUG.setDirty();
 }
 
 void MayaMesh::serialize( std::ostream & aOutputStream ) const
@@ -221,7 +220,7 @@ MayaMesh::~MayaMesh()
 void MayaMesh::getTriangles( Triangles & aResult ) const
 {
 	aResult.clear();
-	aResult.reserve( mMeshTriangles.size() );
+	aResult.reserve( mMayaTriangles.size() );
 	for ( unsigned __int32 i = 0; i < aResult.size(); ++i )
 	{
 		aResult.push_back( getTriangle( i ) );

@@ -7,15 +7,15 @@ namespace HairShape
 {
 
 Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensityTexture, 
-	const Dimensions3 & aDimensions3 )
+	const Dimensions3 & aResolution )
 {
 	BoundingBox bbox = aRestPoseMesh.getBoundingBox();
-	unsigned __int32 total = aDimensions3[ 0 ] * aDimensions3[ 1 ] * aDimensions3[ 2 ];
+	unsigned __int32 total = aResolution[ 0 ] * aResolution[ 1 ] * aResolution[ 2 ];
 	mVoxels.resize( total );
-	Vector3D< Real > bsize = ( bbox.max() - bbox.min() ) * 1.001f;
-	Vector3D< Real > voxelSize( bsize.x / aDimensions3[ 0 ],
-		bsize.y / aDimensions3[ 1 ],
-		bsize.z / aDimensions3[ 2 ] );
+	Vector3D< Real > bsize = ( bbox.max() - bbox.min() ) * 1.001f; // Resize size to avoid voxel id overflow
+	Vector3D< Real > voxelSize( bsize.x / aResolution[ 0 ],
+		bsize.y / aResolution[ 1 ],
+		bsize.z / aResolution[ 2 ] );
 	// For each triangle
 	for ( TriangleConstIterator it = aRestPoseMesh.getTriangleConstIterator(); !it.end(); ++it )
 	{
@@ -27,7 +27,7 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensity
 		unsigned __int32 y = static_cast< unsigned __int32 >( floor( ( barycenter.y - bbox.min().y ) / voxelSize.y ) );
 		unsigned __int32 z = static_cast< unsigned __int32 >( floor( ( barycenter.z - bbox.min().z ) / voxelSize.z ) );
 		// Calculate voxel id
-		unsigned __int32 id = z + aDimensions3[ 2 ] * ( y + aDimensions3[ 1 ] * x );
+		unsigned __int32 id = z + aResolution[ 2 ] * ( y + aResolution[ 1 ] * x );
 		Voxel & v = mVoxels[ id ];
 		// Add triangle id to voxel
 		v.mTrianglesIds.push_back( it.getTriangleID() );
@@ -47,7 +47,7 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensity
 		{
 			// Generate rest pose mesh only for this voxel
 			Triangles triangles;
-			aRestPoseMesh.getSelectedTriangles( it->mTrianglesIds, triangles );
+			aRestPoseMesh.getRequestedTriangles( it->mTrianglesIds, triangles );
 			it->mRestPoseMesh = new Mesh( triangles );
 			// Create UV point generator for selected triangles
 			it->mUVPointGenerator = new UVPointGenerator( aDensityTexture, it->mRestPoseMesh->getTriangleConstIterator(), it->mRandom );
@@ -89,7 +89,7 @@ void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolat
 		{
 			// Generate current mesh only for this voxel
 			Triangles triangles;
-			aCurrentMesh.getSelectedTriangles( vx.mTrianglesIds, triangles );
+			aCurrentMesh.getRequestedTriangles( vx.mTrianglesIds, triangles );
 			delete vx.mCurrentMesh;
 			vx.mCurrentMesh = new Mesh( triangles, true );
 			// Create simple hair position generator & output generator

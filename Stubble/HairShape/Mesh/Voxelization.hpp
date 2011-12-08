@@ -1,8 +1,6 @@
 #ifndef STUBBLE_VOXELIZATION_HPP
 #define STUBBLE_VOXELIZATION_HPP
 
-
-
 #include "Common/CommonTypes.hpp"
 #include "HairShape/Generators/UVPointGenerator.hpp"
 #include "HairShape/Interpolation/HairGenerator.tmpl.hpp"
@@ -23,7 +21,12 @@ namespace HairShape
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Stores information about how is mesh voxelized.
+/// Class for dividing hair object to several voxels which will be rendered independently.
+/// Voxels are cells of 3D uniform grid defined by rest position mesh bounding box and user defined
+/// resolution.
+/// Each voxel contain its own rest pose and current geometry and each hair belong only to one
+/// voxel.
+/// Voxel can be exported to binary stream and then used in 3Delight or other renderer.
 ///-------------------------------------------------------------------------------------------------
 class Voxelization
 {
@@ -31,13 +34,16 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor. 
+	/// Voxelizes and stores rest pose mesh to several voxels ( voxels count is defined by aResolution 
+	/// parameter, triangle is put in voxel depending on his barycentr position ). Constructs samples 
+	/// generator for each voxel of mesh and stores them.
 	///
-	/// \param	aRestPoseMesh		the rest pose mesh. 
-	/// \param	aDensityTexture		the density texture. 
-	/// \param	aDimensions3		the 3D dimensions of voxelization
+	/// \param	aRestPoseMesh		The rest pose mesh. 
+	/// \param	aDensityTexture		The hair density texture. 
+	/// \param	aResolution		The 3D resolution of voxelization
 	///-------------------------------------------------------------------------------------------------
 	Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensityTexture, 
-		const Dimensions3 & aDimensions3 );
+		const Dimensions3 & aResolution );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -45,7 +51,10 @@ public:
 	inline ~Voxelization();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates the voxels. 
+	/// Updates voxel data and properties.
+	/// Voxelizes current mesh and calculates bounding box of hair curves and hair count for each voxel
+	/// ( samples generators total densities are used for hair count calculation ). Bounding box is 
+	/// calculated by complete generation of hair geometry.
 	///
 	/// \param	aCurrentMesh	The current mesh. 
 	/// \param	aHairProperties	The hair properties. 
@@ -55,19 +64,20 @@ public:
 		unsigned __int32 aTotalHairCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Exports voxel. 
-	///
+	/// Exports requested voxel data to binary stream.
+	/// Hair count, hair start index, current and rest pose mesh of requested voxel are exported.
+	/// 
 	/// \param [in,out]	aOutputStream	The output stream. 
-	/// \param	aVoxelId				Identifier for a voxel. 
-	/// 								
+	/// \param	aVoxelId				Requested voxel identifier.
+	/// 
 	/// \return the bounding box of exported voxel
 	///-------------------------------------------------------------------------------------------------
 	BoundingBox exportVoxel( std::ostream & aOutputStream, unsigned __int32 aVoxelId );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets a number of guide hair in voxel.
+	/// Gets a number of hair in requested voxel.
 	///
-	/// \param	aVoxelId	Voxel id
+	/// \param	aVoxelId	Requested voxel identifier.
 	///
 	/// \return	The voxel hair count. 
 	///-------------------------------------------------------------------------------------------------
@@ -88,10 +98,13 @@ private:
 	typedef std::vector< unsigned __int32 > TrianglesIds;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Defines an alias representing list of identifiers for the voxels .
+	/// Defines an alias representing list of identifiers for the voxels array.
 	///-------------------------------------------------------------------------------------------------
 	typedef TrianglesIds VoxelsIds;
 
+	///-------------------------------------------------------------------------------------------------
+	/// Class for holding one voxel data and properties. 
+	///-------------------------------------------------------------------------------------------------
 	struct Voxel
 	{
 		unsigned __int32 mHairCount;	///< Number of hair inside this voxel
@@ -112,7 +125,7 @@ private:
 	};
 
 	///----------------------------------------------------------------------------------------------------
-	/// Defines an alias representing the voxels .
+	/// Defines an alias representing the voxels array .
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< Voxel > Voxels;
 

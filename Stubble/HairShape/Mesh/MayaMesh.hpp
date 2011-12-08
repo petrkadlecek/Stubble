@@ -7,9 +7,8 @@
 #include <maya\MMeshIntersector.h>
 
 #include "HairShape\Mesh\Mesh.hpp"
-#include "HairShape\Mesh\MeshUG.hpp"
 #include "HairShape\Mesh\MeshUVCoordUG.hpp"
-#include "HairShape\Mesh\MeshTriangle.hpp"
+#include "HairShape\Mesh\MayaTriangle.hpp"
 #include "HairShape\Mesh\UVPoint.hpp"
 #include "Common\CommonConstants.hpp"
 #include "Common\CommonFunctions.hpp"
@@ -23,17 +22,24 @@ namespace Stubble
 
 namespace HairShape
 {
+
 ///----------------------------------------------------------------------------------------------------
-/// Stores proxy to current Maya mesh and rest pose mesh.
+/// Works as proxy to current Maya mesh and stores rest pose mesh as Mesh class object.
+/// This class also provides access to maya internal objects used for intersections and other 
+/// operations.
+/// Uniform grid of uv coordinates of the current mesh is stored inside this class.
+/// Enables calculation of point on mesh ( MeshPoint = position, normal, tangent etc. )
+/// Object critical data can be serialized.
 ///----------------------------------------------------------------------------------------------------
 class MayaMesh
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// Maya mesh constructor that accepts Maya mesh object and UV set
+	/// Maya mesh constructor that accepts Maya mesh object and UV set.
+	/// Rest pose mesh will be constructed from current Maya mesh.
 	///
 	/// \param aMesh	Maya mesh object.
-	/// \param aUVSet	UVSet string.
+	/// \param aUVSet	UVSet name.
 	///----------------------------------------------------------------------------------------------------
 	MayaMesh( MObject & aMesh, const MString & aUVSet );
 
@@ -44,9 +50,9 @@ public:
 	inline MMeshIntersector * getMeshIntersector() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets current Maya mesh
+	/// Gets current Maya mesh function object.
 	/// 
-	/// \return Maya mesh
+	/// \return Maya mesh function object.
 	inline MFnMesh * getMayaMesh() const;
 
 	///----------------------------------------------------------------------------------------------------
@@ -60,57 +66,57 @@ public:
 	/// 
 	/// \param aPoint	The triangle id and barycentric coordinates
 	///----------------------------------------------------------------------------------------------------
-	MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
+	MeshPoint getMeshPoint( const UVPoint & aPoint ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets triangle as 3 vertices.
+	/// Gets triangle represented as Triangle struct.
+	/// 
+	/// \param aID		The triangle index.
+	/// 
+	/// \return Requested triangle.
 	///----------------------------------------------------------------------------------------------------
 	const Triangle getTriangle( unsigned __int32 aID ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
+	/// 
+	/// \return Number of mesh's triangles.
 	///----------------------------------------------------------------------------------------------------
 	unsigned __int32 getTriangleCount() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Method called in case of updated mesh.
+	/// If maya mesh was updated, this method will refresh proxies to new maya mesh.
 	///
-	/// \param aUpdatedMesh	updated mesh
-	/// \param aUVSet		UVSet string
+	/// \param aUpdatedMesh	Updated maya mesh object.
+	/// \param aUVSet		UVSet name.
 	///----------------------------------------------------------------------------------------------------
 	void meshUpdate( MObject & aUpdatedMesh, const MString & aUVSet );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the mesh uniform grid. 
-	///
-	/// \return	The mesh uniform grid. 
-	///-------------------------------------------------------------------------------------------------
-	inline const MeshUG & getMeshUG() const;
-
-	///-------------------------------------------------------------------------------------------------
 	/// Gets the mesh uv coordinate uniform grid. 
+	/// Grid is stored inside this class and updated only when this method is called.
 	///
 	/// \return	The mesh uv coordinate uniform grid. 
 	///-------------------------------------------------------------------------------------------------
 	inline const MeshUVCoordUG & getMeshUVCoordUG() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the selected triangles. 
+	/// Gets the requested triangles. 
 	///
-	/// \param	aTrianglesIds	List of identifiers for a triangles. 
-	/// \param [in,out]	aResult	The selected triangles. 
+	/// \param	aTrianglesIds	List of identifiers for the requested triangles. 
+	/// \param [in,out]	aResult	The selected triangles array. 
 	///-------------------------------------------------------------------------------------------------
-	inline void getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
+	inline void getRequestedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Serialize object.
+	/// Serialize object (only critical data is stored).
 	/// 
 	/// \param	aOutputStream	Output stream
 	///-------------------------------------------------------------------------------------------------
 	void serialize( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Deserialize object.	
+	/// Deserialize object (only critical data is loaded, rest is rebuilded if needed).	
 	///
 	/// \param	aInputStream	Input stream
 	///-------------------------------------------------------------------------------------------------
@@ -124,25 +130,23 @@ public:
 private:
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the triangles. 
+	/// Gets all the triangles of the current mesh.
 	///
 	/// \param [in,out]	aResult	a returned triangles. 
 	///-------------------------------------------------------------------------------------------------
 	void getTriangles( Triangles & aResult ) const;
 
-	MeshTriangles mMeshTriangles; ///< Triangles of mesh stored only as indices to rest pose
+	MayaTriangles mMayaTriangles; ///< Triangles of mesh stored as indices to maya internal representation of triangles						
 
 	Mesh mRestPose; ///< Rest pose mesh
 	
 	MMeshIntersector * mMeshIntersector; ///< Acceleration structure for finding closest point on the mesh
 
-	MFnMesh * mMayaMesh; ///< The maya mesh
+	MFnMesh * mMayaMesh; ///< The maya mesh function object
 	
 	MString mUVSet; ///< UV Set name
 
-	mutable MeshUG mMeshUG; ///< The mesh uniform grid
-
-	mutable MeshUVCoordUG mMeshUVCoordUG;   ///< The mesh uv coordinate ug
+	mutable MeshUVCoordUG mMeshUVCoordUG;   ///< The mesh uv coordinates 2D uniform grid
 };
 
 // inline methods implementation
@@ -162,20 +166,9 @@ inline MFnMesh * MayaMesh::getMayaMesh() const
 	return mMayaMesh;
 }
 
-inline const MeshUG & MayaMesh::getMeshUG() const
-{
-	if ( mMeshUG.isDirty() )
-	{
-		Triangles triangles;
-		getTriangles( triangles ); // Get triangles from maya
-		mMeshUG.build( triangles );
-	}
-	return mMeshUG;
-}
-
 inline const MeshUVCoordUG & MayaMesh::getMeshUVCoordUG() const
 {
-	if ( mMeshUVCoordUG.isDirty() )
+	if ( mMeshUVCoordUG.isDirty() ) // Rebuild of ug is needed ?
 	{
 		Triangles triangles;
 		getTriangles( triangles ); // Get triangles from maya
@@ -184,14 +177,14 @@ inline const MeshUVCoordUG & MayaMesh::getMeshUVCoordUG() const
 	return mMeshUVCoordUG;
 }
 
-inline void MayaMesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
+inline void MayaMesh::getRequestedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
 {
 	aResult.resize( aTrianglesIds.size() );
 	Triangles::iterator outIt = aResult.begin();
 	for ( TrianglesIds::const_iterator idIt = aTrianglesIds.begin(); idIt != aTrianglesIds.end();
 		++idIt, ++outIt )
 	{
-		*outIt = getTriangle( *idIt );
+		*outIt = getTriangle( *idIt ); // Output requested triangle
 	}
 }
 

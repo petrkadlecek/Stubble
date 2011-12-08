@@ -17,22 +17,29 @@ namespace Stubble
 
 namespace HairShape
 {
+
 ///----------------------------------------------------------------------------------------------------
-/// Stores mesh in inner format.
+/// Stores rest pose mesh.
+/// Mesh is stored as array of triangles, each triangle is then represented by 3 vertices 
+/// ( vertex = MeshPoint ).
+/// Enables calculation of point on mesh ( MeshPoint = position, normal, tangent etc. )
+/// Object critical data can be serialized.
+/// Mesh can be exported to binary/ imported from binary file stream.
+/// Mesh also provides calculation of partial derivatives of triangles' vertices positions and normals.
 ///----------------------------------------------------------------------------------------------------
 class Mesh
 {
 #ifdef MAYA
-	friend class MayaMesh;
+	friend class MayaMesh; // Must have full access to internal data
 #endif
 
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// Constructor realized from stream
+	/// Constructor realized from binary stream.
 	///
-	/// \param	aInStream				input file stream
-	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
-	/// 								calculated ( used for surface displacement )
+	/// \param	aInStream				Input file binary stream.
+	/// \param	aCalculateDerivatives	If true, partial derivatives of position and normal will be
+	/// 								calculated and stored ( used for surface displacement )
 	///----------------------------------------------------------------------------------------------------
 	Mesh( std::istream & aInStream, bool aCalculateDerivatives = false );
 
@@ -40,27 +47,29 @@ public:
 	/// Constructor realized from triangles array
 	///
 	/// \param	aTriangles				Input triangles
-	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
-	/// 								calculated ( used for surface displacement )
+	/// \param	aCalculateDerivatives	If true, partial derivatives of position and normal will be
+	/// 								calculated and stored ( used for surface displacement )
 	///----------------------------------------------------------------------------------------------------
 	Mesh( const Triangles &aTriangles, bool aCalculateDerivatives = false );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Exports mesh. 
+	/// Exports mesh to binary file. 
 	///
 	/// \param [in,out]	aOutputStream	The output stream. 
 	///-------------------------------------------------------------------------------------------------
 	void exportMesh( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Imports mesh. 
+	/// Imports mesh from binary file. 
 	///
 	/// \param [in,out]	aInputStream	The input stream. 
 	///-------------------------------------------------------------------------------------------------
 	void importMesh( std::istream & aInputStream );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets const triangle iterator.
+	/// Gets triangle iterator which does not allow triangles modification.
+	/// 
+	/// \return Triangle iterator.
 	///----------------------------------------------------------------------------------------------------
 	inline TriangleConstIterator getTriangleConstIterator() const;
 
@@ -69,7 +78,7 @@ public:
 	/// 
 	/// \param	aPoint	The triangle id and barycentric coordinates
 	/// 				
-	/// \return	The mesh point.
+	/// \return	The point on mesh.
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
 
@@ -94,37 +103,47 @@ public:
 	inline Vector3D< Real > getPosition( const UVPoint &aPoint ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets point on displaced mesh interpolated from 3 vertices of given triangle
+	/// Gets point on displaced mesh interpolated from 3 vertices of given triangle.
+	/// Only works if partial derivatives of triangles' vertices position and normal were calculated.
 	///
 	/// \param	aPoint					The triangle id and barycentric coordinates
 	/// \param	aDisplacementTexture	The mesh displacement texture. 
 	/// \param	aDisplacementFactor		The displacement texture will be mutliplied by this factor.
 	///
-	/// \return	The displaced mesh point. 
+	/// \return	The displaced point on mesh. 
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture, 
 		Real aDisplacementFactor ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets triangle as 3 vertices.
+	/// Gets requested mesh triangle.
+	/// 
+	/// \param aID	Requested triangle id.
+	/// 
+	/// \return Mesh triangle.
 	///----------------------------------------------------------------------------------------------------
 	inline const Triangle & getTriangle( unsigned __int32 aID ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the selected triangles. 
+	/// Gets the requested triangles. 
 	///
 	/// \param	aTrianglesIds	List of identifiers for a triangles. 
-	/// \param [in,out]	aResult	The selected triangles. 
+	/// \param [in,out]	aResult	The requested triangles. 
 	///-------------------------------------------------------------------------------------------------
-	inline void getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
+	inline void getRequestedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets number of mesh's triangles.
+	/// 
+	/// \return Triangles count.
 	///----------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getTriangleCount() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets mesh's bounding box
+	/// Gets mesh's bounding box.
+	/// Bounding box is stored and calculated only during mesh creation in Maya or import.
+	/// 
+	/// \return bounding box
 	///----------------------------------------------------------------------------------------------------
 	inline BoundingBox getBoundingBox() const;
 
@@ -134,8 +153,10 @@ public:
 	inline ~Mesh();
 
 protected:
+
 	///----------------------------------------------------------------------------------------------------
-	/// Protected default constructor
+	/// Empty contructor.
+	/// Used by MayaMesh which fills triangles data and calculates bounding box itself.
 	///----------------------------------------------------------------------------------------------------
 	inline Mesh();
 
@@ -152,7 +173,7 @@ inline Mesh::Mesh()
 // inline functions implementation
 inline TriangleConstIterator Mesh::getTriangleConstIterator() const
 {
-	return TriangleConstIterator(mTriangles.begin(), mTriangles.end());
+	return TriangleConstIterator( mTriangles.begin(), mTriangles.end() );
 }
 
 inline MeshPoint Mesh::getMeshPoint( const UVPoint &aPoint ) const
@@ -274,25 +295,25 @@ inline const Triangle & Mesh::getTriangle( unsigned __int32 aID ) const
 	return mTriangles[ aID ];
 }
 
-inline void Mesh::getSelectedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
+inline void Mesh::getRequestedTriangles( const TrianglesIds aTrianglesIds, Triangles & aResult ) const
 {
 	aResult.resize( aTrianglesIds.size() );
 	Triangles::iterator outIt = aResult.begin();
 	for ( TrianglesIds::const_iterator idIt = aTrianglesIds.begin(); idIt != aTrianglesIds.end();
 		++idIt, ++outIt )
 	{
-		*outIt = mTriangles[ *idIt ];
+		*outIt = mTriangles[ *idIt ]; // Output requested triangle
 	}
 }
 
 inline unsigned __int32 Mesh::getTriangleCount() const
 {
-	return static_cast< unsigned __int32 > (mTriangles.size());
+	return static_cast< unsigned __int32 > ( mTriangles.size() );
 }
 
 inline BoundingBox Mesh::getBoundingBox() const
 {
-	return mBoundingBox;
+	return mBoundingBox; // Calculated during mesh creation or import
 }
 
 inline Mesh::~Mesh()

@@ -163,9 +163,6 @@
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp">
       <Filter>HairShape\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\Mesh\MeshUG.cpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp">
       <Filter>HairShape\Mesh</Filter>
     </ClCompile>
@@ -366,12 +363,6 @@
     <ClInclude Include="Toolbox\HairTaskProcessor.hpp">
       <Filter>Toolbox</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Mesh\MeshUG.hpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp">
       <Filter>HairShape\Mesh</Filter>
     </ClInclude>
@@ -465,6 +456,9 @@
     <ClInclude Include="Common\StubbleTimer.hpp" />
     <ClInclude Include="Common\Base64.hpp">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Mesh\MayaTriangle.hpp">
+      <Filter>HairShape\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

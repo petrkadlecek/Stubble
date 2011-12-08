@@ -1,5 +1,5 @@
-#ifndef STUBBLE_MESH_TRIANGLE_HPP
-#define STUBBLE_MESH_TRIANGLE_HPP
+#ifndef STUBBLE_MAYA_TRIANGLE_HPP
+#define STUBBLE_MAYA_TRIANGLE_HPP
 
 #include "Common\CommonConstants.hpp"
 #include "Common\CommonFunctions.hpp"
@@ -13,22 +13,22 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// MeshTriangle. 
+/// Stores indices to maya mesh triangle internal representation.
+/// Triangle is stored as mesh face id and 3 face-local identifiers for vertices.
 ///----------------------------------------------------------------------------------------------------
-class MeshTriangle
+class MayaTriangle
 {
 public:
-	inline MeshTriangle(); ///< empty constructor used in deserialization
 
 	///----------------------------------------------------------------------------------------------------
-	/// Constructor. 
+	/// Creates maya triangle.
 	///
-	/// \param	faceID			identifier for the face
-	/// \param	localVertex1ID	identifier for the local vertex 1
-	/// \param	localVertex2ID	identifier for the local vertex 2
-	/// \param	localVertex3ID	identifier for the local vertex 3
+	/// \param	aFaceID				Identifier for the face
+	/// \param	aLocalVertex1ID		Face-local identifier for the vertex 1
+	/// \param	aLocalVertex2ID		Face-local identifier for the vertex 2
+	/// \param	aLocalVertex3ID		Face-local identifier for the vertex 3
 	///----------------------------------------------------------------------------------------------------
-	inline MeshTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID, 
+	inline MayaTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID, 
 		const unsigned __int32 aLocalVertex2ID, const unsigned __int32 aLocalVertex3D );
 
 	///----------------------------------------------------------------------------------------------------
@@ -39,54 +39,46 @@ public:
 	inline const unsigned __int32 & getFaceID() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the identifier for the local vertex 1
+	/// Gets the face-local identifier for the vertex 1
 	///
-	/// \return	ID for local vertex 1
+	/// \return	Face-local identifier for the vertex 1
 	///----------------------------------------------------------------------------------------------------
 	inline const unsigned __int32 & getLocalVertex1() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the identifier for the local vertex 2
+	/// Gets the face-local identifier for the vertex 2
 	///
-	/// \return	ID for local vertex 2
+	/// \return	Face-local identifier for the vertex 2
 	///----------------------------------------------------------------------------------------------------
 	inline const unsigned __int32 & getLocalVertex2() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the identifier for the local vertex 3
+	/// Gets the face-local identifier for the vertex 3
 	///
-	/// \return	ID for local vertex 3
+	/// \return	Face-local identifier for the vertex 3
 	///----------------------------------------------------------------------------------------------------
 	inline const unsigned __int32 & getLocalVertex3() const;
 
 private:
 
-	///< Identifier for the face
-	unsigned __int32 mFaceID;
+	unsigned __int32 mFaceID; ///< Identifier for the face
 
-	///< Identifier for the local vertex 1
-	unsigned __int32 mLocalVertex1ID;
+	unsigned __int32 mLocalVertex1ID;   ///< Face-local identifier for the vertex 1
 	
-	///< Identifier for the local vertex 2
-	unsigned __int32 mLocalVertex2ID;
+	unsigned __int32 mLocalVertex2ID;	///< Face-local identifier for the vertex 2
 
-	///< Identifier for the local vertex 3
-	unsigned __int32 mLocalVertex3ID;
+	unsigned __int32 mLocalVertex3ID;	///< Face-local identifier for the vertex 3
 
 };
 
 ///----------------------------------------------------------------------------------------------------
-/// Defines an alias representing the triangles .
+/// Defines an alias representing the array of maya triangles .
 ///----------------------------------------------------------------------------------------------------
-typedef std::vector< MeshTriangle > MeshTriangles;
+typedef std::vector< MayaTriangle > MayaTriangles;
 
 // inline functions implementation
 
-inline MeshTriangle::MeshTriangle()	
-{
-}
-
-inline MeshTriangle::MeshTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID,
+inline MayaTriangle::MayaTriangle( const unsigned __int32 aFaceID, const unsigned __int32 aLocalVertex1ID,
 	const unsigned __int32 aLocalVertex2ID, const unsigned __int32 aLocalVertex3ID ):
 	mFaceID( aFaceID ),
 	mLocalVertex1ID ( aLocalVertex1ID ),
@@ -95,22 +87,22 @@ inline MeshTriangle::MeshTriangle( const unsigned __int32 aFaceID, const unsigne
 {
 }
 
-inline const unsigned __int32 & MeshTriangle::getFaceID() const
+inline const unsigned __int32 & MayaTriangle::getFaceID() const
 {
 	return mFaceID;
 }
 
-inline const unsigned __int32 & MeshTriangle::getLocalVertex1() const
+inline const unsigned __int32 & MayaTriangle::getLocalVertex1() const
 {
 	return mLocalVertex1ID;
 }
 
-inline const unsigned __int32 & MeshTriangle::getLocalVertex2() const
+inline const unsigned __int32 & MayaTriangle::getLocalVertex2() const
 {
 	return mLocalVertex2ID;
 }
 
-inline const unsigned __int32 & MeshTriangle::getLocalVertex3() const
+inline const unsigned __int32 & MayaTriangle::getLocalVertex3() const
 {
 	return mLocalVertex3ID;
 }
@@ -119,4 +111,4 @@ inline const unsigned __int32 & MeshTriangle::getLocalVertex3() const
 
 } // namespace Stubble
 
-#endif // STUBBLE_MESH_TRIANGLE_HPP
+#endif // STUBBLE_MAYA_TRIANGLE_HPP

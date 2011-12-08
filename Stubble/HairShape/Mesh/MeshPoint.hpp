@@ -19,7 +19,11 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Stores all information needed about single point on mesh. 
+/// Stores all information needed about single point on mesh.
+/// Position and vectors are stored in world coordinate system. 
+/// This class can be imported from/exported to binary file stream.
+/// It has methods for transform matrix creation ( from/to local coordinate system defined by point on 
+/// mesh ) and direct from local-to-world position transformation method.
 ///----------------------------------------------------------------------------------------------------
 class MeshPoint
 {
@@ -29,7 +33,7 @@ class MeshPoint
 public:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Default constructor. 
+	/// Default empty constructor. 
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint(); 
 
@@ -39,18 +43,19 @@ public:
 	/// \param	aPosition		the point position. 
 	/// \param	aNormal			the normal in selected position. 
 	/// \param	aTangent		the tangent in selected position. 
-	/// \param	aUCoordinate	the u coordinate. 
-	/// \param	aVCoordinate	the v coordinate. 
+	/// \param	aUCoordinate	the texture u coordinate. 
+	/// \param	aVCoordinate	the texture v coordinate. 
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint( const Vector3D< Real > &aPosition, const Vector3D< Real > &aNormal, 
 		const Vector3D< Real > &aTangent, Real aUCoordinate, Real aVCoordinate );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates MeshPoint class without normal and tangent specification. 
+	/// Tangent and normal will have default value which is all zeros.
 	///
 	/// \param	aPosition		the point position. 
-	/// \param	aUCoordinate	the u coordinate. 
-	/// \param	aVCoordinate	the v coordinate. 
+	/// \param	aUCoordinate	the texture u coordinate. 
+	/// \param	aVCoordinate	the texture v coordinate. 
 	///----------------------------------------------------------------------------------------------------
 	inline MeshPoint( const Vector3D< Real > &aPosition, Real aUCoordinate, Real aVCoordinate );
 
@@ -83,49 +88,53 @@ public:
 	inline const Vector3D< Real > & getBinormal() const;
 		
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the u coordinate. 
+	/// Gets the texture u coordinate. 
 	///
-	/// \return	The u coordinate. 
+	/// \return	The texture u coordinate. 
 	///----------------------------------------------------------------------------------------------------
 	inline Real getUCoordinate() const;
 	
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the v coordinate. 
+	/// Gets the texture v coordinate. 
 	///
-	/// \return	The v coordinate. 
+	/// \return	The texture v coordinate. 
 	///----------------------------------------------------------------------------------------------------
 	inline Real getVCoordinate() const; 
 
 	///----------------------------------------------------------------------------------------------------
-	/// Converts local vector to a world vector. 
+	/// Converts vector in local coordinate system to a vector in world coordinate system. 
+	/// Local coordinate system is defined by this point on mesh (binormal, tangent, normal; position).
 	///
-	/// \param	aLocalVector	the local vector. 
+	/// \param	aLocalVector	The vector in local coordinate system. 
 	///
-	/// \return	world vector
+	/// \return	Vector in world coordinate system.
 	///----------------------------------------------------------------------------------------------------
 	template< typename tType >
 	Vector3D< tType > toWorld( const Vector3D< tType > aLocalVector ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets a local transform matrix. 
+	/// Gets a transform matrix from local to world coordinate system. 
+	/// Local coordinate system is defined by this point on mesh (binormal, tangent, normal; position).
 	///
-	/// \param [in,out]	aLocalTransformMatrix	a local transform matrix. 
+	/// \param [in,out]	aLocalTransformMatrix	The transform matrix to local coordinates.
 	///-------------------------------------------------------------------------------------------------
 	template< typename tMatrixType >
 	inline void getLocalTransformMatrix( Matrix< tMatrixType > & aLocalTransformMatrix ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets a world transform matrix. 
+	/// Gets a transform matrix from world to local coordinate system. 
+	/// Local coordinate system is defined by this point on mesh (binormal, tangent, normal; position).
 	///
-	/// \param [out]	aWorldTransformMatrix	a world transform matrix. 
+	/// \param [out]	aWorldTransformMatrix	The transform matrix to world coordinates.
 	///----------------------------------------------------------------------------------------------------
 	template< typename tMatrixType >
 	inline void getWorldTransformMatrix( Matrix< tMatrixType > & aWorldTransformMatrix ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Import position from stream. 
+	/// Import only 3D position from stream. 
+	/// Other properties are left as they were.
 	///
-	/// \param	aInStream		input file stream
+	/// \param	aInStream	Input file stream
 	///----------------------------------------------------------------------------------------------------
 	inline void importPosition( std::istream & aStreamIn );
 
@@ -147,8 +156,8 @@ private:
 ///----------------------------------------------------------------------------------------------------
 /// Put point on mesh into stream 
 ///
-/// \param [in,out]	aStreamOut	a stream out. 
-/// \param aPointOnMesh			a point on mesh. 
+/// \param [in,out]	aStreamOut	The stream out. 
+/// \param aPointOnMesh			The point on mesh. 
 ///
 /// \return	The updated stream. 
 ///----------------------------------------------------------------------------------------------------
@@ -157,8 +166,8 @@ inline std::ostream & operator<<( std::ostream & aStreamOut, const MeshPoint & a
 ///----------------------------------------------------------------------------------------------------
 /// Pull point on mesh from stream 
 ///
-/// \param [in,out]	aStreamIn		a stream in. 
-/// \param [in,out]	aPointOnMesh	a point on mesh. 
+/// \param [in,out]	aStreamIn		The stream in. 
+/// \param [in,out]	aPointOnMesh	The point on mesh. 
 ///
 /// \return	The updated stream. 
 ///----------------------------------------------------------------------------------------------------
@@ -299,24 +308,11 @@ inline void MeshPoint::getWorldTransformMatrix( Matrix< tMatrixType > & aWorldTr
 	aWorldTransformMatrix[ 15 ] = 1;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Import position from stream. 
-///
-/// \param	aInStream		input file stream
-///----------------------------------------------------------------------------------------------------
 inline void MeshPoint::importPosition( std::istream & aStreamIn )
 {
 	aStreamIn >> mPosition;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Adds PointOnMesh to stream.
-///
-/// \param [in,out]	aStreamOut	The stream out. 
-/// \param	aPointOnMesh		The point on mesh. 
-///
-/// \return	The modified stream.
-///----------------------------------------------------------------------------------------------------
 inline std::ostream & operator<<( std::ostream &aStreamOut, const MeshPoint &aPointOnMesh )
 {
 	aStreamOut << aPointOnMesh.mPosition << aPointOnMesh.mNormal << aPointOnMesh.mTangent;
@@ -326,14 +322,6 @@ inline std::ostream & operator<<( std::ostream &aStreamOut, const MeshPoint &aPo
 	return aStreamOut;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Pops PointOnMesh from stream.
-///
-/// \param [in,out]	aStreamIn		The stream in. 
-/// \param [in,out]	aPointOnMesh	The point on mesh. 
-///
-/// \return	The modified stream.
-///----------------------------------------------------------------------------------------------------
 inline std::istream & operator>>( std::istream & aStreamIn, MeshPoint & aPointOnMesh )
 {
 	aStreamIn >> aPointOnMesh.mPosition >> aPointOnMesh.mNormal >> aPointOnMesh.mTangent; 

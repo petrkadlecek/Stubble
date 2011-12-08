@@ -183,7 +183,6 @@
     <ClCompile Include="HairShape\Interpolation\RMPositionGenerator.cpp" />
     <ClCompile Include="HairShape\Mesh\MayaMesh.cpp" />
     <ClCompile Include="HairShape\Mesh\Mesh.cpp" />
-    <ClCompile Include="HairShape\Mesh\MeshUG.cpp" />
     <ClCompile Include="HairShape\Mesh\MeshUVCoordUG.cpp" />
     <ClCompile Include="HairShape\Mesh\Voxelization.cpp" />
     <ClCompile Include="HairShape\Texture\Texture.cpp" />
@@ -250,8 +249,7 @@
     <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\SimplePositionGenerator.hpp" />
     <ClInclude Include="HairShape\Mesh\MayaMesh.hpp" />
-    <ClInclude Include="HairShape\Mesh\MeshTriangle.hpp" />
-    <ClInclude Include="HairShape\Mesh\MeshUG.hpp" />
+    <ClInclude Include="HairShape\Mesh\MayaTriangle.hpp" />
     <ClInclude Include="HairShape\Mesh\MeshUVCoordUG.hpp" />
     <ClInclude Include="HairShape\Mesh\Voxelization.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShape.hpp" />

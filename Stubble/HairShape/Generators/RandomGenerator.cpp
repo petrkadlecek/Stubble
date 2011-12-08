@@ -9,6 +9,7 @@ namespace HairShape
 
 void RandomGenerator::reset( __int32 aIJ, __int32 aKL )
 {
+	// F.James algorithm reset
 	Real s, t;
 	__int32 i, j, k, l, m;
 	__int32 ii, jj;

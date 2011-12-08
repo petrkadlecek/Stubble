@@ -12,60 +12,66 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Triangle. 
+/// Stores mesh triangle as 3 vertices.
+/// Each vertex is stored as MeshPoint, so its position, normal, tangent and texture coordinates are
+/// known.
+/// For each triangle partial derivation (according to texture coordinates ) of position and normal 
+/// can be calculated and stored.
 ///----------------------------------------------------------------------------------------------------
 class Triangle
 {
 public:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Default constructor. 
+	/// Default empty constructor. 
 	///----------------------------------------------------------------------------------------------------
 	inline Triangle();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor. 
+	/// Creates triangle from 3 vertices.
 	///
-	/// \param	mVertex1	The first triangle Vertex. 
-	/// \param	mVertex2	The second triangle Vertex. 
-	/// \param	mVertex3	The third triangle Vertex. 
+	/// \param	mVertex1	The first triangle vertex. 
+	/// \param	mVertex2	The second triangle vertex. 
+	/// \param	mVertex3	The third triangle vertex. 
 	///----------------------------------------------------------------------------------------------------
 	inline Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex2, const MeshPoint & mVertex3 );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Constructor realized from stream
+	/// Constructor. 
+	/// Creates triangle from binary stream.
 	///
-	/// \param	aInStream				input file stream
-	/// \param	aCalculateDerivatives	if true, partial derivatives of position and normal will be
-	/// 								calculated ( used for surface displacement )
+	/// \param	aInStream				The input file stream
+	/// \param	aCalculateDerivatives	If true, partial derivatives of position and normal will be
+	/// 								calculated and stored ( used for surface displacement ).
 	///----------------------------------------------------------------------------------------------------
 	inline Triangle( std::istream & aInStream, bool aCalculateDerivatives = false );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Exports triangle. 
+	/// Exports triangle to binary stream. 
 	///
 	/// \param [in,out]	aOutputStream	The output stream. 
 	///-------------------------------------------------------------------------------------------------
 	inline void exportTriangle( std::ostream & aOutputStream ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the Vertex 1. 
+	/// Gets the vertex 1. 
 	///
-	/// \return	The Vertex 1. 
+	/// \return	The vertex 1. 
 	///----------------------------------------------------------------------------------------------------
 	inline const MeshPoint & getVertex1() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the Vertex 2. 
+	/// Gets the vertex 2. 
 	///
-	/// \return	The Vertex 2. 
+	/// \return	The vertex 2. 
 	///----------------------------------------------------------------------------------------------------
 	inline const MeshPoint & getVertex2() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the Vertex 3. 
+	/// Gets the vertex 3. 
 	///
-	/// \return	The Vertex 3. 
+	/// \return	The vertex 3. 
 	///----------------------------------------------------------------------------------------------------
 	inline const MeshPoint & getVertex3() const;
 
@@ -111,7 +117,7 @@ public:
 
 private:
 
-	MeshPoint mVertices[ 3 ]; ///< The Vertices
+	MeshPoint mVertices[ 3 ]; ///< The vertices
 
 	Vector3D< Real > mDPDU; ///< The derivation of position according to u coordinate
 
@@ -123,7 +129,7 @@ private:
 };
 
 ///----------------------------------------------------------------------------------------------------
-/// Defines an alias representing the triangles .
+/// Defines an alias representing the triangles array .
 ///----------------------------------------------------------------------------------------------------
 typedef std::vector< Triangle > Triangles;
 

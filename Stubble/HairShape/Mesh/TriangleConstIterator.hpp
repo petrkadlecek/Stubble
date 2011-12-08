@@ -10,21 +10,24 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Triangle iterator. 
+/// Class serving as iterator through all triangles of Mesh object.
+/// Iterator can access all triangles data, but can not modify it.
 ///----------------------------------------------------------------------------------------------------
 class TriangleConstIterator
 {
 public:
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor. 
+	/// Creates iterator from standard vector iterators.
 	///
-	/// \param	aBegin	the begin internal iterator of triangles. 
-	/// \param	aEnd	the end internal iterator of triangles. 
+	/// \param	aBegin	The begin internal iterator of triangles. 
+	/// \param	aEnd	The end internal iterator of triangles. 
 	///----------------------------------------------------------------------------------------------------
 	inline TriangleConstIterator( Triangles::const_iterator aBegin, Triangles::const_iterator aEnd );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Pre increment operator. 
+	/// Moves to next triangle.
 	///
 	/// \return	Incremented iterator. 
 	///----------------------------------------------------------------------------------------------------
@@ -38,9 +41,9 @@ public:
 	inline unsigned __int32 getTriangleID() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the triangle. 
+	/// Gets the triangle data. 
 	///
-	/// \return	The triangle. 
+	/// \return	The triangle data. 
 	///----------------------------------------------------------------------------------------------------
 	inline const Triangle & getTriangle() const;
 
@@ -52,7 +55,7 @@ public:
 	inline unsigned __int32 getTrianglesCount() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the end. 
+	/// Returns	true if iteration is over, false if it is not. 
 	/// 		
 	/// \return	true if iteration is over, false if it is not. 
 	///----------------------------------------------------------------------------------------------------
@@ -77,12 +80,6 @@ private:
 	Triangles::const_iterator mIter; ///< The internal iterator
 };
 
-///----------------------------------------------------------------------------------------------------
-/// Constructor. 
-///
-/// \param	aBegin	the begin internal iterator of triangles. 
-/// \param	aEnd	the end internal iterator of triangles. 
-///----------------------------------------------------------------------------------------------------
 TriangleConstIterator::TriangleConstIterator( Triangles::const_iterator aBegin, Triangles::const_iterator aEnd ):
 	mBegin( aBegin ),
 	mEnd( aEnd ),
@@ -90,68 +87,37 @@ TriangleConstIterator::TriangleConstIterator( Triangles::const_iterator aBegin, 
 {
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Pre increment operator.
-///
-/// \return	Incremented iterator. 
-///----------------------------------------------------------------------------------------------------
 TriangleConstIterator & TriangleConstIterator::operator++ ()
 {
 	++mIter;
 	return *this;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the triangle identifier. 
-///
-/// \return	The triangle identifier. 
-///----------------------------------------------------------------------------------------------------
 unsigned __int32 TriangleConstIterator::getTriangleID() const
 {
 	return static_cast< unsigned __int32 >( mIter - mBegin );
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the triangle. 
-///
-/// \return	The triangle. 
-///----------------------------------------------------------------------------------------------------
 const Triangle & TriangleConstIterator::getTriangle() const
 {
 	return *mIter;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the triangles count. 
-///
-/// \return	The triangles count. 
-///----------------------------------------------------------------------------------------------------
 unsigned __int32 TriangleConstIterator::getTrianglesCount() const
 {
 	return static_cast< unsigned __int32 >( mEnd - mBegin );
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Gets the end. 
-///	
-/// \return	true if iteration is over, false if it is not. 
-///----------------------------------------------------------------------------------------------------
 inline bool TriangleConstIterator::end() const
 {
 	return mIter == mEnd;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Resets iterator. 
-///----------------------------------------------------------------------------------------------------
 void TriangleConstIterator::reset()
 {
 	mIter = mBegin;
 }
 
-///----------------------------------------------------------------------------------------------------
-/// Finaliser. 
-///----------------------------------------------------------------------------------------------------
 TriangleConstIterator::~TriangleConstIterator()
 {
 }
