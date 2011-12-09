@@ -126,7 +126,7 @@ void DisplayedGuides::drawPolyline() const
 
 		//-----------------------
 		//TODO: debug - remove me
-		glBegin(GL_LINES);
+		/*glBegin(GL_LINES);
 		glColor3f(1.0, 0.0, 0.0);
 		for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
 		{
@@ -153,8 +153,7 @@ void DisplayedGuides::drawPolyline() const
 			glVertex3d(v.x, v.y, v.z);
 		}
 		glEnd();
-		glColor3f(0.5f, 1.0f, 0.8f);
-
+		glColor3f(0.5f, 1.0f, 0.8f);*/
 		// End of debug code
 		//-----------------------
 

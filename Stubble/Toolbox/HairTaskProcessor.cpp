@@ -600,7 +600,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
-				HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR); //TODO: remove me - unneeded, for it will be scrapped in the next iteration
+				//HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR); //TODO: remove me - unneeded, for it will be scrapped in the next iteration
 
 				//if (absC > CONVERGENCE_THRESHOLD && iterationsCount < MAX_LOOP_ITERATIONS && localMinimum) //TODO: remove me
 				//{
