@@ -221,7 +221,7 @@ private:
 
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
 	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
-	static const Real EPSILON; ///< Epsilon for float equals operations
+	static const Real DELTA; ///< Constant for local minima detection heuristic
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 	static const Uint RIGID_BODY_COUPL_CONSTRAINTS; ///< Number of rigidi body coupling constraints - 3 per rigid body (in our case just the hair root)
 	static const Real INV_ROOT_SGMT_WEIGHT; ///< Inverted root segment weight (kg) - applied to the hair follicle coupling constraints

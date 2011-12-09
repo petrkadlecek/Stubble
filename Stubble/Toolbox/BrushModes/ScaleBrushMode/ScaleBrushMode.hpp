@@ -37,7 +37,7 @@ private:
 
 inline double ScaleBrushMode::getNewSegmentLength ( Real aMeasure, Real aLength )
 {
-	Real length = aLength + aMeasure * aLength;
+	Real length = aLength + aMeasure /* aLength*/;
 	return (length < 0.0) ? 0.0 : length;
 }
 

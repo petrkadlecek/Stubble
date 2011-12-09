@@ -76,7 +76,7 @@ MSpinLock HairTaskProcessor::sIsRunningLock;
 
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
-const Real HairTaskProcessor::EPSILON = 1e-4;
+const Real HairTaskProcessor::DELTA = 1e-4;
 #ifdef STUBBLE_ORIGINAL_HAIRSTYLING
 const Uint HairTaskProcessor::RIGID_BODY_COUPL_CONSTRAINTS = 0;
 const Real HairTaskProcessor::INV_ROOT_SGMT_WEIGHT = 1.0;
@@ -251,6 +251,11 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it;
 		guide->mCollisionsCount = 0;
+
+		if (guide->mGuideSegments.mSegmentLength <= EPSILON)
+		{
+			continue;
+		}
 
 		Matrix< Real > &worldMatrix = guide->mPosition.mWorldTransformMatrix;
 		Matrix< Real > &localMatrix = guide->mPosition.mLocalTransformMatrix;
@@ -538,6 +543,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
+
+		if (SCALE_FACTOR <= EPSILON)
+		{
+			continue;
+		}
+
 		//const Real SEGMENT_LENGTH_SQ = guide->mGuideSegments.mSegmentLength * guide->mGuideSegments.mSegmentLength; // Desired segments' length squared
 		const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segments' length squared
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
@@ -595,8 +606,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Convergence condition:
 			previousAbsC = absC;
 			absC = C.MaximumAbsoluteValue();
-			bool localMinimum = (previousAbsC - EPSILON <= absC) && (absC <= previousAbsC + EPSILON);
-			if ( absC <= CONVERGENCE_THRESHOLD || iterationsCount >= MAX_LOOP_ITERATIONS || localMinimum )
+			bool localMinimum = (previousAbsC - HairTaskProcessor::DELTA <= absC) && (absC <= previousAbsC + HairTaskProcessor::DELTA);
+			if ( absC <= HairTaskProcessor::CONVERGENCE_THRESHOLD ||
+				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS ||
+				localMinimum )
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
@@ -667,6 +680,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
 {
 	const Real SCALE_FACTOR = aSegmentLength;
+
+	if (SCALE_FACTOR <= EPSILON)
+	{
+		return;
+	}
+
 	//const Real SEGMENT_LENGTH_SQ = aSegmentLength * aSegmentLength; // Desired segment length squared
 	const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segment length squared
 	const Uint VERTEX_COUNT = (Uint)aVertices.size(); // Number of hair vertices
@@ -697,7 +716,8 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 		HairTaskProcessor::computeInextensibilityConstraints(C, aVertices, SEGMENT_LENGTH_SQ);
 
 		// Convergence condition:
-		if (C.MaximumAbsoluteValue() <= CONVERGENCE_THRESHOLD  || iterationsCount >= MAX_LOOP_ITERATIONS)
+		if (C.MaximumAbsoluteValue() <= HairTaskProcessor::CONVERGENCE_THRESHOLD ||
+			iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS)
 		{
 			// Rescale hair vertices to retain their original scale
 			HairTaskProcessor::rescaleGuideHair(aVertices, SCALE_FACTOR);
