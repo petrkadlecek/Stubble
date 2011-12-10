@@ -34,7 +34,6 @@
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
 #include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
-
 namespace Stubble
 {
 
@@ -48,6 +47,7 @@ class BrushTool :
 	public GenericTool
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Class constructor.
 	///----------------------------------------------------------------------------------------------------
@@ -74,6 +74,7 @@ public:
 	/// Handles the mouse press event.
 	///
 	/// \param aEvent Information on the input event.
+	///
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	doPress( MEvent &aEvent );
@@ -82,6 +83,7 @@ public:
 	/// Handles the mouse drag event.
 	///
 	/// \param aEvent Information on the input event.
+	///
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	doDrag( MEvent &aEvent );
@@ -90,6 +92,7 @@ public:
 	/// Handles the mouse release event.
 	///
 	/// \param aEvent Information on the input event.
+	///
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	doRelease( MEvent &aEvent );
@@ -102,12 +105,12 @@ public:
 	virtual void getClassName( MString &aName ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// The method which performs the brushing transformations by dispatching a HairTask to the
-	/// HairTaskProcessor which takes care of the rest in the asynchronous loop
+	/// The method which performs the brushing transformation by dispatching a HairTask to the
+	/// HairTaskProcessor which takes care of the rest in the asynchronous loop.
 	///
 	/// \param aDX Position change in the screen coordinates
 	///----------------------------------------------------------------------------------------------------
-	void doBrush( Vector3D< double > aDX ); //FIXME: add selected hair parameter
+	void doBrush( Vector3D< double > aDX );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the relevant depending objects of the changes in the user interface.
@@ -119,8 +122,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	static void deleteMouseMoveListener();
 
-	/// the mouse move listener
-	static QPointer<MouseMoveListener> sMouseMoveListener;
+	static QPointer<MouseMoveListener> sMouseMoveListener; ///< the mouse move listener
 
 protected:
 
@@ -153,8 +155,9 @@ protected:
 
 	BrushMode *mBrushMode; ///< Current brush mode (pointing to one of the static brush modes below).
 
-	static const Real SENSITIVITY_RATIO;
+	static const Real SENSITIVITY_RATIO; ///< Constant for calculating move vector from the mouse movement.
 
+	// State pattern singletons
 	static ClumpBrushMode sClumpBrushMode;
 	static PuffEndBrushMode sPuffEndBrushMode;
 	static PuffRootBrushMode sPuffRootBrushMode;
@@ -197,15 +200,18 @@ class BrushToolCommand :
 	public GenericToolCommand
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
 	/// This method needs to return a context for maya to use
 	/// when our tool requires input from the viewport.
+	///
 	/// \return	a new instance of BrushTool
 	///----------------------------------------------------------------------------------------------------
 	virtual MPxContext* makeObj();
 
 	///----------------------------------------------------------------------------------------------------
 	/// This method returns a new instance of the tool command for maya to use.
+	///
 	/// \return	an instance of BrushToolCommand
 	///----------------------------------------------------------------------------------------------------
 	static void* creator();

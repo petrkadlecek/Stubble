@@ -13,7 +13,6 @@ extern const char *brushFalloffLongFlag;
 extern const char *brushCollisionFlag;
 extern const char *brushCollisionLongFlag;
 
-
 namespace Stubble
 {
 
@@ -47,7 +46,6 @@ BrushToolCommand::~BrushToolCommand()
 {
 	delete mCurrentBrushToolObject;
 }
-
 
 MStatus	BrushToolCommand::doEditFlags()
 {
@@ -148,7 +146,7 @@ BrushTool::BrushTool() :
 	mEnableFalloff(true),
 	mEnableCollisionDetection(false),
 	mBrushModeChoice(1), // These two lines must go together. The TranslateBrushMode has an index of 1 (represented by mBrushModeChoice),
-	mBrushMode(&BrushTool::sTranslateBrushMode) // so we make sure that the starting state is valid.
+	mBrushMode(&BrushTool::sTranslateBrushMode) // so we make sure that the starting state is valid and consistent
 {
 	setTitleString( "Stubble Brush Tool" );
 	mBrushMode->setFalloffSwitch(mEnableFalloff);
@@ -179,8 +177,8 @@ void BrushTool::toolOnSetup ( MEvent &aEvent )
 	// initialize the mouse move listener with the current tool as its owner
 	sMouseMoveListener = new MouseMoveListener( mView.widget(), this );
 
-  // update the haptic listener with the current tool as its owner
-  HapticListener::setTool( this );
+	// update the haptic listener with the current tool as its owner
+	HapticListener::setTool( this );
 
 	// Record current selection mode and masks
 	mPrevSelMode = MGlobal::selectionMode();
@@ -212,8 +210,6 @@ void BrushTool::toolOffCleanup()
 
 MStatus BrushTool::doPress( MEvent &aEvent )
 {
-	//std::cout << "doPress()\n" << std::flush;
-
 	// If we have a left mouse click, start the selection.
 	if( aEvent.mouseButton() == MEvent::kLeftMouse )
 	{
@@ -244,8 +240,6 @@ MStatus BrushTool::doPress( MEvent &aEvent )
 
 MStatus BrushTool::doDrag( MEvent &aEvent )
 {
-	//std::cout << "doDrag()\n" << std::flush;
-
 	// If we are dragging and left mouse button is pressed, then handle the event.
 	if( !aEvent.isModifierLeftMouseButton() )
 	{
@@ -268,8 +262,6 @@ MStatus BrushTool::doDrag( MEvent &aEvent )
 
 MStatus BrushTool::doRelease( MEvent & aEvent )
 {
-	//std::cout << "doRelease()\n" << std::flush;
-
 	MStatus stat;
 
 	// only bother handling the release of a left mouse button.
@@ -280,6 +272,8 @@ MStatus BrushTool::doRelease( MEvent & aEvent )
 	// nullify selection area
 	mStartPos[ 0 ] = mStartPos[ 1 ] = mPrevPos[ 0 ] = mPrevPos[ 1 ] = mEndPos[ 0 ] = mEndPos[ 1 ] = 0;
 
+	// Makes sure that no computations in the worker thread are done beyond this point to prevent
+	// horrible crashes due to changes in shared resources (affected guides etc.)
 	HairTaskProcessor::getInstance()->purgeAccumulator();
 	HairTaskProcessor::waitFinishWorkerThread();
 
@@ -304,7 +298,7 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
 	Vector3D< Real > moveVector(ratio * aDX.x, ratio * aDX.y, 0.0);
 
-	// Create the hair task
+	// Create and dispatch the hair task
 	HairTask *task = new HairTask(mView, mStartPos[ 0 ], mStartPos[ 1 ], moveVector, activeHairShape, &mAffectedGuides, mBrushMode);
 	HairTaskProcessor::getInstance()->enqueueTask(task);
 }
@@ -318,9 +312,6 @@ void BrushTool::notify()
 
 void BrushTool::changeBrushMode()
 {
-	// Release the current BrushMode object.
-	//delete mBrushMode;
-
 	switch (mBrushModeChoice)
 	{
 	case 1:
