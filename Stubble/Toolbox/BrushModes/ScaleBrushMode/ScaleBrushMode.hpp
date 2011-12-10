@@ -10,7 +10,7 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the scale brush transformation, i.e. the brush changes the scale of affected
+/// Class implementing the scale brush transformation, i.e. the brush changes the scale of affected
 /// guide hair by increasing/decreasing the length of hair segments.
 ///----------------------------------------------------------------------------------------------------
 class ScaleBrushMode :
@@ -18,19 +18,23 @@ class ScaleBrushMode :
 {
 public:
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformation
+	/// Rescales all supplied guide hair to a new desired length calculated from provided move vector.
+	/// Takes into account zero sized hair and prevents division by zero to occur. As a consequence zero
+	/// sized hair can be "popped" back.
 	///
-	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
+	/// \param aTask Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 
 private:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Calculates new length of hair segments
 	///
-	/// \param aMeasure	Measure of the rotation (typically movement of the mouse along the X axis
-	/// \param aLength	Current segment length
-	/// \return			New segment length
+	/// \param aMeasure Measure of the rotation (typically movement of the mouse along the X axis)
+	/// \param aLength Current segment length
+	///
+	/// \return New segment length
 	///----------------------------------------------------------------------------------------------------
 	inline double getNewSegmentLength ( Real aMeasure, Real aLength );
 };

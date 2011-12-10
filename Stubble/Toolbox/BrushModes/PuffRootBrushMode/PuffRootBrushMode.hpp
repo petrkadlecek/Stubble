@@ -10,17 +10,19 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The class implementing the puff root brush transformation, i.e. moving hair vertices onto the hair
+/// Class implementing the puff root brush transformation, i.e. moving hair vertices onto the hair
 /// normal putting the emphasis to vertices closer to the root.
 ///----------------------------------------------------------------------------------------------------
 class PuffRootBrushMode :
 	public BrushMode
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
-	/// The method which implements the actual brush transformation
+	/// Loops through all guide vertices and pushes them onto the guide normal (local z axis). Effect falls
+	/// off with distance from the root node.
 	///
-	/// \param aTask	Hair task object containing transformation details, see HairTask.hpp
+	/// \param aTask Hair task object containing transformation details, see HairTask.hpp
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask );
 };

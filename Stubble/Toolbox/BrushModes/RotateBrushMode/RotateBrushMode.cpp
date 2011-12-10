@@ -1,30 +1,11 @@
 #include "RotateBrushMode.hpp"
 #include "Toolbox/HairTask.hpp"
 
-#include <fstream> //TODO: remove me
-
 namespace Stubble
 {
 
 namespace Toolbox
 {
-
-void dumpToFile ( Matrix< Real > &M ) //TODO: remove me
-{
-	std::fstream log("C:\\Dev\\matrix.log", std::ios_base::app);
-	log.setf(std::ios::fixed, std::ios::floatfield);
-	log.precision(4);
-	for (Uint i = 0; i < 4; ++i)
-	{
-		for (Uint j = 0; j < 4; ++j)
-		{
-			log << M[ i + 4 * j ]<< '\t';
-		}
-		log << "\n";
-	}
-	log << "\n" << std::flush;
-	log.close();
-}
 
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
@@ -127,15 +108,8 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 
 void RotateBrushMode::getRotationAxis ( short aX, short aY, M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition )
 {
-	// Obtain the camera information
-	//MDagPath cameraPath;
-	//aView.getCamera(cameraPath);
-	//MFnCamera camera(cameraPath);
-
-	// Get the viewing vector in world coordinates
+	// Get the viewing vector and cursor position in world coordinates
 	MStatus status;
-	//MVector view = camera.viewDirection(MSpace::kWorld, &status);
-	// Get the cursor position in world coordinates
 	MPoint pos;
 	MVector dir;
 	status = aView.viewToWorld(aX, aY, pos, dir);
@@ -150,7 +124,7 @@ void RotateBrushMode::getRotationAxis ( short aX, short aY, M3dView &aView, Vect
 
 void RotateBrushMode::getTranslationMatrices ( const Vector3D< Real > &aPosition, Matrix< Real > &aToOrigin, Matrix< Real > &aFromOrigin)
 {
-	// Transposed translate matrices because of the left-side multiplication
+	// Transposed translate matrices because of the left-side multiplication (see Matrix.hpp for implementation of multiply operator)
 	Matrix< Real > T;
 	T[ 0 ] = 1.0;
 	T[ 5 ] = 1.0;
@@ -168,7 +142,6 @@ void RotateBrushMode::getTranslationMatrices ( const Vector3D< Real > &aPosition
 	aToOrigin = T;
 	aFromOrigin = Tinv;
 }
-
 
 } // namespace Toolbox
 

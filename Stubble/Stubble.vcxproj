@@ -195,7 +195,6 @@
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="RibExport\CachedFrame.cpp" />
     <ClCompile Include="RibExport\RenderManCacheCommand.cpp" />
-    <ClCompile Include="Toolbox\BrushModes\BrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\ClumpBrushMode\ClumpBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\PuffEndBrushMode\PuffEndBrushMode.cpp" />
     <ClCompile Include="Toolbox\BrushModes\PuffRootBrushMode\PuffRootBrushMode.cpp" />

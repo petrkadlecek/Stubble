@@ -13,29 +13,31 @@ namespace Toolbox
 struct HairTask; // Forward declaration
 
 ///----------------------------------------------------------------------------------------------------
-/// The interface for all of the brush mode classes.
+/// Common interface for all of the brush mode classes (state pattern realizing different brushing
+/// modes for the BrushTool).
 ///----------------------------------------------------------------------------------------------------
 class BrushMode
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
-	/// The method in which the derived classes implement the different brushing transformations.
+	/// Brushing transformations are implemented here in the subclasses.
 	///
-	/// \param aTask	Structure holding necessary information to apply transformation
+	/// \param aTask Structure holding necessary information to apply the transformation
 	///----------------------------------------------------------------------------------------------------
 	virtual void doBrush ( HairTask *aTask ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets whether the brush falloff is enabled or disabled
+	/// Sets whether the brush falloff is enabled or disabled.
 	///
-	/// \param aValue	New value of the falloff switch
+	/// \param aValue New value of the falloff switch
 	///----------------------------------------------------------------------------------------------------
 	inline void setFalloffSwitch ( bool aValue );
 	
 	///----------------------------------------------------------------------------------------------------
-	/// Sets whether the brush collision detection is enabled or disabled
+	/// Sets whether the brush collision detection is enabled or disabled.
 	///
-	/// \param aValue	New value of the collision detection switch
+	/// \param aValue New value of the collision detection switch
 	///----------------------------------------------------------------------------------------------------
 	inline void setCollisionDetectionSwitch( bool aValue );
 
@@ -48,9 +50,9 @@ public:
 
 protected:
 
-	bool mEnableFalloff; ///< Tells whether the brush falloff is enabled or disabled
+	bool mEnableFalloff; ///< Flag signaling whether the brush falloff is enabled or disabled
 
-	bool mEnableCollisionDetection; ///< Tells whether the brush collision detection is enabled or disabled
+	bool mEnableCollisionDetection; ///< Flag signaling whether the brush collision detection is enabled or disabled
 };
 
 inline void BrushMode::setFalloffSwitch ( bool aValue )
@@ -63,13 +65,10 @@ inline void BrushMode::setCollisionDetectionSwitch( bool aValue )
 	mEnableCollisionDetection = aValue;
 }
 
-
 inline bool BrushMode::isCollisionDetectionEnabled()
 {
 	return mEnableCollisionDetection;
 }
-
-
 
 } // namespace Toolbox
 
