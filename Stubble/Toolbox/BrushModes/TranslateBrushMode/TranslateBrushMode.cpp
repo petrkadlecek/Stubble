@@ -17,6 +17,12 @@ void TranslateBrushMode::doBrush( HairTask *aTask )
 	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+
+		if (guide->mGuideSegments.mSegmentLength <= EPSILON)
+		{
+			continue;
+		}
+
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength; // Scale factor to be applied, so the brush behaves equally on all scales

@@ -14,6 +14,12 @@ void PuffEndBrushMode::doBrush ( HairTask *aTask )
 	for (it = aTask->mAffectedGuides->begin(); it != aTask->mAffectedGuides->end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+
+		if (guide->mGuideSegments.mSegmentLength <= EPSILON)
+		{
+			continue;
+		}
+
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
 

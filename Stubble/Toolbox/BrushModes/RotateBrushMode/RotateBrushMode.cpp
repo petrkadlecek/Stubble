@@ -19,6 +19,12 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 	{
 		// For each p of the guide: p' = T^-1 * R * T * p
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+
+		if (guide->mGuideSegments.mSegmentLength <= EPSILON)
+		{
+			continue;
+		}
+
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
 		Vector3D< Real > axisLocal = Vector3D< Real >::transform(axis, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
