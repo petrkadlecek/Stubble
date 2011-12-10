@@ -203,7 +203,6 @@
     <ClCompile Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.cpp" />
     <ClCompile Include="Toolbox\HairTaskProcessor.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.cpp" />
-    <ClCompile Include="Toolbox\ToolShapes\ToolShape.cpp" />
     <ClCompile Include="Toolbox\Tools\BrushTool\BrushTool.cpp" />
     <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp" />
     <ClCompile Include="Toolbox\Tools\GenericTool.cpp" />

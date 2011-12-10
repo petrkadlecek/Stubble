@@ -88,9 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
-    <ClCompile Include="Toolbox\ToolShapes\ToolShape.cpp">
-      <Filter>Toolbox\ToolShapes</Filter>
-    </ClCompile>
     <ClCompile Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.cpp">
       <Filter>Toolbox\BrushModes\TranslateBrushMode</Filter>
     </ClCompile>

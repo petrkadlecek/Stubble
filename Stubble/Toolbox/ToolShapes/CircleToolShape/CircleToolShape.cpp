@@ -31,24 +31,32 @@ void CircleToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Ty
 {
 	switch ( aEventType )
 	{
-	case QEvent::Enter : 
-						break;
-	case QEvent::MouseMove : aView->refresh( true );
-							if ( mIsDrawn ) 
-							{
-								drawToolShape( aView, mPrevScreenCoords );
-							}
-							mIsDrawn = true;
-							drawToolShape( aView, aScreenCoords );
-							mPrevScreenCoords[ 0 ] = aScreenCoords[ 0 ];
-							mPrevScreenCoords[ 1 ] = aScreenCoords[ 1 ];
-						break;
-	case QEvent::Leave : aView->refresh( true );
-						 drawToolShape( aView, aScreenCoords );
-						 mIsDrawn = false;
-						 aView->refresh( true );
-						break;
-	default: break;
+		case QEvent::Enter:
+			// Do nothing
+			break;
+
+		case QEvent::MouseMove:
+			aView->refresh( true );
+			if ( mIsDrawn ) 
+			{
+				drawToolShape( aView, mPrevScreenCoords );
+			}
+			mIsDrawn = true;
+			drawToolShape( aView, aScreenCoords );
+			mPrevScreenCoords[ 0 ] = aScreenCoords[ 0 ];
+			mPrevScreenCoords[ 1 ] = aScreenCoords[ 1 ];
+			break;
+
+		case QEvent::Leave:
+			aView->refresh( true );
+			drawToolShape( aView, aScreenCoords );
+			mIsDrawn = false;
+			aView->refresh( true );
+			break;
+
+		default:
+			// Do nothing
+			break;
 	}
 }
 

@@ -4,7 +4,7 @@
 #include <maya/M3dView.h>
 #include <QtGui/QMouseEvent>
 
-//#include "../Tools/GenericTool.hpp"
+#include "Common/CommonTypes.hpp"
 
 namespace Stubble
 {
@@ -23,23 +23,37 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws the tool shape.
+	///
+	/// \param aView Viewport information
+	/// \param aScreenCoords Screen coordinates [x, y]
+	/// \param aEventType Info about the event that triggered draw
 	///----------------------------------------------------------------------------------------------------
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Collects relevant modified information from the calling tool object.
+	/// Collects relevant modified information from the calling tool object. Called whenever something in
+	/// the UI changes.
+	///
+	/// \param aTool Tool shape owner
 	///----------------------------------------------------------------------------------------------------
 	virtual void update( GenericTool *aTool ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns tool shape scale
+	/// Returns tool shape scale.
+	///
+	/// \return The scale (size) of the tool shape
 	///----------------------------------------------------------------------------------------------------
-	double getScale();
+	inline Real getScale();
 
 protected:
 
-	double mScale; ///< The scale of the tool (passed from the UI).
+	Real mScale; ///< The scale of the tool (passed from the UI).
 };
+
+inline Real ToolShape::getScale()
+{
+	return mScale;
+}
 	
 } // namespace Toolbox
 

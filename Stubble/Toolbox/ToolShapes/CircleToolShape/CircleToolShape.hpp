@@ -18,33 +18,32 @@ class CircleToolShape :
 {
 public:
 
+	///----------------------------------------------------------------------------------------------------
+	/// Default constructor.
+	///----------------------------------------------------------------------------------------------------
 	CircleToolShape();
 
-
-	/* TODO once we have GuideHair...
-	vector< GuideHair > filterSelection();
-	*/
-
 	///----------------------------------------------------------------------------------------------------
-	/// Manages the tool shape drawing.
+	/// Draws the tool shape.
 	///
-	/// \param	aView	Viewport information
-	/// \param	aScreenCoords	Screen coordinates [x, y]
-	/// \param	aEventType	Info about the event that triggered draw
+	/// \param aView Viewport information
+	/// \param aScreenCoords Screen coordinates [x, y]
+	/// \param aEventType Info about the event that triggered draw
 	///----------------------------------------------------------------------------------------------------
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Manages tool shape attribute update - called whenever the user changes something in the UI
+	/// Collects relevant modified information from the calling tool object. Called whenever something in
+	/// the UI changes.
 	///
-	/// \param	aTool	Parent of this object.
+	/// \param aTool Tool shape owner
 	///----------------------------------------------------------------------------------------------------
 	virtual void update( GenericTool *aTool );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Returns circle radius of the current tool.
 	/// 
-	/// \return Tool shape radius
+	/// \return Circle tool shape radius
 	///----------------------------------------------------------------------------------------------------
 	inline int getRadius() const;
 
@@ -52,10 +51,13 @@ protected:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Helper method that draws the actual tool shape.
+	///
+	/// \param aView Viewport information
+	/// \param aScreenCoords Screen coordinates [x, y]
 	///----------------------------------------------------------------------------------------------------
 	void drawToolShape( M3dView *aView, short aScreenCoords[ 2 ] );
 
-	bool mIsDrawn; ///< Is there a circle that needs to be erased
+	bool mIsDrawn; ///< Flag signaling if there's a circle that needs to be erased
 
 	short mPrevScreenCoords[ 2 ]; ///< The previous position of the cursor during moving
 
