@@ -1,6 +1,7 @@
 #include "GenericTool.hpp"
 #include "../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 
+// Command parameter names and shortcuts
 const char *toolScaleFlag = "-ts";
 const char *toolScaleLongFlag = "-toolScale";
 const char *brushModeChoiceFlag = "-bmc";

@@ -1,7 +1,3 @@
-//#include <maya/MIOStream.h>
-//#include <math.h>
-//#include <stdlib.h>
-
 #include "MouseMoveListener.hpp"
 
 namespace Stubble
@@ -37,6 +33,7 @@ bool MouseMoveListener::eventFilter( QObject *aObject, QEvent *aEvent )
 	// pass the necessary drawing information to the tool object
 	mOwner->drawToolShape( mScreenCoords, eventType );
 
+	// call the super-class implementation, doesn't work w/o this line
 	return QWidget::eventFilter(aObject, aEvent);
 }
 

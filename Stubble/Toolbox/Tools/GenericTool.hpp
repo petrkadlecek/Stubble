@@ -20,41 +20,48 @@ public:
     ///----------------------------------------------------------------------------------------------------
 	/// Default constructor
 	///----------------------------------------------------------------------------------------------------
-	GenericTool();
+	GenericTool ();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor specifying the tool shape
+	///
 	/// \param aToolShape The shape of the tool
 	///----------------------------------------------------------------------------------------------------
-	GenericTool(ToolShape *aToolShape);
+	GenericTool (ToolShape *aToolShape);
 	
 	///----------------------------------------------------------------------------------------------------
-	/// The method which returns the current 3D view.
-	/// \return	The current 3D view. 
+	/// Method for returning active viewport information
+	///
+	/// \return	The current 3D view
 	///----------------------------------------------------------------------------------------------------
 	M3dView* getActiveView();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws the current tool shape on the screen by delegating the request to its ToolShape object.
+	///
+	/// \param aScreenCoords Mouse screen coordinates [x, y]
+	/// \param aEventType Qt event type that triggered drawing
 	///----------------------------------------------------------------------------------------------------
 	void drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the tool shape.
+	///
 	/// \return The tool shape
 	///----------------------------------------------------------------------------------------------------
 	ToolShape *getToolShape();
 		
 	///----------------------------------------------------------------------------------------------------
-	/// Changes the current tool shape. Called every time the user changes
-	/// his preference in the user interface. 
+	/// Changes the current tool shape. Called every time the user changes his preference in the UI.
 	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape() = 0; 
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns the current tool scale, as selected in the UI. 
+	/// Returns the current tool scale, as selected in the UI.
+	///
+	/// \return The scale (size) of the tool.
 	///----------------------------------------------------------------------------------------------------
-	double getToolScale();
+	Real getToolScale();
 
 protected:
 
@@ -62,20 +69,19 @@ protected:
 
 	M3dView mView; ///< The view in which we are currently operating.
 
-	double mScale; ///< The scale of the tool (passed from the UI).
+	Real mScale; ///< The scale of the tool (passed from the UI).
 };
 
-
-
 ///----------------------------------------------------------------------------------------------------
-/// This class represents a simple mel command that will allow
-/// the user to enter a context for our tool. It simply has to return
-/// an instance of the Context class.
+/// This class representing a simple mel command that will allow the user to enter a context for our
+/// tool. It simply has to return an instance of the Context class. See Maya API reference for more
+/// information
 ///----------------------------------------------------------------------------------------------------
 class GenericToolCommand : 
 	public MPxContextCommand
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Class constructor.
 	///----------------------------------------------------------------------------------------------------
@@ -86,10 +92,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual ~GenericToolCommand();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Used for MEL command syntax manipulation. See Maya API reference for more information.
+	///
+	/// \return Maya status
+	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	appendSyntax();
 };
-
-
 
 } // namespace Toolbox
 
