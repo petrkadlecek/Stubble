@@ -11,23 +11,22 @@
 #include "newmat.h"
 #include "HairTask.hpp"
 
-//#define STUBBLE_ORIGINAL_HAIRSTYLING 1
-
 namespace Stubble
 {
 
 namespace Toolbox
 {
-
+// Arbitrary sized vectors and matrices - Intel MKL could probably yield better performance
 typedef NEWMAT::ColumnVector RealN;
 typedef NEWMAT::Matrix RealNxN;
 	
 ///----------------------------------------------------------------------------------------------------
-/// Singleton responsible for enqueing and asynchronously processing hair tasks issued by brush tools.
+/// Singleton responsible for queuing and asynchronously processing hair tasks issued by brush tools.
 ///----------------------------------------------------------------------------------------------------
 class HairTaskProcessor
 {
 public:
+
 	typedef std::deque< HairTask* > TaskAccumulator;
 	typedef Vector3D< Real > Vec3;
 	
@@ -40,6 +39,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Destroys existing instance of the class. Must be called before control reaches the end of program.
+	/// Purges the accumulator queue and waits for the worker thread to join.
 	///----------------------------------------------------------------------------------------------------
 	inline static void destroyInstance ();
 
@@ -57,43 +57,52 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Makes sure that hair retains their properties by minimizing an error functional. It takes into
-	/// account inextensibility constraints and guide-mesh interpenetration constraints. Implementation
-	/// of the fast manifold projection method - see appropriate paper.
+	/// account inextensibility constraints and guide-mesh interpenetration constraints. Implements the
+	/// fast manifold projection method. Iteratively calculates first step of Newtonian minimization
+	/// of hair energy functional and applies corrections to the hair until convergence criteria are met.
+	/// Doesn't calculate twisting and other dynamic stuff as mentioned in the paper. For further details see:
+	/// Kmoch, P., Bonnani, U., Magnetat-Thalmann, N. - Hair simulation model for real-time environments
 	///
-	/// \param aSelectedGuides	Guides to be processed
+	/// Usually called from the worker thread, because of potentially slow execution.
+	///
+	/// \param aSelectedGuides Guides to be processed
 	///----------------------------------------------------------------------------------------------------
 	static void enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides);
 	
 	///----------------------------------------------------------------------------------------------------
-	/// A lightweight version of enforceConstraints that takes into account only  inextensibility and
-	/// operates only on one guide's segments w/o any additional information.
+	/// A lightweight version of enforceConstraints that takes into account only inextensibility and
+	/// operates only on one guide segments w/o any additional information.
+	/// 
+	/// Usually called after hair cutting from the main thread. Mind the potentially slow execution.
 	///
-	/// \param aVertices		Guide vertices to be processed
-	/// \param aSegmentLength	Length of a single segment
+	/// \param aVertices Guide vertices to be processed
+	/// \param aSegmentLength Length of a single segment
 	///----------------------------------------------------------------------------------------------------
 	static void enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Enqueues new hair task into the accumulator queue and creates a worker thread if there's not one
-	/// already active. Contains two critical sections.
+	/// already active. Contains two critical sections. Called from the main thread.
 	///
 	/// \param aTask The new task to be added
 	///----------------------------------------------------------------------------------------------------
 	void enqueueTask (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Clears out the whole accumulator queue, contains critical section
+	/// Clears out the whole accumulator queue, contains critical section. Usually called from the main
+	/// thread.
 	///----------------------------------------------------------------------------------------------------
 	void purgeAccumulator ();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns the size of the accumulator. Contains critical section
+	/// Returns the size of the accumulator. Contains critical section. Called from the worker thread.
 	///
 	/// \return The size of the accumulator queue
 	///----------------------------------------------------------------------------------------------------
 	inline size_t getAccumulatorSize ();
 
 private:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor
 	///----------------------------------------------------------------------------------------------------
@@ -123,14 +132,19 @@ private:
 	/// Callback function that is called right after the thread finished. Sets the isRunning flag to
 	/// false. Contains critical section.
 	///
-	/// \param aData Optional data supplied to the callback, see Maya API manual for more information
+	/// \param aData Optional data supplied to the callback, see Maya API reference for more information
 	///----------------------------------------------------------------------------------------------------
 	static void workerFinishedCB (void *aData);
 
 	///----------------------------------------------------------------------------------------------------
-	/// The actual code executed by the worker thread. Contains critical sections.
+	/// The actual code executed by the worker thread. Contains critical sections. Until the queue is empty
+	/// executes hair brushing transformation, collision detection and constraint enforcement. Thanks to this
+	/// decoupling motion integration is easily and quickly computed and hair constraints are enforces as
+	/// post-integration step. See \link enforceConstraints \endlink for more details.
 	///
-	/// \param aData Optional data supplied to the worker thread, see Maya API manual for more information
+	/// \param aData Optional data supplied to the worker thread, see Maya API reference for more information
+	///
+	/// \return Thread return value, see Maya API reference for more information
 	///----------------------------------------------------------------------------------------------------
 	static MThreadRetVal asyncWorkerLoop (void *aData);
 
@@ -138,13 +152,16 @@ private:
 	/// Method for getting task from the queue. If the queue is empty, the pointer returned is null.
 	/// Contains critical section. Returns number of remaining objects in the queue.
 	///
-	/// \param aTask The task at the front of the queue
+	/// \param[out] aTask The task at the front of the queue
+	///
 	/// \return Number of remaining tasks in the queue
 	///----------------------------------------------------------------------------------------------------
 	size_t getTask (HairTask *&aTask);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Detects collisions for the manipulated segments and count also penetration.
+	/// Detects collisions for manipulated segments, counts number of collisions and finds out closest
+	/// points on mesh for all colliding vertices. These information are written to auxiliary structure
+	/// in the OneSelectedGuide class.
 	///
 	/// \param aSelectedGuides Selection of guides for collision calculation
 	///----------------------------------------------------------------------------------------------------
@@ -154,9 +171,9 @@ private:
 	/// Fills the beginning of the constraint vector with inextensibility constraints. Doesn't do any bound
 	/// checking.
 	///
-	/// \param aC				Out - the constraint vector
-	/// \param aHairVertices	Hair vertices to calculate constraints from
-	/// \param aSgmtLengthSq	Desired length of the segment squared
+	/// \param[in,out] aC The constraint vector
+	/// \param aHairVertices Hair vertices to calculate constraints from
+	/// \param aSgmtLengthSq Desired length of the segment squared
 	///----------------------------------------------------------------------------------------------------
 	inline static void computeInextensibilityConstraints(RealN &aC, HairShape::HairComponents::Segments &aHairVertices, const Real aSgmtLengthSq);
 
@@ -164,9 +181,9 @@ private:
 	/// Fills the fixed part of the nabla C matrix with inextensibility constraint derivatives. Doesn't
 	/// do any bound checking. Calculates also the nabla C transpose (delta).
 	///
-	/// \param aNC				Out - the nabla C matrix
-	/// \param aDelta			Out - the nabla C matrix transpose
-	/// \param aHairVertices	Hair vertices to calculate derivatives from
+	/// \param[in,out] aNC The nabla C matrix
+	/// \param[in,out] aDelta The nabla C matrix transpose
+	/// \param aHairVertices Hair vertices to calculate derivatives from
 	///----------------------------------------------------------------------------------------------------
 	inline static void computeInextensibilityGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices);
 
@@ -174,10 +191,10 @@ private:
 	/// Fills the flexible part of the constraint vector with interpenetration constraints. Doesn't do any
 	/// bound checking.
 	///
-	/// \param aC				Out - the constraint vector
-	/// \param aHairVertices	Hair vertices to calculate constraints from
-	/// \param aVerticesInfo	Additional info for hair vertices
-	/// \param aOffset			Offset just after the inextensibility constraints part
+	/// \param[in,out] aC The constraint vector
+	/// \param aHairVertices Hair vertices to calculate constraints from
+	/// \param aVerticesInfo Additional info for hair vertices
+	/// \param aOffset Offset just after the inextensibility constraints part
 	///----------------------------------------------------------------------------------------------------
 	inline static void computeInterpenetrationConstraints(RealN &aC, HairShape::HairComponents::Segments &aHairVertices,
 		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aOffset);
@@ -186,12 +203,12 @@ private:
 	/// Fills the flexible part of the nabla C matrix with interpenetration constraint derivatives. Doesn't
 	/// do any bound checking. Calculates also the nabla C transpose (delta).
 	///
-	/// \param aNC				Out - the nabla C matrix
-	/// \param aDelta			Out - the nabla C matrix transpose
-	/// \param aHairVertices	Hair vertices to calculate derivatives from
-	/// \param aVerticesInfo	Additional info for hair vertices
-	/// \param aConstrOffset	Offset just after the inextensibility constraints part - row space
-	/// \param aDerivOffset		Offset just after the inextensibility constraints part - column space
+	/// \param[in,out] aNC The nabla C matrix
+	/// \param[in,out] aDelta The nabla C matrix transpose
+	/// \param aHairVertices Hair vertices to calculate derivatives from
+	/// \param aVerticesInfo Additional info for hair vertices
+	/// \param aConstrOffset Offset just after the inextensibility constraints part - row space
+	/// \param aDerivOffset	Offset just after the inextensibility constraints part - column space
 	///----------------------------------------------------------------------------------------------------
 	inline static void computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
 		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset, const Uint aDerivOffset);
@@ -199,8 +216,8 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	/// Helper method for rescaling guide hair vertices by an arbitrary scale factor.
 	///
-	/// \param aVertices	Hair vertices to be scaled
-	/// \param aScaleFactor	Scale factor to be applied
+	/// \param[in,out] aVertices Hair vertices to be scaled
+	/// \param aScaleFactor Scale factor to be applied
 	///----------------------------------------------------------------------------------------------------
 	inline static void rescaleGuideHair(HairShape::HairComponents::Segments &aVertices, Real aScaleFactor);
 	
@@ -208,26 +225,21 @@ private:
 	/// Helper method for rescaling closest points on mesh for all colliding hair vertices by an arbitrary
 	/// scale factor.
 	///
-	/// \param aVerticesInfo	Container containing closest points on mesh
-	/// \param aScaleFactor		Scale factor to be applied
+	/// \param[in,out] aVerticesInfo Container containing closest points on mesh
+	/// \param aScaleFactor Scale factor to be applied
 	///----------------------------------------------------------------------------------------------------
 	inline static void rescaleClosestPoints(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor);
 
-	static HairTaskProcessor *sInstance; ///< The class instance
 	TaskAccumulator mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
+
+	static HairTaskProcessor *sInstance; ///< The class instance
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
 	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
 	static const Real DELTA; ///< Constant for local minima detection heuristic
-#ifdef STUBBLE_ORIGINAL_HAIRSTYLING
-	static const Uint RIGID_BODY_COUPL_CONSTRAINTS; ///< Number of rigidi body coupling constraints - 3 per rigid body (in our case just the hair root)
-	static const Real INV_ROOT_SGMT_WEIGHT; ///< Inverted root segment weight (kg) - applied to the hair follicle coupling constraints
-	static const Real INV_MID_SGMT_WEIGHT; ///< Inverted middle segment weight (kg) - applied to the rest of hair segment constraints
-	static const Real DELTA_SCALE; ///< Scale factor of the delta matrix, in the article denoted as "h", square root of the dT element
-#endif
 };
 
 inline HairTaskProcessor *HairTaskProcessor::getInstance ()

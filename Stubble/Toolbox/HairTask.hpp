@@ -19,6 +19,17 @@ namespace Toolbox
 ///----------------------------------------------------------------------------------------------------
 struct HairTask
 {
+	///----------------------------------------------------------------------------------------------------
+	/// Constructor
+	/// 
+	/// \param aView Viewport information for the move vector
+	/// \param aX X mouse coordinate
+	/// \param aY Y mouse coordinate
+	/// \param aDx Cursor move vector in the camera coordinates
+	/// \param aParentHairShape The fluffy object the changes will be made upon
+	/// \param aAffectedGuides Selection of guides affected by this operation
+	/// \param aBrushMode Brush state containing the brush operation method - points to an effective singleton, no deletion takes place!
+	///----------------------------------------------------------------------------------------------------
 	inline HairTask (const M3dView &aView, short aX, short aY, const Vector3D< double > &aDx, HairShape::HairShape *aParentHairShape,
 		HairShape::HairComponents::SelectedGuides *aAffectedGuides,	BrushMode *aBrushMode);
 
