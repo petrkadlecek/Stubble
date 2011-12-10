@@ -1,5 +1,5 @@
-#ifndef STUBBLE_REINIT_COMMAND_HPP
-#define STUBBLE_REINIT_COMMAND_HPP
+#ifndef STUBBLE_RESET_COMMAND_HPP
+#define STUBBLE_RESET_COMMAND_HPP
 
 #include "HairShape\UserInterface\HairShape.hpp"
 
@@ -17,12 +17,13 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Command that reinits zero sized hair of selected HairShape.
+/// Command that resets all guide hair of selected HairShape to their initial configuration
 ///----------------------------------------------------------------------------------------------------
-class ReinitCommand
+class ResetCommand
 	: public MPxCommand
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Get an instance of the command.
 	///----------------------------------------------------------------------------------------------------
@@ -38,4 +39,4 @@ public:
 
 } // namespace Stubble
 
-#endif // STUBBLE_REINIT_COMMAND_HPP
+#endif // STUBBLE_RESET_COMMAND_HPP

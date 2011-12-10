@@ -137,6 +137,17 @@ void HairGuides::reinitCuttedHair( Real aScaleFactor )
 	mBoundingBoxDirtyFlag = true;
 }
 
+void HairGuides::resetGuides( Real aScaleFactor )
+{
+	// Propagate changes to all frames and update undo stack
+	mUndoStack.add( mSegmentsStorage->resetGuides( aScaleFactor * GUIDE_SIZE ) );
+	// Segments has changed...
+	mDisplayedGuides.setDirty();
+	mAllSegmentsUG.setDirty();
+	updateSelectedGuides();
+	mBoundingBoxDirtyFlag = true;
+}
+
 const RestPositionsUG & HairGuides::getGuidesPositionsUG( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	if ( mRestPositionsUG.isDirty() ) // Is segments UG up-to-date ?

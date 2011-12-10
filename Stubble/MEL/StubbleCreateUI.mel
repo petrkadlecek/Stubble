@@ -7,9 +7,13 @@ global proc StubbleCreateUI()
 	menu -label "Stubble" $stubbleMainMenu;
 	setParent -menu $stubbleMainMenu;
 	menuItem -label "Create Hair" -command "source StubbleCreateHair.mel;";
+	menuItem -label "Reset Hair" -command "StubbleResetCommand;";
+	menuItem -label "Restore zero sized hair" -command "StubbleReinitCommand;";
+	menuItem -divider true;
 	menuItem -label "Cut Tool" -command "source StubbleCutTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;";
 	menuItem -label "Brush Tool" -command "source StubbleBrushTool.mel;" -optionBox true;
+	menuItem -divider true;
 	menuItem -label "Export to Dynamic NURBS" -command "StubbleExportToNURBS; \
 												string $name = `StubbleSelectCommand`; \
 												string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
@@ -24,8 +28,9 @@ global proc StubbleCreateUI()
 												string $parent[] = `listRelatives -p $node`;\
 												select -add $parent[ 0 ]; ";
 	menuItem -label "Import from NURBS" -command "StubbleImportNURBS;";
-	menuItem -label "Restore zero sized hair" -command "StubbleReinitCommand;";
+	menuItem -divider true;
 	menuItem -label "Update textures" -command "StubbleResetTextures;refresh;";
+
 	// Create Stubble select menu
 	setParent $gMainWindow;
 	global string $stubbleSelectMenu = "stubbleSelectMenu";

@@ -15,6 +15,7 @@
 #include "HairShape/UserInterface/HairShapeUI.hpp"
 #include "HairShape/UserInterface/SelectCommand.hpp"
 #include "HairShape/UserInterface/ReinitCommand.hpp"
+#include "HairShape/UserInterface/ResetCommand.hpp"
 #include "HairShape/UserInterface/HistoryCommands.hpp"
 
 #include "HairShape\HairComponents\CommandsNURBS.hpp"
@@ -209,6 +210,16 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
+	// register StubbleResetCommand command
+	status = plugin.registerCommand( "StubbleResetCommand", Stubble::HairShape::ResetCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleResetCommand command" );
+		return status;
+	}
+
 	return status;
 }
 
@@ -332,6 +343,15 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not unregister the StubbleReinitCommand command" );
+	}
+
+	// deregister StubbleResetCommand command
+	status = plugin.deregisterCommand( "StubbleResetCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleResetCommand command" );
 	}
 
 	// Clean up the brush worker thread

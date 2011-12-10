@@ -103,6 +103,15 @@ public:
 	PartialStorage * reinitCuttedHair( Real aLength );
 
 	///-------------------------------------------------------------------------------------------------
+	/// Resets all guides to the selected length - typically default one.
+	///
+	/// \param	aLength		Hair guides length.
+	///
+	/// \return	segments change in PartialStorage for undo stack 
+	///-------------------------------------------------------------------------------------------------
+	PartialStorage * resetGuides( Real aLength );
+
+	///-------------------------------------------------------------------------------------------------
 	/// Import segments in selected time frame. 
 	///
 	/// \param	aFrameSegments	the segments in time frame. 
@@ -211,6 +220,16 @@ private:
 	/// \param	aFactor			The affect factor ( see timeAffectFactor ). 
 	///-------------------------------------------------------------------------------------------------
 	void propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Resets one guide segments to the supplied length along the local z axis
+	///
+	/// \param aId Id of the processed guide
+	/// \param aLength Desired length of the guide segments
+	/// \param[in,out] aSegments Guide segments
+	/// \param[in,out] aPartialStorage Partial storage for undo stack purposes
+	///-------------------------------------------------------------------------------------------------
+	void resetGuideSegments ( unsigned __int32 aId, Real aLength, OneGuideSegments &aSegments, PartialStorage *aPartialStorage );
 
 	AllFramesSegments mSegments;  ///< The all segments (exists after the import!)
 

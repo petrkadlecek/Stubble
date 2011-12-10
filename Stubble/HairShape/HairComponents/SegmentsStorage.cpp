@@ -208,20 +208,23 @@ PartialStorage * SegmentsStorage::reinitCuttedHair( Real aLength )
 	{
 		if ( it->mSegmentLength <= EPSILON )
 		{
-			// Store old values to tmp storage
-			tmpStorage->mIds.push_back( id ); // Store guide id
-			tmpStorage->mSegments.push_back( *it ); // Store old guide segments
-			// For every segment
-			Vector3D< Real > segmentPos;
-			Vector3D< Real > segmentSize( 0, 0, aLength / it->mSegments.size() );
-			for ( Segments::iterator segIt = it->mSegments.begin(); segIt != it->mSegments.end(); ++segIt )
-			{
-				*segIt = segmentPos;
-				segmentPos += segmentSize; // Next segment position
-			}
-			// Set segment length
-			it->mSegmentLength = segmentSize.z;
+			resetGuideSegments(id, aLength, *it, tmpStorage);
 		}
+	}
+	// Current segments has been changed and need to be propagated through time
+	mAreCurrentSegmentsDirty = true;
+	return tmpStorage;
+}
+
+PartialStorage * SegmentsStorage::resetGuides( Real aLength )
+{
+	// Prepare partial storage
+	PartialStorage * tmpStorage = new PartialStorage;
+	// For every guide
+	unsigned __int32 id = 0;
+	for ( GuidesSegments::iterator it = mCurrent.mSegments.begin(); it != mCurrent.mSegments.end(); ++it, ++id )
+	{
+		resetGuideSegments(id, aLength, *it, tmpStorage);
 	}
 	// Current segments has been changed and need to be propagated through time
 	mAreCurrentSegmentsDirty = true;
@@ -515,6 +518,22 @@ void SegmentsStorage::propageteChangesToFrame( GuidesSegments & aGuides, Real aF
 		calculateSegmentLength( guide );
 		uniformlyRepositionSegments( guide, static_cast< unsigned __int32 >( guide.mSegments.size() ) );
 	}
+}
+
+void SegmentsStorage::resetGuideSegments ( unsigned __int32 aId, Real aLength, OneGuideSegments &aSegments, PartialStorage *aPartialStorage )
+{
+	// Store old values to tmp storage
+	aPartialStorage->mIds.push_back( aId ); // Store guide id
+	aPartialStorage->mSegments.push_back( aSegments ); // Store old guide segments
+	// For every segment
+	Real z = aLength / aSegments.mSegments.size();
+	size_t i = 0;
+	for ( Segments::iterator segIt = aSegments.mSegments.begin(); segIt != aSegments.mSegments.end(); ++segIt, ++i )
+	{
+		segIt->set( 0.0, 0.0, i * z );
+	}
+	// Set segment length
+	aSegments.mSegmentLength = z;
 }
 
 } // namespace HairComponents

@@ -232,6 +232,9 @@
     <ClCompile Include="Common\Base64.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\ResetCommand.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -453,6 +456,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\Mesh\MayaTriangle.hpp">
       <Filter>HairShape\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\ResetCommand.hpp">
+      <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

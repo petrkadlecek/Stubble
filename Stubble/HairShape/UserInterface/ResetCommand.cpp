@@ -1,4 +1,4 @@
-#include "ReinitCommand.hpp"
+#include "ResetCommand.hpp"
 
 namespace Stubble
 {
@@ -6,19 +6,19 @@ namespace Stubble
 namespace HairShape
 {
 	
-void *ReinitCommand::creator()
+void *ResetCommand::creator()
 {
-	return new ReinitCommand();
+	return new ResetCommand();
 }
 
-MStatus ReinitCommand::doIt( const MArgList &aArgList )
+MStatus ResetCommand::doIt( const MArgList &aArgList )
 {
-	try 
+	try
 	{
 		HairShape * active = HairShape::getActiveObject();
 		if ( active != 0 )
 		{
-			active->reinitCuttedHair();
+			active->resetGuides();
 			return MStatus::kSuccess;	
 		}
 	}

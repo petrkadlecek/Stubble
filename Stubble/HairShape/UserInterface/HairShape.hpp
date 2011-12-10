@@ -299,6 +299,11 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline void reinitCuttedHair();
 
+	///-------------------------------------------------------------------------------------------------
+	/// Resets all guides to their initial configuration
+	///-------------------------------------------------------------------------------------------------
+	inline void resetGuides();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the currect maya mesh.
 	/// 
@@ -507,6 +512,11 @@ inline void HairShape::exportToNURBS()
 inline void HairShape::reinitCuttedHair()
 {
 	mHairGuides->reinitCuttedHair( getScaleFactor() );
+}
+
+inline void HairShape::resetGuides()
+{
+	mHairGuides->resetGuides( getScaleFactor() );
 }
 
 inline const MayaMesh & HairShape::getCurrentMesh() const
