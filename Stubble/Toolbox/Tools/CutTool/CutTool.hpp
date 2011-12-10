@@ -38,6 +38,7 @@ class CutTool :
 	public GenericTool
 {
 public:
+
 	///----------------------------------------------------------------------------------------------------
 	/// Class constructor.
 	///----------------------------------------------------------------------------------------------------
@@ -64,6 +65,7 @@ public:
 	/// Handles the mouse press event.
 	///
 	/// \param aEvent Information on the input event.
+	///
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus doPress( MEvent &aEvent );
@@ -72,6 +74,7 @@ public:
 	/// Handles the mouse release event. Calls doCut() if left mouse button is released.
 	///
 	/// \param aEvent Information on the input event.
+	///
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	doRelease( MEvent &aEvent );
@@ -83,12 +86,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void getClassName( MString &aName ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Changes the current tool shape. Called every time the user changes his preference in the UI.
+	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape( void );
 
 	///----------------------------------------------------------------------------------------------------
 	///  Cut the affected hair.
-	///
-	/// \param aDX Position change in the screen coordinates
 	///----------------------------------------------------------------------------------------------------
 	void doCut();
 
@@ -101,16 +105,10 @@ public:
 	/// Deletes the mouse move listener.
 	///----------------------------------------------------------------------------------------------------
 	static void deleteMouseMoveListener();
-	
-	/// the mouse move listener
-	static QPointer<MouseMoveListener> sMouseMoveListener;	
+		
+	static QPointer<MouseMoveListener> sMouseMoveListener; ///< the mouse move listener
 
 protected:
-
-	///----------------------------------------------------------------------------------------------------
-	/// Changes the current Cut mode. Called by CutToolCommand every time the user changes
-	/// his preference in the user interface. 
-	///----------------------------------------------------------------------------------------------------	
 
 	///----------------------------------------------------------------------------------------------------
 	/// Takes currently selected guides and filters them against current hair shape. Stores it inside
@@ -126,7 +124,7 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	friend class CutToolCommand;
 	
-	short mPosition[ 2 ]; ///< The location of the cursor when the mouse gets released.
+	short mPosition[ 2 ]; ///< The location of the cursor when the mouse gets released [x, y].
 
 	MGlobal::MSelectionMode mPrevSelMode; ///< Previous selection mode, used when undoing the command.
 	
@@ -141,7 +139,6 @@ private:
 	static const MString sHelpTxt; ///< Help text that will be displayed in the help line
 };
 
-
 ///----------------------------------------------------------------------------------------------------
 /// This class represents a simple mel command that will allow
 /// the user to enter a context for our tool. It simply has to return
@@ -154,12 +151,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// This method needs to return a context for maya to use
 	/// when our tool requires input from the viewport.
+	///
 	/// \return	a new instance of CutTool
 	///----------------------------------------------------------------------------------------------------
 	virtual MPxContext* makeObj();
 
 	///----------------------------------------------------------------------------------------------------
 	/// This method returns a new instance of the tool command for maya to use.
+	///
 	/// \return	an instance of CutToolCommand
 	///----------------------------------------------------------------------------------------------------
 	static void* creator();
@@ -176,9 +175,10 @@ public:
 
 	// the methods that are necessary for the user interface to communicate with the internals
 	virtual	MStatus	doEditFlags();
+
 	virtual MStatus	doQueryFlags();
 
-	static const MString sCommandName;
+	static const MString sCommandName; ///< The command name
 
 protected:
 
