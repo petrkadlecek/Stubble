@@ -18,6 +18,8 @@ void MayaOutputGenerator::draw()
 	{
 		rebuildVBO();
 	}
+	// Enable depth-buffer
+	glEnable( GL_DEPTH_TEST );
 	// Enable blending
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -37,6 +39,8 @@ void MayaOutputGenerator::draw()
 	glDisableClientState( GL_COLOR_ARRAY );
 	// Disable blending
 	glEnable( GL_BLEND );
+	// Disable depth-buffer
+	glDisable( GL_DEPTH_TEST );
 	// Unbind buffers
 	GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, 0 ); // For vertices data
 	GLExt::glBindBuffer( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 ); // For indices data

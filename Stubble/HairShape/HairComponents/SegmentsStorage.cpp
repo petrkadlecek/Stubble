@@ -102,7 +102,6 @@ void SegmentsStorage::setFrame( Time aTime )
 		return; // Ignores time
 	}
 	propagateChangesThroughTime(); // Saves current frame
-	/* TODO MAY BE SOMETHING BETTER THAN LINEAR INTERPOLATION*/
 	mCurrent.mFrame = aTime;
 	// Get bounds first
 	AllFramesSegments::const_iterator lowerBound = mSegments.lower_bound( aTime );
@@ -329,7 +328,7 @@ void SegmentsStorage::calculateSegmentLength( OneGuideSegments & aGuideSegments 
 
 void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount )
 {
-	if ( aCount < 2 ) //TODO: O really? What do we exactly do?
+	if ( aCount < 2 )
 	{
 		throw new StubbleException("New hair segments count less than 2.");
 	}

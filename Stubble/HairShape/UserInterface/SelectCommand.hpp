@@ -17,7 +17,8 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Command that selects HairShape.
+/// Command for internal selection of HairShape.
+/// See doIt method for more information about this command.
 ///----------------------------------------------------------------------------------------------------
 class SelectCommand
 	: public MPxCommand
@@ -30,6 +31,8 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Execute the command.
+	/// Lists through all Maya selected objects and sets pointer to Maya selected HairShape.
+	/// If no HairShape is selected by Maya, then it calls Maya selection on internaly selected HairShape.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus doIt( const MArgList &aArgList );	
 };

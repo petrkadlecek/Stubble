@@ -13,7 +13,8 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Command that undos changes on active HairShape.
+/// Command that undos hair guides segments changes on active HairShape.
+/// Only changes made are brush tools, undo/redo commands, reset and reinit commands are undoable.
 ///----------------------------------------------------------------------------------------------------
 class UndoCommand
 	: public MPxCommand
@@ -32,6 +33,7 @@ public:
 
 ///----------------------------------------------------------------------------------------------------
 /// Command that redos changes on active HairShape.
+/// Only changes made are brush tools, undo/redo commands, reset and reinit commands are redoable.
 ///----------------------------------------------------------------------------------------------------
 class RedoCommand
 	: public MPxCommand

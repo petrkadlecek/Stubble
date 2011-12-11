@@ -17,7 +17,7 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Command that reinits zero sized hair of selected HairShape.
+/// Command that reinits zero sized hair of selected HairShape to initial length.
 ///----------------------------------------------------------------------------------------------------
 class ReinitCommand
 	: public MPxCommand

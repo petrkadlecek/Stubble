@@ -130,7 +130,6 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 			unzipper >> *segIt;
 		}
 	}
-	// TODO : import all other properties
 	file.close();
 }
 
