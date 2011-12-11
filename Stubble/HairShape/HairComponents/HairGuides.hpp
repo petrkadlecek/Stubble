@@ -90,7 +90,7 @@ public:
 	/// Gets the selected guides segments data structure. This data structure is only updated after 
 	/// selection or on demand and it's dirty flag is only set, when the selected guides are changed due to 
 	/// not brushing event. The data structure is stored inside this class and updated only when this 
-	/// method is called ( and only if neccessary ).
+	/// method is called ( and only if necessary ).
 	///
 	/// \return	The selected guides segments data structure.
 	///----------------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the guides positions data structure. 
 	/// Since guides rest positions data structure needs interpolation groups. The data structure is stored 
-	/// inside this class and updated only when this method is called ( and only if neccessary ). 
+	/// inside this class and updated only when this method is called ( and only if necessary ). 
 	///
 	/// \param	aInterpolationGroups	the interpolation groups object 
 	///

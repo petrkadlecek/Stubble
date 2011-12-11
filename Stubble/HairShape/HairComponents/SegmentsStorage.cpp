@@ -12,6 +12,9 @@ namespace HairShape
 namespace HairComponents
 {
 
+
+const Real FRAME_PROPAGATION_TO_FRAMES_INVERSE = 0.05f;	///< Too how many frames should one frame propagate INVERSED
+
 SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups, Real aLength ):
 	mStartLength ( aLength )
@@ -471,7 +474,6 @@ inline Real SegmentsStorage::timeAffectFactor( Time aTimeDifference, Real aInver
 
 void SegmentsStorage::propagateChangesThroughTime()
 {
-	Real aInverseFramesCount = 1 / static_cast< Real >( mSegments.size() ); // Get frames count
 	if ( imported() && mAreCurrentSegmentsDirty )
 	{
 		// Gets first non-less frame 
@@ -480,7 +482,7 @@ void SegmentsStorage::propagateChangesThroughTime()
 		// For every succeeding frame until change has no meaning
 		for ( AllFramesSegments::iterator it = lowerBound; 
 			it != mSegments.end() && ( factor = 
-			timeAffectFactor( it->first - mCurrent.mFrame, aInverseFramesCount ) ) > 0; ++it )
+			timeAffectFactor( it->first - mCurrent.mFrame, FRAME_PROPAGATION_TO_FRAMES_INVERSE ) ) > 0; ++it )
 		{
 			propageteChangesToFrame( it->second.mSegments, factor );
 		}
@@ -490,7 +492,7 @@ void SegmentsStorage::propagateChangesThroughTime()
 			AllFramesSegments::reverse_iterator rIt( lowerBound );
 			// For every preceding frame until change has no meaning
 			for ( ; rIt != mSegments.rend() && ( factor = 
-				timeAffectFactor( mCurrent.mFrame - rIt->first, aInverseFramesCount ) ) > 0; ++rIt )
+				timeAffectFactor( mCurrent.mFrame - rIt->first, FRAME_PROPAGATION_TO_FRAMES_INVERSE ) ) > 0; ++rIt )
 			{
 				propageteChangesToFrame( rIt->second.mSegments, factor );
 			}

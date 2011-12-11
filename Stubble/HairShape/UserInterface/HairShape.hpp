@@ -22,7 +22,10 @@ namespace HairShape
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// The main class that encapsulates informations about hairs
+/// The main class that encapsulates informations about hair guides and interpolated hair in Maya.
+/// Can modify, save & load, export hair guides or interpolation hair properties.
+/// Both hair guides and interpolated hair can be displayed directly in Maya through this class.
+/// It can be serialized/deserialized.
 ///----------------------------------------------------------------------------------------------------
 class HairShape: public MPxSurfaceShape, public Interpolation::Maya::MayaHairProperties 
 {
@@ -40,7 +43,7 @@ public:
 
 	static MObject surfaceAttr; ///< The connected surface attribute
 
-	static MObject surfaceChangeAttr; ///< The surface changed attribute
+	static MObject surfaceChangeAttr; ///< The surface changed attribute ( set whenever surface is changed )
 
 	static MObject voxelsResolutionAttr; ///< The voxels resolution attribute
 
@@ -52,7 +55,7 @@ public:
 
 	static MObject timeAttr;	///< The time attribute
 
-	static MObject timeChangeAttr; ///< The time changed attribute
+	static MObject timeChangeAttr; ///< The time changed attribute ( set whenever time is changed )
 
 	static MObject displayGuidesAttr;   ///< Should guides be displayed ? attribute
 
@@ -73,6 +76,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Post constructor. 
+	/// Some Maya properties may only be set in postConstructor.
 	///----------------------------------------------------------------------------------------------------
 	virtual void HairShape::postConstructor();
 
@@ -82,19 +86,21 @@ public:
 	~HairShape();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Reacts on attribute changes, mesh changes, etc.
+	/// Reacts on non-internal attribute changes.
+	/// Called whenever surface on which hair grow has been changed or time has been changed.
 	/// 
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
 	MStatus compute();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Getter for bounding box of HairShape.
+	/// Returns always true, telling Maya that are object is always inside bounding box.
 	///----------------------------------------------------------------------------------------------------
 	virtual bool isBounded() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// This function calculates and returns Node volume.
+	/// This function calculates and returns Node bounding box.
+	/// Bounding box is calculated from hair guides and is used by Maya for node selection.
 	///
 	/// \return The bounding box of the shape
 	///----------------------------------------------------------------------------------------------------
@@ -102,7 +108,8 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Computes new attributes of our Node based on other updated attributes.
-	///
+	///	Called whenever surface on which hair grow has been changed or time has been changed.
+	///	
 	/// \param aPlug				Which attribute was changed.
 	/// \param [in,out] aDataBlock	The data block with attributes values.
 	///
@@ -112,17 +119,20 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets an internal value in contex. 
+	/// Called whenever any internal attribute is required by Maya.
 	///
 	/// \param	aPlug				Which attribute is being quiered.
 	/// \param [in,out]	aDataHandle	Handle to data storage.
-	/// \param [in,out]	aContext	Current context; 
+	/// \param [in,out]	aContext	Current context.
 	///
 	/// \return	true if value was loaded from user storage, false if it should be loaded defaultly.
 	///----------------------------------------------------------------------------------------------------
 	virtual bool getInternalValueInContext( const MPlug & aPlug, MDataHandle & aDataHandle, MDGContext & aContext );  
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets an internal value in contex. 
+	/// Sets an internal value in contex.
+	/// Called whenever any internal value is changed ( except surface and time all other attributes
+	/// we are interested in are internal ). 
 	///
 	/// \param	aPlug				Which attribute is being set.
 	/// \param [in,out]	aDataHandle	Handle to data storage.
@@ -134,25 +144,25 @@ public:
 		MDGContext & aContext );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Reacts on braking connection to our node.
+	/// Reacts on breaking connection to our node's attribute.
 	///
 	/// \param aPlug				Which plug lost his connection.
 	/// \param aOtherPlug			Plug on the other side of the broken connection.
-	/// \param aAsSrc		Determines if this plug is source.
+	/// \param aAsSrc				Determines if this plug is source.
 	///
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug,bool aAsSrc );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Creates new HairShape.
+	/// Creates new HairShape node.
 	/// 
 	/// \return	New Hair Shape as void pointer.
 	///----------------------------------------------------------------------------------------------------
 	static void *creator();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Draw method called my Maya
+	/// Draws hair guides and interpolated hair asociated with this HairShape node.
 	///----------------------------------------------------------------------------------------------------
 	void draw();
 
@@ -164,18 +174,18 @@ public:
 	bool isInterpolationGroupSelectable( unsigned __int32 aGroupIndex );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the selected guides segments uniform grid. This grid is only updated after selection or on 
-	/// demand and it's dirty flag is never set by HairGuides class.
+	/// Gets the selected guides segments uniform grid. This grid is not set as dirty when external tool
+	/// changes hair segments.
 	///
 	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
 	inline const HairComponents::SegmentsUG & getSelectedGuidesDS();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Updates the guides after the brush or any other tool was used. 
+	/// Updates the guides after the brush or any other tool was used to change hair guides segments. 
 	/// 
 	/// \param	aStoreUpdate	if true, stores updates of selected guides to stack, 
-	/// 						otherwise draw update only
+	/// 						otherwise update is only displayed, not stored.
 	///----------------------------------------------------------------------------------------------------
 	inline void updateGuides( bool aStoreUpdate );
 
@@ -208,38 +218,43 @@ public:
 	virtual bool match(	const MSelectionMask & aMask, const MObjectArray& aComponentList ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Undoes changed to hair guides.
+	/// Undoes changes to hair guides segments.
 	///----------------------------------------------------------------------------------------------------
 	void undo();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Redoes changes to hair guides.
+	/// Redoes changes to hair guides segments.
 	///----------------------------------------------------------------------------------------------------
 	void redo();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Queries if we can undo. 
+	/// Queries if we can undo changes to hair guides segments. 
 	///
-	/// \return	true if it succeeds, false if it fails. 
+	/// \return	true if we can call undo command. 
 	///-------------------------------------------------------------------------------------------------
 	inline bool canUndo() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Queries if we can redo. 
+	/// Queries if we can redo changes to hair guides segments.
 	///
-	/// \return	true if it succeeds, false if it fails. 
+	/// \return	true if we can call redo command.
 	///-------------------------------------------------------------------------------------------------
 	inline bool canRedo() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// This function creates a description of our node.
+	/// This method initilizes static attributes for all HairShape nodes.
 	/// 
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
     static MStatus initialize();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sample HairShape at given time. 
+	/// Sample HairShape at given time to files ( with prefix aFileName ).
+	/// These files will be then used to display interpolated hair in extern renderer ( RenderMan ),
+	/// Interpolated hair are splitted to voxels which will be rendered separately.
+	/// Hair guides and interpolation properties are stored in one file and current and rest pose mesh  
+	/// are voxelized and stored in separate files for each voxel.
+	/// Bounding boxes of each voxel are calculated using all interpolated hair geometry.
 	///
 	/// \param	aSampleTime					Time of the sample. 
 	/// \param	aFileName					Filename of the file. 
@@ -248,7 +263,11 @@ public:
 	void sampleTime( Time aSampleTime, const std::string & aFileName, BoundingBoxes & aVoxelBoundingBoxes );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Refresh all dirty textures. 
+	/// Resamples all dirty textures and reacts to any texture change.
+	/// If density is changed, resamples hair guides positions and interpolate hair segments.
+	/// If interpolation groups are changed, interpolation groups object must be change, also hair segments
+	/// count must be refreshed.
+	/// Finally generates interpolated hair if necessary.
 	/// 
 	/// \param aForceRefresh	Should we refresh all textures ?
 	///----------------------------------------------------------------------------------------------------
@@ -256,41 +275,31 @@ public:
 		
 	///----------------------------------------------------------------------------------------------------
 	/// Notifies the shape when its list of selected components might have changed.
+	/// 
 	/// \param aFlag	True when the selection list changes.
 	///----------------------------------------------------------------------------------------------------
 	void setSelectionModified( bool aFlag );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Has the shape's list of selected components been modified?
+	/// 
+	/// \return true, if shape's list of selected components has been modified.
 	///----------------------------------------------------------------------------------------------------
 	bool isSelectionModified();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets this HairShape as active object. 
+	/// Only active object reacts on external events such as UI commands calls and brushes.
 	///----------------------------------------------------------------------------------------------------
 	inline void setAsActiveObject();
 
-	// Static methods
-	
 	///----------------------------------------------------------------------------------------------------
-	/// Removes the callbacks. Should be called shortly before HairShape deregistration. 
-	///----------------------------------------------------------------------------------------------------
-	static void removeCallbacks();
-
-	///----------------------------------------------------------------------------------------------------
-	/// Gets the active object node. 
-	///
-	/// \return	null if it fails, else the active object. 
-	///----------------------------------------------------------------------------------------------------
-	inline static HairShape * getActiveObject();
-
-	///----------------------------------------------------------------------------------------------------
-	/// Import NURBS.
+	/// Import NURBS curves to hair guides.
 	///----------------------------------------------------------------------------------------------------
 	inline void importNURBS();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Export to NURBS.
+	/// Export hair guides to NURBS curves.
 	///----------------------------------------------------------------------------------------------------
 	inline void exportToNURBS();
 
@@ -300,12 +309,12 @@ public:
 	inline void reinitCuttedHair();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Resets all guides to their initial configuration
+	/// Resets all guides to their initial configuration.
 	///-------------------------------------------------------------------------------------------------
 	inline void resetGuides();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the currect maya mesh.
+	/// Gets the current maya mesh object.
 	/// 
 	/// \return	Current maya mesh.
 	///----------------------------------------------------------------------------------------------------
@@ -326,18 +335,33 @@ public:
 	void deserialize( const std::string & aData );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the current maya mesh inclusive matrix
+	/// Gets the current maya mesh inclusive matrix.
+	/// Inclusive matrix stores all transforms which are applied on surface connected to this node.
 	/// 
 	/// \return	Get current maya mesh inclusive matrix.
 	///----------------------------------------------------------------------------------------------------
 	inline MMatrix getCurrentInclusiveMatrix() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Return this as MObject
+	/// Return this node as Maya MObject.
 	/// 
-	/// \return	Return this Hair Shape as MObject.
+	/// \return	Return this HairShape as MObject.
 	///-------------------------------------------------------------------------------------------------
 	inline MObject asMObject();
+
+	// Static methods
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Removes the callbacks. Should be called shortly before HairShape deregistration. 
+	///----------------------------------------------------------------------------------------------------
+	static void removeCallbacks();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the active object node. 
+	///
+	/// \return	null if it fails, else the active object. 
+	///----------------------------------------------------------------------------------------------------
+	inline static HairShape * getActiveObject();
 
 private:
 	
@@ -346,26 +370,35 @@ private:
 	// Private methods
 
 	///----------------------------------------------------------------------------------------------------
-	/// Mesh has been changed. 
+	/// Mesh has been changed.
+	/// Reacts on mesh change by repositioning hair guides and interpolated hair.
+	/// If topology has been change, some hair guides may be destroyed inside HairGuides object. 
 	///
 	/// \param	aMeshObj	The mesh object.
 	///----------------------------------------------------------------------------------------------------
 	void meshChange( MObject aMeshObj );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets a current time. 
+	/// Sets a current time.
+	/// Load new hair guides segments for currenly selected time and interpolates hair. 
 	///
 	/// \param	aTime	The current time. 
 	///----------------------------------------------------------------------------------------------------
 	void setCurrentTime( Time aTime );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Refresh pointers to guides for interpolation class. 
+	/// Refresh pointers to guides for interpolation class.
+	/// InterpolatedHair class only access guides through HairProperties interface which stores
+	/// constant pointer to hair guides segments and rest positions. If any of these are reallocated,
+	/// pointers inside HairProperties must be refreshed.
 	///----------------------------------------------------------------------------------------------------
 	inline void refreshPointersToGuidesForInterpolation();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates the segments count attributes. ( Essential after Interpolation groups change )
+	/// Updates the segments count attributes. Must be called after Interpolation groups have been 
+	/// changed. Segments count array length will be set to interpolation groups count and segments 
+	/// count elements will store groups segments count. For each segments count element color of 
+	/// corresponding group will be displayed.
 	/// 
 	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
 	/// 						be removed.
@@ -373,7 +406,8 @@ private:
 	inline void updateSegmentsCountAttributes( bool aFirstUpdate );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates the selectable interpolation groups attribute. ( Essential after Interpolation groups change )
+	/// Updates the selectable interpolation groups attribute. Must be called after Interpolation groups 
+	/// have been changed.
 	/// 
 	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
 	/// 						be removed.
@@ -381,7 +415,7 @@ private:
 	inline void updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Registers the topology callback. 
+	/// Registers the mesh topology callback ( mesh connected to this HairShape ).
 	///
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
@@ -398,17 +432,17 @@ private:
 
 	MBoundingBox mBoundingBox; ///< The bounding box of our node
 
-	RandomGenerator mRandom;	///< The random generator
+	RandomGenerator mRandom;	///< The random generator of numbers
 
-	UVPointGenerator *mUVPointGenerator; ///< UV point generator
+	UVPointGenerator *mUVPointGenerator; ///< UV point generator ( hair sampler )
 
-	MayaMesh *mMayaMesh; ///< Maya mesh
+	MayaMesh *mMayaMesh; ///< Maya mesh on which hair grows
 
-	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
+	HairComponents::HairGuides *mHairGuides; ///< Object for storing hair guides segments
 
-	Interpolation::Maya::Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
+	Interpolation::Maya::Voxelization * mVoxelization;   ///< The voxelization class for external interpolation of hair
 
-	Interpolation::Maya::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
+	Interpolation::Maya::InterpolatedHair mInterpolatedHair;	///< The object for displaying interpolate hair in Maya
 
 	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
@@ -432,9 +466,9 @@ private:
 
 	// Mesh topology callback
 
-	bool mIsTopologyCallbackRegistered; ///< true if is topology callback registered
+	bool mIsTopologyCallbackRegistered; ///< true if mesh topology callback is registered
 
-	bool mIsTopologyModified;   ///< true if is topology modified
+	bool mIsTopologyModified;   ///< true if topology is modified
 
 	bool mIsSelectionModified; ///< true if the selection has changed
 

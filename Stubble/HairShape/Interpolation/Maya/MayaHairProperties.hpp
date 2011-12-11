@@ -35,7 +35,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Export hair properties to file.
-	/// This is neccessary for rendering hair in for example render man ( RMHairProperties will import the
+	/// This is necessary for rendering hair in for example render man ( RMHairProperties will import the
 	/// hair properties ).
 	///
 	/// \param [in,out]	aOutputStream	The file output stream. 
