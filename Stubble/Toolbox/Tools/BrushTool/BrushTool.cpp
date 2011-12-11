@@ -348,7 +348,7 @@ void BrushTool::filterAffectedGuides()
 	}
 
 	//FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesUG().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
+	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
 }
 
 void BrushTool::changeToolShape()

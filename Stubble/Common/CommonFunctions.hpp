@@ -271,7 +271,7 @@ inline void serialize( std::string aVar, std::ostream & aOutputStream )
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Serialize primitive types from an STL vector.
+/// Serialize primitive types from STL vector.
 ///
 /// \param	aVector			Reference to vector that will be serialized.
 /// \param	aOutputStream	Output stream
@@ -291,7 +291,7 @@ inline void serializePrimitives( const std::vector< Type > &aVector, std::ostrea
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Serialize objects from an STL vector.
+/// Serialize objects from STL vector.
 ///
 /// \param	aVector			Reference to vector that will be serialized.
 /// \param	aOutputStream	Output stream
@@ -346,7 +346,7 @@ inline void deserialize( std::string & aVar, std::istream & aInputStream )
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Deserialize primitive types into an STL vector.
+/// Deserialize primitive types into STL vector.
 ///
 /// \param	aVector			Vector to contain deserialized values.
 /// \param	aInputStream	Input stream
@@ -367,7 +367,7 @@ inline void deserializePrimitives( std::vector< Type > & aVector, std::istream &
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Deserialize objects into an STL vector.
+/// Deserialize objects into STL vector.
 ///
 /// \param	aVector			Vector to contain deserialized objects.
 /// \param	aInputStream	Input stream

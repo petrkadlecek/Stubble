@@ -5,7 +5,10 @@
 #include <string.h>
 #include <winsock2.h>
 #include <windows.h>
-#include "maya\MGlobal.h"
+
+#ifdef MAYA
+#include <maya\MGlobal.h>
+#endif
 
 namespace Stubble 
 {
@@ -129,26 +132,30 @@ inline long Timer::getGlobalTimeClock()
 	return t;
 }
 
+#ifdef MAYA
+
 inline void Timer::mayaDisplayElapsedTime()
 {
-	MString hodnota;
-	hodnota.set( getElapsedTime() );
-	MGlobal::displayInfo( "ElapsedTime: " + hodnota + " s" );
+	MString value;
+	value.set( getElapsedTime() );
+	MGlobal::displayInfo( "ElapsedTime: " + value + " s" );
 }
 
 inline void Timer::mayaDisplayLastElapsedTime()
 {
-	MString hodnota;
-	hodnota.set( getLastElapsedTime() );
-	MGlobal::displayInfo( "LastElapsedTime: " + hodnota + " s" );
+	MString value;
+	value.set( getLastElapsedTime() );
+	MGlobal::displayInfo( "LastElapsedTime: " + value + " s" );
 }
 
 inline void Timer::mayaDisplayTimeFromStart()
 {
-	MString hodnota;
-	hodnota.set( getTimeFromStart() );
-	MGlobal::displayInfo( "TimeFromStart: " + hodnota + " s" );
+	MString value;
+	value.set( getTimeFromStart() );
+	MGlobal::displayInfo( "TimeFromStart: " + value + " s" );
 }
+
+#endif
 
 } // namespace Stubble
 

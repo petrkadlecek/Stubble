@@ -3,12 +3,12 @@
 
 #include "Common/CommonTypes.hpp"
 #include "HairShape/Generators/UVPointGenerator.hpp"
-#include "HairShape/Interpolation/HairGenerator.tmpl.hpp"
-#include "HairShape/Interpolation/HairProperties.hpp"
-#include "HairShape/Interpolation/SimplePositionGenerator.hpp"
-#include "HairShape/Interpolation/SimpleOutputGenerator.hpp"
-#include "MayaMesh.hpp"
-#include "Mesh.hpp"
+#include "../HairGenerator.tmpl.hpp"
+#include "../HairProperties.hpp"
+#include "SimplePositionGenerator.hpp"
+#include "SimpleOutputGenerator.hpp"
+#include "HairShape/Mesh/MayaMesh.hpp"
+#include "HairShape/Mesh/Mesh.hpp"
 #include "Primitives/BoundingBox.hpp"
 
 #include <fstream>
@@ -18,6 +18,12 @@ namespace Stubble
 {
 
 namespace HairShape
+{
+
+namespace Interpolation
+{
+
+namespace Maya
 {
 
 ///-------------------------------------------------------------------------------------------------
@@ -154,6 +160,10 @@ inline unsigned __int32 Voxelization::getVoxelsCount() const
 {
 	return static_cast< unsigned __int32 >( mVoxels.size() );
 }
+
+} // namespace Maya
+
+} // namespace Interpolation
 
 } // namespace HairShape
 

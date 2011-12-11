@@ -1,5 +1,5 @@
-#ifndef STUBBLE_SEGMENTS_UG_HPP
-#define STUBBLE_SEGMENTS_UG_HPP
+#ifndef STUBBLE_SEGMENTS_DS_HPP
+#define STUBBLE_SEGMENTS_DS_HPP
 
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\Segments.hpp"

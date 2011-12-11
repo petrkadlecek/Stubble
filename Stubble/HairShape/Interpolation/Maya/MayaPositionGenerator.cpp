@@ -9,6 +9,11 @@ namespace HairShape
 namespace Interpolation
 {
 
+namespace Maya
+{
+
+} // namespace Maya
+
 } // namespace Interpolation
 
 } // namespace HairShape

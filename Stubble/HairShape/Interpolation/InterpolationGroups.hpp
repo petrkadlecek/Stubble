@@ -17,14 +17,24 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Class for managing interpolation groups
+/// Class for managing interpolation groups.
+/// Interpolation groups object determines group id for every generated hair or hair guides using
+/// interpolation texture and hair root texture coordinates. 
+/// Generated hair is interpolated only from hair guides in the same group.
+/// Interpolation texture defines groups by different colors.
+/// For each group we may define different number of segments. This information is stored inside 
+/// this class and can be imported/exported from/to binary stream.
 ///-------------------------------------------------------------------------------------------------
+
 class InterpolationGroups
 {
 public:
 
 	///-------------------------------------------------------------------------------------------------
-	/// Constructor. 
+	/// Constructor.
+	/// Interpolation groups texture is processed by constructor and as a result list of groups color
+	/// and table of group indices for each texture texel is created. All groups will have the same
+	/// segments count aSegmentsCount.
 	///
 	/// \param	aInterpolationGroupsTexture	The interpolation groups texture. 
 	/// \param	aSegmentsCount				Number of the segments for all groups. 
@@ -37,8 +47,11 @@ public:
 	inline ~InterpolationGroups();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates interpolation groups
-	///
+	/// Updates interpolation groups.
+	/// Interpolation groups texture is processed by this method and as a result list of groups color
+	/// and table of group indices for each texture texel is created. All groups that have not existed
+	/// before will have the same segments count aSegmentsCount.
+	/// 
 	/// \param	aInterpolationGroupsTexture	The interpolation groups texture. 
 	/// \param	aSegmentsCount				Number of the segments for all groups. 
 	///-------------------------------------------------------------------------------------------------
@@ -69,20 +82,20 @@ public:
 	inline void setGroupSegmentsCount( unsigned __int32 aGroupId, unsigned __int32 aSegmentsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets a group identifier. 
+	/// Gets a group identifier based on texture coordinates. 
 	///
-	/// \param	aU	the u texture coordinate. 
-	/// \param	aV	the v texture coordinate. 
+	/// \param	aU	The u texture coordinate. 
+	/// \param	aV	The v texture coordinate. 
 	///
 	/// \return	The group identifier. 
 	///-------------------------------------------------------------------------------------------------
 	inline unsigned __int32 getGroupId( Real aU, Real aV ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the segments count. 
+	/// Gets the segments count based on texture coordinates.  
 	///
-	/// \param	aU	the u texture coordinate. 
-	/// \param	aV	the v texture coordinate. 
+	/// \param	aU	The u texture coordinate. 
+	/// \param	aV	The v texture coordinate. 
 	///
 	/// \return	The segments count. 
 	///-------------------------------------------------------------------------------------------------
@@ -90,7 +103,6 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets the color compoment count. 
-	///
 	///
 	/// \return	The color compoment count. 
 	///----------------------------------------------------------------------------------------------------
@@ -115,24 +127,23 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Export segments count to file. 
 	///
-	/// \param [in,out]	aOutputStream	a output stream. 
+	/// \param [in,out]	aOutputStream	The output stream. 
 	///----------------------------------------------------------------------------------------------------
 	void exportSegmentsCountToFile( std::ostream & aOutputStream ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Import segments count from file. 
 	///
-	/// \param [in,out]	aInputStream	a input stream. 
+	/// \param [in,out]	aInputStream	The input stream. 
 	///----------------------------------------------------------------------------------------------------
 	void importSegmentsCountFromFile( std::istream & aInputStream );
 
 private:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Defines an alias representing number of interpolation groups segments .
+	/// Defines an alias representing array of numbers of interpolation groups segments .
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< unsigned __int32 > InterpolationGroupsSegmentsCount;
-
 
 	static const unsigned __int32 MAX_INTERPOLATION_GROUP_ID = 29;	///< Maximum id of interpolation groups
 
@@ -140,7 +151,7 @@ private:
 
 	unsigned __int32 mTextureWidth;	///< The texture width
 
-	unsigned __int32 * mInterpolationGroupsTexture;	///< Interpolation groups texture
+	unsigned __int32 * mInterpolationGroupsTexture;	///< Processed interpolation groups texture ( each voxels stores group id )
 
 	Texture::Color mInterpolationGroupsColors; ///< List of colors of the interpolation groups
 

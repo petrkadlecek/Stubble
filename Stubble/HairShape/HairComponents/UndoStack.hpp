@@ -16,14 +16,17 @@ namespace HairComponents
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Guides segments undo stack. 
+/// Hair guides' segments undo stack. 
+/// Enables undo and redo operations on all hair guides' segments in current frame.
+/// Stores only segments of modified hair guides.
+/// The undo stack depth is limited by constant.
 ///-------------------------------------------------------------------------------------------------
 class UndoStack
 {
 public:
 
 	///-------------------------------------------------------------------------------------------------
-	/// Default constructor. 
+	/// Default empty constructor. 
 	///-------------------------------------------------------------------------------------------------
 	inline UndoStack();
 
@@ -33,7 +36,7 @@ public:
 	inline ~UndoStack();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Clears this object to its blank/initial state. 
+	/// Clears the undo stack and release memory.
 	///-------------------------------------------------------------------------------------------------
 	inline void clear();
 
@@ -52,44 +55,55 @@ public:
 	inline bool canRedo() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Performs the undo and returns the undo command for SegmentsStorage 
+	/// Performs the undo and returns the undo changes for SegmentsStorage. 
 	///
 	/// \return	Undo changes for SegmentsStorage. 
 	///-------------------------------------------------------------------------------------------------
 	inline const PartialStorage & undo();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Performs the redo and returns the undo command for SegmentsStorage 
+	/// Performs the redo and returns the redo changes for SegmentsStorage 
 	///
 	/// \return	Redo changes for SegmentsStorage. 
 	///-------------------------------------------------------------------------------------------------
 	inline const PartialStorage & redo();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates the current stack element after undo.
+	/// Updates the current stack element after undo has been called.
+	/// The hair segments that differs from segments returned by undo function must be put
+	/// into undo stack.
 	///
 	/// \param [in,out]	aChange	The change of element. 
 	///-------------------------------------------------------------------------------------------------
 	inline void updateAfterUndo( PartialStorage * aChange );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates the current stack element after redo.
-	///
+	/// Updates the current stack element after redo has been called.
+	/// The hair segments that differs from segments returned by redo function must be put
+	/// into undo stack.
+	/// 
 	/// \param [in,out]	aChange	The change of element. 
 	///-------------------------------------------------------------------------------------------------
 	inline void updateAfterRedo( PartialStorage * aChange );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds guides segments change to undo stack.
+	/// Adds guides' segments change to undo stack.
+	/// After guides' segments has been modified, we store the changed old segments to undo stack.
+	/// Not modified segments should not be inputed.
 	///
-	/// \param [in,out]	aChange	If non-null, the PartialStorage * to add. 
+	/// \param [in,out]	aChange		The segments before modification.
 	///-------------------------------------------------------------------------------------------------
-	inline void add( PartialStorage * aChange );
+	void add( PartialStorage * aChange );
 
 private:
-	void incrementOp(); ///< Notify Maya that data have changed by incrementing opcount.
+	///-------------------------------------------------------------------------------------------------
+	/// Notifies Maya that internal data have changed by incrementing opcount.
+	/// This is important during save, because maya saves only changed scenes and has no other
+	/// way of knowing whether our object has changed internally. 
+	///-------------------------------------------------------------------------------------------------
+	void incrementOp();
 
-	static const size_t MAX_STACK_SIZE = 100;  ///< Size of the maximum stack
+	static const size_t MAX_STACK_SIZE = 100;  ///< The maximum depth of undo stack
 
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing the segments changes stack.
@@ -103,7 +117,7 @@ private:
 
 	SegmentsChangesStack mChanges;  ///< The segments changes stack
 
-	SegmentsChangesStackPointer mCurrent;   ///< The current stack pointer
+	SegmentsChangesStackPointer mCurrent;   ///< The current stack pointer which points to first redo change in stack
 };
 
 // inline functions implementation
@@ -165,25 +179,6 @@ inline void UndoStack::updateAfterRedo( PartialStorage * aChange )
 	--mPrevious;
 	delete *mPrevious;
 	*mPrevious = aChange;
-}
-
-inline void UndoStack::add( PartialStorage * aChange )
-{
-	// First remove all redo steps
-	for ( SegmentsChangesStackPointer p = mCurrent; p != mChanges.end(); ++p )
-		delete * p;
-	mChanges.erase( mCurrent, mChanges.end() );
-	// If stack is too big, erase first element
-	if ( mChanges.size() > MAX_STACK_SIZE )
-	{
-		delete *mChanges.begin();
-		mChanges.pop_front();
-	}
-	// Add change to stack
-	mChanges.push_back( aChange );
-	// Finally set pointer to stack end
-	mCurrent = mChanges.end();
-	incrementOp();
 }
 
 } // namespace HairComponents

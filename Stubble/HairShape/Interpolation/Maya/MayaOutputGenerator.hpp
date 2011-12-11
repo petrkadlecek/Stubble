@@ -2,11 +2,9 @@
 #define STUBBLE_MAYA_OUTPUT_GENERATOR_HPP
 
 #include "MayaPositionGenerator.hpp"
-#include "OutputGenerator.hpp"
+#include "../OutputGenerator.hpp"
 
 #include "Common/GLExtensions.hpp"
-
-#include "HairShape/Mesh/Voxelization.hpp"
 
 #include "Primitives/BoundingBox.hpp"
 
@@ -19,8 +17,11 @@ namespace HairShape
 namespace Interpolation
 {
 
+namespace Maya
+{
+
 ///-------------------------------------------------------------------------------------------------
-/// Maya output generator types. 
+/// Defines types used by Maya output generator.
 ///-------------------------------------------------------------------------------------------------
 struct MayaTypes
 {
@@ -64,7 +65,9 @@ struct MayaTypes
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// Generator of finished interpolated hair used in Maya plugin.
+/// Class for OpenGL drawing generated hair inside Maya plugin.
+/// This class implements OutputGenerator which is the standard interface for 
+/// communication with hair generator class.
 ///-------------------------------------------------------------------------------------------------
 class MayaOutputGenerator : public OutputGenerator< MayaTypes >, public MayaTypes
 {
@@ -72,6 +75,7 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
+	/// Inits output generator to blank state.
 	///-------------------------------------------------------------------------------------------------
 	inline MayaOutputGenerator();
 
@@ -86,7 +90,8 @@ public:
 	inline void clear();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Begins an output of interpolated hair. 
+	/// Begins an output of interpolated hair.
+	/// Must be called before any hair is outputed. 
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
@@ -95,18 +100,23 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
+	/// After this function no output will be received until beginOutput is called.
 	///----------------------------------------------------------------------------------------------------
 	inline void endOutput();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Begins an output of single interpolated hair. 
+	/// Begins an output of single interpolated hair.
+	/// The upper estimate of points on hair must be known to make sure enough resources are be 
+	/// prepared. Afterwards hair geometry, color etc. can be send to OutputGenerator via 
+	/// positionPointer, colorPointer etc.
 	///
 	/// \param	aMaxPointsCount	Number of a maximum points on current hair. 
 	///-------------------------------------------------------------------------------------------------
 	inline void beginHair( unsigned __int32 aMaxPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Ends an output of single interpolated hair. 
+	/// Ends an output of single interpolated hair.
+	/// Parameter corresponds to number of outputed positions via positionPointer.	
 	/// 
 	/// \param	aPointsCount	Number of points on finished hair. 
 	///-------------------------------------------------------------------------------------------------
@@ -114,95 +124,92 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
+	/// Caller must output as many hair points as specified in later endHair call.
 	///
-	/// \return	null if it fails, else return position pointer. 
+	/// \return	Pointer to position buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline PositionType * positionPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair points colors. 
+	/// Gets the pointer to hair points colors.
+	/// Caller must output as many colors as hair positions count minus 2.
 	///
-	/// \return	null if it fails, else return color pointer. 
+	/// \return	Pointer to color buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline ColorType * colorPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points normals. 
-	///
-	/// \return	null if it fails, else return normal pointer. 
+	/// Caller must output as many normals as hair positions count minus 2.
+	/// 
+	/// \return	Pointer to normal buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline NormalType * normalPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points widths. 
+	/// Caller must output as many widths as hair positions count minus 2.
 	///
-	/// \return	null if it fails, else return width pointer. 
+	/// \return	Pointer to width buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline WidthType * widthPointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair points opacity. 
+	/// Gets the pointer to hair points opacities. 
+	/// Caller must output as many opacities as hair positions count minus 2.
 	///
-	/// \return	null if it fails, else return opacity pointer. 
+	/// \return	null Pointer to opacity buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline OpacityType * opacityPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the ignored pointer. Hair uv coordinates are not supported. 
+	/// Gets the pointer to hair UV coordinates.
+	/// Caller must output one pair of UV coordinates per hair.
+	/// Texture UV Coordinates of hair root should be outputed.
+	/// These values will not be outputed to OpenGL, they are here only for compatibility reasons.
 	///
-	/// \return	pointer to ignored variable
+	/// \return	Pointer to UV coordinates buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline UVCoordinateType * hairUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the ignored pointer. Strand uv coordinate are not supported. 
+	/// Gets the pointer to hair strand UV coordinates.
+	/// Caller must output one pair of UV coordinates per hair.
+	/// Texture UV Coordinates of main strand hair root should be outputed. 
+	/// These values will not be outputed to OpenGL, they are here only for compatibility reasons.
 	///
-	/// \return	pointer to ignored variable
+	/// \return	Pointer to strand UV coordinates buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline UVCoordinateType * strandUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the ignored pointer. Hair indices are not supported. 
+	/// Gets the pointer to hair indices.
+	/// Caller must output one unique index per hair.
+	/// These values will not be outputed to OpenGL, they are here only for compatibility reasons.
 	///
-	/// \return	pointer to ignored variable
+	/// \return	Pointer to hair indices buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline IndexType * hairIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the ignored pointer. Strand indices are not supported. 
+	/// Gets the pointer to strand indices.
+	/// Caller must output one strand index per hair. Strand index is unique for every strand,
+	/// but is same for hair in one strand.
+	/// These values will not be outputed to OpenGL, they are here only for compatibility reasons.
 	///
-	/// \return	pointer to ignored variable
+	/// \return	Pointer to strand indices buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline IndexType * strandIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Draws outputed hair.
+	/// Draws outputed hair using OpenGL and VBO.
 	///-------------------------------------------------------------------------------------------------
 	void draw();
-
-	///-------------------------------------------------------------------------------------------------
-	/// Recalculates all hair positions data to local space. 
-	///
-	/// \param	aHairSpace			The local space of each hair.
-	/// \param	aHairStrandCount	Number of hair in one strand.
-	///-------------------------------------------------------------------------------------------------
-	void recalculateToLocalSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace,
-		unsigned __int32 aHairStrandCount );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Recalculates all hair positions from local to world space 
-	/// ( recalculateToLocalSpace must be called first ).
-	///
-	/// \param	aHairSpace			The local space of each hair.
-	/// \param	aHairStrandCount	Number of hair in one strand.
-	///-------------------------------------------------------------------------------------------------
-	void recalculateToWorldSpace( const MayaPositionGenerator::GeneratedPosition * aHairSpace,
-		unsigned __int32 aHairStrandCount );
 
 private:
 
 	///-------------------------------------------------------------------------------------------------
-	/// Rebuilds vertex buffer objects. 
+	/// Rebuilds vertex buffer objects for OpenGL drawing. 
 	///-------------------------------------------------------------------------------------------------
 	inline void rebuildVBO();
 
@@ -211,7 +218,7 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	inline void killVBO();
 
-	unsigned __int32 mMaxHairCount;	///< Maximum number of the hair
+	unsigned __int32 mMaxHairCount;	///< Maximum number of the hair ( allocated space for hair )
 
 	unsigned __int32 mHairCount;	///< Number of the hair
 
@@ -480,6 +487,8 @@ inline void MayaOutputGenerator::killVBO()
 	mVertexBO = 0;
 	mIndexBO = 0;
 }
+
+} // namespace Maya
 
 } // namespace Interpolation
 

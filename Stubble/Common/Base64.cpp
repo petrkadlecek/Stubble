@@ -25,6 +25,7 @@
 
    This source code has been edited by Martin Sik.
    It now compiles without warnings and is part of Stubble namespace.
+   Comments were added to hpp part.
 
 */
 

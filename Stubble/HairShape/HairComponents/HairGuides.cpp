@@ -1,5 +1,4 @@
 #include "HairGuides.hpp"
-#include "..\Interpolation\MayaHairProperties.hpp"
 
 #include <maya/MFnNurbsCurve.h>
 #include <maya/MPointArray.h>
@@ -82,7 +81,7 @@ BoundingBox HairGuides::getBoundingBox()
 	return mBoundingBox;
 }
 
-const SegmentsUG & HairGuides::getSelectedGuidesUG()
+const SegmentsUG & HairGuides::getSelectedGuidesDS()
 {
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
@@ -148,13 +147,13 @@ void HairGuides::resetGuides( Real aScaleFactor )
 	mBoundingBoxDirtyFlag = true;
 }
 
-const RestPositionsUG & HairGuides::getGuidesPositionsUG( const Interpolation::InterpolationGroups & aInterpolationGroups )
+const RestPositionsDS & HairGuides::getGuidesPositionsDS( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
-	if ( mRestPositionsUG.isDirty() ) // Is segments UG up-to-date ?
+	if ( mRestPositionsDS.isDirty() ) // Is segments UG up-to-date ?
 	{
-		mRestPositionsUG.build( mRestPositions, aInterpolationGroups );
+		mRestPositionsDS.build( mRestPositions, aInterpolationGroups );
 	}
-	return mRestPositionsUG;
+	return mRestPositionsDS;
 }
 
 void HairGuides::draw( bool aDrawVerts )
@@ -294,14 +293,14 @@ void HairGuides::setCurrentTime( Time aTime )
 	mSegmentsStorage->setFrame( aTime );
 	// Everything has changed...
 	mDisplayedGuides.setDirty();
-	mRestPositionsUG.setDirty();
+	mRestPositionsDS.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
 	updateSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
 }
 
-GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
+void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
 	bool aTopologyChanged )
 {
 	if ( aTopologyChanged )
@@ -344,7 +343,7 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation:
 		delete tmpSegmentsStorage;
 		// Rest positions has changed...
 		refreshInterpolationGroupIds( aInterpolationGroups );
-		mRestPositionsUG.setDirty();
+		mRestPositionsDS.setDirty();
 		clearSelectedGuides();
 	}
 	else
@@ -365,7 +364,6 @@ GuideId HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation:
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();
 	mBoundingBoxDirtyFlag = true;
-	return static_cast< GuideId >( mRestPositions.size() );
 }
 
 void HairGuides::undo()
@@ -433,7 +431,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 		{
 			throw StubbleException(" HairGuides::generate : No old segments to interpolate from ! ");
 		}
-		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, getGuidesPositionsUG( aInterpolationGroups ), 
+		tmpSegmentsStorage = new SegmentsStorage( *mSegmentsStorage, getGuidesPositionsDS( aInterpolationGroups ), 
 			tmpRestPositions, aInterpolationGroups, mNumberOfGuidesToInterpolateFrom );
 	}
 	else
@@ -449,7 +447,7 @@ void HairGuides::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh 
 	refreshInterpolationGroupIds( aInterpolationGroups );
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
-	mRestPositionsUG.setDirty();
+	mRestPositionsDS.setDirty();
 	mAllSegmentsUG.setDirty();
 	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
@@ -462,7 +460,7 @@ void HairGuides::updateSegmentsCount( const Interpolation::InterpolationGroups &
 	// Segments has changed...
 	mUndoStack.clear();
 	mDisplayedGuides.setDirty();
-	mRestPositionsUG.setDirty(); // Interpolation groups may have changed
+	mRestPositionsDS.setDirty(); // Interpolation groups may have changed
 	mAllSegmentsUG.setDirty();
 	clearSelectedGuides();
 	mBoundingBoxDirtyFlag = true;
@@ -520,7 +518,7 @@ void HairGuides::deserialize( const MayaMesh & aMayaMesh, const Interpolation::I
 	}
 	// Set dirty to all internal data
 	refreshInterpolationGroupIds( aInterpolationGroups );
-	mRestPositionsUG.setDirty();
+	mRestPositionsDS.setDirty();
 	mDisplayedGuides.setDirty();
 	mAllSegmentsUG.setDirty();
 	mUndoStack.clear();

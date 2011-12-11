@@ -21,7 +21,10 @@ namespace RibExport
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// RenderMan cache command class. 
+/// RenderMan cache command class.
+/// This class creates and represents Maya MEL command, which will be called during 3Delight plugin
+/// rendering.
+/// Format of this command is specified in 3Delight documentation.
 ///-------------------------------------------------------------------------------------------------
 class RenderManCacheCommand : public MPxCommand
 {
@@ -130,7 +133,7 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	typedef std::pair< std::string, CachedFrame * > CacheItem;
 
-	static Cache cache; ///< The cache (must be stored for all RenderManCacheCommands)
+	static Cache cache; ///< The cache with cached HairShape nodes time samples (shared among all commands)
 };
 
 } // namespace RibExport

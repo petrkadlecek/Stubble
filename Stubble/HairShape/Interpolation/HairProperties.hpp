@@ -2,7 +2,7 @@
 #define STUBBLE_HAIR_PROPERTIES_HPP
 
 #include "HairShape/HairComponents/Segments.hpp"
-#include "HairShape/HairComponents/RestPositionsUG.hpp"
+#include "HairShape/HairComponents/RestPositionsDS.hpp"
 #include "HairShape/Texture/Texture.hpp"
 #include "InterpolationGroups.hpp"
 
@@ -16,7 +16,8 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Hair properties. Stores all properties of the interpolated hair.
+/// Hair properties. 
+/// Stores all properties of the interpolated hair.
 ///-------------------------------------------------------------------------------------------------
 class HairProperties
 {
@@ -65,11 +66,11 @@ public:
 	inline const HairComponents::GuidesSegments & getGuidesSegments() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the guides rest positions uniform grid. 
+	/// Gets the guides rest positions data structure. 
 	///
-	/// \return	The guides rest positions uniform grid. 
+	/// \return	The guides rest positions data structure. 
 	///----------------------------------------------------------------------------------------------------
-	inline const HairComponents::RestPositionsUG & getGuidesRestPositionsUG() const;
+	inline const HairComponents::RestPositionsDS & getGuidesRestPositionsDS() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Query if normals should be calculated. 
@@ -579,7 +580,7 @@ protected:
 
 	const HairComponents::GuidesSegments * mGuidesSegments;   ///< The guides segments
 
-	const HairComponents::RestPositionsUG * mGuidesRestPositionsUG;   ///< The guides rest positions uniform grid
+	const HairComponents::RestPositionsDS * mGuidesRestPositionsDS;   ///< The guides rest positions data structure
 
 	bool mAreNormalsCalculated; ///< true if normals should be calculated
 
@@ -747,9 +748,9 @@ inline const HairComponents::GuidesSegments & HairProperties::getGuidesSegments(
 	return *mGuidesSegments;
 }
 
-inline const HairComponents::RestPositionsUG & HairProperties::getGuidesRestPositionsUG() const
+inline const HairComponents::RestPositionsDS & HairProperties::getGuidesRestPositionsDS() const
 {
-	return *mGuidesRestPositionsUG;
+	return *mGuidesRestPositionsDS;
 }
 
 inline bool HairProperties::areNormalsCalculated() const

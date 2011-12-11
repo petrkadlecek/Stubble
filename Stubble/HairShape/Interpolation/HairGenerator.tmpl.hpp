@@ -322,8 +322,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	unsigned __int32 aInterpolationGroupId )
 {
 	// First selected closest guides
-	HairComponents::ClosestGuidesIds guidesIds;
-	mHairProperties->getGuidesRestPositionsUG().getNClosestGuides( aRestPosition.getPosition(), aInterpolationGroupId,
+	HairComponents::ClosestGuides guidesIds;
+	mHairProperties->getGuidesRestPositionsDS().getNClosestGuides( aRestPosition.getPosition(), aInterpolationGroupId,
 		mHairProperties->getNumberOfGuidesToInterpolateFrom(), guidesIds );
 	if ( guidesIds.size() == 0 ) // Nothing to interpolate from
 	{
@@ -337,8 +337,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	// Get distance from farthest guide
 	float maxDistance = sqrtf( guidesIds.begin()->mDistance ); // Returns max as first ( 'cos it uses max-heap )
 	// Select closest guide
-	HairComponents::ClosestGuidesIds::const_iterator closest = guidesIds.begin();
-	for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+	HairComponents::ClosestGuides::const_iterator closest = guidesIds.begin();
+	for ( HairComponents::ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); 
 		guideIdIt != guidesIds.end(); ++guideIdIt )
 	{
 		if ( closest->mDistance > guideIdIt->mDistance )
@@ -363,7 +363,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	else
 	{
 		// Bias distance with respect to farthest guide
-		for ( HairComponents::ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); 
+		for ( HairComponents::ClosestGuides::iterator guideIdIt = guidesIds.begin(); 
 			guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
 			float & distance = guideIdIt->mDistance;
@@ -372,7 +372,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 		// Finaly calculate cumulated distance
 		float cumulatedDistance = 0;
-		for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+		for ( HairComponents::ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); 
 			guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
 			cumulatedDistance += guideIdIt->mDistance;
@@ -384,7 +384,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 			*it = Point( 0, 0, 0 );
 		}
 		// For every old guide segments to interpolate from
-		for ( HairComponents::ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); 
+		for ( HairComponents::ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); 
 			guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
 			// Guide segment points iterator

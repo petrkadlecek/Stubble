@@ -1,7 +1,7 @@
 #ifndef STUBBLE_RM_HAIR_PROPERTIES_HPP
 #define STUBBLE_RM_HAIR_PROPERTIES_HPP
 
-#include "HairProperties.hpp"
+#include "../HairProperties.hpp"
 
 #include <fstream>
 #include <string>
@@ -17,6 +17,8 @@ namespace Interpolation
 
 ///-------------------------------------------------------------------------------------------------
 /// Renderman Hair properties. Stores all properties of the interpolated hair used in RM.
+/// These properties are imported from file to which they had been exported by Maya plugin
+/// ( see HairShape::sampleTime and MayaHairProperties::exportToFile )
 ///-------------------------------------------------------------------------------------------------
 class RMHairProperties : public HairProperties
 {
@@ -38,7 +40,7 @@ private:
 	/* RMHairProperties owns guides data */
 	HairComponents::GuidesSegments * mGuidesSegmentsMutable;   ///< The guides segments
 
-	HairComponents::RestPositionsUG * mGuidesRestPositionsUGMutable;   ///< The guides rest positions uniform grid
+	HairComponents::RestPositionsDS * mGuidesRestPositionsDSMutable;   ///< The guides rest positions data structure
 
 };
 

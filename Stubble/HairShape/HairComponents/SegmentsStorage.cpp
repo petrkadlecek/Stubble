@@ -40,7 +40,7 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 	}
 }
 
-SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
+SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsDS & aOldRestPositionsDS,
 	const GuidesRestPositions & aRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups,
 	unsigned __int32 aNumberOfGuidesToInterpolateFrom ):
@@ -52,14 +52,14 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Res
 		for ( AllFramesSegments::const_iterator it = aOldStorage.mSegments.begin(); 
 			it != aOldStorage.mSegments.end(); ++it )
 		{
-			InterpolateFrame( it->second, aOldRestPositionsUG, aRestPositions, aInterpolationGroups,
+			InterpolateFrame( it->second, aOldRestPositionsDS, aRestPositions, aInterpolationGroups,
 				aNumberOfGuidesToInterpolateFrom,
 				// Create output frame
 				mSegments.insert( std::make_pair( it->first, FrameSegments() ) ).first->second );
 		}
 	}
 	// Interpolate current segments
-	InterpolateFrame( aOldStorage.mCurrent, aOldRestPositionsUG, aRestPositions, aInterpolationGroups, 
+	InterpolateFrame( aOldStorage.mCurrent, aOldRestPositionsDS, aRestPositions, aInterpolationGroups, 
 		aNumberOfGuidesToInterpolateFrom, mCurrent );
 }
 
@@ -285,6 +285,36 @@ BoundingBox SegmentsStorage::getBoundingBox( const GuidesCurrentPositions & aCur
 	return bbox;
 }
 
+void SegmentsStorage::serialize( std::ostream & aOutputStream ) const
+{
+	Stubble::serialize( mAreCurrentSegmentsDirty, aOutputStream );
+	mCurrent.serialize( aOutputStream );
+	Stubble::serialize( static_cast< unsigned __int32 >( mSegments.size() ), aOutputStream );
+	// over all frames
+	for ( AllFramesSegments::const_iterator it = mSegments.begin(); it != mSegments.end(); it++ )
+	{
+		Stubble::serialize( it->first, aOutputStream );
+		it->second.serialize( aOutputStream );		
+	}
+}
+
+void SegmentsStorage::deserialize( std::istream & aInputStream )
+{	
+	Stubble::deserialize( mAreCurrentSegmentsDirty, aInputStream );
+	mCurrent.deserialize( aInputStream );
+	unsigned __int32 frameCount;
+	Stubble::deserialize( frameCount, aInputStream );
+	mSegments.clear();
+	for ( unsigned __int32 i = 0; i < frameCount; ++i )
+	{
+		// First create frame and then deserialize it ( prevents copy pasting of huge data ! )
+		FrameSegments frameSegments;
+		Stubble::deserialize( frameSegments.mFrame, aInputStream );
+		mSegments.insert( std::make_pair( frameSegments.mFrame, frameSegments ) ). // Store
+			first->second.deserialize( aInputStream ); // Deserialize
+	}	
+}
+
 void SegmentsStorage::calculateSegmentLength( OneGuideSegments & aGuideSegments )
 {
 	Real length = 0;
@@ -336,37 +366,7 @@ void SegmentsStorage::uniformlyRepositionSegments( OneGuideSegments & aGuideSegm
 	aGuideSegments.mSegments = newSegments;
 }
 
-void SegmentsStorage::serialize( std::ostream & aOutputStream ) const
-{
-	Stubble::serialize( mAreCurrentSegmentsDirty, aOutputStream );
-	mCurrent.serialize( aOutputStream );
-	Stubble::serialize( static_cast< unsigned __int32 >( mSegments.size() ), aOutputStream );
-	// over all frames
-	for ( AllFramesSegments::const_iterator it = mSegments.begin(); it != mSegments.end(); it++ )
-	{
-		Stubble::serialize( it->first, aOutputStream );
-		it->second.serialize( aOutputStream );		
-	}
-}
-
-void SegmentsStorage::deserialize( std::istream & aInputStream )
-{	
-	Stubble::deserialize( mAreCurrentSegmentsDirty, aInputStream );
-	mCurrent.deserialize( aInputStream );
-	unsigned __int32 frameCount;
-	Stubble::deserialize( frameCount, aInputStream );
-	mSegments.clear();
-	for ( unsigned __int32 i = 0; i < frameCount; ++i )
-	{
-		// First create frame and then deserialize it ( prevents copy pasting of huge data ! )
-		FrameSegments frameSegments;
-		Stubble::deserialize( frameSegments.mFrame, aInputStream );
-		mSegments.insert( std::make_pair( frameSegments.mFrame, frameSegments ) ). // Store
-			first->second.deserialize( aInputStream ); // Deserialize
-	}	
-}
-
-void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
+void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsDS & aOldRestPositionsDS,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,
 		unsigned __int32 aNumberOfGuidesToInterpolateFrom,
@@ -388,8 +388,8 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		// Get segments count
 		guide.mSegments.resize( aInterpolationGroups.getGroupSegmentsCount( interpolationGroup ) + 1 ); 
 		// Now selected closest guides
-		ClosestGuidesIds guidesIds;
-		aOldRestPositionsUG.getNClosestGuides( pos.mPosition.getPosition(), 
+		ClosestGuides guidesIds;
+		aOldRestPositionsDS.getNClosestGuides( pos.mPosition.getPosition(), 
 			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
 		if ( guidesIds.size() == 0 ) // No guides in this interpolation group
 		{
@@ -411,8 +411,8 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		{
 			// First find max and min
 			float maxDistance = sqrtf( guidesIds.begin()->mDistance );
-			ClosestGuidesIds::const_iterator first = guidesIds.begin();
-			for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+			ClosestGuides::const_iterator first = guidesIds.begin();
+			for ( ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 			{
 				// Refresh closest guide
 				if ( first->mDistance > guideIdIt->mDistance )
@@ -429,7 +429,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 			else
 			{
 				// Bias distance with respect to farthest guide
-				for ( ClosestGuidesIds::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				for ( ClosestGuides::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					float & distance = guideIdIt->mDistance;
 					distance = ( maxDistance - distance ) / ( maxDistance * distance );
@@ -437,13 +437,13 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				}
 				// Finaly calculate cumulated distance
 				Real cumulatedDistance = 0;
-				for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				for ( ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					cumulatedDistance += guideIdIt->mDistance;
 				}
 				Real inverseCumulatedDistance = 1.0 / cumulatedDistance;
 				// For every old guide segments to interpolate from
-				for ( ClosestGuidesIds::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				for ( ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					// Old segments iterator
 					Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();

@@ -1,4 +1,4 @@
-#include "RestPositionsUG.hpp"
+#include "RestPositionsDS.hpp"
 
 
 #include <assert.h>
@@ -16,19 +16,19 @@ namespace HairShape
 namespace HairComponents
 {
 
-RestPositionsUG::RestPositionsUG():
+RestPositionsDS::RestPositionsDS():
 	mDirtyBit( true ),
 	mKdForest( 0 ),
 	mForestSize( 0 )
 {
 }
 
-RestPositionsUG::~RestPositionsUG()
+RestPositionsDS::~RestPositionsDS()
 {
 	delete[] mKdForest;
 }
 
-void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions, 
+void RestPositionsDS::build( const GuidesRestPositions & aGuidesRestPositions, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	// Copies only positions to local store
@@ -48,9 +48,11 @@ void RestPositionsUG::build( const GuidesRestPositions & aGuidesRestPositions,
 	innerBuild( aInterpolationGroups );
 }
 
-void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
-		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const
+void RestPositionsDS::getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
+		unsigned __int32 aN, ClosestGuides & aClosestGuidesIds ) const
 {
+	// Structure can not be dirty
+	assert( !mDirtyBit );
 	// Convert position to float
 	Vector3D< float > pos( static_cast< float >( aPosition.x ), static_cast< float >( aPosition.y ), 
 			static_cast< float >( aPosition.z ));
@@ -70,8 +72,10 @@ void RestPositionsUG::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 		aClosestGuidesIds[ i ] = IdAndDistance( query.indeces[ i + 1 ], query.dist2[ i + 1 ] );
 }
 
-void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const
+void RestPositionsDS::exportToFile( std::ostream & aOutputStream ) const
 {
+	// Structure can not be dirty
+	assert( !mDirtyBit );
 	// First export rest positions size
 	unsigned __int32 size = static_cast< unsigned __int32 >( mGuidesRestPositions.size() );
 	aOutputStream.write( reinterpret_cast< const char * >( &size ), sizeof( unsigned __int32 ) );
@@ -85,7 +89,7 @@ void RestPositionsUG::exportToFile( std::ostream & aOutputStream ) const
 	}
 }
 
-void RestPositionsUG::importFromFile( std::istream & aInputStream, 
+void RestPositionsDS::importFromFile( std::istream & aInputStream, 
 	const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	// First import rest positions size
@@ -105,7 +109,7 @@ void RestPositionsUG::importFromFile( std::istream & aInputStream,
 	innerBuild( aInterpolationGroups );
 }
 
-void RestPositionsUG::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups )
+void RestPositionsDS::innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups )
 {
 	// Prepare group ids
 	GroupIds groupIds( mGuidesRestPositions.size() );

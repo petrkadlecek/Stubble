@@ -15,6 +15,8 @@ namespace Interpolation
 ///-------------------------------------------------------------------------------------------------
 /// Interface of generator of finished interpolated hair. No virtual functions are used, this class
 /// here only represents the interface for classes used as HairGenerator template argument.
+/// Output generator purpose is to accumulate generated hair geometry, color and other properties 
+/// and then send it to final output destination (OpenGL, RenderMan etc. ).
 ///-------------------------------------------------------------------------------------------------
 template< typename tOutputGeneratorTypes >
 class OutputGenerator
@@ -31,7 +33,8 @@ public:
 	 */
 
 	///-------------------------------------------------------------------------------------------------
-	/// Begins an output of interpolated hair. 
+	/// Begins an output of interpolated hair.
+	/// Must be called before any hair is outputed. 
 	///
 	/// \param	aMaxHairCount	Number of a maximum hair. 
 	/// \param	aMaxPointsCount	Number of a maximum points. 
@@ -40,18 +43,23 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Ends an output.
+	/// After this function no output will be received until beginOutput is called.
 	///----------------------------------------------------------------------------------------------------
 	inline void endOutput();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Begins an output of single interpolated hair. 
+	/// Begins an output of single interpolated hair.
+	/// The upper estimate of points on hair must be known to make sure enough resources are be 
+	/// prepared. Afterwards hair geometry, color etc. can be send to OutputGenerator via 
+	/// positionPointer, colorPointer etc.
 	///
 	/// \param	aMaxPointsCount	Number of a maximum points on current hair. 
 	///-------------------------------------------------------------------------------------------------
 	inline void beginHair( unsigned __int32 aMaxPointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Ends an output of single interpolated hair. 
+	/// Ends an output of single interpolated hair.
+	/// Parameter corresponds to number of outputed positions via positionPointer.	
 	/// 
 	/// \param	aPointsCount	Number of points on finished hair. 
 	///-------------------------------------------------------------------------------------------------
@@ -59,64 +67,76 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points positions. 
+	/// Caller must output as many hair points as specified in later endHair call.
 	///
-	/// \return	null if positions are not supported, else return position pointer. 
+	/// \return	Pointer to position buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::PositionType * positionPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair points colors. 
+	/// Gets the pointer to hair points colors.
+	/// Caller must output as many colors as hair positions count minus 2.
 	///
-	/// \return	null if colors are not supported, else return color pointer. 
+	/// \return	Pointer to color buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::ColorType * colorPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points normals. 
-	///
-	/// \return	null if normals are not supported, else return normal pointer. 
+	/// Caller must output as many normals as hair positions count minus 2.
+	/// 
+	/// \return	Pointer to normal buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::NormalType * normalPointer();
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points widths. 
+	/// Caller must output as many widths as hair positions count minus 2.
 	///
-	/// \return	null if widths are not supported, else return width pointer. 
+	/// \return	Pointer to width buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::WidthType * widthPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to hair points opacities. 
+	/// Caller must output as many opacities as hair positions count minus 2.
 	///
-	/// \return	null if opacities are not supported, else return opacity pointer. 
+	/// \return	null Pointer to opacity buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::OpacityType * opacityPointer();
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair UV coordinates. 
+	/// Gets the pointer to hair UV coordinates.
+	/// Caller must output one pair of UV coordinates per hair.
+	/// Texture UV Coordinates of hair root should be outputed.
 	///
-	/// \return	null if UV coordinates are not supported, else return UV coordinate pointer. 
+	/// \return	Pointer to UV coordinates buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::UVCoordinateType * hairUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair strand UV coordinates. 
+	/// Gets the pointer to hair strand UV coordinates.
+	/// Caller must output one pair of UV coordinates per hair.
+	/// Texture UV Coordinates of main strand hair root should be outputed. 
 	///
-	/// \return	null if UV coordinates are not supported, else return strand UV coordinate pointer. 
+	/// \return	Pointer to strand UV coordinates buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::UVCoordinateType * strandUVCoordinatePointer();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the pointer to hair indices. 
+	/// Gets the pointer to hair indices.
+	/// Caller must output one unique index per hair.
 	///
-	/// \return	null if hair indices are not supported, else return hair index pointer. 
+	/// \return	Pointer to hair indices buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::IndexType * hairIndexPointer();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the pointer to strand indices.
+	/// Caller must output one strand index per hair. Strand index is unique for every strand,
+	/// but is same for hair in one strand.
 	///
-	/// \return	null if strand indices are not supported, else return strand index pointer. 
+	/// \return	Pointer to strand indices buffer.
 	///-------------------------------------------------------------------------------------------------
 	inline typename tOutputGeneratorTypes::IndexType * strandIndexPointer();
 

@@ -18,8 +18,8 @@
 #include "HairShape/UserInterface/ResetCommand.hpp"
 #include "HairShape/UserInterface/HistoryCommands.hpp"
 
-#include "HairShape\HairComponents\CommandsNURBS.hpp"
-#include "HairShape/HairComponents/CommandsTextures.hpp"
+#include "HairShape/UserInterface/CommandsNURBS.hpp"
+#include "HairShape/UserInterface/CommandsTextures.hpp"
 
 #include "RibExport/RenderManCacheCommand.hpp"
 

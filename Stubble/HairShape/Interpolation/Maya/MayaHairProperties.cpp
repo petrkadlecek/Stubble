@@ -15,6 +15,9 @@ namespace HairShape
 namespace Interpolation
 {
 
+namespace Maya
+{
+
 /* MAYA BASIC PROPERTIES */
 MObject MayaHairProperties::densityTextureAttr; ///< The density texture attribute
 MObject MayaHairProperties::interpolationGroupsTextureAttr; ///< The interpolation groups texture attribute
@@ -185,7 +188,7 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	aOutputStream.write( reinterpret_cast< const char * >( &mAreNormalsCalculated ), 
 		sizeof( bool ) );
 	// Write rest positions of guides
-	mGuidesRestPositionsUG->exportToFile( aOutputStream );
+	mGuidesRestPositionsDS->exportToFile( aOutputStream );
 	// Export guides count
 	unsigned __int32 size = static_cast< unsigned __int32 >( mGuidesSegments->size() );
 	aOutputStream.write( reinterpret_cast< const char *>( &size ), sizeof( unsigned __int32 ) );
@@ -1367,6 +1370,8 @@ void MayaHairProperties::addParentAttribute( const MString & aFullName, const MS
 			+ aFullName + " failed " ).asChar() );
 	}
 }
+
+} // namespace Maya
 
 } // namespace Interpolation
 

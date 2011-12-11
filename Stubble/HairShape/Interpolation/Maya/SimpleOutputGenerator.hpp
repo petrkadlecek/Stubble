@@ -2,7 +2,7 @@
 #define STUBBLE_SIMPLE_OUTPUT_GENERATOR_HPP
 
 #include "Common/CommonTypes.hpp"
-#include "OutputGenerator.hpp"
+#include "../OutputGenerator.hpp"
 #include <ri.h>
 
 namespace Stubble
@@ -14,8 +14,12 @@ namespace HairShape
 namespace Interpolation
 {
 
+namespace Maya
+{
+
 ///-------------------------------------------------------------------------------------------------
 /// Simple output generator types.
+/// These types are used only for bounding box calculation, they corresponds to RenderMan types.
 ///-------------------------------------------------------------------------------------------------
 struct SimpleTypes
 {
@@ -66,6 +70,8 @@ class SimpleOutputGenerator : public OutputGenerator< SimpleTypes >, public Simp
 {
 	/* EMPTY */
 };
+
+} // namespace Maya
 
 } // namespace Interpolation
 

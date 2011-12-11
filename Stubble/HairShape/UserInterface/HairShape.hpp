@@ -1,12 +1,12 @@
 #ifndef STUBBLE_HAIR_SHAPE_HPP
 #define STUBBLE_HAIR_SHAPE_HPP
 
-#include "HairShape/Generators/UVPointGenerator.hpp"
-#include "HairShape/Interpolation/InterpolatedHair.hpp"
-#include "HairShape/Interpolation/MayaHairProperties.hpp"
-#include "HairShape/HairComponents/HairGuides.hpp"
 #include "HairShape/Mesh/MayaMesh.hpp"
-#include "HairShape/Mesh/Voxelization.hpp"
+#include "HairShape/Generators/UVPointGenerator.hpp"
+#include "HairShape/HairComponents/HairGuides.hpp"
+#include "HairShape/Interpolation/Maya/InterpolatedHair.hpp"
+#include "HairShape/Interpolation/Maya/MayaHairProperties.hpp"
+#include "HairShape/Interpolation/Maya/Voxelization.hpp"
 
 #include <maya/MBoundingBox.h>
 #include <maya/MCallbackIdArray.h>
@@ -24,7 +24,7 @@ namespace HairShape
 ///----------------------------------------------------------------------------------------------------
 /// The main class that encapsulates informations about hairs
 ///----------------------------------------------------------------------------------------------------
-class HairShape: public MPxSurfaceShape, public Interpolation::MayaHairProperties 
+class HairShape: public MPxSurfaceShape, public Interpolation::Maya::MayaHairProperties 
 {
 public:
 	
@@ -169,7 +169,7 @@ public:
 	///
 	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	inline const HairComponents::SegmentsUG & getSelectedGuidesUG();
+	inline const HairComponents::SegmentsUG & getSelectedGuidesDS();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Updates the guides after the brush or any other tool was used. 
@@ -406,9 +406,9 @@ private:
 
 	HairComponents::HairGuides *mHairGuides; ///< HairGuides compoment
 
-	Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
+	Interpolation::Maya::Voxelization * mVoxelization;   ///< The voxelization of rest pose mesh
 
-	Interpolation::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
+	Interpolation::Maya::InterpolatedHair mInterpolatedHair;	///< The interpolated hair
 
 	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
@@ -447,9 +447,9 @@ private:
 
 // inline functions implementation
 
-inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesUG()
+inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesDS()
 {
-	return mHairGuides->getSelectedGuidesUG();
+	return mHairGuides->getSelectedGuidesDS();
 }
 
 inline void HairShape::updateGuides( bool aStoreUpdate )

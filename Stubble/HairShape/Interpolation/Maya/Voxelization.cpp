@@ -6,6 +6,12 @@ namespace Stubble
 namespace HairShape
 {
 
+namespace Interpolation
+{
+
+namespace Maya
+{
+
 Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensityTexture, 
 	const Dimensions3 & aResolution )
 {
@@ -93,12 +99,11 @@ void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolat
 			delete vx.mCurrentMesh;
 			vx.mCurrentMesh = new Mesh( triangles, true );
 			// Create simple hair position generator & output generator
-			Interpolation::SimpleOutputGenerator output;
-			Interpolation::SimplePositionGenerator posGenerator( *vx.mRestPoseMesh, *vx.mCurrentMesh,
+			SimpleOutputGenerator output;
+			SimplePositionGenerator posGenerator( *vx.mRestPoseMesh, *vx.mCurrentMesh,
 				*vx.mUVPointGenerator, vx.mHairCount, vx.mHairIndex );
 			// Interpolate hair in order to calculate bounding box
-			Interpolation::HairGenerator< Interpolation::SimplePositionGenerator, 
-				Interpolation::SimpleOutputGenerator > generator( posGenerator, output );
+			HairGenerator< SimplePositionGenerator, SimpleOutputGenerator > generator( posGenerator, output );
 			vx.mBoundingBox.clear();
 			vx.mRandom.reset();
 			generator.calculateBoundingBox( aHairProperties, 1.0f, vx.mBoundingBox );
@@ -120,6 +125,10 @@ BoundingBox Voxelization::exportVoxel( std::ostream & aOutputStream, unsigned __
 	// Finally return bbox
 	return voxel.mBoundingBox;
 }
+
+} // namespace Maya
+
+} // namespace Interpolation
 
 } // namespace HairShape
 

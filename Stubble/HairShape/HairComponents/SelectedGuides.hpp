@@ -17,56 +17,59 @@ namespace HairShape
 namespace HairComponents
 {
 
-typedef Toolbox::ToolShape * SelectionMask;
-
 ///-------------------------------------------------------------------------------------------------
 /// Additional information about the segment for tools (brush tool, cut tool etc.) 
+/// By segment we meean one hair vertex.
 ///-------------------------------------------------------------------------------------------------
 struct OneSegmentAdditionalInfo
 {
+	///-------------------------------------------------------------------------------------------------
+	/// Default constructor. 
+	///-------------------------------------------------------------------------------------------------
 	inline OneSegmentAdditionalInfo();
 
-	bool mSelected;	///< True if the vertex can be selected and is selected via a selection tool
+	bool mSelected;	///< True if the vertex was selected via a selection tool and so can be selected by brush
 
-	bool mInsideBrush;	///< True if the vertex is selected and inside a brush
+	bool mInsideBrush;	///< True if the vertex was selected by brush
 
 	bool mIsColliding;	///< True if the vertex collide with the mesh
 
-	Vector3D<Real> mClosestPointOnMesh;	///< In case of collision the closest point on mesh
+	Vector3D< Real > mClosestPointOnMesh;	///< In case of collision the closest point on mesh
 
 	Real mFallOff;	///< The fall off of brushing transformation = 1 - d, where d is the distance of the vertex from the brush center
 };
 
 inline OneSegmentAdditionalInfo::OneSegmentAdditionalInfo() :
-	mSelected(false),
-	mInsideBrush(false),
-	mIsColliding(false),
-	mFallOff(0)
+	mSelected( false ),
+	mInsideBrush( false ),
+	mIsColliding( false ),
+	mFallOff( 0 )
 {
 	// empty
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the segments additional info .
+/// Defines an alias representing the array of the segments additional info .
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< OneSegmentAdditionalInfo > SegmentsAdditionalInfo;
 
 ///-------------------------------------------------------------------------------------------------
-/// Selected guide. 
+/// Structure holding one selected guide. 
+/// Stores all data needed for applying tools to this guide (brush tool, cut tool etc.). 
 ///-------------------------------------------------------------------------------------------------
 struct SelectedGuide
 {
-	GuideCurrentPosition mPosition; ///< The guide current position
+	GuideCurrentPosition mPosition; ///< The guide's root position on current mesh
 
 	GuideId mGuideId; ///< The guide segments id
 
-	OneGuideSegments mGuideSegments; ///< Pointer to segments of selected guide ( represented as vertices )
+	OneGuideSegments mGuideSegments; ///< Segments of selected guide ( represented as vertices )
 
 	SegmentsAdditionalInfo mSegmentsAdditionalInfo; ///< Information describing the segments additional params
 
 	Uint mCollisionsCount; ///< How many guide vertices are colliding?
 
-	Vector3D<Real> mNormal; ///< Normal of guide
+	Vector3D<Real> mNormal; ///< Normal of guide hair on current mesh
 
 	bool mDirtyRedrawFlag; ///< True if segments has been changed and needs to be redrawn
 
@@ -74,7 +77,7 @@ struct SelectedGuide
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the selected guides .
+/// Defines an alias representing the array of pointers to selected guides.
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< SelectedGuide * > SelectedGuides;
 

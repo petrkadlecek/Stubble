@@ -14,22 +14,22 @@
     <ClCompile Include="..\Stubble\HairShape\Generators\RandomGenerator.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsUG.cpp">
-      <Filter>Stubble CPP files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMHairProperties.cpp">
-      <Filter>Stubble CPP files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMPositionGenerator.cpp">
-      <Filter>Stubble CPP files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Stubble\HairShape\Texture\Texture.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
     <ClCompile Include="..\Stubble\HairShape\Generators\UVPointGenerator.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Stubble\HairShape\Interpolation\RMOutputGenerator.cpp">
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMHairProperties.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMOutputGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMPositionGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsDS.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
   </ItemGroup>

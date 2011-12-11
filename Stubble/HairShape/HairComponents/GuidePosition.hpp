@@ -23,6 +23,9 @@ namespace HairComponents
 
 ///-------------------------------------------------------------------------------------------------
 /// Guide current position. 
+/// Holds position of the guide hair root on current mesh and associated local coordinate system.
+/// Transformation matrices from/to local coordinate system from/to world coordinate system are 
+/// also stored.
 ///-------------------------------------------------------------------------------------------------
 struct GuideCurrentPosition
 {
@@ -34,13 +37,17 @@ struct GuideCurrentPosition
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the guides current positions .
+/// Defines an alias representing the guides current positions array .
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< GuideCurrentPosition > GuidesCurrentPositions;
 
 
 ///-------------------------------------------------------------------------------------------------
-/// Guide rest position. 
+/// Guide rest position.
+/// Holds position of the guide hair root on rest pose mesh and associated local coordinate system.
+/// Also stores position of the guide hair root on rest pose mesh in uv point format, which is 
+/// immutable to any mesh deformations and transformations.
+/// This structure can be serialized/deserialized. 
 ///-------------------------------------------------------------------------------------------------
 struct GuideRestPosition
 {
@@ -64,7 +71,7 @@ struct GuideRestPosition
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines an alias representing the guides rest positions .
+/// Defines an alias representing the guides rest positions array.
 ///-------------------------------------------------------------------------------------------------
 typedef std::vector< GuideRestPosition > GuidesRestPositions;
 

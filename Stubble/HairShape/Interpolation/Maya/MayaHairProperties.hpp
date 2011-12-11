@@ -1,7 +1,7 @@
 #ifndef STUBBLE_MAYA_HAIR_PROPERTIES_HPP
 #define STUBBLE_MAYA_HAIR_PROPERTIES_HPP
 
-#include "HairProperties.hpp"
+#include "../HairProperties.hpp"
 
 #include <ostream>
 
@@ -20,20 +20,28 @@ namespace HairShape
 namespace Interpolation
 {
 
+namespace Maya
+{
+
 ///-------------------------------------------------------------------------------------------------
-/// Maya Hair properties. Stores all properties of the interpolated hair used in Maya.
+/// Stores all properties of the interpolated hair used in Maya.
+/// Also creates maya attributes asociated with interpolated hair properties and
+/// handles events caused by attributes change.
+/// Can be exported to binary file.
 ///-------------------------------------------------------------------------------------------------
 class MayaHairProperties : public HairProperties
 {
 public:
 
 	///----------------------------------------------------------------------------------------------------
-	/// Export hair properties to file. 
+	/// Export hair properties to file.
+	/// This is neccessary for rendering hair in for example render man ( RMHairProperties will import the
+	/// hair properties ).
 	///
 	/// \param [in,out]	aOutputStream	The file output stream. 
 	///----------------------------------------------------------------------------------------------------
 	void exportToFile( std::ostream & aOutputStream ) const;
-
+	
 	/* MAYA BASIC PROPERTIES */
 	static MObject densityTextureAttr; ///< The density texture attribute
 
@@ -203,32 +211,38 @@ protected:
 	
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor.
+	/// MayaHairProperties can not exist on its own, it must be inherited.
 	///-------------------------------------------------------------------------------------------------
 	MayaHairProperties();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Initializes attributes for Maya.
+	/// This method is static, because it initializes attributes for all HairShapes in current scene.
 	///
 	/// \return	Maya status code. 
 	///----------------------------------------------------------------------------------------------------
 	static MStatus initializeAttributes();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets the attributes values. 
+	/// Sets the attributes values.
+	/// Catches event from maya and changes internal properties according to them. 
+	/// This method also returns several flags, which informs caller if any critical attributes has been
+	/// changed.
 	///
 	/// \param	aPlug											Which attribute is being set.
-	/// \param	aDataHandle										Handle to data storage. 
+	/// \param	aDataHandle										Handle to data storage of attribute. 
 	/// \param [in,out]	aSegmentsCountChanged					The segments count has changed.
 	/// \param [in,out]	aInterpolationGroupsSelectableChanged	The selectable interpolation groups attribute has changed.
 	/// \param [in,out]	aHairPropertiesChanged					The hair properties has changed. 
 	/// 	
-	/// \return Returns true, only if texture was changed ( prevent Maya errors )
+	/// \return Returns true, only if any texture was changed ( prevent Maya errors )
 	///----------------------------------------------------------------------------------------------------
 	bool setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
 		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Brakes a connection to plug on our node.
+	/// Used only with texture attributes, texture will be set as dirty and reseted to default value later.
 	///
 	/// \param aPlug				Which plug should be disconnected.
 	///
@@ -238,6 +252,9 @@ protected:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Refresh textures. 
+	/// Resamples all textures, that has been set as dirty ( unless aForceRefresh is set then all textures
+	/// are resampled ). This method also returns several flags, which informs caller if any critical 
+	/// textures has been changed.
 	///
 	/// \param aTextureSamples						The number of samples in one dimension of sampled texture.
 	/// \param aForceRefresh						Should we refresh all textures ?
@@ -245,55 +262,64 @@ protected:
 	/// \param [in,out]	aInterpolationGroupsChanged	The interpolation groups has changed. 
 	/// \param [in,out]	aHairPropertiesChanged		The hair properties has changed. 
 	///----------------------------------------------------------------------------------------------------
-	void refreshTextures(unsigned __int32 aTextureSamples, bool aForceRefresh, bool & aDensityChanged,
+	void refreshTextures( unsigned __int32 aTextureSamples, bool aForceRefresh, bool & aDensityChanged,
 		bool & aInterpolationGroupsChanged, bool & aHairPropertiesChanged );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets the current time. 
+	/// Sets the current time.
+	/// Time is stored only for export. 
 	///
 	/// \param	aTime	The current time.
 	///----------------------------------------------------------------------------------------------------
 	void setCurrentTime( Time aTime );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Refresh pointers to guides. 
+	/// Refresh pointers to hair guides. 
+	/// For interpolating hair, pointers to guides segments and rest positions data structure must be kept
+	/// among hair properties. 
 	///
 	/// \param	aGuidesSegments			The guides segments. 
-	/// \param	aGuidesRestPositionsUG	The guides rest positions ug. 
+	/// \param	aGuidesRestPositionsDS	The guides rest positions data structure. 
 	///----------------------------------------------------------------------------------------------------
 	inline void refreshPointersToGuides( const HairComponents::GuidesSegments * aGuidesSegments,
-		const HairComponents::RestPositionsUG * aGuidesRestPositionsUG );
+		const HairComponents::RestPositionsDS * aGuidesRestPositionsDS );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets the segments count attribute. 
+	/// Sets the segments count attribute.
+	/// Updates the segment count attribute handler so maya events concerning segments count can be 
+	/// cought. This method is called after interpolation groups change.
 	///
 	/// \param	aSegmentsCountPlug	The segments count attribute. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setSegmentsCountAttr( const MObject & aSegmentsCountAttr );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets the selectable interpolation groups attribute. 
+	/// Sets the selectable interpolation groups attribute.
+	/// Updates the interpolation groups selectable attribute handler so maya events concerning this
+	/// attribute can be cought. This method is called after interpolation groups change. 
 	///
 	/// \param	aInterpolationGroupsSelectableAttr	The selectable interpolation groups attribute. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setInterpolationGroupsSelectableAttr( const MObject & aInterpolationGroupsSelectableAttr );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets a scale factor. 
+	/// Sets a scale factor.
+	/// Some of the hair properties must be scaled for too small or too big underlying meshes.
 	///
 	/// \param	aScaleFactor	a scale factor. 
 	///-------------------------------------------------------------------------------------------------
 	inline void setScaleFactor( Real aScaleFactor );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the scale factor. 
+	/// Gets the scale factor.
+	/// Some of the hair properties must be scaled for too small or too big underlying meshes. 
 	///
 	/// \return	The scale factor. 
 	///-------------------------------------------------------------------------------------------------
 	inline Real getScaleFactor() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Updates components count for an int array attribute. 
+	/// Updates components count for an integer array Maya attribute. 
 	///
 	/// \param [in,out]	aAttribute	The attribute object.
 	/// \param	aComponentsCount	The component count.
@@ -304,11 +330,11 @@ protected:
 	/// \param	aSoftMax			The soft maximum value.
 	/// \param	aGroupNamePrefix	The group name prefix.
 	///-------------------------------------------------------------------------------------------------
-	void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
+	static void MayaHairProperties::updateIntArrayComponentsCount( MObject & aAttribute, unsigned int aComponentsCount,
 		int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix = "group_" );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds a color attribute. 
+	/// Adds a color Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -321,7 +347,7 @@ protected:
 		MObject & aAttribute, float aDefaultR, float aDefaultB, float aDefaultG );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds a float attribute. 
+	/// Adds a float Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -336,7 +362,7 @@ protected:
 		MObject & aAttribute, float aDefault, float aMin, float aMax, float aSoftMin, float aSoftMax );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds an int attribute. 
+	/// Adds an int Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -351,7 +377,7 @@ protected:
 		MObject & aAttribute, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds an int array attribute. 
+	/// Adds an int array Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -367,7 +393,7 @@ protected:
 	MObject & aAttribute, int aComponentsCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds a bool attribute. 
+	/// Adds a bool Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -378,7 +404,7 @@ protected:
 		MObject & aAttribute, bool aDefault );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Adds a parent attribute. 
+	/// Adds a parent Maya attribute. 
 	///
 	/// \param	aFullName			Full name.
 	/// \param	aBriefName			Brief name.
@@ -392,7 +418,7 @@ protected:
 		const MObject & aChildAttribute3 );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Fills already created int array attribute. 
+	/// Fills already created int array Maya attribute. 
 	///
 	/// \param [in,out]	aAttribute	The attribute object. 
 	/// \param	aFillCount			The number of newly created array items.
@@ -406,7 +432,7 @@ protected:
 	static void fillIntArrayAttributes( MObject & aAttribute, int aFillCount, int aDefault, int aMin, int aMax, int aSoftMin, int aSoftMax, MString aGroupNamePrefix = "group_" );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Fill color array attributes. 
+	/// Fill color array Maya attributes. 
 	///
 	/// \param [in,out]	aAttribute		The attribute object. 
 	/// \param	aInterpolationGroups	Interpolation groups object.
@@ -415,9 +441,9 @@ protected:
 
 private:
 
-	MObject mSegmentsCountAttr;   ///< The segments count attribute
+	MObject mSegmentsCountAttr;   ///< The segments count for every interpolation group Maya attribute
 
-	MObject mInterpolationGroupsSelectableAttr; ///< The selectable interpolation groups attribute
+	MObject mInterpolationGroupsSelectableAttr; ///< The which interpolation groups are selectable ? Maya attribute 
 
 	Real mScaleFactor;  ///< The scale factor for all size dependent attributes
 };
@@ -425,10 +451,10 @@ private:
 // inline functions implementation
 
 inline void MayaHairProperties::refreshPointersToGuides( const HairComponents::GuidesSegments * aGuidesSegments,
-	const HairComponents::RestPositionsUG * aGuidesRestPositionsUG )
+	const HairComponents::RestPositionsDS * aGuidesRestPositionsDS )
 {
 	mGuidesSegments = aGuidesSegments;
-	mGuidesRestPositionsUG = aGuidesRestPositionsUG;
+	mGuidesRestPositionsDS = aGuidesRestPositionsDS;
 }
 
 inline void MayaHairProperties::setSegmentsCountAttr( const MObject & aSegmentsCountAttr )
@@ -469,6 +495,8 @@ inline Real MayaHairProperties::getScaleFactor() const
 {
 	return mScaleFactor;
 }
+
+} // namespace Maya
 
 } // namespace Interpolation
 

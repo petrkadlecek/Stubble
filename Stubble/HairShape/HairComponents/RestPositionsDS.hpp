@@ -1,5 +1,5 @@
-#ifndef STUBBLE_REST_POSITIONS_UG_HPP
-#define STUBBLE_REST_POSITIONS_UG_HPP
+#ifndef STUBBLE_REST_POSITIONS_DS_HPP
+#define STUBBLE_REST_POSITIONS_DS_HPP
 
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
@@ -19,7 +19,8 @@ namespace HairComponents
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Identifier and distance. 
+/// Structure for hodling guide identifier and distance from that guide.
+/// Used as output of RestPositionsDS closest guides query.
 ///----------------------------------------------------------------------------------------------------
 struct IdAndDistance
 {
@@ -27,7 +28,7 @@ struct IdAndDistance
 	/// Constructor. 
 	///
 	/// \param	aGuideId	Identifier for a guide. 
-	/// \param	aDistance	The distance from guide. 
+	/// \param	aDistance	The distance to guide's rest position of root. 
 	///-------------------------------------------------------------------------------------------------
 	IdAndDistance( GuideId aGuideId = 0 , float aDistance = 0 )
 	{
@@ -35,40 +36,53 @@ struct IdAndDistance
 		mDistance = aDistance;
 	}
 
-	GuideId mGuideId;	// Guide id
+	GuideId mGuideId;	// Guide identifier
 
-	float mDistance;	// Distance to guide's rest position
+	float mDistance;	// Distance to guide's rest position of root
 };
 
 ///----------------------------------------------------------------------------------------------------
-/// Defines an alias representing list of identifiers for the closest guides .
+/// Defines an alias representing list of identifiers and distances for the closest guides .
 ///----------------------------------------------------------------------------------------------------
-typedef std::vector< IdAndDistance > ClosestGuidesIds;
+typedef std::vector< IdAndDistance > ClosestGuides;
+
+///-------------------------------------------------------------------------------------------------
+/// Defines an alias representing the float 3D vector .
+///-------------------------------------------------------------------------------------------------
+typedef Vector3D< float > FloatVector;
 
 ///----------------------------------------------------------------------------------------------------
 /// Defines a KDTree for finding N closest points for the query point.
 ///----------------------------------------------------------------------------------------------------
-typedef KdTreeTmplPtr< Stubble::Vector3D< float >, Stubble::Vector3D< float > > KdTree;
+typedef KdTreeTmplPtr< FloatVector, FloatVector > KdTree;
 
 ///-------------------------------------------------------------------------------------------------
-/// Guides segments uniform grid
+/// Guides' roots rest positions data structure for closest points queries.
+/// Roots of guides of different interpolation groups are stored in separate KD trees,
+/// any query is executed only for one requested interpolation group.
+/// Enables queries for n closest guides' roots in requested interpolation group from given point.
+/// Can export/import rest position roots of guides to/from binary stream, during import KD trees 
+/// are rebuild.
+/// This class uses float numbers instead of Real, because KD tree structure also uses only float.
 ///-------------------------------------------------------------------------------------------------
-class RestPositionsUG
+class RestPositionsDS
 {
 public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
+	/// Initializes empty uniform grid.
 	///-------------------------------------------------------------------------------------------------
-	RestPositionsUG();
+	RestPositionsDS();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
 	///-------------------------------------------------------------------------------------------------
-	~RestPositionsUG();
+	~RestPositionsDS();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Builds the uniform grid. 
+	/// Builds the internal KD Trees for closest points queries.
+	/// Roots of guides of different interpolation groups are stored in separate KD trees. 
 	///
 	/// \param	aGuidesRestPositions	The guides rest positions. 
 	/// \param	aInterpolationGroups	The interpolation groups.
@@ -77,37 +91,46 @@ public:
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the n closest guides from aPosition. 
+	/// Gets the n closest guides from requested position in world coordinates.
+	/// Only guides from requested interpolation group are returned. 
 	///
-	/// \param	aPosition					the position. 
+	/// \param	aPosition					The requested position in world coordinates. 
 	/// \param	aInterpolationGroupId		Identifier for a interpolation group. 
 	/// \param	aN							Number of closest guides to return. 
-	/// \param [in,out]	aClosestGuidesIds	List of identifiers for a closest guides. 
+	/// \param [in,out]	aClosestGuides		List of identifiers and distances for a closest guides. 
 	///-------------------------------------------------------------------------------------------------
 	void getNClosestGuides( const Vector3D< Real > & aPosition, unsigned __int32 aInterpolationGroupId,
-		unsigned __int32 aN, ClosestGuidesIds & aClosestGuidesIds ) const;
+		unsigned __int32 aN, ClosestGuides & aClosestGuides ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets the dirty bit. 
+	/// Informs the structure about changes of roots rest pose positions or change of interpolation 
+	/// groups.
+	/// Dirty bit is not checked by any method of this class in release mode. User of this class is
+	/// responsible to check the dirty bit and rebuild the data structure by himself.
 	///-------------------------------------------------------------------------------------------------
 	inline void setDirty();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Query if this object is dirty. 
+	/// Query if this object has been set as dirty. 
 	///
 	/// \return	true if dirty, false if not. 
 	///-------------------------------------------------------------------------------------------------
 	inline bool isDirty() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Export to file. 
+	/// Exports data structure to file.
+	/// Only roots rest positions and texture coordinates are exported to binary stream, KD trees will
+	/// be rebuild from these during import.
+	/// Texture coordinates will be used to distinguish guide's interpolation group. 
 	///
 	/// \param [in,out]	aOutputStream	The output stream. 
 	///-------------------------------------------------------------------------------------------------
 	void exportToFile( std::ostream & aOutputStream ) const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Import rest positions from file and builds the uniform grid.
+	/// Imports data from file and builds the internal data structures.
+	/// Only roots rest positions and texture coordinates are imported, KD trees are rebuild afterwards.
+	/// Texture coordinates are used to distinguish guide's interpolation group.
 	///
 	/// \param [in,out]	aInputStream	The input stream. 
 	/// \param	aInterpolationGroups	The interpolation groups.
@@ -118,55 +141,58 @@ public:
 private:
 
 	///-------------------------------------------------------------------------------------------------
-	/// Builds the uniform grid from already stored guides rest position. 
+	/// Builds the KD trees from already stored guides rest positions.
+	/// Builds separete tree for every interpolation group. 
 	/// 
 	/// \param	aInterpolationGroups	The interpolation groups.
 	///-------------------------------------------------------------------------------------------------
 	void innerBuild( const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Rest position of guide
+	/// Rest position of guide root.
+	/// The 3D position in world coordinates is stored and texture coordinates are also kept for
+	/// distinguishing guide's interpolation group.
 	///-------------------------------------------------------------------------------------------------
 	struct Position
 	{
-		Vector3D< float > mPosition;	///< The position ( in float, kd-tree is also float )
+		FloatVector mPosition;	///< The position ( in float, kd-tree is also float )
 
 		Real mUCoordinate;  ///< The u texture coordinate
 
 		Real mVCoordinate;  ///< The v texture coordinate
 	};
 	///----------------------------------------------------------------------------------------------------
-	/// Defines an alias representing the positions .
+	/// Defines an alias representing the array of rest positions of guides' roots.
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< Position > Positions;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Defines an alias representing list of identifiers for the groups .
+	/// Defines an alias representing list of identifiers for the interpolation groups .
 	///-------------------------------------------------------------------------------------------------
 	typedef std::vector< unsigned __int32 > GroupIds;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Defines an alias representing the group counts .
+	/// Defines an alias representing the number of guides for each group.
 	///-------------------------------------------------------------------------------------------------
 	typedef GroupIds GroupCounts;
 
-	bool mDirtyBit; ///< true to dirty bit
+	bool mDirtyBit; ///< True if user of this structure must call the build method
 
-	Positions mGuidesRestPositions;   ///< The guides rest positions
+	Positions mGuidesRestPositions;   ///< The guides' roots rest positions
 
-	KdTree *mKdForest;	///< KDTree forest for closest points query
+	KdTree *mKdForest;	///< KDTree forest for closest points query ( separate tree for each interpolation group )
 
-	unsigned int mForestSize;	///< Size of forrest
+	unsigned int mForestSize;	///< Size of the forrest
 };
 
 // inline functions implementation
 
-inline void RestPositionsUG::setDirty()
+inline void RestPositionsDS::setDirty()
 {
 	mDirtyBit = true;
 }
 
-inline bool RestPositionsUG::isDirty() const
+inline bool RestPositionsDS::isDirty() const
 {
 	return mDirtyBit;
 }
@@ -177,4 +203,4 @@ inline bool RestPositionsUG::isDirty() const
 
 } // namespace Stubble
 
-#endif // STUBBLE_REST_POSITIONS_UG_HPP
+#endif // STUBBLE_REST_POSITIONS_DS_HPP

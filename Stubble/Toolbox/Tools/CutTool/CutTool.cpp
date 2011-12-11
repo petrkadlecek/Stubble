@@ -241,7 +241,7 @@ void CutTool::filterAffectedGuides()
 	}
 
 	//FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesUG().select(
+	activeHairShape->getSelectedGuidesDS().select(
 		dynamic_cast< CircleToolShape * >( mShape ), mPosition[ 0 ], mPosition[ 1 ], mAffectedGuides );
 }
 

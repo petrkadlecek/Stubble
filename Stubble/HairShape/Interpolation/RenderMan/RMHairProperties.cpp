@@ -109,9 +109,9 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	unzipper.read( reinterpret_cast< char * >( &mAreNormalsCalculated ), 
 		sizeof( bool ) );
 	// Read rest positions of guides
-	mGuidesRestPositionsUGMutable = new HairComponents::RestPositionsUG();
-	mGuidesRestPositionsUG = mGuidesRestPositionsUGMutable;
-	mGuidesRestPositionsUGMutable->importFromFile( unzipper, *mInterpolationGroups );
+	mGuidesRestPositionsDSMutable = new HairComponents::RestPositionsDS();
+	mGuidesRestPositionsDS = mGuidesRestPositionsDSMutable;
+	mGuidesRestPositionsDSMutable->importFromFile( unzipper, *mInterpolationGroups );
 	// Import guides count
 	unsigned __int32 size;
 	unzipper.read( reinterpret_cast< char * >( &size ), sizeof( unsigned __int32 ) );
@@ -138,7 +138,7 @@ RMHairProperties::~RMHairProperties()
 {
 	delete mGuidesSegmentsMutable;
 
-	delete mGuidesRestPositionsUGMutable;
+	delete mGuidesRestPositionsDSMutable;
 }
 
 } // namespace Interpolation

@@ -15,7 +15,7 @@ HairProperties::HairProperties():
 	mInterpolationGroups( 0 ),
 	mInterpolationGroupsTexture( 0 ),
 	mNumberOfGuidesToInterpolateFrom( 3 ),
-	mGuidesRestPositionsUG( 0 ),
+	mGuidesRestPositionsDS( 0 ),
 	mGuidesSegments( 0 ),
 	mAreNormalsCalculated( false ),
 	mCutTexture( 0 ),

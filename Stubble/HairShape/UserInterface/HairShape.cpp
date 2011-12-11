@@ -832,7 +832,8 @@ void HairShape::sampleTime( Time aSampleTime, const std::string & aFileName, Bou
 	if ( mVoxelization == 0 ) // Voxelization does not exist
 	{
 		// Creates voxelization
-		mVoxelization = new Voxelization( mMayaMesh->getRestPose(), getDensityTexture(), mVoxelsResolution );
+		mVoxelization = new Interpolation::Maya::Voxelization( mMayaMesh->getRestPose(), getDensityTexture(), 
+			mVoxelsResolution );
 	}
 	mVoxelization->updateVoxels( *mMayaMesh, *this, mGeneratedHairCount );
 	// For every voxel
@@ -1030,7 +1031,7 @@ void HairShape::setCurrentTime( Time aTime )
 inline void HairShape::refreshPointersToGuidesForInterpolation()
 {
 	MayaHairProperties::refreshPointersToGuides( & mHairGuides->getCurrentFrameSegments().mSegments,
-		& mHairGuides->getGuidesPositionsUG( getInterpolationGroups() ) );
+		& mHairGuides->getGuidesPositionsDS( getInterpolationGroups() ) );
 }
 
 // Inline, but only called inside HairGuides.cpp

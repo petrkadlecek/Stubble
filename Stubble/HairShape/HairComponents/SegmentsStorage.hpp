@@ -4,7 +4,7 @@
 #include "Common\StubbleException.hpp"
 #include "Primitives\BoundingBox.hpp"
 #include "HairShape\HairComponents\GuidePosition.hpp"
-#include "HairShape\HairComponents\RestPositionsUG.hpp"
+#include "HairShape\HairComponents\RestPositionsDS.hpp"
 #include "HairShape\HairComponents\Segments.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\Interpolation\InterpolationGroups.hpp"
@@ -24,7 +24,14 @@ namespace HairComponents
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Class for storing all guides segments .
+/// Class for storing and operations on all guides segments in all time frames.
+/// Enables creation of default segments, interpolation of hair guides from different segments 
+/// storage, creating partial copy of segments storage.
+/// Works with segments undo stack, propagate changes in one frame to others,
+/// allow import of segments for one time frame and other trivial operations.
+/// Operates in two modes : before import - only current segments are stored, time changes has no 
+/// effects, after import - operates on imported set of time frames
+/// This class can be serialized/deserialized. 
 ///-------------------------------------------------------------------------------------------------
 class SegmentsStorage
 {
@@ -43,20 +50,23 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Constructor, interpolates segments from old segments in aOldStorage
+	/// Segments of each hair guide are interpolated from a requested number of closest guides segments
+	/// ( from same interpolation group ) stored in aOldStorage. For closest guides query we use rest 
+	/// positions data structure.
 	///
 	/// \param	aOldStorage							the old segments storage. 
-	/// \param	aOldRestPositionsUG					the old rest positions uniform grid. 
+	/// \param	aOldRestPositionsDS					the old rest positions data structure. 
 	/// \param	aRestPositions						the rest positions of guides. 
 	/// \param	aInterpolationGroups				Interpolation groups.
 	/// \param	aNumberOfGuidesToInterpolateFrom	Number of guides to interpolate from
 	///-------------------------------------------------------------------------------------------------
-	SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsUG & aOldRestPositionsUG,
+	SegmentsStorage( const SegmentsStorage & aOldStorage, const RestPositionsDS & aOldRestPositionsDS,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,
 		unsigned __int32 aNumberOfGuidesToInterpolateFrom );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Constructor, copies only selected segments from aOldStorage
+	/// Constructor, copies only selected segments from aOldStorage.
 	///
 	/// \param	aOldStorage			the old segments storage. 
 	/// \param	aRemainingGuides	the remaining guides. 
@@ -70,35 +80,41 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets a time frame. 
+	/// Propagates changes in current frame to other frames and interpolates new current frame segments
+	/// from discretly saved time frames segments.
 	///
 	/// \param	aTime	Time. 
 	///-------------------------------------------------------------------------------------------------
 	void setFrame( Time aTime );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Replaces the old segments of some guides with aSegmentsChange (used only for undo, redo) 
+	/// Replaces the old segments of some guides with aSegmentsChange.
+	/// This is used during undo and redo operations. The old version of guides segments which has been 
+	/// modified is then returned for undo stack.
 	///
-	/// \param	aSegmentsChange	the segments change. 
+	/// \param	aSegmentsChange	The segments change. 
 	/// 						
-	/// \return	segments change in PartialStorage for undo stack 
+	/// \return	Guides segments before modification for undo stack. 
 	///-------------------------------------------------------------------------------------------------
 	PartialStorage * replace( const PartialStorage & aSegmentsChange );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Propagate changes of selected guides through all time frames. 
+	/// Propagate changes of selected guides to stored segments.
+	/// The old version of guides segments which has been modified is then returned for undo stack.
 	///
-	/// \param	aSelectedGuides	the selected guides. 
+	/// \param	aSelectedGuides	The selected guides. 
 	///
-	/// \return	segments change in PartialStorage for undo stack 
+	/// \return	Guides segments before modification for undo stack 
 	///-------------------------------------------------------------------------------------------------
 	PartialStorage * propagateChanges( const SelectedGuides & aSelectedGuides );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Reinits all cutted hair with zero length to selected length.
+	/// Reinits all cutted hair with zero length to requested initial length.
+	/// The old version of guides segments which has been modified is then returned for undo stack.
 	///
-	/// \param	aLength		Hair guides length.
+	/// \param	aLength		Hair guides initial length.
 	///
-	/// \return	segments change in PartialStorage for undo stack 
+	/// \return	Guides segments before modification for undo stack 
 	///-------------------------------------------------------------------------------------------------
 	PartialStorage * reinitCuttedHair( Real aLength );
 
@@ -112,58 +128,50 @@ public:
 	PartialStorage * resetGuides( Real aLength );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Import segments in selected time frame. 
+	/// Import segments in selected time frame.
+	/// Before import is called, segments storage only operates with current frames and changing
+	/// time frame has no effect. 
 	///
 	/// \param	aFrameSegments	the segments in time frame. 
 	///-------------------------------------------------------------------------------------------------
 	inline void importSegments( const FrameSegments & aFrameSegments );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the segments from current time frame. 
+	/// Gets the segments of all hair guides from current time frame. 
 	///
 	/// \return	The current segments. 
 	///-------------------------------------------------------------------------------------------------
 	inline const FrameSegments & getCurrentSegments() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Returns true, if any segments were imported (using importSegments)
+	/// Returns true, if any segments were imported (using importSegments).
+	/// Before import is called, segments storage only operates with current frames and changing
+	/// time frame has no effect.
 	///
-	/// \return	true if it succeeds, false if it fails. 
+	/// \return	true if segments were imported.
 	///-------------------------------------------------------------------------------------------------
 	inline bool imported() const;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets the segments count
+	/// Sets the segments count for every guide in all frames.
+	/// Can be used when segment count for one interpolation group has changed or all interpolation
+	/// groups have changed.
 	///
-	/// \param	aRestPositions			the rest positions of guides. 
+	/// \param	aRestPositions			The rest positions of hair guides' roots. 
 	/// \param	aInterpolationGroups	Interpolation groups.
 	///-------------------------------------------------------------------------------------------------
 	void setSegmentsCount( const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets a bounding box. 
+	/// Gets a bounding box of all segments in current frame. 
+	/// The bounding box of all segments is calculated every time this method is called.
 	///
 	/// \param	aCurrentPositions	the current positions of guides. 
 	///
 	/// \return	The bounding box. 
-		///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	BoundingBox getBoundingBox( const GuidesCurrentPositions & aCurrentPositions ) const;
-
-	///-------------------------------------------------------------------------------------------------
-	/// Calculates the segment length as division of total length by segments count 
-	///
-	/// \param [in,out]	aGuideSegments	a guide segments. 
-	///-------------------------------------------------------------------------------------------------
-	static void calculateSegmentLength( OneGuideSegments & aGuideSegments );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Uniformly reposition segments with newly set count. 
-	///
-	/// \param [in,out]	aGuideSegments	The guide segments. 
-	/// \param aCount					The new number of segments;
-	///-------------------------------------------------------------------------------------------------
-	static void uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount );
 		
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object.
@@ -179,19 +187,37 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void deserialize( std::istream & aInputStream );
 
+	///-------------------------------------------------------------------------------------------------
+	/// Calculates the segment length as division of total length by segments count 
+	///
+	/// \param [in,out]	aGuideSegments	The one guide segments. 
+	///-------------------------------------------------------------------------------------------------
+	static void calculateSegmentLength( OneGuideSegments & aGuideSegments );
+
+	///-------------------------------------------------------------------------------------------------
+	/// Uniformly reposition segments with newly set segments count. 
+	///
+	/// \param [in,out]	aGuideSegments	The guide segments. 
+	/// \param aCount					The new number of segments;
+	///-------------------------------------------------------------------------------------------------
+	static void uniformlyRepositionSegments( OneGuideSegments & aGuideSegments, unsigned __int32 aCount );
+	
 private:
 
 	/// ------------------------------------------------------------------------------------------
-	///  Interpolates segments from old segments
+	///  Interpolates segments from old segments ( works only on one time frame ).
+	///  Segments of each hair guide are interpolated from a requested number of closest guides segments
+	///  ( from same interpolation group ) stored in aOldSegments. For closest guides query we use rest 
+	///  positions data structure.
 	///
 	/// \param	aOldSegments						the old segments. 
-	/// \param	aOldRestPositionsUG					the old rest positions uniform grid. 
+	/// \param	aOldRestPositionsDS					the old rest positions data structure. 
 	/// \param	aRestPositions						the rest positions of guides. 
 	/// \param	aInterpolationGroups				Interpolation groups. 
 	/// \param	aNumberOfGuidesToInterpolateFrom	Number of guides to interpolate from
-	/// \param [in,out]	aOutputSegments				the output segments. 
+	/// \param [in,out]	aOutputSegments				The interpolated segments. 
 	///----------------------------------------------------------------------------------------------------
-	void InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsUG & aOldRestPositionsUG,
+	void InterpolateFrame( const FrameSegments & aOldSegments, const RestPositionsDS & aOldRestPositionsDS,
 		const GuidesRestPositions & aRestPositions, 
 		const Interpolation::InterpolationGroups & aInterpolationGroups,
 		unsigned __int32 aNumberOfGuidesToInterpolateFrom, 
@@ -199,8 +225,9 @@ private:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Calculates how much change in one frame affects other frame.
+	/// The smooth step scaled to inverse of aInverseFrameCount is used to calculate the factor.
 	///
-	/// \param	aTimeDifference		Distance between frames in time.
+	/// \param	aTimeDifference		Absolute value of distance between frames in time
 	/// \param	aInverseFrameCount	Inverse number of frames
 	///
 	/// \return	Affect factor. 
@@ -209,14 +236,14 @@ private:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Propagate changes from current frame to other frames.
-	/// Must be used before segments are exported.
+	/// Must be called before every time change.
 	///-------------------------------------------------------------------------------------------------
 	void propagateChangesThroughTime();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Propagete changes from current frame to selected frame . 
 	///
-	/// \param [in,out]	aGuides	The guides of selected frame. 
+	/// \param [in,out]	aGuides	The guides segments of selected frame. 
 	/// \param	aFactor			The affect factor ( see timeAffectFactor ). 
 	///-------------------------------------------------------------------------------------------------
 	void propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor );
@@ -231,11 +258,11 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	void resetGuideSegments ( unsigned __int32 aId, Real aLength, OneGuideSegments &aSegments, PartialStorage *aPartialStorage );
 
-	AllFramesSegments mSegments;  ///< The all segments (exists after the import!)
+	AllFramesSegments mSegments;  ///< The all hair guides segments in all frames (exists only after the import!)
 
-	FrameSegments mCurrent; ///< The current frame segments
+	FrameSegments mCurrent; ///< The current frame segments of all hair guides
 
-	bool mAreCurrentSegmentsDirty;  ///< true if are current segments dirty and need to be propagated
+	bool mAreCurrentSegmentsDirty;  ///< true if the current segments are dirty and need to be propagated to all frames
 
 	Real mStartLength;  ///< The start length of hair guides
 };

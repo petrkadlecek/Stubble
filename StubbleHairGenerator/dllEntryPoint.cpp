@@ -5,7 +5,8 @@
 // If report is defined, subdivide running time will be measured and outputed
 #define REPORT
 
-// If defined bounding box of generated hair points will be calculated
+// If defined bounding box of generated hair points will be calculated during hair
+// generation ( for debug purpose )
 #define CALCULATE_BBOX
 
 // Defines internal memory for segments ( COMMIT_SIZE = max. segments count )
@@ -13,9 +14,10 @@
 const unsigned __int32 COMMIT_SIZE = 1000000; 
 
 #include "HairShape/Interpolation/HairGenerator.tmpl.hpp"
-#include "HairShape/Interpolation/RMHairProperties.hpp"
-#include "HairShape/Interpolation/RMOutputGenerator.hpp"
-#include "HairShape/Interpolation/RMPositionGenerator.hpp"
+#include "HairShape/Interpolation/RenderMan/RMHairProperties.hpp"
+#include "HairShape/Interpolation/RenderMan/RMOutputGenerator.hpp"
+#include "HairShape/Interpolation/RenderMan/RMPositionGenerator.hpp"
+#include "Common/StubbleTimer.hpp"
 
 #include "ri.h"
 
@@ -25,7 +27,8 @@ const unsigned __int32 COMMIT_SIZE = 1000000;
 #include <string>
 #include <vector> 
 
-using namespace Stubble::HairShape::Interpolation;
+using namespace Stubble;
+using namespace HairShape::Interpolation;
 
 #if defined ( _WIN32 )
 #define DLLEXPORT __declspec( dllexport )
@@ -59,7 +62,7 @@ typedef std::string * FileNames;
 typedef RtFloat * TimeSamples;
 
 ///----------------------------------------------------------------------------------------------------
-/// Parameters in binary format
+/// Parameters of this hair generator plugin in binary format
 ///----------------------------------------------------------------------------------------------------
 struct BinaryParams
 {
@@ -106,7 +109,8 @@ RtPointer DLLEXPORT ConvertParameters( RtString aParamString )
 }
 
 ///-------------------------------------------------------------------------------------------------
-/// Subdivides procedural command to other renderman commands. 
+/// Subdivides procedural command to other renderman commands.
+/// This function loads exported data from Maya and generate all hair using RenderMan commands. 
 ///
 /// \param	aData		Parameters in binary format. 
 /// \param	aDetailSize	Size of a detail. 
@@ -114,7 +118,8 @@ RtPointer DLLEXPORT ConvertParameters( RtString aParamString )
 RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 {
 #ifdef REPORT
-	clock_t start = clock();
+	Timer timer;
+	timer.start();
 #endif
 	// Get params
 	const BinaryParams & bp = * reinterpret_cast< BinaryParams * >( aData );
@@ -163,7 +168,8 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 		RiMotionEnd();
 	}
 #ifdef REPORT
-	std::cerr << "StubbleHairGenerator.dll::Subdivide run time: " << ( (double) ( clock() - start ) / CLOCKS_PER_SEC )
+	timer.stop();
+	std::cerr << "StubbleHairGenerator.dll::Subdivide run time: " << timer.getElapsedTime()
 		<< std::endl;
 #endif
 }

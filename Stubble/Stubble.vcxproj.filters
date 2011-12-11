@@ -85,6 +85,12 @@
     <Filter Include="MEL\StubbleUI">
       <UniqueIdentifier>{67b0cdaf-7a12-4d6f-baac-9cee11501d90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HairShape\Interpolation\Maya">
+      <UniqueIdentifier>{2af196f6-7d03-411d-9abb-f3f0de656103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HairShape\Interpolation\RenderMan">
+      <UniqueIdentifier>{e8169392-beb8-49df-a911-a55726d00f47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -139,9 +145,6 @@
     <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\RestPositionsUG.cpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
@@ -166,20 +169,11 @@
     <ClCompile Include="RibExport\RenderManCacheCommand.cpp">
       <Filter>RibExport</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\Mesh\Voxelization.cpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="RibExport\CachedFrame.cpp">
       <Filter>RibExport</Filter>
     </ClCompile>
     <ClCompile Include="Toolbox\Tools\HapticSettingsTool.cpp">
       <Filter>Toolbox\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\MayaPositionGenerator.cpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\MayaOutputGenerator.cpp">
-      <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
     <ClCompile Include="HairShape\Interpolation\HairProperties.cpp">
       <Filter>HairShape\Interpolation</Filter>
@@ -187,29 +181,11 @@
     <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\MayaHairProperties.cpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\RMHairProperties.cpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\RMPositionGenerator.cpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\RMOutputGenerator.cpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClCompile>
     <ClCompile Include="Common\GLExtensions.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp">
       <Filter>Toolbox\Tools\CutTool</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\CommandsNURBS.cpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\CommandsTextures.cpp">
-      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
     <ClCompile Include="HairShape\UserInterface\SelectCommand.cpp">
       <Filter>HairShape\UserInterface</Filter>
@@ -234,6 +210,36 @@
     </ClCompile>
     <ClCompile Include="HairShape\UserInterface\ResetCommand.cpp">
       <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\CommandsNURBS.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\CommandsTextures.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\Maya\MayaHairProperties.cpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\Maya\MayaOutputGenerator.cpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\Maya\MayaPositionGenerator.cpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RenderMan\RMHairProperties.cpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RenderMan\RMOutputGenerator.cpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\RenderMan\RMPositionGenerator.cpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\Maya\Voxelization.cpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\RestPositionsDS.cpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -330,9 +336,6 @@
     <ClInclude Include="HairShape\HairComponents\GuidePosition.hpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\RestPositionsUG.hpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\HairComponents\Segments.hpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
@@ -369,9 +372,6 @@
     <ClInclude Include="RibExport\CachedFrame.hpp">
       <Filter>RibExport</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\Mesh\Voxelization.hpp">
-      <Filter>HairShape\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Common\CommonConstants.hpp">
       <Filter>Common</Filter>
     </ClInclude>
@@ -384,31 +384,10 @@
     <ClInclude Include="HairShape\Interpolation\HairProperties.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\InterpolatedHair.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\MayaPositionGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\Interpolation\OutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\Interpolation\PositionGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\RMPositionGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\MayaOutputGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\MayaHairProperties.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\RMHairProperties.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\RMOutputGenerator.hpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
     <ClInclude Include="Common\GLExtensions.hpp">
@@ -419,18 +398,6 @@
     </ClInclude>
     <ClInclude Include="Toolbox\Tools\CutTool\CutTool.hpp">
       <Filter>Toolbox\Tools\CutTool</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\CommandsNURBS.hpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\CommandsTextures.hpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\SimplePositionGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\SimpleOutputGenerator.hpp">
-      <Filter>HairShape\Interpolation</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\UserInterface\SelectCommand.hpp">
       <Filter>HairShape\UserInterface</Filter>
@@ -450,7 +417,6 @@
     <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp">
       <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
-    <ClInclude Include="Common\StubbleTimer.hpp" />
     <ClInclude Include="Common\Base64.hpp">
       <Filter>Common</Filter>
     </ClInclude>
@@ -459,6 +425,48 @@
     </ClInclude>
     <ClInclude Include="HairShape\UserInterface\ResetCommand.hpp">
       <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StubbleTimer.hpp">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\CommandsNURBS.hpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\CommandsTextures.hpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\MayaHairProperties.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\MayaOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\MayaPositionGenerator.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\SimpleOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\SimplePositionGenerator.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RenderMan\RMHairProperties.hpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RenderMan\RMOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\RenderMan\RMPositionGenerator.hpp">
+      <Filter>HairShape\Interpolation\RenderMan</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\InterpolatedHair.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\Maya\Voxelization.hpp">
+      <Filter>HairShape\Interpolation\Maya</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\RestPositionsDS.hpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -507,8 +515,10 @@
     <None Include="MEL\StubbleHapticSettingsToolValues.mel">
       <Filter>MEL\StubbleHapticSettingsTool</Filter>
     </None>
-    <None Include="MEL\StubbleTextureProperties.mel" />
     <None Include="MEL\StubbleHotkeys.mel">
+      <Filter>MEL</Filter>
+    </None>
+    <None Include="MEL\StubbleTextureProperties.mel">
       <Filter>MEL</Filter>
     </None>
   </ItemGroup>

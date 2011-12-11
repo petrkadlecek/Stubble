@@ -18,6 +18,8 @@ namespace Interpolation
 
 ///-------------------------------------------------------------------------------------------------
 /// Class for generating interpolated hair. 
+/// Class is able not only able to generate interpolated hair but also calculate interpolated hair
+/// bounding box.
 /// Template parameter tPositionGenerator must implement PositionGenerator interface.
 /// Template parameter tOutputGenerator must implement OutputGenerator interface.
 /// For optimalization purposes templating is used rather than virtual methods.
@@ -36,14 +38,16 @@ public:
 	inline HairGenerator( tPositionGenerator & aPositionGenerator, tOutputGenerator & aOutputGenerator );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Generates interpolated hair. 
+	/// Generates interpolated hair.
+	/// Uses position generator to generate hair positions and output generator to output finished hair. 
 	///
 	/// \param	aHairProperties	The hair properties. 
 	///-------------------------------------------------------------------------------------------------
 	void generate( const HairProperties & aHairProperties );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Calculates the bounding box of hair. 
+	/// Calculates the bounding box of hair.
+	/// Uses position generator to generate hair positions, output generator is not used.
 	///
 	/// \param	aHairProperties			The hair properties. 
 	/// \param	aHairGenerateRatio		The hair generate ratio [0,1], defines how much of actual hair
@@ -55,6 +59,7 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Gets the bounding box of generated hair points. Only calculated if CALCULATE_BBOX is defined.
+	/// This method is mainly used for debug purposes.
 	///
 	/// \return	The bounding box. 
 	///-------------------------------------------------------------------------------------------------
@@ -115,9 +120,9 @@ private:
 	typedef Matrix< PositionType > Matrix;
 
 	///-------------------------------------------------------------------------------------------------
-	/// Interpolate hair from guides. 
+	/// Interpolate hair segments from N closest guides. 
 	///
-	/// \param [in,out]	aPoints			If non-null, a points. 
+	/// \param [in,out]	aPoints			The hair points. 
 	/// \param	aCount					Number of points. 
 	/// \param	aRestPosition			The rest position of hair. 
 	/// \param	aInterpolationGroupId	Identifier for a interpolation group. 
@@ -129,7 +134,7 @@ private:
 	/// Checks for hair degeneration. Deletes duplicate points and returns true if hair has degenerated
 	/// to single point.
 	///
-	/// \param [in,out]	aPoints				If non-null, a points. 
+	/// \param [in,out]	aPoints				The hair points. 
 	/// \param [in,out] aCount				Number of points. 
 	/// \param [in,out] aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
 	/// 				
@@ -141,7 +146,7 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the scale to hair points. 
 	///
-	/// \param [in,out]	aPoints	If non-null, a hair points. 
+	/// \param [in,out]	aPoints	The hair points. 
 	/// \param	aCount			Number of hair points. 
 	/// \param	aRestPosition	The rest position of hair. 
 	///-------------------------------------------------------------------------------------------------
@@ -150,7 +155,7 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the frizz to hair points. 
 	///
-	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param [in,out]	aPoints		The hair points. 
 	/// \param	aCount				Number of points. 
 	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
 	/// \param	aRestPosition		The rest position of hair. 
@@ -161,7 +166,7 @@ private:
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the kink to hair points. 
 	///
-	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param [in,out]	aPoints		The hair points. 
 	/// \param	aCount				Number of points. 
 	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
 	/// \param	aRestPosition		The rest position of hair. 
@@ -170,27 +175,16 @@ private:
 		const MeshPoint &aRestPosition );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Applies the frizz to hair points. 
+	/// Transforms points by requested transform matrix. 
 	///
-	/// \param [in,out]	aPoints		If non-null, a points. 
-	/// \param	aCount				Number of points. 
-	/// \param	aCurvePointsCount	Number of curve points, used for curve parameter t calculation. 
-	/// \param	aRestPosition		The rest position of hair. 
-	///-------------------------------------------------------------------------------------------------
-	inline void generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount, 
-		const MeshPoint &aRestPosition );
-
-	///-------------------------------------------------------------------------------------------------
-	/// Transforms points. 
-	///
-	/// \param [in,out]	aPoints		If non-null, a points. 
+	/// \param [in,out]	aPoints		The hair points. 
 	/// \param	aCount				Number of points. 
 	/// \param	aTransformMatrix	The transform matrix. 
 	///-------------------------------------------------------------------------------------------------
 	inline void transformPoints( Point * aPoints, unsigned __int32 aCount, const Matrix & aTransformMatrix );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Calculates tangents. 
+	/// Calculates tangents in requested hair points. 
 	///
 	/// \param [in,out]	aTangents	The calculated tangents. 
 	/// \param	aPoints				The hair points. 
@@ -199,8 +193,8 @@ private:
 	inline void calculateTangents( Vector * aTangents, const Point * aPoints, unsigned __int32 aCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Calculates the normal of selected hair point. aPoints and aTangents must be part of an array,
-	/// in which is stored previous hair point.
+	/// Calculates the normal of selected hair point. aPoints (aTangents) must be part of an array,
+	/// in which previous/next hair point (tangent) is/will be stored.
 	///
 	/// \param	aPoints			Pointer to selected hair point.
 	/// \param	aTangents		Pointer to selected hair point tangent.
@@ -212,7 +206,7 @@ private:
 		const Vector & aPreviousNormal );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Calculates normals and binormals of selected hair.
+	/// Calculates normals and binormals in selected hair points.
 	///
 	/// \param [in,out]	aNormals	The calculated normals. 
 	/// \param [in,out]	aBinormals	The calculated binormals. 
@@ -225,8 +219,10 @@ private:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Applies the hue value shift described to selected color in RGB. 
+	/// The value is converted to HSV and never back.
+	/// Color will be transformed back to RGB in generateHair method.
 	///
-	/// \param [in,out]	mColor	Selected color in RGB, will be shifted. 
+	/// \param [in,out]	mColor	Selected color in RGB, will be converted to HSV and shifted. 
 	/// \param	aValueShift		The value shift of color.
 	/// \param	aHueShift		The hue shift of color.
 	///-------------------------------------------------------------------------------------------------
@@ -246,19 +242,22 @@ private:
 	inline void fakeSelectHairColorOpacityWidth();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Skips point if it is not necessary to output it ( it can be interpolated in render from
-	/// two neighbour points ). aPoints and aTangents must be part of an array, in which is stored 
-	/// previous hair point.
+	/// Skips point if it is not necessary to output it ( it can be interpolated in renderer from
+	/// two neighbour points ). aPoints (aTangents) must be part of an array, in which previous/next 
+	/// hair point (tangent) is/will be stored.
 	///
 	/// \param	aPoints		The selected hair point. 
 	/// \param	aTangents	The selected hair tangent. 
 	///
-	/// \return	true if it succeeds, false if it fails. 
+	/// \return	true if point should be skipped
 	///-------------------------------------------------------------------------------------------------
 	inline bool skipPoint( const Point * aPoints, const Vector * aTangents );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Generates final hair points positions, normals, colors, opacities, widths.
+	/// Uses output generator pointer to output all hair properties.
+	/// Method beginHair of output generator must precede calling of this method.
+	/// This method expects all colors to be in HSV and converts them back to RGB before outputing.
 	///
 	/// \param [in,out] aPoints		Hair points ( may be modified if cut is applied ). 
 	/// \param [in,out] aTangents	Hair tangents ( may be modified if cut is applied ).
@@ -302,7 +301,7 @@ private:
 	inline void selectMultiStrandProperties( const MeshPoint &aRestPosition, unsigned __int32 aCurvePointsCount );
 
 	///-------------------------------------------------------------------------------------------------
-	/// Generates a hair positions in strand local space. 
+	/// Generates a hair positions in strand (main hair) local space. 
 	///
 	/// \param [in,out]	aPoints		The new hair points. 
 	/// \param	aCount				Number of points. 
@@ -314,8 +313,8 @@ private:
 	inline void generateHairInStrand( Point * aPoints, unsigned __int32 aCount, unsigned __int32 aCurvePointsCount,
 		const Point * aMainHairPoints, const Vector * aMainHairNormals, const Vector * aMainHairBinormals );
 
-		///-------------------------------------------------------------------------------------------------
-	/// Generates final hair points positions, normals, colors, opacities, widths.
+	///-------------------------------------------------------------------------------------------------
+	/// Calculates the bounding box of single hair.
 	///
 	/// \param [in,out] aPoints			Hair points ( may be modified if cut is applied ). 
 	/// \param [in,out] aTangents		Hair tangents ( may be modified if cut is applied ).
