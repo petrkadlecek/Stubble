@@ -16,6 +16,8 @@
 #include <maya/MPoint.h>
 #include <maya/MVector.h>
 
+#include "HapticListener.hpp"
+
 namespace Stubble
 {
 
@@ -58,7 +60,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOnSetup( MEvent &event );
 
-  ///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	/// Haptic Tool position getter
 	///----------------------------------------------------------------------------------------------------
 	static MVector getLastPosition();
@@ -68,58 +70,62 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void toolOffCleanup();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Haptic device availability flag
+	///----------------------------------------------------------------------------------------------------
+	static bool sDeviceAvailable; ///< is there any haptic device available
+
 protected:
 
 	M3dView mView; ///< The view in which we are currently operating.
 
 private:
-  friend class HapticSettingsToolCommand;
+	friend class HapticSettingsToolCommand;
 
 	bool mInitFlag; ///< initialization flag
 
-  ///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	/// CHAI 3D haptic device handlers
 	///----------------------------------------------------------------------------------------------------
-  static cHapticDeviceHandler* mHandler;  ///< handler of haptic devices CHAI 3D
+	static cHapticDeviceHandler* mHandler;  ///< handler of haptic devices CHAI 3D
 
-  static cGenericHapticDevice* mHapticDevice;  ///< haptic device CHAI 3D
+	static cGenericHapticDevice* mHapticDevice;  ///< haptic device CHAI 3D
 
-  ///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	/// CHAI 3D device control
 	///----------------------------------------------------------------------------------------------------
-  static cVector3d mDevicePosition; ///< haptic device position
+	static cVector3d mDevicePosition; ///< haptic device position
 
-  static cVector3d mDeviceRotation; ///< haptic device rotation
+	static cVector3d mDeviceRotation; ///< haptic device rotation
 
-  static cVector3d mDeviceForce; ///< haptic device sent force
+	static cVector3d mDeviceForce; ///< haptic device sent force
 
-  static bool mHapticButton1; ///< haptic device button 1
+	static bool mHapticButton1; ///< haptic device button 1
 
 	static bool mHapticButton2; ///< haptic device button 2
 
-  ///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	/// Stubble Haptic Tool properties
 	///----------------------------------------------------------------------------------------------------
-  MString mHapticDeviceStr; ///< haptic device string identifier
+	MString mHapticDeviceStr; ///< haptic device string identifier
 
-  static bool mHapticThreadRunning; ///< haptic thread running flag
+	static bool mHapticThreadRunning; ///< haptic thread running flag
 
-  static MVector mLastPosition;  ///< last position of haptic device
+	static MVector mLastPosition;  ///< last position of haptic device
 
-  static MVector mLastRotation;  ///< last position of haptic device
-
+	static MVector mLastRotation;  ///< last position of haptic device
 
 	///----------------------------------------------------------------------------------------------------
 	/// Initialize haptic device by index aHapticDeviceIndex
 	///----------------------------------------------------------------------------------------------------
-  void initHapticDevice( int aHapticDeviceIndex );
+	void initHapticDevice( int aHapticDeviceIndex );
 
-  ///----------------------------------------------------------------------------------------------------
+	///----------------------------------------------------------------------------------------------------
 	/// Asynchronous haptic thread loop and callback handler
 	///----------------------------------------------------------------------------------------------------
-  static MThreadRetVal AsyncHapticLoop(void *aData);
-  
-  static void AsyncHapticCallback (void *aData);
+	static MThreadRetVal AsyncHapticLoop(void *aData);
+
+	static void AsyncHapticCallback (void *aData);
 };
 
 
@@ -134,7 +140,7 @@ class HapticSettingsToolCommand :
 public:
 
 	virtual MPxContext* makeObj();
-	
+
 	///----------------------------------------------------------------------------------------------------
 	/// This method returns a new instance of the tool command for maya to use.
 	/// \return	an instance of BrushToolCommand

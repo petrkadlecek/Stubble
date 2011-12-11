@@ -15,6 +15,7 @@ bool HapticSettingsTool::mHapticThreadRunning;
 MVector HapticSettingsTool::mLastPosition;
 bool HapticSettingsTool::mHapticButton1;
 bool HapticSettingsTool::mHapticButton2;
+bool HapticSettingsTool::sDeviceAvailable;
 
 //----------------------------------------------------------------------------------------------------
 // HapticSettingsToolCommand
@@ -80,8 +81,6 @@ MStatus	HapticSettingsToolCommand::doQueryFlags()
 MStatus	HapticSettingsToolCommand::appendSyntax()
 {
 	MSyntax syn = syntax();
-
-  //std::cout << "appendSyntax" << std::endl;
 	
 	syn.addFlag( bigBrushFlag, bigBrushLongFlag, MSyntax::kBoolean );
 	syn.addFlag( interactiveSelectonFlag, interactiveSelectonLongFlag, MSyntax::kBoolean );
@@ -103,21 +102,22 @@ HapticSettingsTool::HapticSettingsTool()
 {
 	setTitleString( "Stubble haptic settings Tool" );
 	mInitFlag = false;
-  HapticSettingsTool::mHapticThreadRunning = false;
+	HapticSettingsTool::mHapticThreadRunning = false;
   
-  // set CHAI3D handler
-  HapticSettingsTool::mHandler = NULL;
-  HapticSettingsTool::mHapticDevice = NULL;
+	// set CHAI3D handler
+	HapticSettingsTool::mHandler = NULL;
+	HapticSettingsTool::mHapticDevice = NULL;
+	HapticSettingsTool::sDeviceAvailable = false;
 }
 
 HapticSettingsTool::~HapticSettingsTool()
 {
-  HapticSettingsTool::mHapticThreadRunning = false;
-  
-  if (HapticSettingsTool::mHapticDevice != NULL)
-  {
-    HapticSettingsTool::mHapticDevice->close();
-  }
+	HapticSettingsTool::mHapticThreadRunning = false;
+
+	if (HapticSettingsTool::mHapticDevice != NULL)
+	{
+		HapticSettingsTool::mHapticDevice->close();
+	}
 }
 
 MVector HapticSettingsTool::getLastPosition()
@@ -141,26 +141,26 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 
 	mInitFlag = true;
 
-  // create instance of mHandler on ToolSetup
-  if (HapticSettingsTool::mHandler == NULL)
-  { 
-    HapticSettingsTool::mHandler = new cHapticDeviceHandler();
-  }
+	// create instance of mHandler on ToolSetup
+	if (HapticSettingsTool::mHandler == NULL)
+	{ 
+		HapticSettingsTool::mHandler = new cHapticDeviceHandler();
+	}
 
-  cHapticDeviceInfo info; // haptic device info structure
+	cHapticDeviceInfo info; // haptic device info structure
 
-  // clear scrollList
-	MGlobal::executeCommandOnIdle("textScrollList -e -ra hapticDevices;");
+	// clear scrollList
+	MGlobal::executeCommandOnIdle( "textScrollList -e -ra hapticDevices;" );
 
-  // debug
-  std::cout << "HapticSettingsTool: number of detected haptic devices = " << HapticSettingsTool::mHandler->getNumDevices() << std::endl;
+	// debug
+	std::cout << "HapticSettingsTool: number of detected haptic devices = " << HapticSettingsTool::mHandler->getNumDevices() << std::endl;
 
-  assert(mHandler != NULL);
+	assert(mHandler != NULL);
 
-  // add devices
-	for ( unsigned int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i)
+	// add devices
+	for ( unsigned int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i )
 	{
-		HapticSettingsTool::mHandler->getDeviceSpecifications(info, i);
+		HapticSettingsTool::mHandler->getDeviceSpecifications( info, i );
 
 		MString sCmd = "textScrollList -e -a \"";
 		sCmd += i;
@@ -170,7 +170,7 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 		sCmd += info.m_modelName.c_str();
 		sCmd += "\" hapticDevices;";
 
-		MGlobal::executeCommandOnIdle(sCmd);
+		MGlobal::executeCommandOnIdle( sCmd );
 	}
 
 	mView = M3dView::active3dView();
@@ -181,40 +181,58 @@ void HapticSettingsTool::toolOffCleanup()
   // do not close haptic device here
 }
 
-MThreadRetVal HapticSettingsTool::AsyncHapticLoop(void *aData)
+MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 {
 	MGlobal::displayInfo("HapticSettingsTool: start loop");
 
 	MStatus stat;
 	MVector vector;
 
+	static cVector3d lastPosition;
 	static cVector3d newPosition;
 	static cVector3d force;
 	force.zero();
 
-	int sleepTime = 200; // todo
+	int sleepTime = 1; // todo
+	bool refreshNeeded = true;
 
 	M3dView mView = M3dView::active3dView();
 
-  HapticSettingsTool::mHapticThreadRunning = true;
+	HapticSettingsTool::sDeviceAvailable = true;
+	HapticSettingsTool::mHapticThreadRunning = true;
 
-  while (HapticSettingsTool::mHapticThreadRunning)
+	while ( HapticSettingsTool::mHapticThreadRunning )
 	{
-		HapticSettingsTool::mHapticDevice->getPosition(newPosition);
-		HapticSettingsTool::mHapticDevice->setForce(force);
-		HapticSettingsTool::mHapticDevice->getUserSwitch(0, HapticSettingsTool::mHapticButton1);
-		HapticSettingsTool::mHapticDevice->getUserSwitch(1, HapticSettingsTool::mHapticButton2);
+		HapticSettingsTool::mHapticDevice->getPosition( newPosition );
+		HapticSettingsTool::mHapticDevice->setForce( force );
+		HapticSettingsTool::mHapticDevice->getUserSwitch( 0, HapticSettingsTool::mHapticButton1 );
+		HapticSettingsTool::mHapticDevice->getUserSwitch( 1, HapticSettingsTool::mHapticButton2 );
 		
-		HapticSettingsTool::mLastPosition.x = newPosition.y * 30.0;
-		HapticSettingsTool::mLastPosition.y = newPosition.z * 30.0;
-		HapticSettingsTool::mLastPosition.z = newPosition.x * 30.0;
+		// optimize refreshing - refresh only when position of proxy changed 
+		if ( lastPosition.distancesq( newPosition ) > 0 )
+		{
+			refreshNeeded = true;
+		}
 
-    MGlobal::executeCommandOnIdle("refresh");
+		lastPosition = newPosition;
 
-    std::cout << "HapticSettingsTool::AsyncHapticLoop " <<  newPosition << std::endl;
+		HapticSettingsTool::mLastPosition.x = newPosition.y;
+		HapticSettingsTool::mLastPosition.y = newPosition.z;
+		HapticSettingsTool::mLastPosition.z = newPosition.x;
+
+		if ( refreshNeeded )
+		{
+			MGlobal::executeCommandOnIdle("refresh");
+			refreshNeeded = false;
+		}
+
+		//std::cout << "HapticSettingsTool::AsyncHapticLoop " <<  newPosition << std::endl;
 
 		Sleep(sleepTime + 1);
 	}
+	
+	HapticSettingsTool::mHapticThreadRunning = false;
+	HapticSettingsTool::sDeviceAvailable = false;
 
 	return 0;
 }
@@ -226,8 +244,8 @@ void HapticSettingsTool::AsyncHapticCallback (void *aData)
 
 void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 {
-  std::cout << "HapticSettingsTool: preparing device " << aHapticDeviceIndex << std::endl;
-  
+	std::cout << "HapticSettingsTool: preparing device " << aHapticDeviceIndex << std::endl;
+
 	if (HapticSettingsTool::mHandler->getDevice(HapticSettingsTool::mHapticDevice, aHapticDeviceIndex) == 0)
 	{
 		MGlobal::displayInfo("HapticSettingsTool: open");
@@ -238,11 +256,11 @@ void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 			if (HapticSettingsTool::mHapticDevice->initialize() == 0)
 			{
 				MStatus pr = MThreadAsync::init();
-        pr = MThreadAsync::createTask(HapticSettingsTool::AsyncHapticLoop, 0, HapticSettingsTool::AsyncHapticCallback, NULL);
+				pr = MThreadAsync::createTask(HapticSettingsTool::AsyncHapticLoop, 0, HapticSettingsTool::AsyncHapticCallback, NULL);
 			}
 			else
 			{
-        MGlobal::displayError("HapticTool ERROR - could not init device");
+				MGlobal::displayError("HapticTool ERROR - could not init device");
 			}
 		}
 		else
