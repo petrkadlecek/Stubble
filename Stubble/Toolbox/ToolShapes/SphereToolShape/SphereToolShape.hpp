@@ -1,7 +1,9 @@
-#ifndef STUBBLE_CIRCLE_TOOL_SHAPE_HPP
-#define STUBBLE_CIRCLE_TOOL_SHAPE_HPP
+#ifndef STUBBLE_SPHERE_TOOL_SHAPE_HPP
+#define STUBBLE_SPHERE_TOOL_SHAPE_HPP
 
 #include "../../Tools/GenericTool.hpp"
+#include "../../Tools/HapticSettingsTool.hpp"
+#include <maya/MVector.h>
 //#include "../ToolShape.hpp"
 
 namespace Stubble
@@ -11,9 +13,9 @@ namespace Toolbox
 {
 
 ///----------------------------------------------------------------------------------------------------
-/// Circle brush shape.
+/// Sphere brush shape.
 ///----------------------------------------------------------------------------------------------------
-class CircleToolShape :
+class SphereToolShape :
 	public ToolShape
 {
 public:
@@ -21,18 +23,18 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Default constructor.
 	///----------------------------------------------------------------------------------------------------
-	CircleToolShape();
+	SphereToolShape();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Draws the tool shape.
 	///
 	/// \param aView Viewport information
-	/// \param aScreenCoords Screen coordinates [x, y]
+	/// \param aProxyPosition proxy position [x, y, z]
 	/// \param aEventType Info about the event that triggered draw
 	///----------------------------------------------------------------------------------------------------
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
-	// TODO
+	/// TODO
 	virtual void draw( M3dView *aView, MVector &aProxyPosition );
 
 	///----------------------------------------------------------------------------------------------------
@@ -44,11 +46,18 @@ public:
 	virtual void update( GenericTool *aTool );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns circle radius of the current tool.
+	/// Returns Sphere radius of the current tool.
 	/// 
-	/// \return Circle tool shape radius
+	/// \return Sphere tool shape radius
 	///----------------------------------------------------------------------------------------------------
 	inline int getRadius() const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns Sphere radius of the current tool.
+	/// 
+	/// \return Sphere tool shape radius
+	///----------------------------------------------------------------------------------------------------
+	void getPosition(MVector &aProxyPositon) const;
 
 protected:
 
@@ -56,20 +65,20 @@ protected:
 	/// Helper method that draws the actual tool shape.
 	///
 	/// \param aView Viewport information
-	/// \param aScreenCoords Screen coordinates [x, y]
+	/// \param aProxyPosition proxy position [x, y, z]
 	///----------------------------------------------------------------------------------------------------
-	void drawToolShape( M3dView *aView, short aScreenCoords[ 2 ] );
+	void drawToolShape( M3dView *aView, MVector &aProxyPosition );
 
-	bool mIsDrawn; ///< Flag signaling if there's a circle that needs to be erased
+	bool mIsDrawn; ///< Flag signaling if there's a Sphere that needs to be erased
 
-	short mPrevScreenCoords[ 2 ]; ///< The previous position of the cursor during moving
+	MVector mPrevProxyPosition; ///< The previous position of the proxy during moving
 
-	static const double DEFAULT_RADIUS; ///< The scale multiplier for calculating the circle radius.
+	static const double DEFAULT_RADIUS; ///< The scale multiplier for calculating the Sphere radius.
 
-	double mRadius; ///< The radius of the displayed circle (mRadius = mScale * mScaleFactor).
+	double mRadius; ///< The radius of the displayed Sphere (mRadius = mScale * mScaleFactor).
 };
 
-inline int CircleToolShape::getRadius() const
+inline int SphereToolShape::getRadius() const
 {
 	return mRadius;
 }
@@ -78,4 +87,4 @@ inline int CircleToolShape::getRadius() const
 
 } // namespace Stubble
 
-#endif // STUBBLE_CIRCLE_TOOL_SHAPE_HPP
+#endif // STUBBLE_SPHERE_TOOL_SHAPE_HPP

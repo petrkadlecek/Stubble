@@ -41,8 +41,6 @@ MStatus HapticListener::compute( const MPlug& plug, MDataBlock& dataBlock )
 	return MS::kSuccess;
 }
 
-GLUquadric *q = gluNewQuadric(); // put this into the class
-
 void HapticListener::VectorMatrixMul4f(float pVector[4], float pMat[16])
 {
 	float pVector2[4] = {pVector[0], pVector[1], pVector[2], pVector[3] };
@@ -54,20 +52,21 @@ void HapticListener::VectorMatrixMul4f(float pVector[4], float pMat[16])
 
 void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::DisplayStyle style, M3dView::DisplayStatus status )
 {
-	gluQuadricDrawStyle( q, GLU_LINE );
+	/*
+	gluQuadricDrawStyle( q, GLU_SILHOUETTE );
 	gluQuadricNormals( q, GLU_SMOOTH );
 
 	// think glPushMatrix()
 	view.beginGL();
-	
+	*/
 	// get current camera
 	MDagPath cameraPath;
-	view.getCamera(cameraPath);
-	MFnCamera camera(cameraPath);
+	view.getCamera( cameraPath );
+	MFnCamera camera( cameraPath );
 
 	// get haptic proxy eye space coordinates
 	// TODO: set scaling
-	MVector hapticProxyEyeSpacePos = 100.0f * HapticSettingsTool::getLastPosition();
+	MVector hapticProxyEyeSpacePos = 150.0f * HapticSettingsTool::getLastPosition();
 	hapticProxyEyeSpacePos.z = -hapticProxyEyeSpacePos.z + 25.0f;;
 
 	// compute haptic proxy object space coordinates - snap to camera
@@ -75,6 +74,13 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyPos += camera.rightDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.x;
 	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
 	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
+
+	if ( HapticSettingsTool::getHapticButton1State() == true )
+	{
+		HapticListener::sTool->doHapticPress();
+	}
+
+	HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
 
 	// compute haptic proxy position depending on camera view
 	/*
@@ -84,13 +90,21 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	VectorMatrixMul4f( hapticProxyPosVector, modelViewMatrix );
 	MVector hapticProxyHelperPos( hapticProxyPosVector[0], hapticProxyPosVector[1], hapticProxyPosVector[2] );
 	*/
-
+	/*
 	// this makes a copy of the current openGL settings so that anything
 	// we change will not affect anything else maya draws afterwards.
 	glPushAttrib( GL_CURRENT_BIT );
 	
 	// set a color of haptic proxy
-	glColor3f( 1.0f, 0.1f, 0.1f );
+	if (HapticSettingsTool::getHapticButton1State() == true)
+	{
+		glColor3f( 1.0f, 1.0f, 0.4f );
+	}
+	else
+	{
+		glColor3f( 1.0f, 0.4f, 0.4f );
+	}
+	
 
 	// draw haptic sphere proxy in view space
 	glPushMatrix();
@@ -118,6 +132,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 
 	// think glPopMatrix()
 	view.endGL();
+	*/
 }
 
 bool HapticListener::isBounded() const

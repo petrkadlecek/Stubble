@@ -40,6 +40,11 @@ void GenericTool::drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventTy
 	mShape->draw( getActiveView(), aScreenCoords, aEventType );
 }
 
+void GenericTool::drawHapticToolShape( MVector &aHapticProxyPosition )
+{
+	mShape->draw( getActiveView(), aHapticProxyPosition );
+}
+
 ToolShape *GenericTool::getToolShape()
 {
 	return mShape;

@@ -91,6 +91,9 @@
     <Filter Include="HairShape\Interpolation\RenderMan">
       <UniqueIdentifier>{e8169392-beb8-49df-a911-a55726d00f47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Toolbox\ToolShapes\SphereToolShape">
+      <UniqueIdentifier>{1cdd3d8d-c097-437c-87ca-f524696252a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -240,6 +243,9 @@
     </ClCompile>
     <ClCompile Include="HairShape\HairComponents\RestPositionsDS.cpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\ToolShapes\SphereToolShape\SphereToolShape.cpp">
+      <Filter>Toolbox\ToolShapes\SphereToolShape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -467,6 +473,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\RestPositionsDS.hpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\ToolShapes\SphereToolShape\SphereToolShape.hpp">
+      <Filter>Toolbox\ToolShapes\SphereToolShape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

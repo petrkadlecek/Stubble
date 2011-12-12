@@ -373,6 +373,61 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 	// ------------------------------------------
 }
 
+void SegmentsUG::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const
+{
+	// ------------------------------------------
+	//TODO: rewrite testing code with actual code
+	aResult.clear();
+
+	MStatus status;
+	M3dView view = M3dView::active3dView(&status);
+	bool selected; // Is current guide selected?
+	SelectedGuide *guide; // Current guide
+	SelectedGuides::const_iterator gIt;
+
+	// For each guide in the storage
+	for (gIt = mStoredGuides.begin(); gIt != mStoredGuides.end(); ++gIt)
+	{
+		selected = false;
+		assert((*gIt)->mGuideSegments.mSegments.size() == (*gIt)->mSegmentsAdditionalInfo.size());
+		guide = *gIt;
+
+		// For each endpoint on the guide
+		for (size_t i = 0; i < guide->mGuideSegments.mSegments.size(); ++i)
+		{
+			MPoint p = Vector3D< Real >::transformPoint(guide->mGuideSegments.mSegments[ i ], guide->mPosition.mWorldTransformMatrix).toMayaPoint();
+
+			// TODO: optimize
+			MVector shapePos;
+			aSelectionMask->getPosition(shapePos);
+
+			MPoint shapePosPoint(shapePos);
+
+			std::cout << "Distance " << shapePosPoint.distanceTo( p ) << " < " << aSelectionMask->getRadius() << std::endl;
+
+			if ( shapePosPoint.distanceTo( p ) < aSelectionMask->getRadius() )
+			{
+				selected = true;
+
+				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
+				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
+			}
+			else
+			{
+				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;
+				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
+			}
+		}
+
+		if (selected)
+		{
+			aResult.push_back(guide);
+		}
+	} // for each guide in the storage
+	// End of testing code
+	// ------------------------------------------
+}
+
 } // namespace HairComponents
 
 } // namespace HairShape

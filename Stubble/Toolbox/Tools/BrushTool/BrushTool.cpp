@@ -172,6 +172,12 @@ void BrushTool::toolOnSetup ( MEvent &aEvent )
 	
 	setHelpString( sHelpTxt );	//	Sets the help text in the help UI item.
 
+	// TODO
+	if (HapticSettingsTool::sDeviceAvailable)
+	{
+		mShape = new SphereToolShape();
+	}
+	
 	setCursor( MCursor::editCursor );
 
 	// initialize the mouse move listener with the current tool as its owner
@@ -238,6 +244,12 @@ MStatus BrushTool::doPress( MEvent &aEvent )
 	return MPxContext::doPress( aEvent );
 }
 
+
+void BrushTool::doHapticPress()
+{
+	filterAffectedGuidesHaptic();
+}
+
 MStatus BrushTool::doDrag( MEvent &aEvent )
 {
 	// If we are dragging and left mouse button is pressed, then handle the event.
@@ -296,11 +308,11 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	}
 
 	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
-	Vector3D< Real > moveVector(ratio * aDX.x, ratio * aDX.y, 0.0);
+	Vector3D< Real > moveVector( ratio * aDX.x, ratio * aDX.y, ratio * aDX.z );
 
 	// Create and dispatch the hair task
-	HairTask *task = new HairTask(mView, mStartPos[ 0 ], mStartPos[ 1 ], moveVector, activeHairShape, &mAffectedGuides, mBrushMode);
-	HairTaskProcessor::getInstance()->enqueueTask(task);
+	HairTask *task = new HairTask( mView, mStartPos[ 0 ], mStartPos[ 1 ], moveVector, activeHairShape, &mAffectedGuides, mBrushMode );
+	HairTaskProcessor::getInstance()->enqueueTask( task );
 }
 
 void BrushTool::notify()
@@ -347,8 +359,25 @@ void BrushTool::filterAffectedGuides()
 		return;
 	}
 
+	// FIXME: remove dynamic_cast - do it somehow better
+	// TODO Haptic Shape
+	if ( !HapticSettingsTool::sDeviceAvailable )
+	{
+		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
+	}
+}
+
+void BrushTool::filterAffectedGuidesHaptic()
+{
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 == activeHairShape )
+	{
+		return;
+	}
+
 	//FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
+	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+	
 }
 
 void BrushTool::changeToolShape()

@@ -122,7 +122,17 @@ HapticSettingsTool::~HapticSettingsTool()
 
 MVector HapticSettingsTool::getLastPosition()
 {
-  return mLastPosition;
+	return mLastPosition;
+}
+
+bool HapticSettingsTool::getHapticButton1State()
+{
+	return mHapticButton1;
+}
+
+bool HapticSettingsTool::getHapticButton2State()
+{
+	return mHapticButton2;
 }
 
 void HapticSettingsTool::getClassName( MString &aName ) const
@@ -133,17 +143,14 @@ void HapticSettingsTool::getClassName( MString &aName ) const
 void HapticSettingsTool::toolOnSetup( MEvent &event )
 {
 	if (mInitFlag) {
-		MString s = "confirmDialog -title \"HapticSettingsTool\" -message \"Initialization already completed.\" -button \"OK\";";
-		MGlobal::executeCommand(s);
-
 		return;
 	}
 
 	mInitFlag = true;
 
 	// create instance of mHandler on ToolSetup
-	if (HapticSettingsTool::mHandler == NULL)
-	{ 
+	if ( HapticSettingsTool::mHandler == NULL )
+	{
 		HapticSettingsTool::mHandler = new cHapticDeviceHandler();
 	}
 
@@ -155,7 +162,7 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 	// debug
 	std::cout << "HapticSettingsTool: number of detected haptic devices = " << HapticSettingsTool::mHandler->getNumDevices() << std::endl;
 
-	assert(mHandler != NULL);
+	assert( mHandler != NULL );
 
 	// add devices
 	for ( unsigned int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i )
@@ -193,7 +200,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	static cVector3d force;
 	force.zero();
 
-	int sleepTime = 1; // todo
+	int sleepTime = 10; // todo
 	bool refreshNeeded = true;
 
 	M3dView mView = M3dView::active3dView();
@@ -244,6 +251,14 @@ void HapticSettingsTool::AsyncHapticCallback (void *aData)
 
 void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 {
+	// inform user that haptic thread is already running and return
+	if (HapticSettingsTool::mHapticThreadRunning)
+	{
+		MString s = "confirmDialog -title \"HapticSettingsTool\" -message \"Haptic device has been already initialized.\" -button \"OK\";";
+		MGlobal::executeCommand(s);
+		return;
+	}
+
 	std::cout << "HapticSettingsTool: preparing device " << aHapticDeviceIndex << std::endl;
 
 	if (HapticSettingsTool::mHandler->getDevice(HapticSettingsTool::mHapticDevice, aHapticDeviceIndex) == 0)
@@ -257,6 +272,9 @@ void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 			{
 				MStatus pr = MThreadAsync::init();
 				pr = MThreadAsync::createTask(HapticSettingsTool::AsyncHapticLoop, 0, HapticSettingsTool::AsyncHapticCallback, NULL);
+				
+				MString s = "confirmDialog -title \"HapticSettingsTool\" -message \"Haptic device successfully initialized.\" -button \"OK\";";
+				MGlobal::executeCommand(s);
 			}
 			else
 			{

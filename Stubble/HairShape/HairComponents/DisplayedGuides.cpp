@@ -113,15 +113,26 @@ void DisplayedGuides::drawPolyline() const
 		guideIt != mSelectedGuides->end(); ++guideIt )
 	{
 		glBegin(GL_LINE_STRIP);
+
 		// For each segment
-		for ( Segments::const_iterator segIt = (*guideIt)->mGuideSegments.mSegments.begin(); 
-			segIt != (*guideIt)->mGuideSegments.mSegments.end(); ++segIt )
+		for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
 		{
-			// Transform vertex to world
-			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( *segIt );
+			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( (*guideIt)->mGuideSegments.mSegments[ i ] );
+
+			// set color depending on whether the segment is inside the brush or not
+			if ( (*guideIt)->mSegmentsAdditionalInfo[ i ].mInsideBrush == true )
+			{
+				glColor3f(1.0f, 0.4f, 0.2f);
+			}
+			else
+			{
+				glColor3f(0.5f, 1.0f, 0.8f);
+			}
+
 			// Draw
 			glVertex3d( pos.x, pos.y, pos.z );
 		}
+
 		glEnd();
 
 		//-----------------------

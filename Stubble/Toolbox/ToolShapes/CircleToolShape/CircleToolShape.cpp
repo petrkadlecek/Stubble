@@ -27,6 +27,11 @@ void CircleToolShape::update( GenericTool *aTool )
 	mRadius = mScale * DEFAULT_RADIUS;
 }
 
+void CircleToolShape:: draw( M3dView *aView, MVector &aProxyPosition )
+{
+	// nothing to do
+}
+
 void CircleToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType )
 {
 	switch ( aEventType )

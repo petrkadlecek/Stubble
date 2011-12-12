@@ -142,6 +142,13 @@ MStatus CutTool::doPress( MEvent & aEvent )
 	return MPxContext::doPress( aEvent );
 }
 
+
+void CutTool::doHapticPress()
+{
+	// TODO
+}
+
+
 MStatus CutTool::doRelease( MEvent & aEvent )
 {	
 	MStatus stat;

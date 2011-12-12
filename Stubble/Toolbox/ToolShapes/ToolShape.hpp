@@ -30,6 +30,9 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType ) = 0;
 
+	/// TODO
+	virtual void draw( M3dView *aView, MVector &aHapticProxyPosition ) = 0;
+
 	///----------------------------------------------------------------------------------------------------
 	/// Collects relevant modified information from the calling tool object. Called whenever something in
 	/// the UI changes.

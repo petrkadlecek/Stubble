@@ -70,6 +70,9 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus doPress( MEvent &aEvent );
 
+	/// TODO
+	virtual void doHapticPress();
+
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse release event. Calls doCut() if left mouse button is released.
 	///

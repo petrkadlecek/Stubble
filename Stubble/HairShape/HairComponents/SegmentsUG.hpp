@@ -103,6 +103,9 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const;
 
+	/// TODO
+	void select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const;
+
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 
 	///-------------------------------------------------------------------------------------------------

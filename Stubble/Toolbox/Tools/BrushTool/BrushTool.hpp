@@ -22,6 +22,7 @@
 #include "../GenericTool.hpp"
 #include "../MouseMoveListener.hpp"
 #include "../HapticListener.hpp"
+#include "../HapticSettingsTool.hpp"
 
 #include "../../HairTaskProcessor.hpp"
 
@@ -33,6 +34,7 @@
 #include "../../BrushModes/ScaleBrushMode/ScaleBrushMode.hpp"
 #include "../../BrushModes/TranslateBrushMode/TranslateBrushMode.hpp"
 #include "../../ToolShapes/CircleToolShape/CircleToolShape.hpp"
+#include "../../ToolShapes/SphereToolShape/SphereToolShape.hpp"
 
 namespace Stubble
 {
@@ -78,6 +80,9 @@ public:
 	/// \return	MS::kSuccess or MS::kFailure.
 	///----------------------------------------------------------------------------------------------------
 	virtual MStatus	doPress( MEvent &aEvent );
+
+	/// TODO
+	virtual void doHapticPress();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the mouse drag event.
@@ -137,6 +142,12 @@ protected:
 	/// mAffectedGuides for further processing.
 	///----------------------------------------------------------------------------------------------------
 	void filterAffectedGuides();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Takes currently selected guides and filters them against current hair shape using haptic device. 
+	/// Stores it inside mAffectedGuides for further processing.
+	///----------------------------------------------------------------------------------------------------
+	void filterAffectedGuidesHaptic();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Takes care when the user changes tool shape from the UI

@@ -44,6 +44,9 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	void drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
+	/// TODO
+	void drawHapticToolShape( MVector &aHapticProxyPosition );
+
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the tool shape.
 	///
@@ -55,6 +58,9 @@ public:
 	/// Changes the current tool shape. Called every time the user changes his preference in the UI.
 	///----------------------------------------------------------------------------------------------------
 	virtual void changeToolShape() = 0; 
+
+	/// TODO
+	virtual void doHapticPress() = 0;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the current tool scale, as selected in the UI.
