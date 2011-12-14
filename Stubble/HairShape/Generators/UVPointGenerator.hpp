@@ -139,7 +139,7 @@ private:
 	/// The maximum division depth of one triangle
 	static const unsigned __int32 MAX_DIVISION_DEPTH = 8; 
 
-	/// The maximum number of texels over one triangle.
+	/// The maximum  side of rectangular part of the density texture that contains all texels mapped on triangle
 	/// Triangle is divided until one sub triangle corresponds to one texel.
 	/// If maximum is reach, triangle subdivision will stop and texels will remain smaller than sub triangles.
 	static const unsigned __int32 MAX_TRIANGLE_UV_SIZE = 1 << MAX_DIVISION_DEPTH;  

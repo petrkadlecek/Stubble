@@ -18,7 +18,7 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 	try
 	{
 		stack = new SubTriangle[ STACK_SIZE ];
-		BuildVertices();
+		buildVertices();
 		// Cumulative distribution fuction highest value
 		Real cdf = 0;
 		// Stack for subtriangles
@@ -235,7 +235,7 @@ UVPoint UVPointGenerator::next()
 	throw StubbleException( "RecursivePointGenerator::next : sampling has failed !" );
 }
 
-void UVPointGenerator::BuildVertices()
+void UVPointGenerator::buildVertices()
 {
 	mVertices.resize( VERTICES_COUNT );
 	// Now fill mVertices with barycentic coordinates
