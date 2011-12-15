@@ -69,7 +69,7 @@ private:
 	/// Calculates barycentric coordinates of sub triangles vertices inside split mesh triangle. 
 	/// These coordinates are stored in mVertices array.
 	///----------------------------------------------------------------------------------------------------
-	void BuildVertices();
+	void buildVertices();
 	
 	///----------------------------------------------------------------------------------------------------
 	/// Struct for holding sub triangle created by recursive splitting of mesh triangle.
