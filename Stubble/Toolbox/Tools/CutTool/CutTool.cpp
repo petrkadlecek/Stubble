@@ -148,6 +148,16 @@ void CutTool::doHapticPress()
 	// TODO
 }
 
+void CutTool::doHapticRelease()
+{
+	// TODO
+}
+
+void CutTool::doHapticDrag()
+{
+	// TODO
+}
+
 
 MStatus CutTool::doRelease( MEvent & aEvent )
 {	

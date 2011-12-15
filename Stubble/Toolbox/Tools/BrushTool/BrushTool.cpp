@@ -250,6 +250,17 @@ void BrushTool::doHapticPress()
 	filterAffectedGuidesHaptic();
 }
 
+void BrushTool::doHapticRelease()
+{
+	// TODO
+}
+
+void BrushTool::doHapticDrag()
+{
+	// TODO
+}
+
+
 MStatus BrushTool::doDrag( MEvent &aEvent )
 {
 	// If we are dragging and left mouse button is pressed, then handle the event.
