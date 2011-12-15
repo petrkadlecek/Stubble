@@ -56,10 +56,7 @@ MStatus	HapticSettingsToolCommand::doEditFlags()
 {
 	MArgParser pars = parser();
 
-  //std::cout << "doEditFlags" << std::endl;
-	// TODO
-
-  if( pars.isFlagSet( initFlag ) )
+	if( pars.isFlagSet( initFlag ) )
 	{
 		pars.getFlagArgument( initFlag, 0, (mCurrentObject->mHapticDeviceStr) );
 		mCurrentObject->initHapticDevice(mCurrentObject->mHapticDeviceStr.substring(0,0).asInt());
@@ -71,9 +68,6 @@ MStatus	HapticSettingsToolCommand::doEditFlags()
 MStatus	HapticSettingsToolCommand::doQueryFlags()
 {
 	MArgParser pars = parser();
-
-  //std::cout << "doQueryFlags" << std::endl;
-	// TODO
 
 	return MS::kSuccess;
 }
@@ -198,6 +192,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	static cVector3d lastPosition;
 	static cVector3d newPosition;
 	static cVector3d force;
+	static double minMovementEps = std::numeric_limits<double>::epsilon();
 	force.zero();
 
 	int sleepTime = 10; // todo
@@ -208,6 +203,9 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	HapticSettingsTool::sDeviceAvailable = true;
 	HapticSettingsTool::mHapticThreadRunning = true;
 
+	// create haptic listener node
+	MGlobal::executeCommandOnIdle("createNode HapticListener;");
+
 	while ( HapticSettingsTool::mHapticThreadRunning )
 	{
 		HapticSettingsTool::mHapticDevice->getPosition( newPosition );
@@ -216,7 +214,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		HapticSettingsTool::mHapticDevice->getUserSwitch( 1, HapticSettingsTool::mHapticButton2 );
 		
 		// optimize refreshing - refresh only when position of proxy changed 
-		if ( lastPosition.distancesq( newPosition ) > 0 )
+		if ( lastPosition.distancesq( newPosition ) > minMovementEps )
 		{
 			refreshNeeded = true;
 		}

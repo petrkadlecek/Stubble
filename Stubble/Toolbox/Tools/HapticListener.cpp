@@ -50,15 +50,10 @@ void HapticListener::VectorMatrixMul4f(float pVector[4], float pMat[16])
 	pVector[3] = pMat[3]*pVector2[0] + pMat[7]*pVector2[1] + pMat[11]*pVector2[2] + pMat[15]*pVector2[3] ;
 }
 
+GLUquadric *ql = gluNewQuadric(); // put this into the class
+
 void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::DisplayStyle style, M3dView::DisplayStatus status )
 {
-	/*
-	gluQuadricDrawStyle( q, GLU_SILHOUETTE );
-	gluQuadricNormals( q, GLU_SMOOTH );
-
-	// think glPushMatrix()
-	view.beginGL();
-	*/
 	// get current camera
 	MDagPath cameraPath;
 	view.getCamera( cameraPath );
@@ -75,13 +70,6 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
 	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
 
-	if ( HapticSettingsTool::getHapticButton1State() == true )
-	{
-		HapticListener::sTool->doHapticPress();
-	}
-
-	HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
-
 	// compute haptic proxy position depending on camera view
 	/*
 	float hapticProxyPosVector[4] = { hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z, 1.0f };
@@ -90,49 +78,72 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	VectorMatrixMul4f( hapticProxyPosVector, modelViewMatrix );
 	MVector hapticProxyHelperPos( hapticProxyPosVector[0], hapticProxyPosVector[1], hapticProxyPosVector[2] );
 	*/
-	/*
+
+	gluQuadricDrawStyle( ql, GLU_FILL );
+	gluQuadricNormals( ql, GLU_SMOOTH );
+
+	// think glPushMatrix()
+	view.beginGL();
+	
 	// this makes a copy of the current openGL settings so that anything
 	// we change will not affect anything else maya draws afterwards.
 	glPushAttrib( GL_CURRENT_BIT );
 	
+	glColor3f( 0.5f, 0.5f, 0.5f );
+
+	// draw proxy helper in world space
+	glBegin(GL_QUADS);
+	glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
+	glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
+	glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
+	glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
+	glEnd();
+
+	glLineStipple(3, 0xAAAA);
+	glPushAttrib(GL_ENABLE_BIT); 
+	glEnable(GL_LINE_STIPPLE);
+	glBegin( GL_LINES );
+	glVertex3f( hapticProxyPos.x, 0.0f, hapticProxyPos.z );
+	glVertex3f( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
+	glEnd();
+	glPopAttrib();
+
 	// set a color of haptic proxy
-	if (HapticSettingsTool::getHapticButton1State() == true)
+	if ( HapticSettingsTool::getHapticButton1State() == true )
 	{
 		glColor3f( 1.0f, 1.0f, 0.4f );
 	}
 	else
 	{
-		glColor3f( 1.0f, 0.4f, 0.4f );
+		glColor3f( 1.0f, 0.2f, 0.2f );
 	}
-	
+
 
 	// draw haptic sphere proxy in view space
 	glPushMatrix();
 	{
 		glTranslatef( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
-		gluSphere( q, 1.0, 8, 8 );
+		gluSphere( ql, 0.2, 8, 8 );
+
 	}
 	glPopMatrix();
-
 	
-	// draw proxy helper in world space
-	glPushMatrix();
-	{
-		glBegin(GL_QUADS);
-		glVertex3f(hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z - 0.5f);
-		glVertex3f(hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z - 0.5f);
-		glVertex3f(hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z + 0.5f);
-		glVertex3f(hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z + 0.5f);
-		glEnd();
-	}
-	glPopMatrix();
-
 	// restore the old openGL settings
 	glPopAttrib();
 
 	// think glPopMatrix()
 	view.endGL();
-	*/
+	
+
+	if (HapticListener::sTool != NULL)
+	{
+		if ( HapticSettingsTool::getHapticButton1State() == true )
+		{
+			HapticListener::sTool->doHapticPress();
+		}
+
+		HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
+	}
 }
 
 bool HapticListener::isBounded() const
@@ -158,13 +169,9 @@ MBoundingBox HapticListener::boundingBox() const
 void HapticListener::setTool( GenericTool *aOwner )
 {
 	HapticListener::sTool = aOwner;
-
-	if ( HapticSettingsTool::sDeviceAvailable )
-	{
-		MGlobal::executeCommandOnIdle("createNode HapticListener;");
-	}
-	
 }
+
+// TODO unsetTool
 
 void* HapticListener::creator()
 {
