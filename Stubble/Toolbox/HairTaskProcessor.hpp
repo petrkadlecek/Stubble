@@ -7,6 +7,7 @@
 #include <maya/MSpinLock.h>
 #include <maya/MMutexLock.h>
 #include "Common/CommonTypes.hpp"
+#include "Common/StubbleTimer.hpp"
 #include "HairShape/HairComponents/Segments.hpp"
 #include "newmat.h"
 #include "HairTask.hpp"
@@ -149,14 +150,32 @@ private:
 	static MThreadRetVal asyncWorkerLoop (void *aData);
 
 	///----------------------------------------------------------------------------------------------------
-	/// Method for getting task from the queue. If the queue is empty, the pointer returned is null.
+	/// Method for getting task from the queue. If the queue is empty, the pointer returned is not altered.
 	/// Contains critical section. Returns number of remaining objects in the queue.
 	///
-	/// \param[out] aTask The task at the front of the queue
+	/// \param[out] aTask The task at the front of the queue if any
 	///
 	/// \return Number of remaining tasks in the queue
 	///----------------------------------------------------------------------------------------------------
 	size_t getTask (HairTask *&aTask);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Method for accumulating tasks from the queue. Assumes the queue is locked and non-empty. Doesn't
+	/// perform any bound checking.
+	///
+	/// \param aN Number of queue elements to accumulate
+	///
+	/// \return Accumulated task
+	///----------------------------------------------------------------------------------------------------
+	HairTask *accumulate (size_t aN);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Called from the worker thread loop to process a single hair task, i.e. apply brushing transformation,
+	/// detect collisions (optionally), and enforce constraints. Expects non-null pointer.
+	///
+	/// \param aTask The task to be processed
+	///----------------------------------------------------------------------------------------------------
+	inline static void processTask (HairTask *aTask);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Detects collisions for manipulated segments, counts number of collisions and finds out closest
@@ -165,7 +184,7 @@ private:
 	///
 	/// \param aSelectedGuides Selection of guides for collision calculation
 	///----------------------------------------------------------------------------------------------------
-	void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
+	static void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Fills the beginning of the constraint vector with inextensibility constraints. Doesn't do any bound
@@ -293,6 +312,18 @@ inline size_t HairTaskProcessor::getAccumulatorSize ()
 	// ------------------------------------
 
 	return size;
+}
+
+inline void HairTaskProcessor::processTask(HairTask *aTask)
+{
+	aTask->mBrushMode->doBrush(aTask);
+	if ( aTask->mBrushMode->isCollisionDetectionEnabled() )
+	{
+		HairTaskProcessor::detectCollisions( *(aTask->mAffectedGuides) );
+	}
+	HairTaskProcessor::enforceConstraints( *(aTask->mAffectedGuides) );
+
+	aTask->mParentHairShape->updateGuides( false ); //FIXME: synchronization
 }
 
 inline void HairTaskProcessor::computeInextensibilityConstraints(RealN &aC, HairShape::HairComponents::Segments &aHairVertices, const Real aSgmtLengthSq)

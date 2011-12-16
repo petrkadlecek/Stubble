@@ -3,11 +3,17 @@
 #include <maya\MMeshIntersector.h>
 #include <maya\MFloatPointArray.h>
 
+#include <algorithm>
+#include "Common/StubbleTimer.hpp" //TODO: remove me
+#include <iostream>
+
 namespace Stubble
 {
 
 namespace Toolbox
 {
+
+Timer timer; //TODO: remove me
 
 // ----------------------------------------------------------------------------
 // Static data members and constants:
@@ -121,27 +127,26 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 	// ------------------------------------
 
 	HairTaskProcessor *hairTaskProcessor = HairTaskProcessor::getInstance();
-	size_t accumulatorSize = hairTaskProcessor->getAccumulatorSize(); // Contains critical section
+	HairTask *task = 0;
+	size_t accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
 
-	while ( accumulatorSize > 0 )
+	do
 	{
-		HairTask *task = 0;
-		accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
-
-		if ( 0 != task )
+		if ( 0 == task )
 		{
-			task->mBrushMode->doBrush(task);
-			if ( task->mBrushMode->isCollisionDetectionEnabled() )
-			{
-				hairTaskProcessor->detectCollisions( *task->mAffectedGuides );
-			}
-			HairTaskProcessor::enforceConstraints( *task->mAffectedGuides );
-
-			task->mParentHairShape->updateGuides( false );
-
-			delete task;
+			continue;
 		}
+		//timer.start();
+		HairTaskProcessor::processTask( task );
+		//timer.stop();
+		//timer.mayaDisplayLastElapsedTime();
+		delete task;
+		task = 0;
+
+		accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
+		//std::cout << accumulatorSize << ", |dX| = " << task->mDx.size() << std::endl << std::flush; //TODO: remove me
 	}
+	while ( accumulatorSize > 0 );
 
 	return 0;
 }
@@ -155,9 +160,12 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 		size_t queueSize = mTaskAccumulator.size();
 		if ( queueSize > 0 )
 		{
-			aTask = mTaskAccumulator.front();
-			mTaskAccumulator.pop_front();
-			queueSize--;
+			//aTask = mTaskAccumulator.front();
+			//mTaskAccumulator.pop_front();
+			//queueSize--;
+			aTask = accumulate(min(queueSize / 3, queueSize));
+			//std::cout << "Accumulating: " << queueSize << ", |dX| = " << aTask->mDx.size() << std::endl << std::flush;
+			queueSize = mTaskAccumulator.size();
 		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
@@ -165,6 +173,22 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 	// ------------------------------------
 
 	return queueSize;
+}
+
+HairTask *HairTaskProcessor::accumulate (size_t aN)
+{
+	HairTask *accumulatedTask = mTaskAccumulator.front();
+	mTaskAccumulator.pop_front();
+
+	HairTask *task;
+	for (size_t i = 1; i < aN; ++i)
+	{
+		task = mTaskAccumulator.front();
+		mTaskAccumulator.pop_front();
+		accumulatedTask->mDx = task->mDx;
+	}
+	
+	return accumulatedTask;
 }
 
 void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides )
@@ -262,6 +286,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
 	HairShape::HairComponents::SelectedGuides::iterator it;
+	#pragma omp parallel for schedule( guided )
 	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias

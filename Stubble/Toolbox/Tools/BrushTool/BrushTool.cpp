@@ -121,7 +121,7 @@ MStatus	BrushToolCommand::doQueryFlags()
 // BrushTool
 //----------------------------------------------------------------------------------------------------
 
-const Real BrushTool::SENSITIVITY_RATIO = 1e-2;
+const Real BrushTool::SENSITIVITY_RATIO = 0.1;
 
 ClumpBrushMode BrushTool::sClumpBrushMode;
 PuffEndBrushMode BrushTool::sPuffEndBrushMode;
