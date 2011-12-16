@@ -121,6 +121,16 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 		for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
 		{
 			(*it)->mDirtyFlag = false;
+
+			// Clear additional info
+			SegmentsAdditionalInfo::iterator nfoIt;
+			for (nfoIt = (*it)->mSegmentsAdditionalInfo.begin(); nfoIt != (*it)->mSegmentsAdditionalInfo.end(); ++nfoIt)
+			{
+				nfoIt->mClosestPointOnMesh.set(0.0, 0.0, 0.0);
+				nfoIt->mFallOff = 0.0;
+				nfoIt->mInsideBrush = false;
+				nfoIt->mIsColliding = false;
+			}
 		}
 	}
 }
