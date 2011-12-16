@@ -285,11 +285,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
-	HairShape::HairComponents::SelectedGuides::iterator it;
 	#pragma omp parallel for schedule( guided )
-	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
+	//for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		//HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		HairShape::HairComponents::SelectedGuide *guide = aSelectedGuides[ guideIndex ];
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
 
 		if (SCALE_FACTOR <= EPSILON)
