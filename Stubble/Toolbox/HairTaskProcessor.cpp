@@ -23,9 +23,12 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 
-const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 10;
+const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 12;
+const size_t HairTaskProcessor::MAX_TASK_QUEUE_SIZE = 50;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
 const Real HairTaskProcessor::DELTA = 1e-4;
+const Real HairTaskProcessor::MAX_TASK_DX = 0.5;
+const Real HairTaskProcessor::MAX_TASK_DX_SQ = HairTaskProcessor::MAX_TASK_DX * HairTaskProcessor::MAX_TASK_DX;
 
 // ----------------------------------------------------------------------------
 // Methods:
@@ -49,7 +52,12 @@ void HairTaskProcessor::enqueueTask (HairTask *aTask)
 	// Begin critical section
 	// ------------------------------------
 	mTaskAccumulatorLock.lock();
-		mTaskAccumulator.push_back(aTask); //TODO: exception handling?
+		// If the queue is overloaded we're falling behind schedule anyway and
+		// when the user releases mouse button any unprocessed tasks are removed
+		if ( mTaskAccumulator.size() < HairTaskProcessor::MAX_TASK_QUEUE_SIZE )
+		{
+			mTaskAccumulator.push_back(aTask); //TODO: exception handling?
+		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
 	// End critical section
@@ -144,7 +152,6 @@ MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 		task = 0;
 
 		accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
-		//std::cout << accumulatorSize << ", |dX| = " << task->mDx.size() << std::endl << std::flush; //TODO: remove me
 	}
 	while ( accumulatorSize > 0 );
 
@@ -163,9 +170,11 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 			//aTask = mTaskAccumulator.front();
 			//mTaskAccumulator.pop_front();
 			//queueSize--;
-			aTask = accumulate(min(queueSize / 3, queueSize));
-			//std::cout << "Accumulating: " << queueSize << ", |dX| = " << aTask->mDx.size() << std::endl << std::flush;
+			aTask = accumulate();
+			//size_t ds = queueSize; //TODO: remove me
 			queueSize = mTaskAccumulator.size();
+			//ds -= queueSize; //TODO: remove me
+			//std::cout << "Accumulating: " << ds << ", remaining: " << queueSize << ", |dX| = " << aTask->mDx.size() << std::endl << std::flush;
 		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
@@ -175,20 +184,36 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 	return queueSize;
 }
 
-HairTask *HairTaskProcessor::accumulate (size_t aN)
+HairTask *HairTaskProcessor::accumulate ()
 {
-	HairTask *accumulatedTask = mTaskAccumulator.front();
+	HairTask *accumTask = mTaskAccumulator.front();
 	mTaskAccumulator.pop_front();
 
-	HairTask *task;
-	for (size_t i = 1; i < aN; ++i)
+	Vec3 dir = accumTask->mDx;
+
+	while ( !mTaskAccumulator.empty() )
 	{
-		task = mTaskAccumulator.front();
-		mTaskAccumulator.pop_front();
-		accumulatedTask->mDx = task->mDx;
+		HairTask *task = mTaskAccumulator.front();
+
+		if ( Vec3::dotProduct(dir, task->mDx) > 0.0)
+		{
+			accumTask->mDx += task->mDx;
+			mTaskAccumulator.pop_front();
+		}
+		else
+		{
+			break;
+		}
 	}
 	
-	return accumulatedTask;
+	if (accumTask->mDx.sizePwr2() > MAX_TASK_DX_SQ)
+	{
+		Vec3 v = Vec3::normalize(accumTask->mDx);
+		v *= MAX_TASK_DX;
+		accumTask->mDx = v;
+	}
+
+	return accumTask;
 }
 
 void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides )
@@ -351,6 +376,13 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+
+				//TODO: Remove me
+				/*if (iterationsCount >= MAX_LOOP_ITERATIONS)
+				{
+					std::cout << "Maximum iterations reached!" << std::endl << std::flush;
+				}*/
+
 				break;
 			}
 			// -------------------------------------------------------------------------------------

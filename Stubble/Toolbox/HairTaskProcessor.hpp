@@ -163,11 +163,9 @@ private:
 	/// Method for accumulating tasks from the queue. Assumes the queue is locked and non-empty. Doesn't
 	/// perform any bound checking.
 	///
-	/// \param aN Number of queue elements to accumulate
-	///
 	/// \return Accumulated task
 	///----------------------------------------------------------------------------------------------------
-	HairTask *accumulate (size_t aN);
+	HairTask *accumulate ();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Called from the worker thread loop to process a single hair task, i.e. apply brushing transformation,
@@ -257,8 +255,11 @@ private:
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
+	static const size_t MAX_TASK_QUEUE_SIZE; ///< Maximum size of the task queue to prevent overloading
 	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
 	static const Real DELTA; ///< Constant for local minima detection heuristic
+	static const Real MAX_TASK_DX; ///< Maximal allowed hair change to prevent numerical stiffness
+	static const Real MAX_TASK_DX_SQ; ///< Maximal allowed hair change (squared) to prevent numerical stiffness
 };
 
 inline HairTaskProcessor *HairTaskProcessor::getInstance ()
