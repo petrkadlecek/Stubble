@@ -153,14 +153,14 @@ void CutTool::doHapticRelease()
 	// TODO
 }
 
-void CutTool::doHapticDrag()
+void CutTool::doHapticDrag( MVector &aDragVector )
 {
 	// TODO
 }
 
 
 MStatus CutTool::doRelease( MEvent & aEvent )
-{	
+{
 	MStatus stat;
 
 	// Let the base class handle release of other buttons

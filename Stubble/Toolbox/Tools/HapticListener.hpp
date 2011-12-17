@@ -57,11 +57,17 @@ namespace Toolbox
 	private:
 		static GenericTool *sTool;
 
-		/// haptic button1 last state
+		/// 1st haptic switch last state
 		bool mHapticButton1Last;
 
-		/// haptic button2 last state
+		/// 2nd haptic switch last state
 		bool mHapticButton2Last;
+
+		/// last haptic proxy position
+		MVector mhapticProxyPosLast;
+
+		/// last haptic eye space proxy position
+		MVector hapticProxyEyeSpacePosLast;
 
 		/// compute vector[4] matrix[4][4] multiplication
 		inline void VectorMatrixMul4f(float pVector[4], float pMat[16]);

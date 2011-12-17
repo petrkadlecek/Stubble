@@ -61,8 +61,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Haptic dragging event. Up to 1kHz update frequency (depends on device).
+	///
+	/// \param aDragVector Haptic eye space coordinates
 	///----------------------------------------------------------------------------------------------------
-	virtual void doHapticDrag() = 0;
+	virtual void doHapticDrag( MVector &aDragVector ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Haptic press event. Called when user starts to hold haptic switch.

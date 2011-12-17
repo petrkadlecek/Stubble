@@ -15,6 +15,8 @@ bool HapticSettingsTool::mHapticThreadRunning;
 MVector HapticSettingsTool::mLastPosition;
 bool HapticSettingsTool::mHapticButton1;
 bool HapticSettingsTool::mHapticButton2;
+bool HapticSettingsTool::mHapticButton1Last;
+bool HapticSettingsTool::mHapticButton2Last;
 bool HapticSettingsTool::sDeviceAvailable;
 
 //----------------------------------------------------------------------------------------------------
@@ -195,7 +197,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	static double minMovementEps = std::numeric_limits<double>::epsilon();
 	force.zero();
 
-	int sleepTime = 10; // todo
+	int sleepTime = 100; // TODO
 	bool refreshNeeded = true;
 
 	M3dView mView = M3dView::active3dView();
@@ -219,11 +221,27 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 			refreshNeeded = true;
 		}
 
+		if ( HapticSettingsTool::mHapticButton1 == true || HapticSettingsTool::mHapticButton2 == true )
+		{
+			refreshNeeded = true;
+		}
+
+		if ( 
+			HapticSettingsTool::mHapticButton1 != HapticSettingsTool::mHapticButton1Last || 
+			HapticSettingsTool::mHapticButton2 != HapticSettingsTool::mHapticButton2Last 
+		)
+		{
+			refreshNeeded = true;
+		}
+
 		lastPosition = newPosition;
 
 		HapticSettingsTool::mLastPosition.x = newPosition.y;
 		HapticSettingsTool::mLastPosition.y = newPosition.z;
 		HapticSettingsTool::mLastPosition.z = newPosition.x;
+
+		HapticSettingsTool::mHapticButton1Last = HapticSettingsTool::mHapticButton1;
+		HapticSettingsTool::mHapticButton2Last = HapticSettingsTool::mHapticButton2;
 
 		if ( refreshNeeded )
 		{
@@ -233,7 +251,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 
 		//std::cout << "HapticSettingsTool::AsyncHapticLoop " <<  newPosition << std::endl;
 
-		Sleep(sleepTime + 1);
+		Sleep( sleepTime + 1 );
 	}
 	
 	HapticSettingsTool::mHapticThreadRunning = false;

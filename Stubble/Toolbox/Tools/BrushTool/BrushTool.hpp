@@ -88,8 +88,10 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the haptic drag event.
+	///
+	/// \param aDragVector Haptic eye space coordinates
 	///----------------------------------------------------------------------------------------------------
-	virtual void doHapticDrag();
+	virtual void doHapticDrag( MVector &aDragVector );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Handles the haptic release event.

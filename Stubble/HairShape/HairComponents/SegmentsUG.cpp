@@ -403,15 +403,16 @@ void SegmentsUG::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, Sele
 
 			MPoint shapePosPoint(shapePos);
 
-			std::cout << "Distance " << shapePosPoint.distanceTo( p ) << " < " << aSelectionMask->getRadius() << std::endl;
-
-			if ( shapePosPoint.distanceTo( p ) < aSelectionMask->getRadius() )
+			// guide to sphere distance
+			double dist = shapePosPoint.distanceTo( p );
+			
+			if ( dist < aSelectionMask->getRadius() )
 			{
 				selected = true;
 
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = true;
-				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
-			}
+				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 1.0 - dist/aSelectionMask->getRadius();
+			} 
 			else
 			{
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;

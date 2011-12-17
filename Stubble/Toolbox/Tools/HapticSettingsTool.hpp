@@ -125,6 +125,10 @@ private:
 
 	static MVector mLastRotation;  ///< last position of haptic device
 
+	static bool mHapticButton1Last; ///< last haptic device button 1 state
+
+	static bool mHapticButton2Last; ///< last haptic device button 2 state
+
 	///----------------------------------------------------------------------------------------------------
 	/// Initialize haptic device by index aHapticDeviceIndex
 	///----------------------------------------------------------------------------------------------------

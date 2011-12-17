@@ -1,18 +1,13 @@
-//#include <maya/MIOStream.h>
-//#include <math.h>
-//#include <stdlib.h>
-
 #include "HapticListener.hpp"
 #include "HapticSettingsTool.hpp"
 #include <GL/glut.h>
+#include <iomanip>
 
 #include <maya/MPxSelectionContext.h>
 #include <maya/MPxContextCommand.h>
 #include <maya/M3dView.h>
 #include <maya/MFnCamera.h>
 #include <maya/MDagPath.h>
-
-#include <iomanip>
 
 namespace Stubble
 {
@@ -30,7 +25,11 @@ GenericTool* HapticListener::sTool;
 // ----------------------------------------------------------------------------
 // HapticListener
 // ----------------------------------------------------------------------------
-HapticListener::HapticListener() {}
+HapticListener::HapticListener() 
+{
+	mHapticButton1Last = false;
+	mHapticButton2Last = false;
+}
 
 HapticListener::~HapticListener() {}
 
@@ -43,7 +42,7 @@ MStatus HapticListener::compute( const MPlug& plug, MDataBlock& dataBlock )
 
 void HapticListener::VectorMatrixMul4f(float pVector[4], float pMat[16])
 {
-	float pVector2[4] = {pVector[0], pVector[1], pVector[2], pVector[3] };
+	float pVector2[4] = { pVector[0], pVector[1], pVector[2], pVector[3] };
 	pVector[0] = pMat[0]*pVector2[0] + pMat[4]*pVector2[1] + pMat[ 8]*pVector2[2] + pMat[12]*pVector2[3] ;
 	pVector[1] = pMat[1]*pVector2[0] + pMat[5]*pVector2[1] + pMat[ 9]*pVector2[2] + pMat[13]*pVector2[3] ;
 	pVector[2] = pMat[2]*pVector2[0] + pMat[6]*pVector2[1] + pMat[10]*pVector2[2] + pMat[14]*pVector2[3] ;
@@ -54,6 +53,10 @@ GLUquadric *ql = gluNewQuadric(); // put this into the class
 
 void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::DisplayStyle style, M3dView::DisplayStatus status )
 {
+	// get current haptic switch state
+	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
+	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
+
 	// get current camera
 	MDagPath cameraPath;
 	view.getCamera( cameraPath );
@@ -69,15 +72,6 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyPos += camera.rightDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.x;
 	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
 	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
-
-	// compute haptic proxy position depending on camera view
-	/*
-	float hapticProxyPosVector[4] = { hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z, 1.0f };
-	float modelViewMatrix[16];
-	glGetFloatv( GL_MODELVIEW_MATRIX, modelViewMatrix );
-	VectorMatrixMul4f( hapticProxyPosVector, modelViewMatrix );
-	MVector hapticProxyHelperPos( hapticProxyPosVector[0], hapticProxyPosVector[1], hapticProxyPosVector[2] );
-	*/
 
 	gluQuadricDrawStyle( ql, GLU_FILL );
 	gluQuadricNormals( ql, GLU_SMOOTH );
@@ -109,7 +103,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	glPopAttrib();
 
 	// set a color of haptic proxy
-	if ( HapticSettingsTool::getHapticButton1State() == true )
+	if ( hapticButton1State == true )
 	{
 		glColor3f( 1.0f, 1.0f, 0.4f );
 	}
@@ -133,17 +127,33 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 
 	// think glPopMatrix()
 	view.endGL();
-	
 
+	// handle associated tool (if there's any)
 	if (HapticListener::sTool != NULL)
 	{
-		if ( HapticSettingsTool::getHapticButton1State() == true )
+		// draw haptic tool shape and set shape position
+		HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
+
+		// call tool haptic events
+		if ( hapticButton1State == true && mHapticButton1Last == false )
 		{
 			HapticListener::sTool->doHapticPress();
 		}
-
-		HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
+		else if ( hapticButton1State == true && mHapticButton1Last == true )
+		{
+			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - hapticProxyEyeSpacePosLast );
+		}
+		else if ( hapticButton1State == false && mHapticButton1Last == true )
+		{
+			HapticListener::sTool->doHapticRelease();
+		}
 	}
+
+	// set last states
+	mHapticButton1Last = hapticButton1State;
+	mHapticButton2Last = hapticButton2State;
+	mhapticProxyPosLast = hapticProxyPos;
+	hapticProxyEyeSpacePosLast = hapticProxyEyeSpacePos;
 }
 
 bool HapticListener::isBounded() const

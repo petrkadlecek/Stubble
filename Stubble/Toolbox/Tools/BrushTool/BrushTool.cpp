@@ -247,19 +247,13 @@ MStatus BrushTool::doPress( MEvent &aEvent )
 
 void BrushTool::doHapticPress()
 {
+	// We need to keep a reference of the view in which this command
+	// was called. This basically lets us know which viewport to draw in.
+	getActiveView();
+
+	// filter affected guides in haptic shape
 	filterAffectedGuidesHaptic();
 }
-
-void BrushTool::doHapticRelease()
-{
-	// TODO
-}
-
-void BrushTool::doHapticDrag()
-{
-	// TODO
-}
-
 
 MStatus BrushTool::doDrag( MEvent &aEvent )
 {
@@ -281,6 +275,11 @@ MStatus BrushTool::doDrag( MEvent &aEvent )
 
 	// In every other case, just let the base class handle the event.
 	return MPxContext::doDrag( aEvent );
+}
+
+void BrushTool::doHapticDrag( MVector &aDragVector )
+{
+	this->doBrush( Vector3D< double >( aDragVector.x, aDragVector.y, aDragVector.z ) );
 }
 
 MStatus BrushTool::doRelease( MEvent & aEvent )
@@ -308,6 +307,21 @@ MStatus BrushTool::doRelease( MEvent & aEvent )
 	}
 
 	return MS::kSuccess;
+}
+
+void BrushTool::doHapticRelease()
+{
+	// Makes sure that no computations in the worker thread are done beyond this point to prevent
+	// horrible crashes due to changes in shared resources (affected guides etc.)
+	HairTaskProcessor::getInstance()->purgeAccumulator();
+	HairTaskProcessor::waitFinishWorkerThread();
+
+	// Put the change into the undo stack
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 != activeHairShape )
+	{
+		activeHairShape->updateGuides(true);
+	}
 }
 
 void BrushTool::doBrush( Vector3D< double > aDX )
