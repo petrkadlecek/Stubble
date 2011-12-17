@@ -27,8 +27,6 @@ void TranslateBrushMode::doBrush( HairTask *aTask )
 		const size_t SEGMENT_COUNT = hairVertices.size();
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength; // Scale factor to be applied, so the brush behaves equally on all scales
 		dX = Vector3D< double >::transform(wdX, guide->mPosition.mLocalTransformMatrix) * SCALE_FACTOR;
-		
-		if ( it == aTask->mAffectedGuides->begin()) std::cout << "dX = " << dX.x << " " << dX.y << " " << dX.z << std::endl;
 
 		// Loop through all guide segments except the first one (that's a follicle and should not move)
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
