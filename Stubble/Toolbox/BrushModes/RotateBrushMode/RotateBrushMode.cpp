@@ -63,7 +63,7 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 {
 	// R = uu^T + (cos theta)(I - uu^T) + (sin theta)S, see OpenGL Red Book 2.0, appendix F
 	// u is unit vector of the axis, S is 3x3 matrix as defined bellow
-	Real theta = 3.14 * aMeasure;
+	Real theta = aMeasure;
 	const Real cosT = cos(theta); // Cosine theta
 	const Real sinT = sin(theta); // Sine theta
 	Matrix< Real > M1, M2, S;
