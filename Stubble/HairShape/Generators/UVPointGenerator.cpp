@@ -18,6 +18,11 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 	try
 	{
 		stack = new SubTriangle[ STACK_SIZE ];
+		unsigned __int32 initialSize = std::max( aTriangleConstIterator.getTrianglesCount(), aTexture.getWidth() * aTexture.getHeight() );
+		mBegin = new SubTriangle[ initialSize ];
+		SubTriangle * mCurrent = mBegin;
+		mEnd = mBegin + initialSize;
+		
 		buildVertices();
 		// Cumulative distribution fuction highest value
 		Real cdf = 0;
@@ -135,7 +140,18 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 							cdf += p;
 							subTriangle.mCDFValue = cdf;
 							subTriangle.mTriangleID = triangleSimpleID;
-							mSubTriangles.push_back( subTriangle );
+							if ( mCurrent == mEnd ) // Out of memory ?
+							{
+								// Reallocate
+								SubTriangle * temp = new SubTriangle[ initialSize << 1 ];
+								memcpy( reinterpret_cast< void * >( temp ), reinterpret_cast< const void * >( mBegin ), sizeof( SubTriangle ) * initialSize );
+								mCurrent = temp + initialSize;
+								initialSize <<= 1;
+								mEnd = temp + initialSize;
+								delete [] mBegin; // Clear sub triangles
+								mBegin = temp;
+							}
+							*( mCurrent++ ) = subTriangle;
 						}
 					}
 				}
@@ -158,14 +174,11 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 						if ( subTriangle.mCDFValue != 0 )
 						{
 							// Remove sons
-							mSubTriangles.pop_back();
-							mSubTriangles.pop_back();
-							mSubTriangles.pop_back();
-							mSubTriangles.pop_back();
+							mCurrent -= 4;
 							// Insert father
 							subTriangle.mCDFValue = cdf;
 							subTriangle.mTriangleID = triangleSimpleID;
-							mSubTriangles.push_back( subTriangle );
+							*( mCurrent++ ) = subTriangle;
 						}
 					
 					}
@@ -174,17 +187,27 @@ UVPointGenerator::UVPointGenerator(const Texture &aTexture, TriangleConstIterato
 		}
 		// Free memory of triangles iterator and stack for sub triangles
 		delete [] stack;
-		if ( mSubTriangles.size() == 0 )
+		if ( mCurrent == mBegin )
 		{
+			delete [] mBegin; // Clear sub triangles
 			throw StubbleException( "UVPointGenerator::UVPointGenerator : zero probability all over the mesh !" );
 		}
+		if ( mCurrent < mEnd ) // Release memory, that is not needed
+		{
+			// Reallocate
+			initialSize = static_cast< unsigned __int32 >( mCurrent - mBegin );
+			SubTriangle * temp = new SubTriangle[ initialSize ];
+			memcpy( reinterpret_cast< void * >( temp ), reinterpret_cast< const void * >( mBegin ), sizeof( SubTriangle ) * initialSize );
+			mEnd = temp + initialSize;
+			delete [] mBegin; // Clear sub triangles
+			mBegin = temp;
+		}
 		// Store some values for faster generation of samples
-		mTotalDensity = mSubTriangles.empty() ? 0 : mSubTriangles.rbegin()->mCDFValue;
-		mBegin = & ( * mSubTriangles.begin() );
-		mEnd = mBegin + mSubTriangles.size();
+		mTotalDensity = ( mEnd - 1 )->mCDFValue;
 	}
 	catch( ... ) // Not enough memory for vertices
 	{
+		delete [] mBegin; // Clear sub triangles
 		delete [] stack; // Clear stack
 		throw;
 	}

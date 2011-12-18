@@ -127,11 +127,6 @@ private:
 	};
 
 	///----------------------------------------------------------------------------------------------------
-	/// Defines an alias representing the array of sub triangles .
-	///----------------------------------------------------------------------------------------------------
-	typedef std::vector< SubTriangle > SubTriangles;
-
-	///----------------------------------------------------------------------------------------------------
 	/// Defines an alias representing array of sub triangles' vertices .
 	///----------------------------------------------------------------------------------------------------
 	typedef std::vector< Vertex > VerticesArray;
@@ -162,8 +157,6 @@ private:
 	
 	///< Number of vertices in divided triangle
 	static const unsigned __int32 VERTICES_COUNT = THIRD_VERTEX_INDEX + 1;
-	
-	SubTriangles mSubTriangles;	///< The sub triangles of all mesh triangles
 
 	SubTriangle * mBegin;   ///< The pointer to begin of sub triangles array
 
@@ -180,6 +173,7 @@ private:
 
 inline UVPointGenerator::~UVPointGenerator()
 {
+	delete [] mBegin;
 }
 	
 inline void UVPointGenerator::reset()
