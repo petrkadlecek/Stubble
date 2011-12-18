@@ -309,6 +309,8 @@ inline float Texture::derivativeByVAtUV( Real u, Real v ) const
 
 inline Texture::Color Texture::colorAtUV( Real u, Real v ) const
 {
+	u = clamp( u, 0.0, 1.0 );
+	v = clamp( v, 0.0, 1.0 );
 	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(u * mWidth) );
 	x = x == mWidth ? mWidth - 1 : x;
 

@@ -189,6 +189,8 @@ inline void InterpolationGroups::setGroupSegmentsCount( unsigned __int32 aGroupI
 
 inline unsigned __int32 InterpolationGroups::getGroupId( Real aU, Real aV ) const
 {
+	aU = clamp( aU, 0.0, 1.0 );
+	aV = clamp( aV, 0.0, 1.0 );
 	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(aU * mTextureWidth) );
 	x = x == mTextureWidth ? mTextureWidth - 1 : x;
 
@@ -200,6 +202,8 @@ inline unsigned __int32 InterpolationGroups::getGroupId( Real aU, Real aV ) cons
 
 inline unsigned __int32 InterpolationGroups::getSegmentsCount( Real aU, Real aV ) const
 {
+	aU = clamp( aU, 0.0, 1.0 );
+	aV = clamp( aV, 0.0, 1.0 );
 	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(aU * mTextureWidth) );
 	x = x == mTextureWidth ? mTextureWidth - 1 : x;
 
