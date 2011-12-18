@@ -28,7 +28,7 @@ void* CutToolCommand::creator()
 	return new CutToolCommand;
 }
 
-const MString CutTool::sHelpTxt( "TODO" );
+const MString CutTool::sHelpTxt( "Cut selected hair/hair vertices." );
 
 CutToolCommand::CutToolCommand()
 {
