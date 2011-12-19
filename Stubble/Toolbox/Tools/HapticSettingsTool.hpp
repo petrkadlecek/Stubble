@@ -66,6 +66,16 @@ public:
 	static MVector getLastPosition();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Haptic Tool rotation getter
+	///----------------------------------------------------------------------------------------------------
+	static MVector getLastRotation();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Haptic Tool rotation angle getter
+	///----------------------------------------------------------------------------------------------------
+	static double getLastRotationAngle();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Haptic Tool button1 state getter
 	///----------------------------------------------------------------------------------------------------
 	static bool getHapticButton1State();
@@ -106,7 +116,7 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	static cVector3d mDevicePosition; ///< haptic device position
 
-	static cVector3d mDeviceRotation; ///< haptic device rotation
+	static cMatrix3d mDeviceRotation; ///< haptic device rotation
 
 	static cVector3d mDeviceForce; ///< haptic device sent force
 
@@ -123,7 +133,9 @@ private:
 
 	static MVector mLastPosition;  ///< last position of haptic device
 
-	static MVector mLastRotation;  ///< last position of haptic device
+	static MVector mLastRotation;  ///< last rotation vector of haptic device
+
+	static double mLastRotationAngle;  ///< last rotation angle of haptic device
 
 	static bool mHapticButton1Last; ///< last haptic device button 1 state
 

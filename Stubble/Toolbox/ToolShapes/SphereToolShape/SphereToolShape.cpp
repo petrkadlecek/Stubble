@@ -37,7 +37,7 @@ void SphereToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Ty
 
 GLUquadric *q = gluNewQuadric(); // put this into the class
 
-void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition )
+void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle )
 {
 	gluQuadricDrawStyle( q, GLU_SILHOUETTE );
 	gluQuadricNormals( q, GLU_SMOOTH );
@@ -63,7 +63,9 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition )
 	glPushMatrix();
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		gluSphere( q, mRadius, 8, 8 );
+		glRotated(aHapticProxyRotationAngle * 180 / CHAI_PI, aHapticProxyRotation.y, aHapticProxyRotation.z, aHapticProxyRotation.x);
+		//gluSphere( q, mRadius, 8, 8 );
+		gluCylinder(q, mRadius * 0.1, mRadius * 0.13, mRadius, 8, 8);
 	}
 	glPopMatrix();
 
@@ -75,11 +77,6 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition )
 
 	mPrevProxyPosition = aProxyPosition;
 }
-
-void SphereToolShape::drawToolShape( M3dView *aView, MVector &aProxyPosition )
-{
-}
-
 
 } // namespace Toolbox
 

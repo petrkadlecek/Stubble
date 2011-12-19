@@ -35,7 +35,7 @@ public:
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
 	/// TODO
-	virtual void draw( M3dView *aView, MVector &aProxyPosition );
+	virtual void draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Collects relevant modified information from the calling tool object. Called whenever something in
@@ -60,14 +60,6 @@ public:
 	void getPosition(MVector &aProxyPositon) const;
 
 protected:
-
-	///----------------------------------------------------------------------------------------------------
-	/// Helper method that draws the actual tool shape.
-	///
-	/// \param aView Viewport information
-	/// \param aProxyPosition proxy position [x, y, z]
-	///----------------------------------------------------------------------------------------------------
-	void drawToolShape( M3dView *aView, MVector &aProxyPosition );
 
 	bool mIsDrawn; ///< Flag signaling if there's a Sphere that needs to be erased
 

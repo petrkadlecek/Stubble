@@ -13,6 +13,8 @@ cHapticDeviceHandler* HapticSettingsTool::mHandler;
 cGenericHapticDevice* HapticSettingsTool::mHapticDevice;
 bool HapticSettingsTool::mHapticThreadRunning;
 MVector HapticSettingsTool::mLastPosition;
+MVector HapticSettingsTool::mLastRotation;
+double HapticSettingsTool::mLastRotationAngle;
 bool HapticSettingsTool::mHapticButton1;
 bool HapticSettingsTool::mHapticButton2;
 bool HapticSettingsTool::mHapticButton1Last;
@@ -121,6 +123,16 @@ MVector HapticSettingsTool::getLastPosition()
 	return mLastPosition;
 }
 
+MVector HapticSettingsTool::getLastRotation()
+{
+	return mLastRotation;
+}
+
+double HapticSettingsTool::getLastRotationAngle()
+{
+	return mLastRotationAngle;
+}
+
 bool HapticSettingsTool::getHapticButton1State()
 {
 	return mHapticButton1;
@@ -193,11 +205,14 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 
 	static cVector3d lastPosition;
 	static cVector3d newPosition;
+	static cMatrix3d newRotation;
+	static cVector3d newRotationVector;
+	static double newRotationAngle;
 	static cVector3d force;
 	static double minMovementEps = std::numeric_limits<double>::epsilon();
 	force.zero();
 
-	int sleepTime = 100; // TODO
+	int sleepTime = 10; // TODO
 	bool refreshNeeded = true;
 
 	M3dView mView = M3dView::active3dView();
@@ -211,6 +226,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	while ( HapticSettingsTool::mHapticThreadRunning )
 	{
 		HapticSettingsTool::mHapticDevice->getPosition( newPosition );
+		HapticSettingsTool::mHapticDevice->getRotation( newRotation );
 		HapticSettingsTool::mHapticDevice->setForce( force );
 		HapticSettingsTool::mHapticDevice->getUserSwitch( 0, HapticSettingsTool::mHapticButton1 );
 		HapticSettingsTool::mHapticDevice->getUserSwitch( 1, HapticSettingsTool::mHapticButton2 );
@@ -234,12 +250,20 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 			refreshNeeded = true;
 		}
 
+		// handle position vectors
 		lastPosition = newPosition;
-
 		HapticSettingsTool::mLastPosition.x = newPosition.y;
 		HapticSettingsTool::mLastPosition.y = newPosition.z;
 		HapticSettingsTool::mLastPosition.z = newPosition.x;
 
+		// handle rotation matrix
+		newRotation.toAngleAxis(newRotationAngle, newRotationVector);
+		HapticSettingsTool::mLastRotation.x = newRotationVector.x;
+		HapticSettingsTool::mLastRotation.y = newRotationVector.y;
+		HapticSettingsTool::mLastRotation.z = newRotationVector.z;
+		HapticSettingsTool::mLastRotationAngle = newRotationAngle;
+		
+		// handle switches
 		HapticSettingsTool::mHapticButton1Last = HapticSettingsTool::mHapticButton1;
 		HapticSettingsTool::mHapticButton2Last = HapticSettingsTool::mHapticButton2;
 

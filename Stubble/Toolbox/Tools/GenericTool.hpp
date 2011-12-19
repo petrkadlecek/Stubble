@@ -45,7 +45,7 @@ public:
 	void drawToolShape( short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
 	/// TODO
-	void drawHapticToolShape( MVector &aHapticProxyPosition );
+	void drawHapticToolShape( MVector &aHapticProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Returns the tool shape.

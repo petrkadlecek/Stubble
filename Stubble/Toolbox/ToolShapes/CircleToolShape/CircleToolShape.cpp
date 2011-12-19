@@ -27,7 +27,7 @@ void CircleToolShape::update( GenericTool *aTool )
 	mRadius = mScale * DEFAULT_RADIUS;
 }
 
-void CircleToolShape:: draw( M3dView *aView, MVector &aProxyPosition )
+void CircleToolShape:: draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle )
 {
 	// nothing to do
 }

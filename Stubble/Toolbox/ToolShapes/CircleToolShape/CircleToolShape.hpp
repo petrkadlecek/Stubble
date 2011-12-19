@@ -33,7 +33,7 @@ public:
 	virtual void draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType );
 
 	// TODO
-	virtual void draw( M3dView *aView, MVector &aProxyPosition );
+	virtual void draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Collects relevant modified information from the calling tool object. Called whenever something in

@@ -211,6 +211,7 @@ void BrushTool::toolOffCleanup()
 		MGlobal::setObjectSelectionMask( mPrevObjMask );
 	}
 
+	HapticListener::setTool( NULL );
 	BrushTool::deleteMouseMoveListener();
 }
 
@@ -279,7 +280,7 @@ MStatus BrushTool::doDrag( MEvent &aEvent )
 
 void BrushTool::doHapticDrag( MVector &aDragVector )
 {
-	this->doBrush( Vector3D< double >( aDragVector.x, aDragVector.y, aDragVector.z ) );
+	this->doBrush( Vector3D< double >( 10.0 * aDragVector.x, 10.0 * aDragVector.y, 10.0 * aDragVector.z ) );
 }
 
 MStatus BrushTool::doRelease( MEvent & aEvent )

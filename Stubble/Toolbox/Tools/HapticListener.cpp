@@ -73,6 +73,11 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
 	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
 
+	MVector hapticProxyEyeSpaceRot = HapticSettingsTool::getLastRotation();
+	double hapticProxyRotAngle = HapticSettingsTool::getLastRotationAngle();
+	MVector hapticProxyRot = hapticProxyEyeSpaceRot;
+	// TODO - add camera rotation
+
 	gluQuadricDrawStyle( ql, GLU_FILL );
 	gluQuadricNormals( ql, GLU_SMOOTH );
 
@@ -132,7 +137,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	if (HapticListener::sTool != NULL)
 	{
 		// draw haptic tool shape and set shape position
-		HapticListener::sTool->drawHapticToolShape( hapticProxyPos );
+		HapticListener::sTool->drawHapticToolShape( hapticProxyPos, hapticProxyRot, hapticProxyRotAngle );
 
 		// call tool haptic events
 		if ( hapticButton1State == true && mHapticButton1Last == false )
