@@ -51,12 +51,11 @@ public:
 	///
 	/// \param [in,out]	aUVPointGenerator	The uv point generator. 
 	/// \param	aCurrentMesh				The current mesh. 
-	/// \param	aRestPoseMesh				The rest pose mesh. 
 	/// \param	aHairProperties				The hair properties. 
 	/// \param	aCount						Number of the hair. 
 	///-------------------------------------------------------------------------------------------------
 	inline void generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aCurrentMesh,
-		const Mesh & aRestPoseMesh, const HairProperties & aHairProperties, unsigned __int32 aCount );
+		const HairProperties & aHairProperties, unsigned __int32 aCount );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Updates hair positions and local space due to mesh update. This method can not handle 
@@ -97,10 +96,6 @@ private:
 		/// Default constructor. 
 		///-------------------------------------------------------------------------------------------------
 		inline ThreadData();
-
-		MayaPositionGenerator::GeneratedPosition * mGeneratedPositions; ///< The generated positions for this thread
-		
-		unsigned __int32 mHairCount; ///< The hair count for this thread
 
 		MayaPositionGenerator mPositionGenerator;   ///< The hair position generator
 
@@ -146,7 +141,7 @@ inline InterpolatedHair::~InterpolatedHair()
 }
 
 inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, const MayaMesh & aCurrentMesh,
-	const Mesh & aRestPoseMesh, const HairProperties & aHairProperties, unsigned __int32 aCount )
+	const HairProperties & aHairProperties, unsigned __int32 aCount )
 {
 	if ( aCount > mAllocatedHairCount )
 	{
@@ -161,12 +156,13 @@ inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, co
 		// Iterates over all positions
 		MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mAllocatedHairCount;
 		aUVPointGenerator.reset();
+		const Mesh & restPoseMesh = aCurrentMesh.getRestPose();
 		for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
 		{
 			it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos
 			// Calculate positions
 			it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
-			it->mRestPosition = aRestPoseMesh.getMeshPoint( it->mUVPoint );
+			it->mRestPosition = restPoseMesh.getMeshPoint( it->mUVPoint );
 		}
 	}
 	// Copy new hair count
@@ -177,25 +173,17 @@ inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, co
 	// For every thread - single threaded
 	for ( ThreadData * it = mThreads; it != mThreadsEnd; ++it )
 	{
-		// Sets hair positions start
-		it->mGeneratedPositions = current;
-		// Sets hair count
-		current += aCountPerThread;
-		current = current > end ? end : current;
-		it->mHairCount = static_cast< unsigned __int32 >( current - it->mGeneratedPositions );
-		it->mPositionGenerator.set( it->mGeneratedPositions, it->mHairCount, 
-			static_cast< unsigned __int32 >( it->mGeneratedPositions - mGeneratedPositions ) );
+		// Next block start
+		MayaPositionGenerator::GeneratedPosition * next = current + aCountPerThread;
+		next = next > end ? end : next;
+		// Sets hair positions start and hair count
+		it->mPositionGenerator.set( current, static_cast< unsigned __int32 >( next - current ), 
+			static_cast< unsigned __int32 >( current - mGeneratedPositions ) );
+		// Move to next block of positions
+		current = next;
 	}
-	// For every thread - multi threaded
-	#pragma omp parallel for
-	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
-	{
-		ThreadData * it = mThreads + i;
-		if ( it->mHairCount > 0 )
-		{
-			it->mHairGenerator.generate( aHairProperties );
-		}
-	}
+	// Generate hair
+	propertiesUpdate( aHairProperties);
 }
 
 inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const HairProperties & aHairProperties )
@@ -217,7 +205,7 @@ inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProp
 	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
 	{
 		ThreadData * it = mThreads + i;
-		if ( it->mHairCount > 0 )
+		if ( it->mPositionGenerator.getHairCount() > 0 )
 		{
 			it->mPositionGenerator.reset();
 			it->mHairGenerator.generate( aHairProperties );
@@ -230,7 +218,7 @@ inline void InterpolatedHair::draw()
 	// For every thread - single threaded
 	for ( ThreadData * it = mThreads; it != mThreadsEnd; ++it )
 	{
-		if ( it->mHairCount > 0 )
+		if ( it->mPositionGenerator.getHairCount() > 0 )
 		{
 			it->mOutputGenerator.draw();
 		}

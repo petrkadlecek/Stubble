@@ -250,8 +250,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			{
 				return false;
 			}
-			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
-				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 		}
 		return false;
 	}
@@ -269,8 +268,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 			{
 				return false;
 			}
-			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
-				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 		}
 		return false;
 	}
@@ -502,8 +500,7 @@ void HairShape::deserialize( const std::string &aData )
 	refreshPointersToGuidesForInterpolation();
 	if ( mDisplayInterpolated )
 	{
-		mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, mMayaMesh->getRestPose(),
-			*this, mGenDisplayCount );
+		mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 	}
 	updateSegmentsCountAttributes( false );
 	updateInterpolationGroupsSelectableAttributes( false );
@@ -900,8 +897,7 @@ void HairShape::refreshTextures( bool aForceRefresh )
 		// Interpolated hair reconstruction
 		if ( mDisplayInterpolated )
 		{
-			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
-				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 			hairPropertiesChanged = false; // Already handled
 		}
 	}
@@ -971,8 +967,7 @@ void HairShape::meshChange( MObject aMeshObj )
 		// Interpolated hair construction
 		if ( mDisplayInterpolated )
 		{
-			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
-				mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 		}
 	}
 	else
@@ -992,8 +987,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			// Interpolated hair construction
 			if ( mDisplayInterpolated )
 			{
-				mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, 
-					mMayaMesh->getRestPose(), *this, mGenDisplayCount );
+				mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 			}
 		}
 		else
