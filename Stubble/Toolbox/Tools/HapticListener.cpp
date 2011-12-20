@@ -9,6 +9,10 @@
 #include <maya/MFnCamera.h>
 #include <maya/MDagPath.h>
 
+#include <maya/MEulerRotation.h>
+#include <maya/MQuaternion.h>
+#include <maya/MMatrix.h>
+
 namespace Stubble
 {
 
@@ -73,11 +77,35 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
 	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
 
+	// compute haptic proxy object space rotation - snap to camera
 	MVector hapticProxyEyeSpaceRot = HapticSettingsTool::getLastRotation();
 	double hapticProxyRotAngle = HapticSettingsTool::getLastRotationAngle();
+	
 	MVector hapticProxyRot = hapticProxyEyeSpaceRot;
-	// TODO - add camera rotation
 
+	/*
+	// 3-DOF test
+	MVector hapticProxyRot;
+	hapticProxyRot.x = sin(hapticProxyEyeSpacePos.x);
+	hapticProxyRot.y = cos(hapticProxyEyeSpacePos.x);
+	hapticProxyRotAngle = hapticProxyEyeSpacePos.y / 57.0;
+	*/
+	
+	// camera rotation - TODO: performance, use matrices
+	MMatrix mmatrix = cameraPath.inclusiveMatrix();
+	MTransformationMatrix tmatrix( mmatrix );
+	MQuaternion cameraRotation = tmatrix.rotation();
+	MQuaternion qHapticProxy(hapticProxyRotAngle, hapticProxyRot);
+	MQuaternion concatQRot = qHapticProxy * cameraRotation;
+
+	MVector camAxis;
+	double camTheta;
+	concatQRot.getAxisAngle( camAxis, camTheta );
+
+	hapticProxyRot = camAxis;
+	hapticProxyRotAngle = camTheta * 180.0 / CHAI_PI;
+
+	// prepare Quadrics
 	gluQuadricDrawStyle( ql, GLU_FILL );
 	gluQuadricNormals( ql, GLU_SMOOTH );
 

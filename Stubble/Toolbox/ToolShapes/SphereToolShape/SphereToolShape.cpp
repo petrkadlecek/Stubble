@@ -62,8 +62,8 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 	// draw haptic sphere proxy in view space
 	glPushMatrix();
 	{
-		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		glRotated(aHapticProxyRotationAngle * 180 / CHAI_PI, aHapticProxyRotation.y, aHapticProxyRotation.z, aHapticProxyRotation.x);
+		//glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
+		glRotated(aHapticProxyRotationAngle, aHapticProxyRotation.x, aHapticProxyRotation.y, aHapticProxyRotation.z);
 		//gluSphere( q, mRadius, 8, 8 );
 		gluCylinder(q, mRadius * 0.1, mRadius * 0.13, mRadius, 8, 8);
 	}
