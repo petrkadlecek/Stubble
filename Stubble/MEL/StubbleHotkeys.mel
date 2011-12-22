@@ -1,72 +1,162 @@
-// name all necessary commands
+if (!`runTimeCommand -exists StubbleCreateNewHair`)
+{
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "source StubbleCreateHair.mel;"
+    	-annotation "Create new Stubble hair"
+    	StubbleCreateHair;
+    
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "toolPropertyWindow; setToolTo stubbleBrushTool;"
+    	-annotation "Set tool to Stubble brush tool"
+    	StubbleBrushTool;
 
-nameCommand
-	-command "source StubbleCreateHair.mel;"
-	-annotation "Create new Stubble hair"
-	StubbleCreateHairNC;
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "toolPropertyWindow; setToolTo stubbleCutTool;"
+    	-annotation "Set tool to Stubble cut tool"
+    	StubbleCutTool;
+    
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "setToolTo StubbleHapticSettingsToolContext1"
+    	-annotation "Set tool to Stubble haptic tool"
+    	StubbleHapticTool;
+    
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleUndoCommand; refresh;"
+    	-annotation "Undo last Stubble operation"
+    	StubbleUndo;
+    
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleRedoCommand; refresh;"
+    	-annotation "Redo last Stubble operation"
+    	StubbleRedo;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"
+    	-annotation "Select hair roots"
+    	StubbleSelectRoots;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "optionVar -iv \"stubbleSelectionMode\" 3;refresh;"
 
-nameCommand
-	-command "toolPropertyWindow; setToolTo stubbleBrushTool;"
-	-annotation "Set tool to Stubble brush tool"
-	StubbleBrushToolNC;
-
-nameCommand
-	-command "toolPropertyWindow; setToolTo stubbleCutTool;"
-	-annotation "Set tool to Stubble cut tool"
-	StubbleCutToolNC;
-
-nameCommand
-	-command "StubbleUndoCommand; refresh;"
-	-annotation "Undo last Stubble operation"
-	StubbleUndoNC;
-
-nameCommand
-	-command "StubbleRedoCommand; refresh;"
-	-annotation "Redo last Stubble operation"
-	StubbleRedoNC;
-
-nameCommand
-	-command "source StubbleCreateHair.mel"
-	-annotation "Create new Stubble hair"
-	StubbleCreateHairNC;
-
-nameCommand
-	-command " \
-		if (`currentCtx` == \"stubbleBrushTool\") { \
-			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
-			$toolscale = max(0, $toolscale - 0.1); \
-			StubbleBrushToolCommand -e -toolScale $toolscale; \
-			floatSliderGrp -e -v 0.5 stubbleToolScale; \
-		} else if (`currentCtx` == \"stubbleCutTool\") { \
-			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
-			$toolScale = max(0, $toolScale - 0.1); \
-			StubbleBrushToolCommand -e -toolScale $toolscale; \
-			floatSliderGrp -e -v 0.5 stubbleToolScale; \
-		};"
-	-annotation "Set smaller tool scale"
-	StubbleSmallerToolScaleNC;
-
-nameCommand
-	-command " \
-		if (`currentCtx` == \"stubbleBrushTool\") { \
-			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
-			$toolscale = min(5, $toolscale + 0.1); \
-			StubbleBrushToolCommand -e -toolScale $toolscale; \
-			floatSliderGrp -e -v $toolscale stubbleToolScale; \
-		} else if (`currentCtx` == \"stubbleCutTool\") { \
-			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
-			$toolscale = min(5, $toolscale + 0.1); \
-			StubbleBrushToolCommand -e -toolScale $toolscale; \
-			floatSliderGrp -e -v $toolscale stubbleToolScale; \
-		};"
-	-annotation "Set smaller tool scale"
-	StubbleGreaterToolScaleNC;
-
-// bind named commands to hotkeys
-hotkey -k "z" -alt -name "StubbleUndoNC";
-hotkey -k "Z" -alt -name "StubbleRedoNC";
-hotkey -k "F5" -alt -name "StubbleCreateHairNC";
-hotkey -k "F6" -alt -name "StubbleBrushToolNC";
-hotkey -k "F7" -alt -name "StubbleCutToolNC";
-hotkey -k "Up" -alt -ctl -name "StubbleSmallerToolScaleNC";
-hotkey -k "Down" -alt -ctl -name "StubbleGreaterToolScaleNC";
+    	-annotation "Select hair tips"
+    	StubbleSelectTips;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "optionVar -iv \"stubbleSelectionMode\" 1;refresh;"
+    	-annotation "Select whole guides"
+    	StubbleSelectGuides;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "optionVar -iv \"stubbleSelectionMode\" 2;refresh;"
+    	-annotation "Select vertices"
+    	StubbleSelectVertices;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleResetCommand;"
+    	-annotation "Reset hair"
+    	StubbleResetHair;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleReinitCommand"
+    	-annotation "Restore zero sized hair"
+    	StubbleRestoreZeroSizedHair;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleResetTextures;refresh;"
+    	-annotation "Update textures"
+    	StubbleUpdateTextures;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleExportToNURBS; \
+			string $name = `StubbleSelectCommand`; \
+			string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
+			string $node = plugNode( $surface );\
+			string $parent[] = `listRelatives -p $node`;\
+			select -add $parent[ 0 ]; "
+    	-annotation "Export to NURBS"
+    	StubbleExportToNURBS;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleExportToNURBS; \
+			string $name = `StubbleSelectCommand`; \
+			string $surface = `connectionInfo -sourceFromDestination ( $name + \".surface\" ) `;\
+			string $node = plugNode( $surface );\
+			string $parent[] = `listRelatives -p $node`;\
+			select -add $parent[ 0 ]; \
+			MakeCurvesDynamic;"
+    	-annotation "Export to dynamic NURBS"
+    	StubbleExportToDynamicNURBS;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command "StubbleImportNURBS;"
+    	-annotation "Import NURBS"
+    	StubbleImportNURBS;
+       
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command " \
+    		if (`currentCtx` == \"stubbleBrushTool\") { \
+    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			$toolscale = max(0, $toolscale - 0.1); \
+    			StubbleBrushToolCommand -e -toolScale $toolscale; \
+    			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+    		} else if (`currentCtx` == \"stubbleCutTool\") { \
+    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			$toolscale = max(0, $toolscale - 0.1); \
+    			StubbleBrushToolCommand -e -toolScale $toolscale; \
+    			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+    		};"
+    	-annotation "Set smaller tool scale"
+    	StubbleSmallerToolScale;
+    
+    runTimeCommand
+        -d true
+        -cat "Stubble"
+    	-command " \
+    		if (`currentCtx` == \"stubbleBrushTool\") { \
+    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			$toolscale = min(5, $toolscale + 0.1); \
+    			StubbleBrushToolCommand -e -toolScale $toolscale; \
+    			floatSliderGrp -e -v $toolscale stubbleToolScale; \
+    		} else if (`currentCtx` == \"stubbleCutTool\") { \
+    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			$toolscale = min(5, $toolscale + 0.1); \
+    			StubbleBrushToolCommand -e -toolScale $toolscale; \
+    			floatSliderGrp -e -v $toolscale stubbleToolScale; \
+    		};"
+    	-annotation "Set greater tool scale"
+    	StubbleGreaterToolScale;
+}
