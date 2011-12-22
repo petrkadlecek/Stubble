@@ -12,6 +12,7 @@
 #include <maya\MFloatMatrix.h>
 #include <maya\MFloatVectorArray.h>
 #include <maya\MFloatArray.h>
+#include <maya\MTypes.h>
 #endif
 
 #include "HairShape\Mesh\UVPoint.hpp"
@@ -66,6 +67,11 @@ public:
 	/// Defines an alias representing Color
 	///----------------------------------------------------------------------------------------------------
 	typedef float* Color;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Defines an alias representing interpolated Color
+	///----------------------------------------------------------------------------------------------------
+	typedef float Color3[3];
 
 	///----------------------------------------------------------------------------------------------------
 	/// Color comparator. 
@@ -136,12 +142,12 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Gets texture value at the given UV coordinates.
 	///
-	/// \param	u	u coordinate
-	/// \param	v	v coordinate
-	///
-	/// \return	float texture value
+	/// \param	aU	u coordinate
+	/// \param	aV	v coordinate
+	/// \param	[out]aOutColor	Color on coordinates [aU,aV]
+	/// 
 	///----------------------------------------------------------------------------------------------------
-	inline Color colorAtUV( Real u, Real v ) const;
+	inline void colorAtUV( Real aU, Real aV, Color3 aOutColor ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Puts texture in stream, exports only current time frame.
@@ -212,23 +218,25 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Resample entire texture.
 	///
-	/// \param aTextureSamples number of samples in one dimension of sampled texture
+	/// \param aTextureUSamples number of samples in U dimension of sampled texture
+	/// \param aTextureVSamples number of samples in V dimension of sampled texture
 	///----------------------------------------------------------------------------------------------------
-	void resample(unsigned __int32 aTextureSamples);
+	void resample( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Loads image texture into internal datastructure.
 	///
 	/// \param aTextureImage	image from which are loaded necessary pixel channels.
 	///----------------------------------------------------------------------------------------------------
-	void reloadFileTextureImage(MImage & aTextureImage);
+	void reloadFileTextureImage( MImage & aTextureImage );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Samples connected 2DTexture and stores the samplevalues.
 	///
-	/// \param aTextureSamples number of samples in one dimension of sampled texture
+	/// \param aTextureUSamples number of samples in U dimension of sampled texture
+	/// \param aTextureVSamples number of samples in V dimension of sampled texture
 	///----------------------------------------------------------------------------------------------------
-	void resample2DTexture(unsigned __int32 aTextureSamples);
+	void resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples );
 
 #endif
 
@@ -256,10 +264,25 @@ private:
 	float mInverseHeight;  ///< The inverse value of texture height
 
 
-	void getSampleUVPoints(float aUSamples[], float aVSamples[], unsigned __int32 dimension);
+	void getSampleUVPoints( float aUSamples[], float aVSamples[], unsigned __int32 aUDimension, unsigned __int32 aVDimension );
 
 	void computeInverseSize();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Compute bilinear interpolation from 4 samples along directions U and V
+	///
+	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param  [out]aOutColor output parametr for returning interpolated color 
+	///----------------------------------------------------------------------------------------------------
+	inline void colorAtUV( const Color aSampleU0V0, const Color aSampleU0V1,
+		const Color aSampleU1V0, const Color aSampleU1V1,
+		const Real aURatio, const Real aVRatio, Color3 aOutColor ) const;
+
+	inline void interpolateColors( const Color3 aColor1, const Color3 aColor2,
+		const Real aRatio, Color3 aOutColor ) const;
 };
 
 // inline functions implementation
@@ -292,7 +315,9 @@ inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor
 
 inline float Texture::realAtUV( Real u, Real v ) const
 {
-	return colorAtUV(u, v)[ 0 ]; // Alpha
+	Color3 color;
+	colorAtUV( u, v, color ); // Alpha
+	return color[ 0 ]; //TODO: napsat funkce primo pro float aby se zrychlilo
 }
 
 inline float Texture::derivativeByUAtUV( Real u, Real v ) const
@@ -307,25 +332,49 @@ inline float Texture::derivativeByVAtUV( Real u, Real v ) const
 		realAtUV( u, v ) ) * mHeight;
 }
 
-inline Texture::Color Texture::colorAtUV( Real u, Real v ) const
-{
-	u = clamp( u, 0.0, 1.0 );
-	v = clamp( v, 0.0, 1.0 );
-	unsigned __int32 x = static_cast< unsigned __int32 > ( floor(u * mWidth) );
-	x = x == mWidth ? mWidth - 1 : x;
-
-	unsigned __int32 y = static_cast< unsigned __int32 > ( floor(v * mHeight) );
-	y = y == mHeight ? mHeight - 1 :  y;
-
-	//return mTexture + y * mWidth * mColorComponents * sizeof(float) + x * mColorComponents * sizeof(float);
-	return mTexture + y * mWidth * mColorComponents + x * mColorComponents;
-}
-
 inline void Texture::computeInverseSize()
 {
 	mInverseHeight = 1.0f / mHeight;
 	mInverseWidth = 1.0f / mWidth;
 }
+
+inline void Texture::colorAtUV( Real u, Real v, Color3 aOutColor ) const
+{
+	u = clamp( u, 0.0, 1.0 );
+	v = clamp( v, 0.0, 1.0 );
+	unsigned __int32 x0 = static_cast< unsigned __int32 > ( floor( u * ( mWidth - 1 ) ) );
+	unsigned __int32 y0 = static_cast< unsigned __int32 > ( floor( v * ( mHeight - 1 ) ) );
+	unsigned __int32 x1 = static_cast< unsigned __int32 > ( ceil( u * ( mWidth - 1 ) ) );
+	unsigned __int32 y1 = static_cast< unsigned __int32 > ( ceil( v * ( mHeight - 1 ) ) );
+
+	colorAtUV(mTexture + y0 * mWidth * mColorComponents + x0 * mColorComponents,
+		mTexture + y1 * mWidth * mColorComponents + x0 * mColorComponents,
+		mTexture + y0 * mWidth * mColorComponents + x1 * mColorComponents,
+		mTexture + y1 * mWidth * mColorComponents + x1 * mColorComponents,
+		(Real) x1 - u * (mWidth -1), (Real) y1 - v * (mHeight -1), aOutColor );
+}
+
+inline void Texture::colorAtUV( const Color aSampleU0V0, const Color aSampleU0V1,
+		const Color aSampleU1V0, const Color aSampleU1V1, const Real aURatio,
+		const Real aVRatio, Color3 aOutColor ) const
+{
+	Color3 colV0;
+	Color3 colV1;
+	interpolateColors( aSampleU0V0, aSampleU1V0, aURatio, colV0 );	
+	interpolateColors( aSampleU0V1, aSampleU1V1, aURatio, colV1 );  
+	interpolateColors( colV0, colV1, aVRatio, aOutColor ); 
+}
+
+inline void Texture::interpolateColors( const Color3 aColor1, const Color3 aColor2,
+	const Real aRatio, Color3 aOutColor ) const
+{
+	for( int i = 0; i < (int) mColorComponents; ++i )
+	{
+		aOutColor[ i ] = (float) (aRatio * aColor1[ i ] + ( 1 - aRatio ) * aColor2[ i ]);
+	}
+}
+
+
 
 } // namespace HairShape
 

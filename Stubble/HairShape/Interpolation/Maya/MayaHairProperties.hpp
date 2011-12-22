@@ -207,6 +207,226 @@ public:
 
 	static MObject randomizeStrandAttr;	///< The randomizeStrand attribute
 
+	/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
+
+	/// The density texture sampling dimesion in U attribute
+	static MObject densityTextureSamplingUDimensionAttr;
+
+	/// The density texture sampling dimesion in V attribute
+	static MObject densityTextureSamplingVDimensionAttr;
+
+	/// The interpolation groups texture sampling dimesion in U attribute
+	static MObject interpolationGroupsTextureSamplingUDimensionAttr;
+
+	/// The interpolation groups texture sampling dimesion in V attribute
+	static MObject interpolationGroupsTextureSamplingVDimensionAttr;
+
+	/// The cut texture sampling dimesion in U attribute
+	static MObject cutTextureSamplingUDimensionAttr;
+
+	/// The cut texture sampling dimesion in V attribute
+	static MObject cutTextureSamplingVDimensionAttr;
+
+	/// The scale texture sampling dimension in U atribute
+	static MObject scaleTextureSamplingUDimensionAttr;
+
+	/// The scale texture sampling dimension in V atribute
+	static MObject scaleTextureSamplingVDimensionAttr;
+
+	/// The rand scale texture sampling dimension in U atribute
+	static MObject randScaleTextureSamplingUDimensionAttr;
+
+	/// The rand scale texture sampling dimension in V atribute
+	static MObject randScaleTextureSamplingVDimensionAttr;
+
+	/// The root thickness texture sampling dimension in U atribute
+	static MObject rootThicknessTextureSamplingUDimensionAttr;
+
+	/// The root thickness texture sampling dimension in V atribute
+	static MObject rootThicknessTextureSamplingVDimensionAttr;
+
+	/// The tip thickness texture sampling dimension in U attribute
+	static MObject tipThicknessTextureSamplingUDimensionAttr;
+
+	/// The tip thickness texture sampling dimension in V attribute
+	static MObject tipThicknessTextureSamplingVDimensionAttr;
+
+	/// The displacement texture sampling dimension in U atribute
+	static MObject displacementTextureSamplingUDimensionAttr;
+
+	/// The displacement texture sampling dimension in V atribute
+	static MObject displacementTextureSamplingVDimensionAttr;
+
+	/* MAYA COLOR PROPERTIES */                                                                                                 
+
+	/// The root opacity texture sampling dimension in U atribute
+	static MObject rootOpacityTextureSamplingUDimensionAttr;
+
+	/// The root opacity texture sampling dimension in V atribute
+	static MObject rootOpacityTextureSamplingVDimensionAttr;
+
+	/// The tip opacity texture sampling dimension in U atribute
+	static MObject tipOpacityTextureSamplingUDimensionAttr;
+
+	/// The tip opacity texture sampling dimension in V atribute
+	static MObject tipOpacityTextureSamplingVDimensionAttr;
+
+	/// The root color texture sampling dimension in U atribute
+	static MObject rootColorTextureSamplingUDimensionAttr;
+
+	/// The root color texture sampling dimension in V atribute
+	static MObject rootColorTextureSamplingVDimensionAttr;
+
+	/// The tip color texture sampling dimension in U atribute
+	static MObject tipColorTextureSamplingUDimensionAttr;
+
+	/// The tip color texture sampling dimension in V atribute
+	static MObject tipColorTextureSamplingVDimensionAttr;
+
+	/// The hue variation texture sampling dimension in U atribute
+	static MObject hueVariationTextureSamplingUDimensionAttr;
+
+	/// The hue variation texture sampling dimension in V atribute
+	static MObject hueVariationTextureSamplingVDimensionAttr;
+
+	/// The value variation texture sampling dimension in U atribute
+	static MObject valueVariationTextureSamplingUDimensionAttr;
+
+	/// The value variation texture sampling dimension in V atribute
+	static MObject valueVariationTextureSamplingVDimensionAttr;
+
+	/// The mutant hair color texture sampling dimension in U atribute
+	static MObject mutantHairColorTextureSamplingUDimensionAttr;
+
+	/// The mutant hair color texture sampling dimension in V atribute
+	static MObject mutantHairColorTextureSamplingVDimensionAttr;
+
+	/// The percent mutant hair texture sampling dimension in U atribute
+	static MObject percentMutantHairTextureSamplingUDimensionAttr;
+
+	/// The percent mutant hair texture sampling dimension in V atribute
+	static MObject percentMutantHairTextureSamplingVDimensionAttr;
+
+	/* MAYA FRIZZ PROPERTIES */
+
+	/// The root frizz texture sampling dimension in U atribute
+	static MObject rootFrizzTextureSamplingUDimensionAttr;
+
+	/// The root frizz texture sampling dimension in V atribute
+	static MObject rootFrizzTextureSamplingVDimensionAttr;
+
+	/// The tip frizz texture sampling dimension in U atribute
+	static MObject tipFrizzTextureSamplingUDimensionAttr;
+
+	/// The tip frizz texture sampling dimension in V atribute
+	static MObject tipFrizzTextureSamplingVDimensionAttr;
+
+	/// The frizz x coordinate frequency texture sampling dimension in U atribute
+	static MObject frizzXFrequencyTextureSamplingUDimensionAttr;
+
+	/// The frizz x coordinate frequency texture sampling dimension in V atribute
+	static MObject frizzXFrequencyTextureSamplingVDimensionAttr;
+
+	/// The frizz y coordinate frequency texture sampling dimension in U atribute
+	static MObject frizzYFrequencyTextureSamplingUDimensionAttr;
+
+	/// The frizz y coordinate frequency texture sampling dimension in V atribute
+	static MObject frizzYFrequencyTextureSamplingVDimensionAttr;
+
+	/// The frizz z coordinate frequency texture sampling dimension in U atribute
+	static MObject frizzZFrequencyTextureSamplingUDimensionAttr;
+
+	/// The frizz z coordinate frequency texture sampling dimension in V atribute
+	static MObject frizzZFrequencyTextureSamplingVDimensionAttr;
+
+	/// The frizz animation texture sampling dimension in U atribute
+	static MObject frizzAnimTextureSamplingUDimensionAttr;
+
+	/// The frizz animation texture sampling dimension in V atribute
+	static MObject frizzAnimTextureSamplingVDimensionAttr;
+
+	/// The frizz animation speed texture sampling dimension in U atribute
+	static MObject frizzAnimSpeedTextureSamplingUDimensionAttr;
+
+	/// The frizz animation speed texture sampling dimension in V atribute
+	static MObject frizzAnimSpeedTextureSamplingVDimensionAttr;
+
+	/* MAYA KINK PROPERTIES */
+
+	/// The root kink texture sampling dimension in U atribute
+	static MObject rootKinkTextureSamplingUDimensionAttr;
+
+	/// The root kink texture sampling dimension in V atribute
+	static MObject rootKinkTextureSamplingVDimensionAttr;
+
+	/// The tip kink texture sampling dimension in U atribute
+	static MObject tipKinkTextureSamplingUDimensionAttr;
+
+	/// The tip kink texture sampling dimension in V atribute
+	static MObject tipKinkTextureSamplingVDimensionAttr;
+
+	/// The kink x coordinate frequency texture sampling dimension in U atribute
+	static MObject kinkXFrequencyTextureSamplingUDimensionAttr;
+
+	/// The kink x coordinate frequency texture sampling dimension in V atribute
+	static MObject kinkXFrequencyTextureSamplingVDimensionAttr;
+
+	/// The kink y coordinate frequency texture sampling dimension in U atribute
+	static MObject kinkYFrequencyTextureSamplingUDimensionAttr;
+
+	/// The kink y coordinate frequency texture sampling dimension in V atribute
+	static MObject kinkYFrequencyTextureSamplingVDimensionAttr;
+
+	/// The kink z coordinate frequency texture sampling dimension in U atribute
+	static MObject kinkZFrequencyTextureSamplingUDimensionAttr;
+
+	/// The kink z coordinate frequency texture sampling dimension in V atribute
+	static MObject kinkZFrequencyTextureSamplingVDimensionAttr;
+
+	/* MAYA MULTI STRAND PROPERTIES */
+
+	/// The root splay texture sampling dimension in U atribute
+	static MObject rootSplayTextureSamplingUDimensionAttr;
+
+	/// The root splay texture sampling dimension in V atribute
+	static MObject rootSplayTextureSamplingVDimensionAttr;
+
+	/// The tip splay texture sampling dimension in U atribute
+	static MObject tipSplayTextureSamplingUDimensionAttr;
+
+	/// The tip splay texture sampling dimension in V atribute
+	static MObject tipSplayTextureSamplingVDimensionAttr;
+
+	/// The center splay texture sampling dimension in U atribute
+	static MObject centerSplayTextureSamplingUDimensionAttr;
+
+	/// The center splay texture sampling dimension in V atribute
+	static MObject centerSplayTextureSamplingVDimensionAttr;
+
+	/// The twist texture sampling dimension in U atribute
+	static MObject twistTextureSamplingUDimensionAttr;
+
+	/// The twist texture sampling dimension in V atribute
+	static MObject twistTextureSamplingVDimensionAttr;
+
+	/// The offset texture sampling dimension in U atribute
+	static MObject offsetTextureSamplingUDimensionAttr;
+
+	/// The offset texture sampling dimension in V atribute
+	static MObject offsetTextureSamplingVDimensionAttr;
+
+	/// The aspect texture sampling dimension in U atribute
+	static MObject aspectTextureSamplingUDimensionAttr;
+
+	/// The aspect texture sampling dimension in V atribute
+	static MObject aspectTextureSamplingVDimensionAttr;
+
+	/// The randomizeStrand texture sampling dimension in U atribute
+	static MObject randomizeStrandTextureSamplingUDimensionAttr;
+
+	/// The randomizeStrand texture sampling dimension in V atribute
+	static MObject randomizeStrandTextureSamplingVDimensionAttr;
+
 protected:
 	
 	///-------------------------------------------------------------------------------------------------
@@ -440,6 +660,225 @@ protected:
 	static void fillColorArrayAttributes( MObject & aAttribute, const InterpolationGroups & aInterpolationGroups );
 
 private:
+	/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */		
+		
+	/// The density texture sampling dimesion in U attribute	
+	unsigned __int32 mDensityTextureSamplingUDimension;
+		
+	/// The density texture sampling dimesion in V attribute	
+	unsigned __int32 mDensityTextureSamplingVDimension;
+		
+	/// The interpolation groups texture sampling dimesion in U attribute	
+	unsigned __int32 mInterpolationGroupsTextureSamplingUDimension;
+		
+	/// The interpolation groups texture sampling dimesion in V attribute	
+	unsigned __int32 mInterpolationGroupsTextureSamplingVDimension;
+		
+	/// The cut texture sampling dimesion in U attribute	
+	unsigned __int32 mCutTextureSamplingUDimension;
+		
+	/// The cut texture sampling dimesion in V attribute	
+	unsigned __int32 mCutTextureSamplingVDimension;
+		
+	/// The scale texture sampling dimension in U atribute	
+	unsigned __int32 mScaleTextureSamplingUDimension;
+		
+	/// The scale texture sampling dimension in V atribute	
+	unsigned __int32 mScaleTextureSamplingVDimension;
+		
+	/// The rand scale texture sampling dimension in U atribute	
+	unsigned __int32 mRandScaleTextureSamplingUDimension;
+		
+	/// The rand scale texture sampling dimension in V atribute	
+	unsigned __int32 mRandScaleTextureSamplingVDimension;
+		
+	/// The root thickness texture sampling dimension in U atribute	
+	unsigned __int32 mRootThicknessTextureSamplingUDimension;
+		
+	/// The root thickness texture sampling dimension in V atribute	
+	unsigned __int32 mRootThicknessTextureSamplingVDimension;
+		
+	/// The tip thickness texture sampling dimension in U attribute	
+	unsigned __int32 mTipThicknessTextureSamplingUDimension;
+		
+	/// The tip thickness texture sampling dimension in V attribute	
+	unsigned __int32 mTipThicknessTextureSamplingVDimension;
+		
+	/// The displacement texture sampling dimension in U atribute	
+	unsigned __int32 mDisplacementTextureSamplingUDimension;
+		
+	/// The displacement texture sampling dimension in V atribute	
+	unsigned __int32 mDisplacementTextureSamplingVDimension;
+		
+	/* MAYA COLOR PROPERTIES */                                                                                                 	
+		
+	/// The root opacity texture sampling dimension in U atribute	
+	unsigned __int32 mRootOpacityTextureSamplingUDimension;
+		
+	/// The root opacity texture sampling dimension in V atribute	
+	unsigned __int32 mRootOpacityTextureSamplingVDimension;
+		
+	/// The tip opacity texture sampling dimension in U atribute	
+	unsigned __int32 mTipOpacityTextureSamplingUDimension;
+		
+	/// The tip opacity texture sampling dimension in V atribute	
+	unsigned __int32 mTipOpacityTextureSamplingVDimension;
+		
+	/// The root color texture sampling dimension in U atribute	
+	unsigned __int32 mRootColorTextureSamplingUDimension;
+		
+	/// The root color texture sampling dimension in V atribute	
+	unsigned __int32 mRootColorTextureSamplingVDimension;
+		
+	/// The tip color texture sampling dimension in U atribute	
+	unsigned __int32 mTipColorTextureSamplingUDimension;
+		
+	/// The tip color texture sampling dimension in V atribute	
+	unsigned __int32 mTipColorTextureSamplingVDimension;
+		
+	/// The hue variation texture sampling dimension in U atribute	
+	unsigned __int32 mHueVariationTextureSamplingUDimension;
+		
+	/// The hue variation texture sampling dimension in V atribute	
+	unsigned __int32 mHueVariationTextureSamplingVDimension;
+		
+	/// The value variation texture sampling dimension in U atribute	
+	unsigned __int32 mValueVariationTextureSamplingUDimension;
+		
+	/// The value variation texture sampling dimension in V atribute	
+	unsigned __int32 mValueVariationTextureSamplingVDimension;
+		
+	/// The mutant hair color texture sampling dimension in U atribute	
+	unsigned __int32 mMutantHairColorTextureSamplingUDimension;
+		
+	/// The mutant hair color texture sampling dimension in V atribute	
+	unsigned __int32 mMutantHairColorTextureSamplingVDimension;
+		
+	/// The percent mutant hair texture sampling dimension in U atribute	
+	unsigned __int32 mPercentMutantHairTextureSamplingUDimension;
+		
+	/// The percent mutant hair texture sampling dimension in V atribute	
+	unsigned __int32 mPercentMutantHairTextureSamplingVDimension;
+		
+	/* MAYA FRIZZ PROPERTIES */	
+		
+	/// The root frizz texture sampling dimension in U atribute	
+	unsigned __int32 mRootFrizzTextureSamplingUDimension;
+		
+	/// The root frizz texture sampling dimension in V atribute	
+	unsigned __int32 mRootFrizzTextureSamplingVDimension;
+		
+	/// The tip frizz texture sampling dimension in U atribute	
+	unsigned __int32 mTipFrizzTextureSamplingUDimension;
+		
+	/// The tip frizz texture sampling dimension in V atribute	
+	unsigned __int32 mTipFrizzTextureSamplingVDimension;
+		
+	/// The frizz x coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mFrizzXFrequencyTextureSamplingUDimension;
+		
+	/// The frizz x coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mFrizzXFrequencyTextureSamplingVDimension;
+		
+	/// The frizz y coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mFrizzYFrequencyTextureSamplingUDimension;
+		
+	/// The frizz y coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mFrizzYFrequencyTextureSamplingVDimension;
+		
+	/// The frizz z coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mFrizzZFrequencyTextureSamplingUDimension;
+		
+	/// The frizz z coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mFrizzZFrequencyTextureSamplingVDimension;
+		
+	/// The frizz animation texture sampling dimension in U atribute	
+	unsigned __int32 mFrizzAnimTextureSamplingUDimension;
+		
+	/// The frizz animation texture sampling dimension in V atribute	
+	unsigned __int32 mFrizzAnimTextureSamplingVDimension;
+		
+	/// The frizz animation speed texture sampling dimension in U atribute	
+	unsigned __int32 mFrizzAnimSpeedTextureSamplingUDimension;
+		
+	/// The frizz animation speed texture sampling dimension in V atribute	
+	unsigned __int32 mFrizzAnimSpeedTextureSamplingVDimension;
+		
+	/* MAYA KINK PROPERTIES */	
+		
+	/// The root kink texture sampling dimension in U atribute	
+	unsigned __int32 mRootKinkTextureSamplingUDimension;
+		
+	/// The root kink texture sampling dimension in V atribute	
+	unsigned __int32 mRootKinkTextureSamplingVDimension;
+		
+	/// The tip kink texture sampling dimension in U atribute	
+	unsigned __int32 mTipKinkTextureSamplingUDimension;
+		
+	/// The tip kink texture sampling dimension in V atribute	
+	unsigned __int32 mTipKinkTextureSamplingVDimension;
+		
+	/// The kink x coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mKinkXFrequencyTextureSamplingUDimension;
+		
+	/// The kink x coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mKinkXFrequencyTextureSamplingVDimension;
+		
+	/// The kink y coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mKinkYFrequencyTextureSamplingUDimension;
+		
+	/// The kink y coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mKinkYFrequencyTextureSamplingVDimension;
+		
+	/// The kink z coordinate frequency texture sampling dimension in U atribute	
+	unsigned __int32 mKinkZFrequencyTextureSamplingUDimension;
+		
+	/// The kink z coordinate frequency texture sampling dimension in V atribute	
+	unsigned __int32 mKinkZFrequencyTextureSamplingVDimension;
+		
+	/* MAYA MULTI STRAND PROPERTIES */	
+		
+	/// The root splay texture sampling dimension in U atribute	
+	unsigned __int32 mRootSplayTextureSamplingUDimension;
+		
+	/// The root splay texture sampling dimension in V atribute	
+	unsigned __int32 mRootSplayTextureSamplingVDimension;
+		
+	/// The tip splay texture sampling dimension in U atribute	
+	unsigned __int32 mTipSplayTextureSamplingUDimension;
+		
+	/// The tip splay texture sampling dimension in V atribute	
+	unsigned __int32 mTipSplayTextureSamplingVDimension;
+		
+	/// The center splay texture sampling dimension in U atribute	
+	unsigned __int32 mCenterSplayTextureSamplingUDimension;
+		
+	/// The center splay texture sampling dimension in V atribute	
+	unsigned __int32 mCenterSplayTextureSamplingVDimension;
+		
+	/// The twist texture sampling dimension in U atribute	
+	unsigned __int32 mTwistTextureSamplingUDimension;
+		
+	/// The twist texture sampling dimension in V atribute	
+	unsigned __int32 mTwistTextureSamplingVDimension;
+		
+	/// The offset texture sampling dimension in U atribute	
+	unsigned __int32 mOffsetTextureSamplingUDimension;
+		
+	/// The offset texture sampling dimension in V atribute	
+	unsigned __int32 mOffsetTextureSamplingVDimension;
+		
+	/// The aspect texture sampling dimension in U atribute	
+	unsigned __int32 mAspectTextureSamplingUDimension;
+		
+	/// The aspect texture sampling dimension in V atribute	
+	unsigned __int32 mAspectTextureSamplingVDimension;
+		
+	/// The randomizeStrand texture sampling dimension in U atribute	
+	unsigned __int32 mRandomizeStrandTextureSamplingUDimension;
+		
+	/// The randomizeStrand texture sampling dimension in V atribute	
+	unsigned __int32 mRandomizeStrandTextureSamplingVDimension;
 
 	MObject mSegmentsCountAttr;   ///< The segments count for every interpolation group Maya attribute
 

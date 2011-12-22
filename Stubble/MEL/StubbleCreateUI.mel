@@ -30,6 +30,7 @@ global proc StubbleCreateUI()
 	menuItem -label "Import from NURBS" -command "StubbleImportNURBS;";
 	menuItem -divider true;
 	menuItem -label "Update textures" -command "StubbleResetTextures;refresh;";
+	menuItem -label "Textures properties" -command "source StubbleTextureProperties.mel;";
 
 	// Create Stubble select menu
 	setParent $gMainWindow;

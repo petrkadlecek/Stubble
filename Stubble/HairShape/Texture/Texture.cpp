@@ -2,6 +2,8 @@
 
 #include "math.h"
 #include "Common\StubbleException.hpp"
+#include "Common\StubbleTimer.hpp"
+
 
 namespace Stubble
 {
@@ -129,7 +131,7 @@ void Texture::setConnection( const MPlug& aPlug )
 	MStatus status;
 	MPlugArray sourceTexturePlugs;
 	aPlug.connectedTo(sourceTexturePlugs, true, false, &status);
-	if ( status==MStatus::kSuccess ){
+	if ( status == MStatus::kSuccess ){
 		if ( sourceTexturePlugs.length() > 0 ) // We have some connections
 		{
 			// We are destination, so we have only one connection
@@ -141,43 +143,44 @@ void Texture::setConnection( const MPlug& aPlug )
 
 void Texture::removeConnection()
 {
-	delete[] mTexture;
-	init();
-	for ( unsigned __int32 i = 0; i < mColorComponents; ++i )
-	{
-		mTexture[i] = 1; // TODO shouldn't we reset to better value?
-	}	
+	mDirty = true;
 }
 
-void Texture::resample(unsigned __int32 aTextureSamples)
+void Texture::resample( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples )
 {
 	MStatus status;
-	MObject sourceNode = mTextureDataSourcePlug.node( &status );//TODO: test if this is not null
-	if ( status == MStatus::kSuccess )
-		if ( sourceNode.hasFn( MFn::kFileTexture ) )
-		{
-			MImage textureData;
-			status = textureData.readFromTextureNode( sourceNode, MImage::kUnknown );
-			if( status == MStatus::kSuccess )
+	if(mTextureDataSourcePlug.isConnected()){//TODO: test if this is correct
+		MObject sourceNode = mTextureDataSourcePlug.node( &status );//TODO: test if this is not null
+		if ( status == MStatus::kSuccess )
+			if ( sourceNode.hasFn( MFn::kFileTexture ) )
 			{
-				reloadFileTextureImage(textureData);				
+				MImage textureData;
+				status = textureData.readFromTextureNode( sourceNode, MImage::kUnknown );
+				if( status == MStatus::kSuccess )
+				{
+					reloadFileTextureImage(textureData);				
+				}
 			}
-		}
-		else if ( sourceNode.hasFn( MFn::kTexture2d ) )
-		{
-			resample2DTexture(aTextureSamples);
-		}
-		else if ( sourceNode.hasFn( MFn::kTexture3d ) )
-		{
-			MDagPath cameraPath;
-			M3dView::active3dView().getCamera( cameraPath );
-			MFloatMatrix cameraMat( cameraPath.inclusiveMatrix().matrix );
-			//MRenderUtil::sampleShadingNetwork(textureDataSourcePlug.name(),1,false,false,cameraMat,NULL,
-		}
-		mDirty = false;
+			else if ( sourceNode.hasFn( MFn::kTexture2d ) )
+			{
+				resample2DTexture( aTextureUSamples, aTextureVSamples );
+			}
+			else if ( sourceNode.hasFn( MFn::kTexture3d ) )
+			{
+				MDagPath cameraPath;
+				M3dView::active3dView().getCamera( cameraPath );
+				MFloatMatrix cameraMat( cameraPath.inclusiveMatrix().matrix );
+				//MRenderUtil::sampleShadingNetwork(textureDataSourcePlug.name(),1,false,false,cameraMat,NULL,
+			}
+			mDirty = false;
+	}
+	else
+	{
+		removeConnection();
+	}
 }
 
-void Texture::reloadFileTextureImage(MImage & aTextureImage)
+void Texture::reloadFileTextureImage( MImage & aTextureImage )
 {	
 	aTextureImage.getSize( mWidth, mHeight );
 	computeInverseSize();
@@ -213,13 +216,16 @@ void Texture::reloadFileTextureImage(MImage & aTextureImage)
 	}
 }
 
-void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
+void Texture::resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples )
 {
-	if ( mWidth != aTextureSamples || mHeight != aTextureSamples )
+	Stubble::Timer timer;
+	timer.reset();
+	timer.start();
+	if ( mWidth != aTextureUSamples || mHeight != aTextureVSamples )
 	{
 		// Change texture and texture attributes only if the dimension of texture changes
-		mWidth = aTextureSamples;
-		mHeight = aTextureSamples;
+		mWidth = aTextureUSamples;
+		mHeight = aTextureVSamples;
 		computeInverseSize();
 		// Prepare texture array for saving new texture values
 		delete[] mTexture;
@@ -228,7 +234,7 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 	// Generate sample points
 	float * uCoords = new float[ mWidth * mHeight ];
 	float * vCoords = new float[ mWidth * mHeight ];
-	getSampleUVPoints( uCoords, vCoords, aTextureSamples );
+	getSampleUVPoints( uCoords, vCoords, aTextureUSamples, aTextureVSamples );
 	// Prepare arrays for saving results of sampling 
 	MFloatMatrix cameraMat;
 	MFloatVectorArray sampleColors;
@@ -253,18 +259,20 @@ void Texture::resample2DTexture(unsigned __int32 aTextureSamples)
 			}
 		}
 	}
+	timer.stop();
+	timer.mayaDisplayLastElapsedTime();
 }
 
 #endif
 
-void Texture::getSampleUVPoints(float* aUSamples, float* aVSamples, unsigned __int32 dimension)
+void Texture::getSampleUVPoints(float* aUSamples, float* aVSamples, unsigned __int32 aUDimension, unsigned __int32 aVDimension)
 {
-	for( unsigned __int32 i = 0; i < dimension; ++i )
+	for( unsigned __int32 i = 0; i < aUDimension; ++i )
 	{
-		for( unsigned __int32 j = 0; j < dimension; ++j )
+		for( unsigned __int32 j = 0; j < aVDimension; ++j )
 		{
-			aUSamples[ i * dimension + j ] = ( float )i / ( dimension - 1 );
-			aVSamples[ i * dimension + j ] = ( float )j / ( dimension - 1 );
+			aUSamples[ i * aUDimension + j ] = ( float )i / ( aUDimension - 1 );
+			aVSamples[ i * aUDimension + j ] = ( float )j / ( aVDimension - 1 );
 		}
 	}
 }

@@ -644,8 +644,9 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		mHairProperties->getPercentMutantHair() * mHairProperties->getPercentMutantHairTexture().realAtUV( u, v ) / 100 )
 	{
 		// Select mutant hair color as root color
-		mixColor( mRootColor, mHairProperties->getMutantHairColor(),
-			mHairProperties->getMutantHairColorTexture().colorAtUV( u, v ) );
+		Texture::Color3 mutantHairColor;
+		mHairProperties->getMutantHairColorTexture().colorAtUV( u, v, mutantHairColor );
+		mixColor( mRootColor, mHairProperties->getMutantHairColor(), mutantHairColor );
 		// Applies hue-value shift
 		applyHueValueShift( mRootColor, valueShift, hueShift );
 		// Copy it to tip color
@@ -655,11 +656,13 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	else
 	{
 		// Select root color
-		mixColor( mRootColor, mHairProperties->getRootColor(),
-			mHairProperties->getRootColorTexture().colorAtUV( u, v ) );
+		Texture::Color3 rootColor;
+		mHairProperties->getRootColorTexture().colorAtUV( u, v, rootColor );
+		mixColor( mRootColor, mHairProperties->getRootColor(), rootColor );
 		// Select tip color
-		mixColor( mTipColor, mHairProperties->getTipColor(),
-			mHairProperties->getTipColorTexture().colorAtUV( u, v ) );
+		Texture::Color3 tipColor;
+		mHairProperties->getTipColorTexture().colorAtUV( u, v, tipColor );
+		mixColor( mTipColor, mHairProperties->getTipColor(), tipColor );
 		// Applies hue-value shift
 		applyHueValueShift( mRootColor, valueShift, hueShift );
 		applyHueValueShift( mTipColor, valueShift, hueShift );

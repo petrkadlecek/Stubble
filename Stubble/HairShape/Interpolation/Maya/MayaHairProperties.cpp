@@ -101,7 +101,151 @@ MObject MayaHairProperties::aspectTextureAttr;	///< The aspect texture attribute
 MObject MayaHairProperties::aspectAttr;	///< The aspect attribute
 MObject MayaHairProperties::randomizeStrandTextureAttr;	///< The randomizeStrand texture attribute
 MObject MayaHairProperties::randomizeStrandAttr;	///< The randomizeStrand attribute
-
+/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
+/// The density texture sampling dimesion in U attribute
+MObject MayaHairProperties::densityTextureSamplingUDimensionAttr;
+/// The density texture sampling dimesion in V attribute
+MObject MayaHairProperties::densityTextureSamplingVDimensionAttr;
+/// The interpolation groups texture sampling dimesion in U attribute
+MObject MayaHairProperties::interpolationGroupsTextureSamplingUDimensionAttr;
+/// The interpolation groups texture sampling dimesion in V attribute
+MObject MayaHairProperties::interpolationGroupsTextureSamplingVDimensionAttr;
+/// The cut texture sampling dimesion in U attribute
+MObject MayaHairProperties::cutTextureSamplingUDimensionAttr;
+/// The cut texture sampling dimesion in V attribute
+MObject MayaHairProperties::cutTextureSamplingVDimensionAttr;
+/// The scale texture sampling dimension in U atribute
+MObject MayaHairProperties::scaleTextureSamplingUDimensionAttr;
+/// The scale texture sampling dimension in V atribute
+MObject MayaHairProperties::scaleTextureSamplingVDimensionAttr;
+/// The rand scale texture sampling dimension in U atribute
+MObject MayaHairProperties::randScaleTextureSamplingUDimensionAttr;
+/// The rand scale texture sampling dimension in V atribute
+MObject MayaHairProperties::randScaleTextureSamplingVDimensionAttr;
+/// The root thickness texture sampling dimension in U atribute
+MObject MayaHairProperties::rootThicknessTextureSamplingUDimensionAttr;
+/// The root thickness texture sampling dimension in V atribute
+MObject MayaHairProperties::rootThicknessTextureSamplingVDimensionAttr;
+/// The tip thickness texture sampling dimension in U attribute
+MObject MayaHairProperties::tipThicknessTextureSamplingUDimensionAttr;
+/// The tip thickness texture sampling dimension in V attribute
+MObject MayaHairProperties::tipThicknessTextureSamplingVDimensionAttr;
+/// The displacement texture sampling dimension in U atribute
+MObject MayaHairProperties::displacementTextureSamplingUDimensionAttr;
+/// The displacement texture sampling dimension in V atribute
+MObject MayaHairProperties::displacementTextureSamplingVDimensionAttr;
+/* MAYA COLOR PROPERTIES */                                                                                                 
+/// The root opacity texture sampling dimension in U atribute
+MObject MayaHairProperties::rootOpacityTextureSamplingUDimensionAttr;
+/// The root opacity texture sampling dimension in V atribute
+MObject MayaHairProperties::rootOpacityTextureSamplingVDimensionAttr;
+/// The tip opacity texture sampling dimension in U atribute
+MObject MayaHairProperties::tipOpacityTextureSamplingUDimensionAttr;
+/// The tip opacity texture sampling dimension in V atribute
+MObject MayaHairProperties::tipOpacityTextureSamplingVDimensionAttr;
+/// The root color texture sampling dimension in U atribute
+MObject MayaHairProperties::rootColorTextureSamplingUDimensionAttr;
+/// The root color texture sampling dimension in V atribute
+MObject MayaHairProperties::rootColorTextureSamplingVDimensionAttr;
+/// The tip color texture sampling dimension in U atribute
+MObject MayaHairProperties::tipColorTextureSamplingUDimensionAttr;
+/// The tip color texture sampling dimension in V atribute
+MObject MayaHairProperties::tipColorTextureSamplingVDimensionAttr;
+/// The hue variation texture sampling dimension in U atribute
+MObject MayaHairProperties::hueVariationTextureSamplingUDimensionAttr;
+/// The hue variation texture sampling dimension in V atribute
+MObject MayaHairProperties::hueVariationTextureSamplingVDimensionAttr;
+/// The value variation texture sampling dimension in U atribute
+MObject MayaHairProperties::valueVariationTextureSamplingUDimensionAttr;
+/// The value variation texture sampling dimension in V atribute
+MObject MayaHairProperties::valueVariationTextureSamplingVDimensionAttr;
+/// The mutant hair color texture sampling dimension in U atribute
+MObject MayaHairProperties::mutantHairColorTextureSamplingUDimensionAttr;
+/// The mutant hair color texture sampling dimension in V atribute
+MObject MayaHairProperties::mutantHairColorTextureSamplingVDimensionAttr;
+/// The percent mutant hair texture sampling dimension in U atribute
+MObject MayaHairProperties::percentMutantHairTextureSamplingUDimensionAttr;
+/// The percent mutant hair texture sampling dimension in V atribute
+MObject MayaHairProperties::percentMutantHairTextureSamplingVDimensionAttr;
+/* MAYA FRIZZ PROPERTIES */
+/// The root frizz texture sampling dimension in U atribute
+MObject MayaHairProperties::rootFrizzTextureSamplingUDimensionAttr;
+/// The root frizz texture sampling dimension in V atribute
+MObject MayaHairProperties::rootFrizzTextureSamplingVDimensionAttr;
+/// The tip frizz texture sampling dimension in U atribute
+MObject MayaHairProperties::tipFrizzTextureSamplingUDimensionAttr;
+/// The tip frizz texture sampling dimension in V atribute
+MObject MayaHairProperties::tipFrizzTextureSamplingVDimensionAttr;
+/// The frizz x coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::frizzXFrequencyTextureSamplingUDimensionAttr;
+/// The frizz x coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::frizzXFrequencyTextureSamplingVDimensionAttr;
+/// The frizz y coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::frizzYFrequencyTextureSamplingUDimensionAttr;
+/// The frizz y coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::frizzYFrequencyTextureSamplingVDimensionAttr;
+/// The frizz z coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::frizzZFrequencyTextureSamplingUDimensionAttr;
+/// The frizz z coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::frizzZFrequencyTextureSamplingVDimensionAttr;
+/// The frizz animation texture sampling dimension in U atribute
+MObject MayaHairProperties::frizzAnimTextureSamplingUDimensionAttr;
+/// The frizz animation texture sampling dimension in V atribute
+MObject MayaHairProperties::frizzAnimTextureSamplingVDimensionAttr;
+/// The frizz animation speed texture sampling dimension in U atribute
+MObject MayaHairProperties::frizzAnimSpeedTextureSamplingUDimensionAttr;
+/// The frizz animation speed texture sampling dimension in V atribute
+MObject MayaHairProperties::frizzAnimSpeedTextureSamplingVDimensionAttr;
+/* MAYA KINK PROPERTIES */
+/// The root kink texture sampling dimension in U atribute
+MObject MayaHairProperties::rootKinkTextureSamplingUDimensionAttr;
+/// The root kink texture sampling dimension in V atribute
+MObject MayaHairProperties::rootKinkTextureSamplingVDimensionAttr;
+/// The tip kink texture sampling dimension in U atribute
+MObject MayaHairProperties::tipKinkTextureSamplingUDimensionAttr;
+/// The tip kink texture sampling dimension in V atribute
+MObject MayaHairProperties::tipKinkTextureSamplingVDimensionAttr;
+/// The kink x coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::kinkXFrequencyTextureSamplingUDimensionAttr;
+/// The kink x coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::kinkXFrequencyTextureSamplingVDimensionAttr;
+/// The kink y coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::kinkYFrequencyTextureSamplingUDimensionAttr;
+/// The kink y coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::kinkYFrequencyTextureSamplingVDimensionAttr;
+/// The kink z coordinate frequency texture sampling dimension in U atribute
+MObject MayaHairProperties::kinkZFrequencyTextureSamplingUDimensionAttr;
+/// The kink z coordinate frequency texture sampling dimension in V atribute
+MObject MayaHairProperties::kinkZFrequencyTextureSamplingVDimensionAttr;
+/* MAYA MULTI STRAND PROPERTIES */
+/// The root splay texture sampling dimension in U atribute
+MObject MayaHairProperties::rootSplayTextureSamplingUDimensionAttr;
+/// The root splay texture sampling dimension in V atribute
+MObject MayaHairProperties::rootSplayTextureSamplingVDimensionAttr;
+/// The tip splay texture sampling dimension in U atribute
+MObject MayaHairProperties::tipSplayTextureSamplingUDimensionAttr;
+/// The tip splay texture sampling dimension in V atribute
+MObject MayaHairProperties::tipSplayTextureSamplingVDimensionAttr;
+/// The center splay texture sampling dimension in U atribute
+MObject MayaHairProperties::centerSplayTextureSamplingUDimensionAttr;
+/// The center splay texture sampling dimension in V atribute
+MObject MayaHairProperties::centerSplayTextureSamplingVDimensionAttr;
+/// The twist texture sampling dimension in U atribute
+MObject MayaHairProperties::twistTextureSamplingUDimensionAttr;
+/// The twist texture sampling dimension in V atribute
+MObject MayaHairProperties::twistTextureSamplingVDimensionAttr;
+/// The offset texture sampling dimension in U atribute
+MObject MayaHairProperties::offsetTextureSamplingUDimensionAttr;
+/// The offset texture sampling dimension in V atribute
+MObject MayaHairProperties::offsetTextureSamplingVDimensionAttr;
+/// The aspect texture sampling dimension in U atribute
+MObject MayaHairProperties::aspectTextureSamplingUDimensionAttr;
+/// The aspect texture sampling dimension in V atribute
+MObject MayaHairProperties::aspectTextureSamplingVDimensionAttr;
+/// The randomizeStrand texture sampling dimension in U atribute
+MObject MayaHairProperties::randomizeStrandTextureSamplingUDimensionAttr;
+/// The randomizeStrand texture sampling dimension in V atribute
+MObject MayaHairProperties::randomizeStrandTextureSamplingVDimensionAttr;
 
 /* METHODS */
 
@@ -207,7 +351,82 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	}
 }
 
-MayaHairProperties::MayaHairProperties()
+MayaHairProperties::MayaHairProperties():
+	/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
+	mDensityTextureSamplingUDimension(128),
+	mDensityTextureSamplingVDimension(128),
+	mInterpolationGroupsTextureSamplingUDimension(128),
+	mInterpolationGroupsTextureSamplingVDimension(128),
+	mCutTextureSamplingUDimension(128),
+	mCutTextureSamplingVDimension(128),
+	mScaleTextureSamplingUDimension(128),
+	mScaleTextureSamplingVDimension(128),
+	mRandScaleTextureSamplingUDimension(128),
+	mRandScaleTextureSamplingVDimension(128),
+	mRootThicknessTextureSamplingUDimension(128),
+	mRootThicknessTextureSamplingVDimension(128),
+	mTipThicknessTextureSamplingUDimension(128),
+	mTipThicknessTextureSamplingVDimension(128),
+	mDisplacementTextureSamplingUDimension(128),
+	mDisplacementTextureSamplingVDimension(128),
+	/* MAYA COLOR PROPERTIES */
+	mRootOpacityTextureSamplingUDimension(128),
+	mRootOpacityTextureSamplingVDimension(128),
+	mTipOpacityTextureSamplingUDimension(128),
+	mTipOpacityTextureSamplingVDimension(128),
+	mRootColorTextureSamplingUDimension(128),
+	mRootColorTextureSamplingVDimension(128),
+	mTipColorTextureSamplingUDimension(128),
+	mTipColorTextureSamplingVDimension(128),
+	mHueVariationTextureSamplingUDimension(128),
+	mHueVariationTextureSamplingVDimension(128),
+	mValueVariationTextureSamplingUDimension(128),
+	mValueVariationTextureSamplingVDimension(128),
+	mMutantHairColorTextureSamplingUDimension(128),
+	mMutantHairColorTextureSamplingVDimension(128),
+	mPercentMutantHairTextureSamplingUDimension(128),
+	mPercentMutantHairTextureSamplingVDimension(128),
+	/* MAYA FRIZZ PROPERTIES */
+	mRootFrizzTextureSamplingUDimension(128),
+	mRootFrizzTextureSamplingVDimension(128),
+	mTipFrizzTextureSamplingUDimension(128),
+	mTipFrizzTextureSamplingVDimension(128),
+	mFrizzXFrequencyTextureSamplingUDimension(128),
+	mFrizzXFrequencyTextureSamplingVDimension(128),
+	mFrizzYFrequencyTextureSamplingUDimension(128),
+	mFrizzYFrequencyTextureSamplingVDimension(128),
+	mFrizzZFrequencyTextureSamplingUDimension(128),
+	mFrizzZFrequencyTextureSamplingVDimension(128),
+	mFrizzAnimTextureSamplingUDimension(128),
+	mFrizzAnimTextureSamplingVDimension(128),
+	mFrizzAnimSpeedTextureSamplingUDimension(128),
+	mFrizzAnimSpeedTextureSamplingVDimension(128),
+	/* MAYA KINK PROPERTIES */
+	mRootKinkTextureSamplingUDimension(128),
+	mRootKinkTextureSamplingVDimension(128),
+	mTipKinkTextureSamplingUDimension(128),
+	mTipKinkTextureSamplingVDimension(128),
+	mKinkXFrequencyTextureSamplingUDimension(128),
+	mKinkXFrequencyTextureSamplingVDimension(128),
+	mKinkYFrequencyTextureSamplingUDimension(128),
+	mKinkYFrequencyTextureSamplingVDimension(128),
+	mKinkZFrequencyTextureSamplingUDimension(128),
+	mKinkZFrequencyTextureSamplingVDimension(128),
+	/* MAYA MULTI STRAND PROPERTIES */
+	mRootSplayTextureSamplingUDimension(128),
+	mRootSplayTextureSamplingVDimension(128),
+	mTipSplayTextureSamplingUDimension(128),
+	mTipSplayTextureSamplingVDimension(128),
+	mCenterSplayTextureSamplingUDimension(128),
+	mCenterSplayTextureSamplingVDimension(128),
+	mTwistTextureSamplingUDimension(128),
+	mTwistTextureSamplingVDimension(128),
+	mOffsetTextureSamplingUDimension(128),
+	mOffsetTextureSamplingVDimension(128),
+	mAspectTextureSamplingUDimension(128),
+	mAspectTextureSamplingVDimension(128),
+	mRandomizeStrandTextureSamplingUDimension(128),
+	mRandomizeStrandTextureSamplingVDimension(128)
 {
 	mScaleFactor = 1;
 	mInterpolationGroupsTexture = new Texture( 1, 1, 1 );
@@ -341,6 +560,151 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "aspect", "asp", aspectAttr, 0, 0, float_max, 0, 5 );
 		addFloatAttribute( "randomize_strand_texture", "rstrtxt", randomizeStrandTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "randomize_strand", "rstr", randomizeStrandAttr, 0, 0, 1, 0, 1 );
+		/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
+		addIntAttribute( "density_texture_sampling_u_dimension", "dtxtsmpludm",
+			densityTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "density_texture_sampling_v_dimension", "dtxtsmplvdm",
+			densityTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "interpolation_groups_texture_sampling_u_dimension", "itxtsmpludm",
+			interpolationGroupsTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "interpolation_groups_texture_sampling_v_dimension", "itxtsmplvdm",
+			interpolationGroupsTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "cut_texture_sampling_u_dimension", "ctxtsmpludm",
+			cutTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "cut_texture_sampling_v_dimension", "ctxtsmplvdm",
+			cutTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "scale_texture_sampling_u_dimension", "scltxtsmpludm",
+			scaleTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "scale_texture_sampling_v_dimension", "scltxtsmplvdm",
+			scaleTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "rand_scale_texture_sampling_u_dimension", "rscltxtsmpludm",
+			randScaleTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "rand_scale_texture_sampling_v_dimension", "rscltxtsmplvdm",
+			randScaleTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_thickness_texture_sampling_u_dimension", "rthcktxtsmpludm",
+			rootThicknessTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_thickness_texture_sampling_v_dimension", "rthcktxtsmplvdm",
+			rootThicknessTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_thickness_texture_sampling_u_dimension", "tthcktxtsmpludm",
+			tipThicknessTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_thickness_texture_sampling_v_dimension", "tthcktxtsmplvdm",
+			tipThicknessTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "displacement_texture_sampling_u_dimension", "distxtsmpludm",
+			displacementTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "displacement_texture_sampling_v_dimension", "distxtsmplvdm",
+			displacementTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		/* MAYA COLOR PROPERTIES */                                                                                                 	;
+		addIntAttribute( "root_opacity_texture_sampling_u_dimension", "roptxtsmpludm",
+			rootOpacityTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_opacity_texture_sampling_v_dimension", "roptxtsmplvdm",
+			rootOpacityTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_opacity_texture_sampling_u_dimension", "toptxtsmpludm",
+			tipOpacityTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_opacity_texture_sampling_v_dimension", "toptxtsmplvdm",
+			tipOpacityTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_color_texture_sampling_u_dimension", "rcoltxtsmpludm",
+			rootColorTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_color_texture_sampling_v_dimension", "rcoltxtsmplvdm",
+			rootColorTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_color_texture_sampling_u_dimension", "tcoltxtsmpludm",
+			tipColorTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_color_texture_sampling_v_dimension", "tcoltxtsmplvdm",
+			tipColorTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "hue_variation_texture_sampling_u_dimension", "huetxtsmpludm",
+			hueVariationTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "hue_variation_texture_sampling_v_dimension", "huetxtsmplvdm",
+			hueVariationTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "value_variation_texture_sampling_u_dimension", "valuetxtsmpludm",
+			valueVariationTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "value_variation_texture_sampling_v_dimension", "valuetxtsmplvdm",
+			valueVariationTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "mutant_hair_color_texture_sampling_u_dimension", "mcoltxtsmpludm",
+			mutantHairColorTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "mutant_hair_color_texture_sampling_v_dimension", "mcoltxtsmplvdm",
+			mutantHairColorTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "percent_mutant_hair_texture_sampling_u_dimension", "pmhtxtsmpludm",
+			percentMutantHairTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "percent_mutant_hair_texture_sampling_v_dimension", "pmhtxtsmplvdm",
+			percentMutantHairTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		/* MAYA FRIZZ PROPERTIES */	;
+		addIntAttribute( "root_frizz_texture_sampling_u_dimension", "rfzztxtsmpludm",
+			rootFrizzTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_frizz_texture_sampling_v_dimension", "rfzztxtsmplvdm",
+			rootFrizzTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_frizz_texture_sampling_u_dimension", "tfzztxtsmpludm",
+			tipFrizzTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_frizz_texture_sampling_v_dimension", "tfzztxtsmplvdm",
+			tipFrizzTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_X_freq_texture_sampling_u_dimension", "fzzXftxtsmpludm",
+			frizzXFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_X_freq_texture_sampling_v_dimension", "fzzXftxtsmplvdm",
+			frizzXFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_Y_freq_texture_sampling_u_dimension", "fzzYftxtsmpludm",
+			frizzYFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_Y_freq_texture_sampling_v_dimension", "fzzYftxtsmplvdm",
+			frizzYFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_Z_freq_texture_sampling_u_dimension", "fzzZftxtsmpludm",
+			frizzZFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_Z_freq_texture_sampling_v_dimension", "fzzZftxtsmplvdm",
+			frizzZFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_anim_texture_sampling_u_dimension", "afzztxtsmpludm",
+			frizzAnimTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_anim_texture_sampling_v_dimension", "afzztxtsmplvdm",
+			frizzAnimTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_anim_speed_texture_sampling_u_dimension", "asfzztxtsmpludm",
+			frizzAnimSpeedTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "frizz_anim_speed_texture_sampling_v_dimension", "asfzztxtsmplvdm",
+			frizzAnimSpeedTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		/* MAYA KINK PROPERTIES */	;
+		addIntAttribute( "root_kink_texture_sampling_u_dimension", "rknktxtsmpludm",
+			rootKinkTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_kink_texture_sampling_v_dimension", "rknktxtsmplvdm",
+			rootKinkTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_kink_texture_sampling_u_dimension", "tknktxtsmpludm",
+			tipKinkTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_kink_texture_sampling_v_dimension", "tknktxtsmplvdm",
+			tipKinkTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_X_freq_texture_sampling_u_dimension", "knkXftxtsmpludm",
+			kinkXFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_X_freq_texture_sampling_v_dimension", "knkXftxtsmplvdm",
+			kinkXFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_Y_freq_texture_sampling_u_dimension", "knkYftxtsmpludm",
+			kinkYFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_Y_freq_texture_sampling_v_dimension", "knkYftxtsmplvdm",
+			kinkYFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_Z_freq_texture_sampling_u_dimension", "knkZftxtsmpludm",
+			kinkZFrequencyTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "kink_Z_freq_texture_sampling_v_dimension", "knkZftxtsmplvdm",
+			kinkZFrequencyTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		/* MAYA MULTI STRAND PROPERTIES */	;
+		addIntAttribute( "root_splay_texture_sampling_u_dimension", "rspltxtsmpludm",
+			rootSplayTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "root_splay_texture_sampling_v_dimension", "rspltxtsmplvdm",
+			rootSplayTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_splay_texture_sampling_u_dimension", "tspltxtsmpludm",
+			tipSplayTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "tip_splay_texture_sampling_v_dimension", "tspltxtsmplvdm",
+			tipSplayTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "center_splay_texture_sampling_u_dimension", "cspltxtsmpludm",
+			centerSplayTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "center_splay_texture_sampling_v_dimension", "cspltxtsmplvdm",
+			centerSplayTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "twist_texture_sampling_u_dimension", "twtxtsmpludm",
+			twistTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "twist_texture_sampling_v_dimension", "twtxtsmplvdm",
+			twistTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "offset_texture_sampling_u_dimension", "offtxtsmpludm",
+			offsetTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "offset_texture_sampling_v_dimension", "offtxtsmplvdm",
+			offsetTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "aspect_texture_sampling_u_dimension", "asptxtsmpludm",
+			aspectTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "aspect_texture_sampling_v_dimension", "asptxtsmplvdm",
+			aspectTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "randomize_strand_texture_sampling_u_dimension", "rstrtxtsmpludm",
+			randomizeStrandTextureSamplingUDimensionAttr, 128, 1, 4096, 32, 1024);
+		addIntAttribute( "randomize_strand_texture_sampling_v_dimension", "rstrtxtsmplvdm",
+			randomizeStrandTextureSamplingVDimensionAttr, 128, 1, 4096, 32, 1024);
 	}
 	catch( const StubbleException & ex )
 	{
@@ -806,6 +1170,432 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 		mValueVariationTexture->setConnection( aPlug );
 		return true;
 	}
+	/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
+	if ( aPlug == densityTextureSamplingUDimensionAttr )
+	{
+		mDensityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == densityTextureSamplingVDimensionAttr )
+	{
+		mDensityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == interpolationGroupsTextureSamplingUDimensionAttr )
+	{
+		mInterpolationGroupsTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == interpolationGroupsTextureSamplingVDimensionAttr )
+	{
+		mInterpolationGroupsTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == cutTextureSamplingUDimensionAttr )
+	{
+		mCutTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == cutTextureSamplingVDimensionAttr )
+	{
+		mCutTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == scaleTextureSamplingUDimensionAttr )
+	{
+		mScaleTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == scaleTextureSamplingVDimensionAttr )
+	{
+		mScaleTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == randScaleTextureSamplingUDimensionAttr )
+	{
+		mRandScaleTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == randScaleTextureSamplingVDimensionAttr )
+	{
+		mRandScaleTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootThicknessTextureSamplingUDimensionAttr )
+	{
+		mRootThicknessTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootThicknessTextureSamplingVDimensionAttr )
+	{
+		mRootThicknessTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipThicknessTextureSamplingUDimensionAttr )
+	{
+		mTipThicknessTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipThicknessTextureSamplingVDimensionAttr )
+	{
+		mTipThicknessTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == displacementTextureSamplingUDimensionAttr )
+	{
+		mDisplacementTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == displacementTextureSamplingVDimensionAttr )
+	{
+		mDisplacementTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	/* MAYA COLOR PROPERTIES */
+	if ( aPlug == rootOpacityTextureSamplingUDimensionAttr )
+	{
+		mRootOpacityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootOpacityTextureSamplingVDimensionAttr )
+	{
+		mRootOpacityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipOpacityTextureSamplingUDimensionAttr )
+	{
+		mTipOpacityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipOpacityTextureSamplingVDimensionAttr )
+	{
+		mTipOpacityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootColorTextureSamplingUDimensionAttr )
+	{
+		mRootColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootColorTextureSamplingVDimensionAttr )
+	{
+		mRootColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipColorTextureSamplingUDimensionAttr )
+	{
+		mTipColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipColorTextureSamplingVDimensionAttr )
+	{
+		mTipColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == hueVariationTextureSamplingUDimensionAttr )
+	{
+		mHueVariationTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == hueVariationTextureSamplingVDimensionAttr )
+	{
+		mHueVariationTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == valueVariationTextureSamplingUDimensionAttr )
+	{
+		mValueVariationTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == valueVariationTextureSamplingVDimensionAttr )
+	{
+		mValueVariationTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == mutantHairColorTextureSamplingUDimensionAttr )
+	{
+		mMutantHairColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == mutantHairColorTextureSamplingVDimensionAttr )
+	{
+		mMutantHairColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == percentMutantHairTextureSamplingUDimensionAttr )
+	{
+		mPercentMutantHairTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == percentMutantHairTextureSamplingVDimensionAttr )
+	{
+		mPercentMutantHairTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	/* MAYA FRIZZ PROPERTIES */
+	if ( aPlug == rootFrizzTextureSamplingUDimensionAttr )
+	{
+		mRootFrizzTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootFrizzTextureSamplingVDimensionAttr )
+	{
+		mRootFrizzTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipFrizzTextureSamplingUDimensionAttr )
+	{
+		mTipFrizzTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipFrizzTextureSamplingVDimensionAttr )
+	{
+		mTipFrizzTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzXFrequencyTextureSamplingUDimensionAttr )
+	{
+		mFrizzXFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzXFrequencyTextureSamplingVDimensionAttr )
+	{
+		mFrizzXFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzYFrequencyTextureSamplingUDimensionAttr )
+	{
+		mFrizzYFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzYFrequencyTextureSamplingVDimensionAttr )
+	{
+		mFrizzYFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzZFrequencyTextureSamplingUDimensionAttr )
+	{
+		mFrizzZFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzZFrequencyTextureSamplingVDimensionAttr )
+	{
+		mFrizzZFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzAnimTextureSamplingUDimensionAttr )
+	{
+		mFrizzAnimTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzAnimTextureSamplingVDimensionAttr )
+	{
+		mFrizzAnimTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzAnimSpeedTextureSamplingUDimensionAttr )
+	{
+		mFrizzAnimSpeedTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == frizzAnimSpeedTextureSamplingVDimensionAttr )
+	{
+		mFrizzAnimSpeedTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	/* MAYA KINK PROPERTIES */
+	if ( aPlug == rootKinkTextureSamplingUDimensionAttr )
+	{
+		mRootKinkTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootKinkTextureSamplingVDimensionAttr )
+	{
+		mRootKinkTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipKinkTextureSamplingUDimensionAttr )
+	{
+		mTipKinkTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipKinkTextureSamplingVDimensionAttr )
+	{
+		mTipKinkTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkXFrequencyTextureSamplingUDimensionAttr )
+	{
+		mKinkXFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkXFrequencyTextureSamplingVDimensionAttr )
+	{
+		mKinkXFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkYFrequencyTextureSamplingUDimensionAttr )
+	{
+		mKinkYFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkYFrequencyTextureSamplingVDimensionAttr )
+	{
+		mKinkYFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkZFrequencyTextureSamplingUDimensionAttr )
+	{
+		mKinkZFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == kinkZFrequencyTextureSamplingVDimensionAttr )
+	{
+		mKinkZFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	/* MAYA MULTI STRAND PROPERTIES */
+	if ( aPlug == rootSplayTextureSamplingUDimensionAttr )
+	{
+		mRootSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == rootSplayTextureSamplingVDimensionAttr )
+	{
+		mRootSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipSplayTextureSamplingUDimensionAttr )
+	{
+		mTipSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == tipSplayTextureSamplingVDimensionAttr )
+	{
+		mTipSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == centerSplayTextureSamplingUDimensionAttr )
+	{
+		mCenterSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == centerSplayTextureSamplingVDimensionAttr )
+	{
+		mCenterSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == twistTextureSamplingUDimensionAttr )
+	{
+		mTwistTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == twistTextureSamplingVDimensionAttr )
+	{
+		mTwistTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == offsetTextureSamplingUDimensionAttr )
+	{
+		mOffsetTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == offsetTextureSamplingVDimensionAttr )
+	{
+		mOffsetTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == aspectTextureSamplingUDimensionAttr )
+	{
+		mAspectTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == aspectTextureSamplingVDimensionAttr )
+	{
+		mAspectTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == randomizeStrandTextureSamplingUDimensionAttr )
+	{
+		mRandomizeStrandTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+	if ( aPlug == randomizeStrandTextureSamplingVDimensionAttr )
+	{
+		mRandomizeStrandTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		return false;
+	}
+
+
 	return false;
 }
 
@@ -996,7 +1786,8 @@ void MayaHairProperties::refreshTextures( unsigned __int32 aTextureSamples, bool
 	aDensityChanged = aInterpolationGroupsChanged = aHairPropertiesChanged = false;
 	if ( mInterpolationGroupsTexture->isDirty() || aForceRefresh )
 	{
-		mInterpolationGroupsTexture->resample( aTextureSamples );
+		mInterpolationGroupsTexture->resample( mInterpolationGroupsTextureSamplingUDimension,
+			mInterpolationGroupsTextureSamplingVDimension );
 		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
 		updateIntArrayComponentsCount( segmentsCountAttr, mInterpolationGroups->getGroupsCount(), 
 			DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
@@ -1006,168 +1797,189 @@ void MayaHairProperties::refreshTextures( unsigned __int32 aTextureSamples, bool
 	}
 	if ( mDensityTexture->isDirty() || aForceRefresh )
 	{
-		mDensityTexture->resample( aTextureSamples );
+		mDensityTexture->resample( mDensityTextureSamplingUDimension, mDensityTextureSamplingVDimension );
 		aDensityChanged = true;
 	}
 	// Refreshes all other textures
 	if ( mAspectTexture->isDirty() || aForceRefresh )
 	{
-		mAspectTexture->resample( aTextureSamples );
+		mAspectTexture->resample( mAspectTextureSamplingUDimension, mAspectTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mCenterSplayTexture->isDirty() || aForceRefresh )
 	{
-		mCenterSplayTexture->resample( aTextureSamples );
+		mCenterSplayTexture->resample( mCenterSplayTextureSamplingUDimension, mCenterSplayTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mCutTexture->isDirty() || aForceRefresh )
 	{
-		mCutTexture->resample( aTextureSamples );
+		mCutTexture->resample( mCutTextureSamplingUDimension, mCutTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mDisplacementTexture->isDirty() || aForceRefresh )
 	{
-		mDisplacementTexture->resample( aTextureSamples );
+		mDisplacementTexture->resample( mDisplacementTextureSamplingUDimension,
+			mDisplacementTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mFrizzAnimSpeedTexture->isDirty() || aForceRefresh )
 	{
-		mFrizzAnimSpeedTexture->resample( aTextureSamples );
+		mFrizzAnimSpeedTexture->resample( mFrizzAnimSpeedTextureSamplingUDimension,
+			mFrizzAnimSpeedTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mFrizzAnimTexture->isDirty() || aForceRefresh )
 	{
-		mFrizzAnimTexture->resample( aTextureSamples );
+		mFrizzAnimTexture->resample( mFrizzAnimTextureSamplingUDimension, mFrizzAnimTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mFrizzXFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mFrizzXFrequencyTexture->resample( aTextureSamples );
+		mFrizzXFrequencyTexture->resample( mFrizzXFrequencyTextureSamplingUDimension,
+			mFrizzXFrequencyTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mFrizzYFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mFrizzYFrequencyTexture->resample( aTextureSamples );
+		mFrizzYFrequencyTexture->resample( mFrizzYFrequencyTextureSamplingUDimension,
+			mFrizzYFrequencyTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mFrizzZFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mFrizzZFrequencyTexture->resample( aTextureSamples );
+		mFrizzZFrequencyTexture->resample( mFrizzZFrequencyTextureSamplingUDimension,
+			mFrizzZFrequencyTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mHueVariationTexture->isDirty() || aForceRefresh )
 	{
-		mHueVariationTexture->resample( aTextureSamples );
+		mHueVariationTexture->resample( mHueVariationTextureSamplingUDimension,
+			mHueVariationTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mKinkXFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mKinkXFrequencyTexture->resample( aTextureSamples );
+		mKinkXFrequencyTexture->resample( mKinkXFrequencyTextureSamplingUDimension,
+			mKinkXFrequencyTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mKinkYFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mKinkYFrequencyTexture->resample( aTextureSamples );
+		mKinkYFrequencyTexture->resample( mKinkYFrequencyTextureSamplingUDimension,
+			mKinkXFrequencyTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mKinkZFrequencyTexture->isDirty() || aForceRefresh )
 	{
-		mKinkZFrequencyTexture->resample( aTextureSamples );
+		mKinkZFrequencyTexture->resample( mKinkZFrequencyTextureSamplingUDimension,
+			mKinkZFrequencyTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mMutantHairColorTexture->isDirty() || aForceRefresh )
 	{
-		mMutantHairColorTexture->resample( aTextureSamples );
+		mMutantHairColorTexture->resample( mMutantHairColorTextureSamplingUDimension,
+			mMutantHairColorTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mOffsetTexture->isDirty() || aForceRefresh )
 	{
-		mOffsetTexture->resample( aTextureSamples );
+		mOffsetTexture->resample( mOffsetTextureSamplingUDimension,
+			mOffsetTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mPercentMutantHairTexture->isDirty() || aForceRefresh )
 	{
-		mPercentMutantHairTexture->resample( aTextureSamples );
+		mPercentMutantHairTexture->resample( mPercentMutantHairTextureSamplingUDimension,
+			mPercentMutantHairTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRandomizeStrandTexture->isDirty() || aForceRefresh )
 	{
-		mRandomizeStrandTexture->resample( aTextureSamples );
+		mRandomizeStrandTexture->resample( mRandomizeStrandTextureSamplingUDimension,
+			mRandomizeStrandTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRandScaleTexture->isDirty() || aForceRefresh )
 	{
-		mRandScaleTexture->resample( aTextureSamples );
+		mRandScaleTexture->resample( mRandScaleTextureSamplingUDimension,
+			mRandScaleTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRootColorTexture->isDirty() || aForceRefresh )
 	{
-		mRootColorTexture->resample( aTextureSamples );
+		mRootColorTexture->resample( mRootColorTextureSamplingUDimension,
+			mRootColorTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRootFrizzTexture->isDirty() || aForceRefresh )
 	{
-		mRootFrizzTexture->resample( aTextureSamples );
+		mRootFrizzTexture->resample( mRootFrizzTextureSamplingUDimension,
+			mRootFrizzTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRootOpacityTexture->isDirty() || aForceRefresh )
 	{
-		mRootOpacityTexture->resample( aTextureSamples );
+		mRootOpacityTexture->resample( mRootOpacityTextureSamplingUDimension,
+			mRootOpacityTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRootSplayTexture->isDirty() || aForceRefresh )
 	{
-		mRootSplayTexture->resample( aTextureSamples );
+		mRootSplayTexture->resample( mRootSplayTextureSamplingUDimension,
+			mRootSplayTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mRootThicknessTexture->isDirty() || aForceRefresh )
 	{
-		mRootThicknessTexture->resample( aTextureSamples );
+		mRootThicknessTexture->resample( mRootThicknessTextureSamplingUDimension,
+			mRootThicknessTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 	if ( mScaleTexture->isDirty() || aForceRefresh )
 	{
-		mScaleTexture->resample( aTextureSamples );
+		mScaleTexture->resample( mScaleTextureSamplingUDimension, mScaleTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipColorTexture->isDirty() || aForceRefresh )
 	{
-		mTipColorTexture->resample( aTextureSamples );
+		mTipColorTexture->resample( mTipColorTextureSamplingUDimension, mTipColorTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipFrizzTexture->isDirty() || aForceRefresh )
 	{
-		mTipFrizzTexture->resample( aTextureSamples );
+		mTipFrizzTexture->resample( mTipFrizzTextureSamplingUDimension, mTipFrizzTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipKinkTexture->isDirty() || aForceRefresh )
 	{
-		mTipKinkTexture->resample( aTextureSamples );
+		mTipKinkTexture->resample( mTipKinkTextureSamplingUDimension, mTipKinkTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipOpacityTexture->isDirty() || aForceRefresh )
 	{
-		mTipOpacityTexture->resample( aTextureSamples );
+		mTipOpacityTexture->resample( mTipOpacityTextureSamplingUDimension, mTipOpacityTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipSplayTexture->isDirty() || aForceRefresh )
 	{
-		mTipSplayTexture->resample( aTextureSamples );
+		mTipSplayTexture->resample( mTipSplayTextureSamplingUDimension, mTipSplayTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTipThicknessTexture->isDirty() || aForceRefresh )
 	{
-		mTipThicknessTexture->resample( aTextureSamples );
+		mTipThicknessTexture->resample( mTipThicknessTextureSamplingUDimension,
+			mTipThicknessTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mTwistTexture->isDirty() || aForceRefresh )
 	{
-		mTwistTexture->resample( aTextureSamples );
+		mTwistTexture->resample( mTwistTextureSamplingUDimension, mTwistTextureSamplingVDimension );
 		aHairPropertiesChanged = true;
 	}
 	if ( mValueVariationTexture->isDirty() || aForceRefresh )
 	{
-		mValueVariationTexture->resample( aTextureSamples );
+		mValueVariationTexture->resample( mValueVariationTextureSamplingUDimension,
+			mValueVariationTextureSamplingVDimension);
 		aHairPropertiesChanged = true;
 	}
 }
