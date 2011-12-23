@@ -76,6 +76,11 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 	mPrevProxyPosition = aProxyPosition;
 }
 
+MString SphereToolShape::getName()
+{
+	return "Sphere Tool Shape";
+}
+
 } // namespace Toolbox
 
 } // namespace Stubble

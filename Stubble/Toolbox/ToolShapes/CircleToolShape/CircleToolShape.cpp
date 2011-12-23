@@ -104,6 +104,11 @@ void CircleToolShape::drawToolShape( M3dView *aView, short aScreenCoords[ 2 ] )
 	aView->endGL();
 }
 
+MString CircleToolShape::getName()
+{
+	return "Circle Tool Shape";//TODO: nechat
+	//return "Circle";
+}
 
 } // namespace Toolbox
 

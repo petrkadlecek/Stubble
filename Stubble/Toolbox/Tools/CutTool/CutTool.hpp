@@ -104,7 +104,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Changes the current tool shape. Called every time the user changes his preference in the UI.
 	///----------------------------------------------------------------------------------------------------
-	virtual void changeToolShape( void );
+	//virtual void changeToolShape( void );
 
 	///----------------------------------------------------------------------------------------------------
 	///  Cut the affected hair.

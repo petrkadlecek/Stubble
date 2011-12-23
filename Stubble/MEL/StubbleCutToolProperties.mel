@@ -23,6 +23,14 @@ global proc StubbleCutToolProperties()
 					-fieldMinValue 0.1 -fieldMaxValue 10.0 
 						stubbleToolScale;
 				
+					separator -style "none";
+
+				textScrollList -numberOfRows 3 -height 50
+					-append "Circle Tool Shape"
+					-append "Texture Tool Shape"
+					-selectItem "Circle Tool Shape"
+						stubbleToolShape;
+
 				setParent ..;
 			setParent ..;
 		setParent ..;

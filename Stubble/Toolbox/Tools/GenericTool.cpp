@@ -1,9 +1,12 @@
 #include "GenericTool.hpp"
 #include "../ToolShapes/CircleToolShape/CircleToolShape.hpp"
+#include "../ToolShapes/TextureToolShape/TextureToolShape.hpp"
 
 // Command parameter names and shortcuts
 const char *toolScaleFlag = "-ts";
 const char *toolScaleLongFlag = "-toolScale";
+const char *toolShapeFlag = "-tsh";
+const char *toolShapeLongFlag = "-toolShape";
 const char *brushModeChoiceFlag = "-bmc";
 const char *brushModeChoiceLongFlag = "-brushModeChoice";
 const char *brushSensitivityFlag = "-bse"; // :)
@@ -55,7 +58,19 @@ double GenericTool::getToolScale()
 	return mScale;
 }
 
-
+void GenericTool::changeToolShape(MString aShapeName)
+{
+	if( aShapeName == "Circle Tool Shape" ) 
+	{
+		delete mShape;
+		mShape = new CircleToolShape();
+	}
+	if( aShapeName == "Texture Tool Shape" )
+	{
+		delete mShape;
+		mShape = new TextureToolShape();
+	}
+}
 GenericToolCommand::GenericToolCommand()
 {
 }
@@ -71,6 +86,8 @@ MStatus	GenericToolCommand::appendSyntax()
 	syn.addFlag( brushModeChoiceFlag, brushModeChoiceLongFlag, MSyntax::kLong );
 
 	syn.addFlag( toolScaleFlag, toolScaleLongFlag, MSyntax::kDouble );
+
+	syn.addFlag( toolShapeFlag, toolShapeLongFlag, MSyntax::kString );
 
 	syn.addFlag( brushSensitivityFlag, brushSensitivityLongFlag, MSyntax::kDouble );
 

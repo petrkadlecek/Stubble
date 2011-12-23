@@ -44,6 +44,13 @@ public:
 	virtual void update( GenericTool *aTool );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Returns tool shape name.
+	///
+	/// \return The name of the tool shape
+	///----------------------------------------------------------------------------------------------------
+	virtual MString getName();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Returns circle radius of the current tool.
 	/// 
 	/// \return Circle tool shape radius

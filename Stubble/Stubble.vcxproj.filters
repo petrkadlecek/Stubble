@@ -97,6 +97,9 @@
     <Filter Include="Toolbox\ToolShapes\CylinderToolShape">
       <UniqueIdentifier>{0c7db6aa-4c49-470b-8ee9-b6308444dc7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Toolbox\ToolShapes\TextureToolShape">
+      <UniqueIdentifier>{52b8a229-bb11-496c-b738-5eb00b7bf1e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -252,6 +255,9 @@
     </ClCompile>
     <ClCompile Include="Toolbox\ToolShapes\CylinderToolShape\CylinderToolShape.cpp">
       <Filter>Toolbox\ToolShapes\CylinderToolShape</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.cpp">
+      <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -485,6 +491,9 @@
     </ClInclude>
     <ClInclude Include="Toolbox\ToolShapes\CylinderToolShape\CylinderToolShape.hpp">
       <Filter>Toolbox\ToolShapes\CylinderToolShape</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.hpp">
+      <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

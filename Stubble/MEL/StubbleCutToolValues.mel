@@ -10,5 +10,17 @@ global proc StubbleCutToolValues( string $ctxName )
 		-cc ("StubbleCutToolCommand -e -toolScale #1 " + $ctxName)
 		stubbleToolScale;
 
+	string $shape = `StubbleCutToolCommand -q -toolShape $ctxName`;
+
+	textScrollList -e
+			-selectItem $shape
+			-selectCommand ("StubbleToolShapeSelected " + $ctxName )
+			stubbleToolShape;
+
 	toolPropertySelect stubbleCutToolLayout;
+}
+global proc StubbleToolShapeSelected( string $ctxName )
+{
+	string $value[] = `textScrollList -q -selectItem stubbleToolShape`;
+	StubbleCutToolCommand -e -toolShape $value[0] $ctxName;
 }

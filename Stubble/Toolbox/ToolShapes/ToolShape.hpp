@@ -42,6 +42,13 @@ public:
 	virtual void update( GenericTool *aTool ) = 0;
 
 	///----------------------------------------------------------------------------------------------------
+	/// Returns tool shape name.
+	///
+	/// \return The name of the tool shape
+	///----------------------------------------------------------------------------------------------------
+	virtual MString getName() = 0;
+
+	///----------------------------------------------------------------------------------------------------
 	/// Returns tool shape scale.
 	///
 	/// \return The scale (size) of the tool shape

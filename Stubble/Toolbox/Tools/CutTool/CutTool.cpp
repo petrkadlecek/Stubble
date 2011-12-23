@@ -5,6 +5,8 @@
 // inherited from GenericTool
 extern const char *toolScaleFlag;
 extern const char *toolScaleLongFlag;
+extern const char *toolShapeFlag;
+extern const char *toolShapeLongFlag;
 
 namespace Stubble
 {
@@ -50,6 +52,15 @@ MStatus	CutToolCommand::doEditFlags()
 		mCurrentCutToolObject->notify();
 	}
 
+	if( pars.isFlagSet( toolShapeFlag ) )
+	{
+		MString shape;
+		pars.getFlagArgument( toolShapeFlag, 0, shape ); //TODO: make proper reaction
+		mCurrentCutToolObject->changeToolShape(shape);
+
+		mCurrentCutToolObject->notify();
+	}
+
 	return MS::kSuccess;
 }
 
@@ -58,7 +69,14 @@ MStatus	CutToolCommand::doQueryFlags()
 	MArgParser pars = parser();
 
 	if( pars.isFlagSet( toolScaleFlag ) )
+	{
 		setResult( mCurrentCutToolObject->mScale );
+	}
+	
+	if( pars.isFlagSet( toolShapeFlag ) )
+	{
+		setResult( mCurrentCutToolObject->getToolShape()->getName() );
+	}
 	
 	return MS::kSuccess;
 }
@@ -82,7 +100,7 @@ CutTool::CutTool() :
 {
 	setTitleString( "Stubble Cut Tool" );	
 }
-
+	
 CutTool::~CutTool()
 {
 }
@@ -239,10 +257,10 @@ void CutTool::doCut()
 	HairTaskProcessor::enforceConstraints(mAffectedGuides);
 }
 
-void CutTool::changeToolShape( void )
-{
-	// TODO?
-}
+//void CutTool::changeToolShape( void )
+//{
+//	// TODO?
+//}
 
 void CutTool::notify()
 {

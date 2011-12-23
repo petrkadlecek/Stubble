@@ -4,6 +4,8 @@
 // declared in GenericTool.cpp
 extern const char *toolScaleFlag;
 extern const char *toolScaleLongFlag;
+extern const char *toolShapeFlag;
+extern const char *toolShapeLongFlag;
 extern const char *brushModeChoiceFlag;
 extern const char *brushModeChoiceLongFlag;
 extern const char *brushSensitivityFlag;
@@ -81,6 +83,15 @@ MStatus	BrushToolCommand::doEditFlags()
 		mCurrentBrushToolObject->notify();
 	}
 
+	if( pars.isFlagSet( toolShapeFlag ) )
+	{
+		MString shape;
+		pars.getFlagArgument( toolShapeFlag, 0, shape ); //TODO: make proper reaction
+		mCurrentBrushToolObject->changeToolShape(shape);
+
+		mCurrentBrushToolObject->notify();
+	}
+
 	return MS::kSuccess;
 }
 
@@ -111,6 +122,10 @@ MStatus	BrushToolCommand::doQueryFlags()
 	if ( pars.isFlagSet( brushCollisionFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mEnableCollisionDetection );
+	}
+	if( pars.isFlagSet( toolShapeFlag ) )
+	{
+		setResult( mCurrentBrushToolObject->getToolShape()->getName() );
 	}
 	
 	return MS::kSuccess;
@@ -406,10 +421,10 @@ void BrushTool::filterAffectedGuidesHaptic()
 	
 }
 
-void BrushTool::changeToolShape()
-{
-	/*TODO*/
-}
+//void BrushTool::changeToolShape()
+//{
+//	/*TODO*/
+//}
 
 } // namespace Toolbox
 

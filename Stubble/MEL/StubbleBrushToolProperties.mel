@@ -51,6 +51,13 @@ global proc StubbleBrushToolProperties()
 				checkBox -label "Enable collision detection"
 					-value false
 						stubbleBrushCollision;
+					separator -style "none";
+
+				textScrollList -numberOfRows 3 -height 50
+					-append "Circle Tool Shape"
+					-append "Texture Tool Shape"
+					-selectItem "Circle Tool Shape"
+						stubbleToolShape;
 
 				setParent ..;
 			setParent ..;

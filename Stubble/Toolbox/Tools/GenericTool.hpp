@@ -57,7 +57,7 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Changes the current tool shape. Called every time the user changes his preference in the UI.
 	///----------------------------------------------------------------------------------------------------
-	virtual void changeToolShape() = 0; 
+	virtual void changeToolShape(MString aShapeName); 
 
 	///----------------------------------------------------------------------------------------------------
 	/// Haptic dragging event. Up to 1kHz update frequency (depends on device).

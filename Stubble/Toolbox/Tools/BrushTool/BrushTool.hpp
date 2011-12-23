@@ -166,7 +166,7 @@ protected:
 	///----------------------------------------------------------------------------------------------------
 	/// Takes care when the user changes tool shape from the UI
 	///----------------------------------------------------------------------------------------------------
-	virtual void changeToolShape();
+	//virtual void changeToolShape();
 
 	Stubble::HairShape::HairComponents::SelectedGuides mAffectedGuides; ///< Guides currently affected by present operation
 
