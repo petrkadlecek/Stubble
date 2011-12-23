@@ -19,6 +19,13 @@ MeshUVCoordUG::~MeshUVCoordUG()
 {
 	delete [] mTriangles;
 	delete [] mTrianglesInGrid;
+	for( int i = 0; i < mGridSize; ++i )
+	{
+		delete[] mGrid.mTriangles[i];
+		delete[] mGrid.mTrianglesCount[i];
+	}
+	delete[] mGrid.mTriangles;
+	delete[] mGrid.mTrianglesCount;
 }
 
 void MeshUVCoordUG::build( Triangles & aTriangles )
@@ -29,9 +36,33 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 	delete [] mTrianglesInGrid;
 	mTrianglesInGrid = 0;
 
+	for( int i = 0; i < mGridSize; ++i )
+	{
+		delete[] mGrid.mTriangles[i];
+		delete[] mGrid.mTrianglesCount[i];
+	}
+	delete[] mGrid.mTriangles;
+	delete[] mGrid.mTrianglesCount;
+
+	// Aproximate the size of grid
+	mGridSize = static_cast< unsigned __int32 >( ceil( sqrtf( aTriangles.size() ) ) );
+
+	// Allocate new memory for grid
+	mGrid.mTriangles = new Triangle *** [ mGridSize ];
+	mGrid.mTrianglesCount = new unsigned __int32 * [ mGridSize ];
+	for( int i = 0; i < mGridSize; ++i )
+	{
+		mGrid.mTriangles[ i ] = new Triangle**[ mGridSize ];
+		mGrid.mTrianglesCount[ i ] = new unsigned __int32[ mGridSize ];
+		for( int j = 0; j < mGridSize; ++i )
+		{
+			mGrid.mTrianglesCount[ i ][ j ] = 0;
+		}
+	}
+
 	// Zero counts
-	memset( reinterpret_cast< void * >( mGrid.mTrianglesCount ), 0, GRID_SIZE * GRID_SIZE * 
-		sizeof ( unsigned __int32 ) );
+	//memset( reinterpret_cast< void * >( mGrid.mTrianglesCount ), 0, mGridSize * mGridSize * 
+	//	sizeof ( unsigned __int32 ) );//TODO nemuze to zde neco provest?
 
 	// The total count of triangles in grid
 	unsigned __int32 total = 0;
@@ -58,22 +89,22 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 		Real vMax = MAX3( v0, v1, v2 );
 
 		// Find max, min bounding box coordinates
-		int xMin = static_cast< int >( MAX( 0, floor( uMin * GRID_SIZE ) ) ); 
-		if ( xMin >= GRID_SIZE ) 
+		int xMin = static_cast< int >( MAX( 0, floor( uMin * mGridSize ) ) ); 
+		if ( xMin >= mGridSize ) 
 		{
 			continue;
 		}
-		int xMax = static_cast< int >( MIN( GRID_SIZE - 1, ceil( uMax * GRID_SIZE ) ) ); 
+		int xMax = static_cast< int >( MIN( mGridSize - 1, ceil( uMax * mGridSize ) ) ); 
 		if ( xMax < 0 ) 
 		{
 			continue;
 		}
-		int yMin = static_cast< int >( MAX( 0, floor( vMin * GRID_SIZE ) ) ); 
-		if ( yMin >= GRID_SIZE )
+		int yMin = static_cast< int >( MAX( 0, floor( vMin * mGridSize ) ) ); 
+		if ( yMin >= mGridSize )
 		{
 			continue;
 		}
-		int yMax = static_cast< int >( MIN( GRID_SIZE - 1, ceil( vMax * GRID_SIZE ) ) ); 
+		int yMax = static_cast< int >( MIN( mGridSize - 1, ceil( vMax * mGridSize ) ) ); 
 		if ( yMax < 0 ) 
 		{
 			continue;
@@ -93,9 +124,9 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 	// Allocate and distribute space in a linear buffer
 	mTrianglesInGrid = new Triangle * [ total ];
 	Triangle ** buf = mTrianglesInGrid;
-	for ( int y = 0; y < GRID_SIZE; ++y ) 
+	for ( int y = 0; y < mGridSize; ++y ) 
 	{
-		for ( int x = 0; x < GRID_SIZE; ++x ) 
+		for ( int x = 0; x < mGridSize; ++x ) 
 		{
 			// We want to set cell pointer to end of its triangles buffer
 			buf += mGrid.mTrianglesCount[ y ][ x ]; 
@@ -121,22 +152,22 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 		Real vMax = MAX3( v0, v1, v2 );
 
 		// Find max, min bounding box coordinates
-		int xMin = static_cast< int >( MAX( 0, floor( uMin * GRID_SIZE ) ) ); 
-		if ( xMin >= GRID_SIZE ) 
+		int xMin = static_cast< int >( MAX( 0, floor( uMin * mGridSize ) ) ); 
+		if ( xMin >= mGridSize ) 
 		{
 			continue;
 		}
-		int xMax = static_cast< int >( MIN( GRID_SIZE - 1, ceil( uMax * GRID_SIZE ) ) ); 
+		int xMax = static_cast< int >( MIN( mGridSize - 1, ceil( uMax * mGridSize ) ) ); 
 		if ( xMax < 0 ) 
 		{
 			continue;
 		}
-		int yMin = static_cast< int >( MAX( 0, floor( vMin * GRID_SIZE ) ) ); 
-		if ( yMin >= GRID_SIZE )
+		int yMin = static_cast< int >( MAX( 0, floor( vMin * mGridSize ) ) ); 
+		if ( yMin >= mGridSize )
 		{
 			continue;
 		}
-		int yMax = static_cast< int >( MIN( GRID_SIZE - 1, ceil( vMax * GRID_SIZE ) ) ); 
+		int yMax = static_cast< int >( MIN( mGridSize - 1, ceil( vMax * mGridSize ) ) ); 
 		if ( yMax < 0 ) 
 		{
 			continue;
@@ -162,13 +193,13 @@ UVPoint MeshUVCoordUG::getUVPoint( const MeshPoint &aPoint ) const
 	Real v = aPoint.getVCoordinate();
 
 	// first select grid cell
-	int x = static_cast< int >( floor( u * GRID_SIZE ) ); 
-	if ( x < 0 || x >= GRID_SIZE )
+	int x = static_cast< int >( floor( u * mGridSize ) ); 
+	if ( x < 0 || x >= mGridSize )
 	{
 		return UVPoint( 0, 0, UVPoint::NOT_TRIANGLE );
 	}
-	int y = static_cast< int >( floor( v * GRID_SIZE ) ); 
-	if ( x < 0 || x >= GRID_SIZE )
+	int y = static_cast< int >( floor( v * mGridSize ) ); 
+	if ( y < 0 || y >= mGridSize )
 	{
 		return UVPoint( 0, 0, UVPoint::NOT_TRIANGLE );
 	}

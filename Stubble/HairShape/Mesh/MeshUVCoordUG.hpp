@@ -75,16 +75,17 @@ private:
 		TextureCoordinates mVertices[ 3 ];	///< The vertices of triangle
 	};
 
-	static const int GRID_SIZE = 2048; ///< Size of the grid
+	//static const int GRID_SIZE = 2048; ///< Size of the grid
+	unsigned __int32 mGridSize; ///< Size of the grid
 
 	///-------------------------------------------------------------------------------------------------
 	/// Uniform grid. 
 	///-------------------------------------------------------------------------------------------------
 	struct Grid 
 	{
-		unsigned __int32 mTrianglesCount[ GRID_SIZE ][ GRID_SIZE ]; ///< The triangles count
+		unsigned __int32 ** mTrianglesCount;//[ GRID_SIZE ][ GRID_SIZE ]; ///< The triangles count
 
-		Triangle ** mTriangles[ GRID_SIZE ][ GRID_SIZE ];	///< Pointer to triangles buffer part
+		Triangle **** mTriangles;//[ GRID_SIZE ][ GRID_SIZE ];	///< Pointer to triangles buffer part
 	};
 
 	Grid mGrid; ///< The uniform grid
