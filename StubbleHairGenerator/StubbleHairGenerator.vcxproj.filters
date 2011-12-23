@@ -32,10 +32,21 @@
     <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsDS.cpp">
       <Filter>Stubble CPP files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\mentalray\mrOutputGenerator.cpp">
+      <Filter>Stubble CPP files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Stubble CPP files">
       <UniqueIdentifier>{e49f2803-427b-4657-83eb-9ddc846ad23d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Stubble mental ray scripts">
+      <UniqueIdentifier>{c4bb4569-d325-4439-a71c-9a17304f5e83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StubbleHairGenerator.mi">
+      <Filter>Stubble mental ray scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

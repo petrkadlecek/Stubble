@@ -91,7 +91,9 @@ void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolat
 		}
 	}
 	// For each voxel -> calculate bounding box
+	#ifdef _OPENMP
 	#pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( mVoxels.size() ); ++i )
 	{
 		Voxel & vx = mVoxels[ i ];

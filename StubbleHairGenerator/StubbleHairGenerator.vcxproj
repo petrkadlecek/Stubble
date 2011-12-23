@@ -89,33 +89,37 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3Delight.lib;ZLib-debug.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;$(SolutionDir)..\external\mentalray\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>3Delight.lib;ZLib-debug.lib;shader.lib;</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;$(SolutionDir)..\external\mentalray\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MinimalRebuild>false</MinimalRebuild>
+      <OpenMPSupport>
+      </OpenMPSupport>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>3Delight.lib;ZLib.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(DELIGHT)\lib;$(SolutionDir)..\external\zlib\lib;$(SolutionDir)..\external\mentalray\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>3Delight.lib;ZLib.lib;shader.lib;</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DELIGHT)\include;$(SolutionDir)\Stubble;$(SolutionDir)..\external\zlib\include;$(SolutionDir)..\external\mentalray\include;</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile>$(Configuration)/StubbleHairGenerator.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level3</WarningLevel>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OpenMPSupport>
+      </OpenMPSupport>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -124,12 +128,16 @@
     <ClCompile Include="..\Stubble\HairShape\HairComponents\RestPositionsDS.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\HairProperties.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\InterpolationGroups.cpp" />
+    <ClCompile Include="..\Stubble\HairShape\Interpolation\mentalray\mrOutputGenerator.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMHairProperties.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMOutputGenerator.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Interpolation\RenderMan\RMPositionGenerator.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Mesh\Mesh.cpp" />
     <ClCompile Include="..\Stubble\HairShape\Texture\Texture.cpp" />
     <ClCompile Include="dllEntryPoint.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StubbleHairGenerator.mi" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

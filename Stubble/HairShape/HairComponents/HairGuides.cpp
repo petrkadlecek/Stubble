@@ -244,7 +244,9 @@ void HairGuides::importNURBS( const Interpolation::InterpolationGroups & aInterp
 				static_cast< unsigned __int32 >( it->mSegments.size() ) );
 		}
 		// Uniformly reposition segments
+		#ifdef _OPENMP
 		#pragma omp parallel for schedule( guided )
+        #endif
 		for ( int i = 0; i < static_cast< int >( frameSegments.mSegments.size() ); ++i )
 		{
 			OneGuideSegments & guide = frameSegments.mSegments[ i ];

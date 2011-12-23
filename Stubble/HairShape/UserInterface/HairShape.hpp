@@ -118,7 +118,7 @@ public:
 	virtual MStatus compute( const MPlug &aPlug, MDataBlock &aDataBlock );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets an internal value in contex. 
+	/// Gets an internal value in context. 
 	/// Called whenever any internal attribute is required by Maya.
 	///
 	/// \param	aPlug				Which attribute is being quiered.
@@ -130,7 +130,7 @@ public:
 	virtual bool getInternalValueInContext( const MPlug & aPlug, MDataHandle & aDataHandle, MDGContext & aContext );  
 
 	///----------------------------------------------------------------------------------------------------
-	/// Sets an internal value in contex.
+	/// Sets an internal value in context.
 	/// Called whenever any internal value is changed ( except surface and time all other attributes
 	/// we are interested in are internal ). 
 	///
@@ -363,6 +363,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline static HairShape * getActiveObject();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Sets the object's voxels resolution. 
+	///
+	/// \param aNewVoxelsResolution	New voxels resolution.
+	/// \param aOldVoxelsResolution	Place to store the old voxels resolution.
+	///----------------------------------------------------------------------------------------------------
+	inline void setVoxelsResolution(Dimensions3 aNewVoxelsResolution, Dimensions3 & aOldVoxelsResolution);
+
 private:
 	
 	friend class HairShapeUI;
@@ -532,6 +540,29 @@ inline HairShape * HairShape::getActiveObject()
 {
 	return mActiveHairShapeNode;
 }
+
+inline void HairShape::setVoxelsResolution(Dimensions3 aNewVoxelsResolution, Dimensions3 & aOldVoxelsResolution)
+{
+	aOldVoxelsResolution[ 0 ] = mVoxelsResolution[ 0 ];
+	aOldVoxelsResolution[ 1 ] = mVoxelsResolution[ 1 ];
+	aOldVoxelsResolution[ 2 ] = mVoxelsResolution[ 2 ];
+
+	// If the new voxelization is the same, there's no need to recreate it.
+	if ( mVoxelsResolution[ 0 ] == aNewVoxelsResolution[ 0 ] &&
+		 mVoxelsResolution[ 1 ] == aNewVoxelsResolution[ 1 ] &&
+		 mVoxelsResolution[ 2 ] == aNewVoxelsResolution[ 2 ] )
+	{
+		return;
+	}
+
+	mVoxelsResolution[ 0 ] = aNewVoxelsResolution[ 0 ];
+	mVoxelsResolution[ 1 ] = aNewVoxelsResolution[ 1 ];
+	mVoxelsResolution[ 2 ] = aNewVoxelsResolution[ 2 ];
+	
+	delete mVoxelization; // Throw away old voxelization
+	mVoxelization = 0;
+}
+
 
 inline void HairShape::importNURBS()
 {

@@ -201,7 +201,9 @@ inline void InterpolatedHair::meshUpdate( const MayaMesh & aCurrentMesh, const H
 inline void InterpolatedHair::propertiesUpdate( const HairProperties & aHairProperties )
 {
 	// For every thread - multi threaded
-	#pragma omp parallel for
+	#ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
 	for ( int i = 0; i < static_cast< int >( mThreadsCount ); ++i )
 	{
 		ThreadData * it = mThreads + i;

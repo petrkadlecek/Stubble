@@ -77,7 +77,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(ProjectDir);$(SolutionDir)..\external\chai3d\include;$(SolutionDir)..\external\opengl\include;$(SolutionDir)..\external\newmat\include;$(SolutionDir)..\external\wintab\include;$(SolutionDir)..\external\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(SolutionDir)..\external\mentalray\include;$(ProjectDir);$(SolutionDir)..\external\chai3d\include;$(SolutionDir)..\external\opengl\include;$(SolutionDir)..\external\newmat\include;$(SolutionDir)..\external\wintab\include;$(SolutionDir)..\external\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>QT_NO_EMIT;WIN32;_MSVC;MAYA;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -123,7 +123,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_2011|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(SolutionDir)..\external\chai3d\include;$(SolutionDir)..\external\opengl\include;$(SolutionDir)..\external\newmat\include;$(SolutionDir)..\external\zlib\include;$(SolutionDir)..\external\wintab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MAYA_LOCATION)\include;$(QT_LOCATION)\include;$(DELIGHT)\include;$(SolutionDir)..\external\mentalray\include;$(SolutionDir)..\external\chai3d\include;$(SolutionDir)..\external\opengl\include;$(SolutionDir)..\external\newmat\include;$(SolutionDir)..\external\zlib\include;$(SolutionDir)..\external\wintab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>QT_NO_EMIT;WIN32;_MSVC;MAYA;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;Bits64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeaderOutputFile>$(Configuration)/Stubble.pch</PrecompiledHeaderOutputFile>
@@ -178,6 +178,7 @@
     <ClCompile Include="HairShape\Interpolation\Maya\MayaOutputGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\Maya\MayaPositionGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\Maya\Voxelization.cpp" />
+    <ClCompile Include="HairShape\Interpolation\mentalray\mrOutputGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\RenderMan\RMHairProperties.cpp" />
     <ClCompile Include="HairShape\Interpolation\RenderMan\RMOutputGenerator.cpp" />
     <ClCompile Include="HairShape\Interpolation\RenderMan\RMPositionGenerator.cpp" />
@@ -191,6 +192,7 @@
     <ClCompile Include="HairShape\HairComponents\HairGuides.cpp" />
     <ClCompile Include="HairShape\UserInterface\HairShapeUI.cpp" />
     <ClCompile Include="HairShape\UserInterface\HistoryCommands.cpp" />
+    <ClCompile Include="HairShape\UserInterface\PrepareForMentalRayCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\ReinitCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\ResetCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\SelectCommand.cpp" />
@@ -245,6 +247,7 @@
     <ClInclude Include="HairShape\Interpolation\Maya\SimpleOutputGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\Maya\SimplePositionGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\Maya\Voxelization.hpp" />
+    <ClInclude Include="HairShape\Interpolation\mentalray\mrOutputGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\OutputGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\PositionGenerator.hpp" />
     <ClInclude Include="HairShape\Interpolation\RenderMan\RMHairProperties.hpp" />
@@ -264,6 +267,7 @@
     <ClInclude Include="HairShape\Mesh\UVPoint.hpp" />
     <ClInclude Include="HairShape\UserInterface\HairShapeUI.hpp" />
     <ClInclude Include="HairShape\UserInterface\HistoryCommands.hpp" />
+    <ClInclude Include="HairShape\UserInterface\PrepareForMentalRayCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\ResetCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\SelectCommand.hpp" />

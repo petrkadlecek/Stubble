@@ -22,7 +22,9 @@ SegmentsStorage::SegmentsStorage( const GuidesRestPositions & aRestPositions,
 	// Prepare size
 	mCurrent.mSegments.resize( aRestPositions.size() );
 	// For every guide
-	#pragma omp parallel for schedule( guided )
+	#ifdef _OPENMP
+    #pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( aRestPositions.size() ); ++i )
 	{
 		const GuideRestPosition & pos = aRestPositions[ i ];
@@ -79,7 +81,9 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Gui
 			aOutputSegments.mFrame = it->first;
 			aOutputSegments.mSegments.resize( aRemainingGuides.size() );
 			// For every guide
-			#pragma omp parallel for schedule( guided )
+		    #ifdef _OPENMP
+            #pragma omp parallel for schedule( guided )
+            #endif
 			for ( int i = 0; i < static_cast< int >( aRemainingGuides.size() ); ++i )
 			{
 				// Copy selected guide's segments
@@ -90,7 +94,9 @@ SegmentsStorage::SegmentsStorage( const SegmentsStorage & aOldStorage, const Gui
 	// Import current segments
 	mCurrent.mSegments.resize( aRemainingGuides.size() );
 	// For every guide
-	#pragma omp parallel for schedule( guided )
+	#ifdef _OPENMP
+    #pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( aRemainingGuides.size() ); ++i )
 	{
 		// Copy selected guide's segments
@@ -135,7 +141,9 @@ void SegmentsStorage::setFrame( Time aTime )
 			// Finaly we can begin to copy
 			mCurrent.mSegments.resize( lowerBound->second.mSegments.size() );
 			// For every guide
-			#pragma omp parallel for schedule( guided )
+		    #ifdef _OPENMP
+            #pragma omp parallel for schedule( guided )
+            #endif
 			for ( int i = 0; i < static_cast< int >( mCurrent.mSegments.size() ); ++i )
 			{
 				// Select destination and 2 source guides
@@ -243,7 +251,9 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 		{
 			GuidesSegments & guides = frmIt->second.mSegments;
 			// For every guide
-			#pragma omp parallel for schedule( guided )
+		    #ifdef _OPENMP
+            #pragma omp parallel for schedule( guided )
+            #endif
 			for ( int i = 0; i < static_cast< int >( guides.size() ); ++i )
 			{
 				const GuideRestPosition & pos = aRestPositions[ i ];
@@ -257,7 +267,9 @@ void SegmentsStorage::setSegmentsCount( const GuidesRestPositions & aRestPositio
 	// Set segments count for current frame
 	GuidesSegments & guides = mCurrent.mSegments;
 	// For every guide
-	#pragma omp parallel for schedule( guided )
+	#ifdef _OPENMP
+    #pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( guides.size() ); ++i )
 	{
 		const GuideRestPosition & pos = aRestPositions[ i ];
@@ -379,7 +391,9 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 	// Copy frame time
 	aOutputSegments.mFrame = aOldSegments.mFrame;
 	// For every guide
-	#pragma omp parallel for schedule( guided )
+	#ifdef _OPENMP
+    #pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( aOutputSegments.mSegments.size() ); ++i )
 	{
 		const GuideRestPosition & pos = aRestPositions[ i ];
@@ -505,7 +519,9 @@ void SegmentsStorage::propagateChangesThroughTime()
 void SegmentsStorage::propageteChangesToFrame( GuidesSegments & aGuides, Real aFactor )
 {
 	// For every guide
-	#pragma omp parallel for schedule( guided )
+	#ifdef _OPENMP
+    #pragma omp parallel for schedule( guided )
+    #endif
 	for ( int i = 0; i < static_cast< int >( aGuides.size() ); ++i )
 	{
 		OneGuideSegments & guide = aGuides[ i ]; // Select guide

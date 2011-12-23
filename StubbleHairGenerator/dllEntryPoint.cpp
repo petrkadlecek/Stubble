@@ -1,4 +1,5 @@
 /* This dll must be stored in DL_PROCEDURALS_PATH folder */
+#define NOMINMAX  // windows.h: don't define min() and max() macros!
 #include "Common/CommonTypes.hpp"
 #include "Common/CommonFunctions.hpp"
 
@@ -17,6 +18,10 @@
 
 #include "ri.h"
 
+#include "HairShape/Interpolation/mentalray/mrOutputGenerator.hpp"
+#include "shader.h"
+#include "geoshader.h"
+
 #include <ctime>
 #include <iostream>
 #include <sstream>
@@ -26,10 +31,12 @@
 using namespace Stubble;
 using namespace HairShape::Interpolation;
 
-#if defined ( _WIN32 )
-#define DLLEXPORT __declspec( dllexport )
-#else
-#define DLLEXPORT
+#if !defined ( DLLEXPORT )
+	#if defined ( _WIN32 )
+		#define DLLEXPORT __declspec( dllexport )
+	#else
+		#define DLLEXPORT
+	#endif
 #endif
 	
 #ifdef __cplusplus
@@ -40,7 +47,13 @@ extern "C" {
 RtPointer DLLEXPORT ConvertParameters( RtString aParamString );
 RtVoid DLLEXPORT Subdivide( RtPointer aData, float aDetailSize );
 RtVoid DLLEXPORT Free( RtPointer aData );
-	
+
+/* Declarations for mental ray */
+
+int DLLEXPORT stubble_geometry_version(void);
+miBoolean DLLEXPORT stubble_geometry(miTag* result, miState* state, void* paras);
+miBoolean DLLEXPORT stubble_geometry_callback( miTag tag, void *args );
+
 #ifdef __cplusplus
 }
 #endif
@@ -183,5 +196,102 @@ RtVoid DLLEXPORT Free( RtPointer aData )
 	delete [] bp->mTimeSamples;
 	delete [] bp->mFileNames;
 	delete bp;
+}
+
+
+///-------------------------------------------------------------------------------------------------
+/// Returns the geometry shader version. Called by mental ray.
+///-------------------------------------------------------------------------------------------------
+int DLLEXPORT stubble_geometry_version(void) { return 1; }
+
+
+///-------------------------------------------------------------------------------------------------
+/// Hair geometry shader for mental ray. Sets up the bounding box to generate hair on demand.
+///
+/// \param	result	Tag of created geometry. 
+/// \param	state	Current mental ray state. 
+/// \param	paras	Shader parameters. 
+///-------------------------------------------------------------------------------------------------
+DLLEXPORT miBoolean stubble_geometry(miTag* result, miState* state, void* paras) {
+   miObject *obj = mi_api_object_begin(mi_mem_strdup("stubble_hair"));
+
+   // Setup a placeholder callback and enable hair geometry for it
+   mi_api_object_callback(stubble_geometry_callback, (void*)paras);
+   obj->visible = miTRUE;
+   obj->shadow = obj->reflection = obj->refraction = 0x03;
+   obj->shadowmap = miTRUE;
+   obj->finalgather = 0x03;
+
+   // HACK: should somehow get the true bounding box
+   obj->bbox_min.x = -1e6;
+   obj->bbox_min.y = -1e6;
+   obj->bbox_min.z = -1e6;
+   obj->bbox_max.x =  1e6;
+   obj->bbox_max.y =  1e6;
+   obj->bbox_max.z =  1e6;
+
+   miTag tag = mi_api_object_end();
+   mi_geoshader_add_result(result, tag);
+   obj = (miObject *) mi_scene_edit(tag);
+   obj->geo.placeholder_list.type = miOBJECT_HAIR;
+   mi_scene_edit_end(tag);
+
+   return miTRUE;
+}
+
+
+///-------------------------------------------------------------------------------------------------
+/// Hair geometry shader for mental ray.
+///
+/// \param	tag	The tag of created geometry. 
+/// \param	args	Arguments passed by the callback setup.
+///-------------------------------------------------------------------------------------------------
+DLLEXPORT miBoolean stubble_geometry_callback(miTag tag, void *args)
+{
+	// Load stubble workdir
+	std::string stubbleWorkDir = Stubble::getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
+
+    // Start mentalRay object.
+	char const* name = mi_api_tag_lookup(tag);
+    mi_api_incremental(miTRUE);
+    miObject* obj = mi_api_object_begin(mi_mem_strdup(name));
+    obj->visible = miTRUE;
+    obj->shadow = obj->reflection = obj->refraction = 0x03;
+
+	// Create output generator
+	MROutputGenerator outputGenerator( 1000000 ); // One million segments max. for each commit
+
+	// Use only a single voxel for output.
+	
+	// Get file prefix
+	std::string filePrefix = stubbleWorkDir + "stubble_mr_hair";
+	// Read frame file with hair properties
+	RMHairProperties hairProperties( filePrefix + ".FRM" );
+	// Get voxel file name
+	std::ostringstream str;
+	str << filePrefix << ".VX0";
+	// Read voxel file with mesh geometry and create position generator (it's OK to use RenderMan's)
+	RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
+	// Create hair generator
+	HairGenerator< RMPositionGenerator, MROutputGenerator > hairGenerator( positionGenerator, outputGenerator );
+	// Should normals be output?
+	outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
+	// Finally begin generating hair
+	hairGenerator.generate( hairProperties );
+
+	// Set bounding box
+	BoundingBox bb = hairGenerator.getBoundingBox();
+	obj->bbox_min.x = miScalar( bb.min()[ 0 ] );
+	obj->bbox_min.y = miScalar( bb.min()[ 1 ] );
+	obj->bbox_min.z = miScalar( bb.min()[ 2 ] );
+	obj->bbox_max.x = miScalar( bb.max()[ 0 ] );
+	obj->bbox_max.y = miScalar( bb.max()[ 1 ] );
+	obj->bbox_max.z = miScalar( bb.max()[ 2 ] );
+
+	// Close mental ray object.
+	mi_api_object_end();
+
+	std::cerr << "Stubble for mental ray: Hair object generated." << std::endl;
+	return miTRUE;
 }
 

@@ -190,7 +190,9 @@ void Texture::reloadFileTextureImage( MImage & aTextureImage )
 	// Loading texture with float color channels
 	if ( aTextureImage.pixelType() == MImage::kFloat )
 	{
+		#ifdef _OPENMP
 		#pragma omp parallel for
+		#endif
 		for( int i = 0; i < static_cast< int >( mWidth * mHeight ); ++i )
 		{
 			for( unsigned __int32 j = 0; j < mColorComponents; ++j )
@@ -204,7 +206,9 @@ void Texture::reloadFileTextureImage( MImage & aTextureImage )
 	// Loading texture with standard byte color channels
 	if ( aTextureImage.pixelType() == MImage::kByte )
 	{
-		#pragma omp parallel for
+		#ifdef _OPENMP
+        #pragma omp parallel for
+        #endif
 		for ( int i = 0; i < static_cast< int >( mWidth * mHeight ); ++i )
 		{
 			for ( unsigned __int32 j = 0; j < mColorComponents; ++j )

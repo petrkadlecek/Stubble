@@ -17,6 +17,7 @@
 #include "HairShape/UserInterface/ReinitCommand.hpp"
 #include "HairShape/UserInterface/ResetCommand.hpp"
 #include "HairShape/UserInterface/HistoryCommands.hpp"
+#include "HairShape/UserInterface/PrepareForMentalRayCommand.hpp"
 
 #include "HairShape/UserInterface/CommandsNURBS.hpp"
 #include "HairShape/UserInterface/CommandsTextures.hpp"
@@ -212,6 +213,16 @@ EXPORT MStatus initializePlugin( MObject aObj )
 
 	// register StubbleResetCommand command
 	status = plugin.registerCommand( "StubbleResetCommand", Stubble::HairShape::ResetCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleResetCommand command" );
+		return status;
+	}
+
+	// register StubblePrepareForMentalRayCommand command
+	status = plugin.registerCommand( "StubblePrepareForMentalRayCommand", Stubble::HairShape::PrepareForMentalRayCommand::creator );
 
 	// check for error
 	if ( status != MS::kSuccess )

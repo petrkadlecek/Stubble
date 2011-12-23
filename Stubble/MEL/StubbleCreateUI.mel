@@ -32,6 +32,9 @@ global proc StubbleCreateUI()
 	menuItem -label "Update textures" -command "StubbleResetTextures;refresh;";
 	menuItem -label "Textures properties" -command "source StubbleTextureProperties.mel;";
 
+	menuItem -divider true;
+	menuItem -label "Prepare for mental ray rendering" -command "StubblePrepareForMentalRayCommand;";
+
 	// Create Stubble select menu
 	setParent $gMainWindow;
 	global string $stubbleSelectMenu = "stubbleSelectMenu";

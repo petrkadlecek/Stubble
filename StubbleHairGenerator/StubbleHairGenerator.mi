@@ -1,0 +1,15 @@
+$ifndef "StubbleHairGenerator_mi_included"
+set "StubbleHairGenerator_mi_included" "true"
+
+min version "3.1.00"
+max version "3.9.99"
+
+declare shader
+  geometry "stubble_geometry" (
+  )
+  version 1
+  apply geometry
+end declare
+
+
+$endif  # StubbleHairGenerator_mi_included

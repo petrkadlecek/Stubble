@@ -310,7 +310,9 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
+	#ifdef _OPENMP
 	#pragma omp parallel for schedule( guided )
+    #endif
 	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
 	//for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
