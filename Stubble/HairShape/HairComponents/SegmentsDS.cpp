@@ -5,9 +5,7 @@
 #include "maya\MSelectionMask.h"
 
 #include "..\UserInterface\HairShapeUI.hpp"
-#include "SegmentsUG.hpp"
-
-#include "Common\StubbleTimer.hpp"
+#include "SegmentsDS.hpp"
 
 namespace Stubble
 {
@@ -325,11 +323,6 @@ void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 {
 	// ------------------------------------------
 	//TODO: rewrite testing code with actual code
-	
-	//TODO: Starts stopping time
-	Stubble::Timer timer;
-	timer.reset();
-	timer.start();
 
 	aResult.clear();
 
@@ -377,9 +370,6 @@ void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			aResult.push_back(guide);
 		}
 	} // for each guide in the storage
-	//TODO: ends stopping time
-	timer.stop();
-	timer.mayaDisplayLastElapsedTime();
 
 	// End of testing code
 	// ------------------------------------------

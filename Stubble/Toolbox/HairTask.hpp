@@ -4,7 +4,7 @@
 #include "../HairShape/UserInterface/HairShape.hpp"
 #include "BrushModes/BrushMode.hpp"
 #include "../Primitives/Vector3D.hpp"
-#include "../HairShape/HairComponents/SegmentsUG.hpp"
+#include "../HairShape/HairComponents/SegmentsDS.hpp"
 
 namespace Stubble
 {

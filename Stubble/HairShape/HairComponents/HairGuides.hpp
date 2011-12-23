@@ -7,7 +7,7 @@
 #include "HairShape\HairComponents\GuidePosition.hpp"
 #include "HairShape\HairComponents\RestPositionsDS.hpp"
 #include "HairShape\HairComponents\SegmentsStorage.hpp"
-#include "HairShape\HairComponents\SegmentsUG.hpp"
+#include "HairShape\HairComponents\SegmentsDS.hpp"
 #include "HairShape\HairComponents\SelectedGuides.hpp"
 #include "HairShape\HairComponents\UndoStack.hpp"
 #include "HairShape\Mesh\MayaMesh.hpp"
