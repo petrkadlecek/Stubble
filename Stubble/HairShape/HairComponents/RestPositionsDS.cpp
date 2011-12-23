@@ -16,6 +16,8 @@ namespace HairShape
 namespace HairComponents
 {
 
+const float MAX_FLOAT_SQUARE_ROOT = std::sqrtf( std::numeric_limits< float >::max() );  ///< The maximum float square root
+
 RestPositionsDS::RestPositionsDS():
 	mDirtyBit( true ),
 	mKdForest( 0 ),
@@ -63,7 +65,7 @@ void RestPositionsDS::getNClosestGuides( const Vector3D< Real > & aPosition, uns
 	}
 	// Init query
 	KdTree::CKNNQuery query( aN );
-	query.Init( pos , aN, std::numeric_limits< float >::max() );
+	query.Init( pos , aN, MAX_FLOAT_SQUARE_ROOT );
 	// Execute query
     mKdForest[ aInterpolationGroupId ].KNNQuery(query, mKdForest[ aInterpolationGroupId ].truePred);
 	// Fill results

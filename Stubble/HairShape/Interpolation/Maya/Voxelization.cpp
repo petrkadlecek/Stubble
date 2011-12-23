@@ -80,8 +80,12 @@ void Voxelization::updateVoxels( const MayaMesh & aCurrentMesh, const Interpolat
 	{
 		if ( it->mUVPointGenerator != 0 )
 		{
-			it->mHairCount = static_cast< unsigned __int32 >( it->mUVPointGenerator->getDensity() * inverseDensity *
-				aTotalHairCount );
+			it->mHairCount = static_cast< unsigned __int32 >( std::ceil( it->mUVPointGenerator->getDensity() * inverseDensity *
+				aTotalHairCount ) );
+			if ( ( it->mHairCount + index ) > aTotalHairCount ) // Must not exceed total hair count
+			{
+				it->mHairCount = aTotalHairCount - index;
+			}
 			it->mHairIndex = index;
 			index += it->mHairCount; // Increase hair index
 		}

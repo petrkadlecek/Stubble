@@ -384,6 +384,10 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 
 global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 {
+	if (!`objExists $attrName`) 
+	{
+		return; 
+	}
 	string $buffer[];
 	string $groupPrefix;
 	string $groupName;

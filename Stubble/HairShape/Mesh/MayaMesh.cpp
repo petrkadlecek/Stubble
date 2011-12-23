@@ -180,7 +180,7 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 		mMayaMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet);
 
 		meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
-			Vector3D < Real > ( points[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
+			Vector3D < Real > ( tangents[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
 	}
 
 	return Triangle( meshPoints[0], meshPoints[1], meshPoints[2] );
