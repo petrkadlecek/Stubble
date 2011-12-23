@@ -157,9 +157,6 @@
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp">
       <Filter>HairShape\Interpolation</Filter>
     </ClCompile>
@@ -258,6 +255,9 @@
     </ClCompile>
     <ClCompile Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.cpp">
       <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\SegmentsDS.cpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -358,9 +358,6 @@
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\SegmentsStorage.hpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp">
@@ -494,6 +491,9 @@
     </ClInclude>
     <ClInclude Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.hpp">
       <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\SegmentsDS.hpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

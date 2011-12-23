@@ -169,7 +169,7 @@
     <ClCompile Include="HairShape\HairComponents\DisplayedGuides.cpp" />
     <ClCompile Include="HairShape\HairComponents\RestPositionsDS.cpp" />
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp" />
-    <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp" />
+    <ClCompile Include="HairShape\HairComponents\SegmentsDS.cpp" />
     <ClCompile Include="HairShape\HairComponents\UndoStack.cpp" />
     <ClCompile Include="HairShape\Interpolation\HairGenerator.tmpl.hpp" />
     <ClCompile Include="HairShape\Interpolation\HairProperties.cpp" />
@@ -232,7 +232,7 @@
     <ClInclude Include="HairShape\HairComponents\RestPositionsDS.hpp" />
     <ClInclude Include="HairShape\HairComponents\Segments.hpp" />
     <ClInclude Include="HairShape\HairComponents\SegmentsStorage.hpp" />
-    <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp" />
+    <ClInclude Include="HairShape\HairComponents\SegmentsDS.hpp" />
     <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp" />
     <ClInclude Include="HairShape\HairComponents\UndoStack.hpp" />
     <ClInclude Include="HairShape\Interpolation\HairGenerator.hpp" />

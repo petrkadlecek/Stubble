@@ -7,6 +7,8 @@
 #include "..\UserInterface\HairShapeUI.hpp"
 #include "SegmentsUG.hpp"
 
+#include "Common\StubbleTimer.hpp"
+
 namespace Stubble
 {
 
@@ -16,18 +18,18 @@ namespace HairShape
 namespace HairComponents
 {
 
-SegmentsUG::SegmentsUG():
+SegmentsDS::SegmentsDS():
 	mDirtyBit( true )
 {
 	/* TODO */
 }
 
-SegmentsUG::~SegmentsUG()
+SegmentsDS::~SegmentsDS()
 {
 	/* TODO */
 }
 
-bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	const FrameSegments & aFrameSegments,
 	const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
 	const std::vector< unsigned __int32 > & aGuidesInterpolationGroupIds,
@@ -179,7 +181,7 @@ bool SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	return isAnythingSelected;
 }
 
-void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
+void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
 		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
 		MIntArray &aSelectedComponentIndices,
@@ -277,7 +279,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	build( aSelectedGuides, true );
 }
 
-void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
+void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
 	const FrameSegments & aFrameSegments )
 {
 	// ------------------------------------------
@@ -306,7 +308,7 @@ void SegmentsUG::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	mDirtyBit = false;
 }
 
-void SegmentsUG::build( const SelectedGuides & aSelectedGuides, bool aFullBuild )
+void SegmentsDS::build( const SelectedGuides & aSelectedGuides, bool aFullBuild )
 {
 	// Should not copy contents once again - just use information obtained via aSelectedGuides parameter
 	// see usage in the first method
@@ -319,10 +321,16 @@ void SegmentsUG::build( const SelectedGuides & aSelectedGuides, bool aFullBuild 
 	mDirtyBit = false;
 }
 
-void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
+void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
 {
 	// ------------------------------------------
 	//TODO: rewrite testing code with actual code
+	
+	//TODO: Starts stopping time
+	Stubble::Timer timer;
+	timer.reset();
+	timer.start();
+
 	aResult.clear();
 
 	MStatus status;
@@ -369,11 +377,15 @@ void SegmentsUG::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			aResult.push_back(guide);
 		}
 	} // for each guide in the storage
+	//TODO: ends stopping time
+	timer.stop();
+	timer.mayaDisplayLastElapsedTime();
+
 	// End of testing code
 	// ------------------------------------------
 }
 
-void SegmentsUG::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const
+void SegmentsDS::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const
 {
 	// ------------------------------------------
 	//TODO: rewrite testing code with actual code

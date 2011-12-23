@@ -21,19 +21,19 @@ namespace HairComponents
 ///-------------------------------------------------------------------------------------------------
 /// Guides segments uniform grid
 ///-------------------------------------------------------------------------------------------------
-class SegmentsUG
+class SegmentsDS
 {
 public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
 	///-------------------------------------------------------------------------------------------------
-	SegmentsUG();
+	SegmentsDS();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
 	///-------------------------------------------------------------------------------------------------
-	~SegmentsUG();
+	~SegmentsDS();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid using selection information, the end product is a grid built using only
@@ -126,12 +126,12 @@ private:
 
 // inline functions implementation
 
-inline void SegmentsUG::setDirty()
+inline void SegmentsDS::setDirty()
 {
 	mDirtyBit = true;
 }
 
-inline bool SegmentsUG::isDirty() const
+inline bool SegmentsDS::isDirty() const
 {
 	return mDirtyBit;
 }

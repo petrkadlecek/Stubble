@@ -179,7 +179,7 @@ public:
 	///
 	/// \return	The selected guides segments uniform grid. 
 	///----------------------------------------------------------------------------------------------------
-	inline const HairComponents::SegmentsUG & getSelectedGuidesDS();
+	inline const HairComponents::SegmentsDS & getSelectedGuidesDS();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Updates the guides after the brush or any other tool was used to change hair guides segments. 
@@ -481,7 +481,7 @@ private:
 
 // inline functions implementation
 
-inline const HairComponents::SegmentsUG & HairShape::getSelectedGuidesDS()
+inline const HairComponents::SegmentsDS & HairShape::getSelectedGuidesDS()
 {
 	return mHairGuides->getSelectedGuidesDS();
 }

@@ -94,7 +94,7 @@ public:
 	///
 	/// \return	The selected guides segments data structure.
 	///----------------------------------------------------------------------------------------------------
-	const SegmentsUG & getSelectedGuidesDS();
+	const SegmentsDS & getSelectedGuidesDS();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Updates the guides after the brush or any other tool was used. 
@@ -302,9 +302,9 @@ private:
 
 	RestPositionsDS mRestPositionsDS;   ///< The rest positions data structure
 
-	SegmentsUG mAllSegmentsUG; ///< The all segments data structure
+	SegmentsDS mAllSegmentsDS; ///< The all segments data structure
 
-	SegmentsUG mSelectedSegmentsUG; ///< The selected segments data structure
+	SegmentsDS mSelectedSegmentsDS; ///< The selected segments data structure
 
 	SegmentsStorage * mSegmentsStorage;   ///< The segments storage
 
