@@ -109,7 +109,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble: Select Guides"
 				-label "Select Guides"
-				-image1 "art3dPaint.png"
+				-image1 "guides_selection.png"
 				-style "iconOnly"
 				-command "optionVar -iv \"stubbleSelectionMode\" 1;refresh;"`;
 
@@ -123,7 +123,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble: Select Vertices"
 				-label "Select Vertices"
-				-image1 "art3dPaint.png"
+				-image1 "vertices_selection.png"
 				-style "iconOnly"
 				-command "optionVar -iv \"stubbleSelectionMode\" 2;refresh;"`;
 				
@@ -137,7 +137,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble: Select Tips"
 				-label "Select Tips"
-				-image1 "art3dPaint.png"
+				-image1 "tips_selection.png"
 				-style "iconOnly"
 				-command "optionVar -iv \"stubbleSelectionMode\" 3;refresh;"`;
 
@@ -151,7 +151,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble: Select Roots"
 				-label "Select Roots"
-				-image1 "art3dPaint.png"
+				-image1 "roots_selection.png"
 				-style "iconOnly"
 				-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"`;
 
@@ -164,7 +164,7 @@ global proc StubbleCreateUI()
 				-manage 1
 				-visible 1
 				-annotation "Stubble: Separator"
-				-image1 "vacantCell.png"
+				
 				-style "iconOnly"
 				-marginWidth 1
 				-marginHeight 1`;
@@ -179,7 +179,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble Brush tool"
 				-label "Stubble Brush tool"
-				-image1 "art3dPaint.png"
+				-image1 "hair_brush.png"
 				-style "iconOnly"
 				-command "toolPropertyWindow; setToolTo stubbleBrushTool"`;
 
@@ -193,7 +193,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble Cut tool"
 				-label "Stubble Cut tool"
-				-image1 "art3dPaint.png" // TODO scissors
+				-image1 "scissors.png"
 				-style "iconOnly"
 				-command "toolPropertyWindow; setToolTo stubbleCutTool"`;
 
@@ -221,7 +221,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble Undo"
 				-label "Stubble Undo"
-				-image1 "arrowLeft.png"
+				-image1 "arrow_undo.png"
 				-style "iconOnly"
 				-command "StubbleUndoCommand;refresh;"`;
 	
@@ -235,7 +235,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble Redo"
 				-label "Stubble Redo"
-				-image1 "arrowRight.png"
+				-image1 "arrow_redo.png"
 				-style "iconOnly"
 				-command "StubbleRedoCommand;refresh;"`;
 
