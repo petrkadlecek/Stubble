@@ -40,35 +40,40 @@ bool HairGuides::applySelection( const std::vector< unsigned __int32 > & aInterp
 	{
 		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
 	}
-	// Hide old selection
-	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
 	bool isAnythingSelected = ( mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), this->mGuidesInterpolationGroupIds, aInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
 	// Display selection
-	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+	if ( mDisplayedGuides.isDirty() )
+	{
+		mDisplayedGuides.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments(), mSelectedGuides );
+	}
+	else
+	{
+		mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+	}
 
 	return isAnythingSelected;
 }
 
 void HairGuides::applySelection( MIntArray &aSelectedComponentIndices )
 {
-	/*if ( aSelectedComponentIndices.length() == 0 )
-	{
-		return;
-	}*/
-	
 	if ( mAllSegmentsUG.isDirty() ) // Is UG for selection up-to-date ?
 	{
 		mAllSegmentsUG.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments() );
 	}
-	// Hide old selection
-	//mDisplayedGuides.selectionRebuild( mSelectedGuides, false );
 	// Rebuild selected segments UG
 	clearSelectedGuides();
 	mSelectedSegmentsUG.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectedComponentIndices, mSelectedGuides);
 	// Display selection
-	mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+	if ( mDisplayedGuides.isDirty() )
+	{
+		mDisplayedGuides.build( mCurrentPositions, mSegmentsStorage->getCurrentSegments(), mSelectedGuides );
+	}
+	else
+	{
+		mDisplayedGuides.selectionRebuild( mSelectedGuides, true );
+	}
 }
 
 BoundingBox HairGuides::getBoundingBox()

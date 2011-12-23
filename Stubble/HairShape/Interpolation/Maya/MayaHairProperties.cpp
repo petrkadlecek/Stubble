@@ -761,11 +761,13 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == numberOfGuidesToInterpolateFromAttr )
 	{
 		mNumberOfGuidesToInterpolateFrom = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aHairPropertiesChanged = true;
 		return false;
 	}
 	if ( aPlug == areNormalsCalculatedAttr )
 	{
 		mAreNormalsCalculated = aDataHandle.asBool();
+		aHairPropertiesChanged = true;
 		return false;
 	}
 	if ( aPlug == aspectAttr )
