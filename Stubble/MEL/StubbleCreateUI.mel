@@ -155,20 +155,6 @@ global proc StubbleCreateUI()
 				-style "iconOnly"
 				-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"`;
 
-	// insert separator
-	string $brushButton = 	`shelfButton
-				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
-				-enable 0
-				-width 17
-				-height 34
-				-manage 1
-				-visible 1
-				-annotation "Stubble: Separator"
-				
-				-style "iconOnly"
-				-marginWidth 1
-				-marginHeight 1`;
-
 	// create Stubble Brush tool icon
 	string $brushButton = 	`shelfButton
 				-parent $StubbleShelfTab  // Set parent Shelf as "Custom"
