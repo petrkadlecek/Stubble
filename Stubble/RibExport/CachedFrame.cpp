@@ -7,6 +7,7 @@
 
 #include <ri.h>
 
+#include <limits>
 #include <sstream>
 #include <Windows.h>
 
@@ -30,6 +31,7 @@ CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeNa
 	loadStubbleWorkDir();
 	// Takes sample
 	generateSample( aHairShape, aNodeName, aSampleTime, mBoundingBoxes );
+	mMaxTime = std::numeric_limits< Time >::min();
 }
 
 void CachedFrame::AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
@@ -49,7 +51,7 @@ void CachedFrame::AddTimeSample( HairShape::HairShape & aHairShape, std::string 
 void CachedFrame::emit()
 {
 	// Generate samples part of the arguments
-	Time middle = ( mMaxTime + mMinTime ) * 0.5;
+	Time middle = floor( mMaxTime );
 	std::string artPart;
 	if ( samples.size() == 1 ) // No motion blur
 	{
@@ -101,11 +103,15 @@ void CachedFrame::generateSample( HairShape::HairShape & aHairShape, std::string
 	Sample s; 
 	s.mFileName = dir + "\\" + generateFrameFileName( aNodeName, aSampleTime );
 	s.mSampleTime = aSampleTime;
-	mMinTime = aSampleTime;
 	// Takes first sample
 	aHairShape.sampleTime( aSampleTime, mStubbleWorkDir + s.mFileName, aBoundingBoxes );
 	// Store sample
 	samples.push_back( s );
+	// Update max time of samples
+	if ( mMaxTime < s.mSampleTime )
+	{
+		mMaxTime = s.mSampleTime;
+	}
 }
 
 

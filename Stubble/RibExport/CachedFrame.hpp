@@ -118,8 +118,6 @@ private:
 
 	Time mMaxTime;  ///< Max. time of sample
 
-	Time mMinTime;  ///< Min. time of sample
-
 	static std::string mStubbleWorkDir; ///< The stubble work dir
 };
 

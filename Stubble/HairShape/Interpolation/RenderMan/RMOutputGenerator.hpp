@@ -71,12 +71,8 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
-	/// Allocates memory for one hair commit. Generated hair are sent to RenderMan when
-	/// commit buffer is full or end of output is signaled.
-	/// 
-	/// \param	aCommitSize	Number of hair points in signle commit
 	///-------------------------------------------------------------------------------------------------
-	inline RMOutputGenerator( unsigned __int32 aCommitSize );
+	inline RMOutputGenerator();
 
 	///-------------------------------------------------------------------------------------------------
 	/// Finaliser. 
@@ -228,7 +224,9 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	inline void freeMemory();
 
-	const unsigned __int32 mCommitSize;   ///< Size of the commit
+	unsigned __int32 mBuffersSize;   ///< Size of the internal buffers ( hair points mutliplied by hair count )
+
+	unsigned __int32 mMaxHairCount; ///< Number of maximum hairs
 
 	RtInt * mSegmentsCount; ///< Number of segments for each hair
 
@@ -275,7 +273,7 @@ private:
 
 // inline functions implementation
 
-inline RMOutputGenerator::RMOutputGenerator( unsigned __int32 aCommitSize ):
+inline RMOutputGenerator::RMOutputGenerator():
 	mSegmentsCount( 0 ),
 	mPositionData( 0 ),
 	mColorData( 0 ),
@@ -296,29 +294,9 @@ inline RMOutputGenerator::RMOutputGenerator( unsigned __int32 aCommitSize ):
 	mStrandUVCoordinateDataPointer( 0 ),
 	mHairIndexDataPointer( 0 ),
 	mStrandIndexDataPointer( 0 ),
-	mCommitSize( aCommitSize )
+	mBuffersSize( 0 ),
+	mMaxHairCount( 0 )
 {
-	try
-	{
-		// aCommitSize -> number of segments in one commit, hair has at least two of them
-		mPositionData = new RMTypes::PositionType[ aCommitSize * 3 ];
-		mColorData = new RMTypes::ColorType[ aCommitSize * 3 ];
-		mNormalData = new RMTypes::NormalType[ aCommitSize * 3];
-		mWidthData = new RMTypes::WidthType[ aCommitSize ];
-		mOpacityData = new RMTypes::OpacityType[ aCommitSize * 3 ];
-		// Low memory optimalization :
-		mSegmentsCount = new RtInt[ aCommitSize / 2 ]; 
-		mHairUVCoordinateData = new RMTypes::UVCoordinateType[ aCommitSize ];
-		mStrandUVCoordinateData = new RMTypes::UVCoordinateType[ aCommitSize ];
-		mHairIndexData = new RMTypes::IndexType[ aCommitSize / 2 ]; 
-		mStrandIndexData = new RMTypes::IndexType[ aCommitSize / 2 ]; 
-
-	}
-	catch( ... )
-	{
-		freeMemory();
-		throw;
-	}
 }
 
 inline RMOutputGenerator::~RMOutputGenerator()
@@ -333,6 +311,36 @@ inline void RMOutputGenerator::setOutputNormals( bool aOutputNormals )
 
 inline void RMOutputGenerator::beginOutput( unsigned __int32 aMaxHairCount, unsigned __int32 aMaxPointsCount )
 {
+	// Calculate needed buffers size
+	unsigned __int32 newBuffersSize = aMaxHairCount * aMaxPointsCount;
+	// Need to allocate more memory ?
+	if ( newBuffersSize > mBuffersSize || aMaxHairCount > mMaxHairCount )
+	{
+		try
+		{
+			// Kill old memory
+			freeMemory();
+			// Allocate new memory
+			mMaxHairCount = aMaxHairCount;
+			mBuffersSize = newBuffersSize;
+			mPositionData = new RMTypes::PositionType[ mBuffersSize * 3 ];
+			mColorData = new RMTypes::ColorType[ mBuffersSize * 3 ];
+			mNormalData = new RMTypes::NormalType[ mBuffersSize * 3];
+			mWidthData = new RMTypes::WidthType[ mBuffersSize ];
+			mOpacityData = new RMTypes::OpacityType[ mBuffersSize * 3 ];
+			mSegmentsCount = new RtInt[ mMaxHairCount ]; 
+			mHairUVCoordinateData = new RMTypes::UVCoordinateType[ mMaxHairCount * 2 ];
+			mStrandUVCoordinateData = new RMTypes::UVCoordinateType[ mMaxHairCount * 2 ];
+			mHairIndexData = new RMTypes::IndexType[ mMaxHairCount ]; 
+			mStrandIndexData = new RMTypes::IndexType[ mMaxHairCount ]; 
+		}
+		catch( ... )
+		{
+			freeMemory();
+			throw;
+		}
+	}
+	// Resets pointers to buffers
 	reset();
 }
 
@@ -343,13 +351,7 @@ inline void RMOutputGenerator::endOutput()
 
 inline void RMOutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 {
-	// Will not fit into commit buffer ?
-	if ( ( mPositionDataPointer + aMaxPointsCount * 3 ) > ( mPositionData + mCommitSize * 3 ) )
-	{
-		// Commit and reset buffer
-		commit();
-		reset();
-	}
+	/* EMPTY */
 }
 
 inline void RMOutputGenerator::endHair( unsigned __int32 aPointsCount )
@@ -468,15 +470,25 @@ inline void RMOutputGenerator::commit()
 inline void RMOutputGenerator::freeMemory()
 {
 	delete mSegmentsCount;
+	mSegmentsCount = 0;
 	delete mPositionData;
+	mPositionData = 0;
 	delete mColorData;
+	mColorData = 0;
 	delete mNormalData;
+	mNormalData = 0;
 	delete mWidthData;
+	mWidthData = 0;
 	delete mOpacityData;
+	mOpacityData = 0;
 	delete mHairUVCoordinateData;
+	mHairUVCoordinateData = 0;
 	delete mStrandUVCoordinateData;
+	mStrandUVCoordinateData = 0;
 	delete mHairIndexData;
+	mHairIndexData = 0;
 	delete mStrandIndexData;
+	mStrandIndexData = 0;
 }
 
 
