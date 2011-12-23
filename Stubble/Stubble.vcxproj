@@ -205,6 +205,7 @@
     <ClCompile Include="Toolbox\BrushModes\TranslateBrushMode\TranslateBrushMode.cpp" />
     <ClCompile Include="Toolbox\HairTaskProcessor.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.cpp" />
+    <ClCompile Include="Toolbox\ToolShapes\CylinderToolShape\CylinderToolShape.cpp" />
     <ClCompile Include="Toolbox\ToolShapes\SphereToolShape\SphereToolShape.cpp" />
     <ClCompile Include="Toolbox\Tools\BrushTool\BrushTool.cpp" />
     <ClCompile Include="Toolbox\Tools\CutTool\CutTool.cpp" />
@@ -282,6 +283,7 @@
     <ClInclude Include="Toolbox\HairTask.hpp" />
     <ClInclude Include="Toolbox\HairTaskProcessor.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp" />
+    <ClInclude Include="Toolbox\ToolShapes\CylinderToolShape\CylinderToolShape.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\SphereToolShape\SphereToolShape.hpp" />
     <ClInclude Include="Toolbox\ToolShapes\ToolShape.hpp" />
     <ClInclude Include="Toolbox\Tools\BrushTool\BrushTool.hpp" />
