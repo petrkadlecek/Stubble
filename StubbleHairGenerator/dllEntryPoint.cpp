@@ -49,10 +49,11 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, float aDetailSize );
 RtVoid DLLEXPORT Free( RtPointer aData );
 
 /* Declarations for mental ray */
-
-int DLLEXPORT stubble_geometry_version(void);
-miBoolean DLLEXPORT stubble_geometry(miTag* result, miState* state, void* paras);
+int DLLEXPORT stubble_geometry_version( void );
+miBoolean DLLEXPORT stubble_geometry( miTag* result, miState* state, void* paras );
 miBoolean DLLEXPORT stubble_geometry_callback( miTag tag, void *args );
+int DLLEXPORT stubble_hair_color_version( void );
+miBoolean DLLEXPORT stubble_hair_color( miColor* result, miState* state, void* paras );
 
 #ifdef __cplusplus
 }
@@ -202,7 +203,7 @@ RtVoid DLLEXPORT Free( RtPointer aData )
 ///-------------------------------------------------------------------------------------------------
 /// Returns the geometry shader version. Called by mental ray.
 ///-------------------------------------------------------------------------------------------------
-int DLLEXPORT stubble_geometry_version(void) { return 1; }
+int DLLEXPORT stubble_geometry_version( void ) { return 1; }
 
 
 ///-------------------------------------------------------------------------------------------------
@@ -212,31 +213,33 @@ int DLLEXPORT stubble_geometry_version(void) { return 1; }
 /// \param	state	Current mental ray state. 
 /// \param	paras	Shader parameters. 
 ///-------------------------------------------------------------------------------------------------
-DLLEXPORT miBoolean stubble_geometry(miTag* result, miState* state, void* paras) {
-   miObject *obj = mi_api_object_begin(mi_mem_strdup("stubble_hair"));  // TODO: hardcoded name is hardcoded!
+DLLEXPORT miBoolean stubble_geometry( miTag* result, miState* state, void* paras )
+{
+    // Create object	
+	miObject *obj = mi_api_object_begin(mi_mem_strdup("stubble_hair"));  // TODO: hardcoded name is hardcoded!
 
-   // Setup a placeholder callback and enable hair geometry for it
-   mi_api_object_callback(stubble_geometry_callback, (void*)paras);
-   obj->visible = miTRUE;
-   obj->shadow = obj->reflection = obj->refraction = 0x03;
-   obj->shadowmap = miTRUE;
-   obj->finalgather = 0x03;
+    // Setup a placeholder object with callback and enable hair geometry for it
+    mi_api_object_callback(stubble_geometry_callback, (void*)paras);
+    obj->visible = miTRUE;
+    obj->shadow = obj->reflection = obj->refraction = 0x03;
+    obj->shadowmap = miTRUE;
+    obj->finalgather = 0x03;
 
-   // HACK: should somehow obtain the true bounding box
-   obj->bbox_min.x = -1e6;
-   obj->bbox_min.y = -1e6;
-   obj->bbox_min.z = -1e6;
-   obj->bbox_max.x =  1e6;
-   obj->bbox_max.y =  1e6;
-   obj->bbox_max.z =  1e6;
+    // HACK: should somehow obtain the true bounding box
+    obj->bbox_min.x = -1e6;
+    obj->bbox_min.y = -1e6;
+    obj->bbox_min.z = -1e6;
+    obj->bbox_max.x =  1e6;
+    obj->bbox_max.y =  1e6;
+    obj->bbox_max.z =  1e6;
 
-   miTag tag = mi_api_object_end();
-   mi_geoshader_add_result(result, tag);
-   obj = (miObject *) mi_scene_edit(tag);
-   obj->geo.placeholder_list.type = miOBJECT_HAIR;
-   mi_scene_edit_end(tag);
+    miTag tag = mi_api_object_end();
+    mi_geoshader_add_result(result, tag);
+    obj = (miObject *) mi_scene_edit(tag);
+    obj->geo.placeholder_list.type = miOBJECT_HAIR;
+    mi_scene_edit_end(tag);
 
-   return miTRUE;
+    return miTRUE;
 }
 
 
@@ -246,7 +249,7 @@ DLLEXPORT miBoolean stubble_geometry(miTag* result, miState* state, void* paras)
 /// \param	tag	The tag of created geometry. 
 /// \param	args	Arguments passed by the callback setup.
 ///-------------------------------------------------------------------------------------------------
-DLLEXPORT miBoolean stubble_geometry_callback(miTag tag, void *args)
+DLLEXPORT miBoolean stubble_geometry_callback( miTag tag, void *args )
 {
 	// Load stubble workdir
 	std::string stubbleWorkDir = Stubble::getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
@@ -295,3 +298,22 @@ DLLEXPORT miBoolean stubble_geometry_callback(miTag tag, void *args)
 	return miTRUE;
 }
 
+
+///-------------------------------------------------------------------------------------------------
+/// Returns the color shader version. Called by mental ray.
+///-------------------------------------------------------------------------------------------------
+int DLLEXPORT stubble_hair_color_version( void ) { return 1; }
+
+
+///-------------------------------------------------------------------------------------------------
+/// Hair color shader for mental ray. Converts texture coordinates directly to RGB color.
+///
+/// \param	result	Result color. 
+/// \param	state	Current mental ray state. 
+/// \param	paras	Shader parameters (unused).
+///-------------------------------------------------------------------------------------------------
+miBoolean DLLEXPORT stubble_hair_color(miColor* result, miState* state, void* paras)
+{
+	*result = *reinterpret_cast< miColor* >( state->tex_list );
+	return miTRUE;
+} 

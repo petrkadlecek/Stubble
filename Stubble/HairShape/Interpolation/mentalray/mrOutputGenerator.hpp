@@ -451,53 +451,61 @@ inline void MROutputGenerator::commit()
 	// Begin hair
 	miHair_list* hair = mi_api_hair_begin();
 
+    // 0=per hair, 1=per vertex | type: n, m, t, u, r | scalar count
 	mi_api_hair_info(1, 'r', 1);    // per-vertex radius
-    // 0=per hair, 1=per vertex
-    // types: n, m, t, u, r
+	mi_api_hair_info(1, 't', 3);    // per-vertex texture coords (used as RGB color)
 
 	hair->degree = 3;               // cubic (Bezier)
 
     // Initialize scalar array
 	const int SCALARS_PER_HAIR = 0;
-	const int SCALARS_PER_VERTEX = 4;
+	const int SCALARS_PER_VERTEX = 7;   // PositionXYZ Radius ColorRGB
 	miScalar* sarray = mi_api_hair_scalars_begin( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );
 
 	// Fill scalar array
 	miScalar* p = sarray;
-	for (int basePosIndex = 0, baseWidthIndex = 0, hairIndex = 0;
+	for (int basePosIndex = 0, baseWidthIndex = 0, baseColorIndex = 0, hairIndex = 0;
 		 hairIndex < hairCount;
-		 basePosIndex += 3 * mSegmentsCount[ hairIndex ], baseWidthIndex += mSegmentsCount[ hairIndex ] - 2, hairIndex++)
+		 basePosIndex += 3 * mSegmentsCount[ hairIndex ], baseWidthIndex += mSegmentsCount[ hairIndex ] - 2, baseColorIndex += 3 * (mSegmentsCount[ hairIndex ] - 2), hairIndex++)
 	{
 	    // per-hair data: none
 
 	    // per-vertex data: positions of control points, width
 		int seg;
 		MRTypes::PositionType* pos;
-		for (seg = 0; seg < mSegmentsCount[ hairIndex ] - 2; seg++)
+		MRTypes::ColorType* col;
+		for (seg = 0; ; seg++)
 		{
-			pos = &mPositionData[ basePosIndex + 3 * (seg+1) ];
+			pos = &mPositionData[ basePosIndex + 3*(seg+1) ];
+			col = &mColorData[ baseColorIndex + 3*seg ];
 
-            // three Bezier vertices per full Catmull-Rom segment
+            // three Bezier vertices per full Catmull-Rom segment + one final vertex at the end
 			*p++ = pos[0];
 			*p++ = pos[1];
 			*p++ = pos[2];
 			*p++ = mWidthData[ baseWidthIndex + seg ];
+			*p++ = col[0];
+			*p++ = col[1];
+			*p++ = col[2];
+
+			if ( seg == mSegmentsCount[ hairIndex ] - 2 ) break;
 
 			*p++ = (pos[3+0] - pos[-3+0]) / 6 + pos[0];
 			*p++ = (pos[3+1] - pos[-3+1]) / 6 + pos[1];
 			*p++ = (pos[3+2] - pos[-3+2]) / 6 + pos[2];
 			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 1./3.);
+			*p++ = lerp(col[0], col[3+0], 1./3.);
+			*p++ = lerp(col[1], col[3+1], 1./3.);
+			*p++ = lerp(col[2], col[3+2], 1./3.);
 
 			*p++ = (pos[0+0] - pos[6+0]) / 6 + pos[3+0];
 			*p++ = (pos[0+1] - pos[6+1]) / 6 + pos[3+1];
 			*p++ = (pos[0+2] - pos[6+2]) / 6 + pos[3+2];
 			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 2./3.);
+			*p++ = lerp(col[0], col[3+0], 2./3.);
+			*p++ = lerp(col[1], col[3+1], 2./3.);
+			*p++ = lerp(col[2], col[3+2], 2./3.);
 		}
-		// final Bezier vertex
-		*p++ = pos[0];
-		*p++ = pos[1];
-		*p++ = pos[2];
-		*p++ = mWidthData[ baseWidthIndex + seg ];
 	}
  
 	mi_api_hair_scalars_end( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );  // consistency check

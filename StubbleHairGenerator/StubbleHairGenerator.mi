@@ -5,11 +5,14 @@ min version "3.1.00"
 max version "3.9.99"
 
 declare shader
-  geometry "stubble_geometry" (
-  )
-  version 1
-  apply geometry
+	geometry "stubble_geometry" ()
+	version 1
+	apply geometry
 end declare
 
+declare shader
+	color "stubble_hair_color" ()
+	version 1
+end declare 
 
 $endif  # StubbleHairGenerator_mi_included
