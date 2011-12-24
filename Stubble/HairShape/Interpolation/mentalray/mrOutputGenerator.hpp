@@ -17,7 +17,7 @@ namespace Interpolation
 {
 
 ///-------------------------------------------------------------------------------------------------
-/// Defines types used by RenderMan output generator.
+/// Defines types used by mental ray output generator.
 ///-------------------------------------------------------------------------------------------------
 struct MRTypes
 {
@@ -62,9 +62,10 @@ struct MRTypes
 };
 
 ///-------------------------------------------------------------------------------------------------
-/// Class for drawing generated hair inside RenderMan plugin.
+/// Class for drawing generated hair inside mental ray plugin.
 /// This class implements OutputGenerator which is the standard interface for 
 /// communication with hair generator class.
+/// Differences from RMOutputGenerator are minimal; 
 ///-------------------------------------------------------------------------------------------------
 class MROutputGenerator : public OutputGenerator< MRTypes >, public MRTypes
 {
@@ -72,7 +73,7 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Default constructor. 
-	/// Allocates memory for one hair commit. Generated hair are sent to RenderMan when
+	/// Allocates memory for one hair commit. Generated hair are sent to mental ray when
 	/// commit buffer is full or end of output is signaled.
 	/// 
 	/// \param	aCommitSize	Number of hair points in signle commit
@@ -85,9 +86,9 @@ public:
 	inline ~MROutputGenerator();
 
 	///-------------------------------------------------------------------------------------------------
-	/// Sets whether to output normals to RenderMan. 
+	/// Sets whether to output normals.
 	///
-	/// \param	aOutputNormals	true to an output normals. 
+	/// \param	aOutputNormals	output normals?
 	///-------------------------------------------------------------------------------------------------
 	inline void setOutputNormals( bool aOutputNormals );
 
@@ -199,11 +200,6 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	inline IndexType * strandIndexPointer();
 
-	///-------------------------------------------------------------------------------------------------
-	/// Declares renderman variables. 
-	///-------------------------------------------------------------------------------------------------
-	inline static void declareVariables();
-
 private:
 
 	///-------------------------------------------------------------------------------------------------
@@ -220,6 +216,13 @@ private:
 	/// Free all memory allocated by this object.
 	///----------------------------------------------------------------------------------------------------
 	inline void freeMemory();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Compute hair vertex count from hair segment count.
+	///
+	/// \return Hair vertex count.
+	///----------------------------------------------------------------------------------------------------
+	inline static int verticesFromSegments( int aSegmentCount );
 
 	const unsigned __int32 mCommitSize;   ///< Size of the commit
 
@@ -336,10 +339,9 @@ inline void MROutputGenerator::endOutput()
 
 inline void MROutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 {
-	// Will not fit into commit buffer ?
+	// If the added hair won't fit into the buffer, commit and reset it.
 	if ( ( mPositionDataPointer + aMaxPointsCount * 3 ) > ( mPositionData + mCommitSize * 3 ) )
 	{
-		// Commit and reset buffer
 		commit();
 		reset();
 	}
@@ -347,7 +349,7 @@ inline void MROutputGenerator::beginHair( unsigned __int32 aMaxPointsCount )
 
 inline void MROutputGenerator::endHair( unsigned __int32 aPointsCount )
 {
-	unsigned __int32 aCountMinus2 = aPointsCount - 2; // Other data than points have 2 less items
+	unsigned __int32 aCountMinus2 = aPointsCount - 2; // Other data than points have 2 fewer items
 	// Move position pointer
 	mPositionDataPointer += aPointsCount * 3; 
 	mColorDataPointer += aCountMinus2 * 3;
@@ -410,10 +412,6 @@ inline MRTypes::IndexType * MROutputGenerator::strandIndexPointer()
 	return mStrandIndexDataPointer;
 }
 
-inline void MROutputGenerator::declareVariables()
-{
-}
-
 inline void MROutputGenerator::reset()
 {
 	mSegmentsCountPointer = mSegmentsCount;
@@ -428,6 +426,11 @@ inline void MROutputGenerator::reset()
 	mStrandIndexDataPointer = mStrandIndexData;
 }
 
+inline int MROutputGenerator::verticesFromSegments( int aSegmentCount )
+{
+	return 3 * (aSegmentCount - 2) + 1;
+}
+
 inline void MROutputGenerator::commit()
 {
 	// Anything to commit?
@@ -438,11 +441,11 @@ inline void MROutputGenerator::commit()
 	// Get hair count
 	int hairCount = int( mSegmentsCountPointer - mSegmentsCount );
 
-	// Get segment count
-	int totalSegmentCount = 0;
+	// Get vertex count
+	int vertexCount = 0;
 	for (int i=0; i < hairCount; i++)
 	{
-		totalSegmentCount += mSegmentsCount[ i ];
+		vertexCount += verticesFromSegments( mSegmentsCount[ i ] );
 	}
 
 	// Begin hair
@@ -450,39 +453,54 @@ inline void MROutputGenerator::commit()
 
 	mi_api_hair_info(1, 'r', 1);    // per-vertex radius
     // 0=per hair, 1=per vertex
-    // n, m, t, u, r
+    // types: n, m, t, u, r
 
-	hair->degree = 1;               // linear (TODO: cubic (Bezier))
+	hair->degree = 3;               // cubic (Bezier)
 
-    // Write scalars
-	miScalar* sarray = mi_api_hair_scalars_begin( totalSegmentCount * 4 );
+    // Initialize scalar array
+	const int SCALARS_PER_HAIR = 0;
+	const int SCALARS_PER_VERTEX = 4;
+	miScalar* sarray = mi_api_hair_scalars_begin( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );
+
+	// Fill scalar array
 	miScalar* p = sarray;
-
-/*
-[b0] = [ 0    1   0    0] [c-1]
-[b1]   [-1/6  1  1/6   0] [c0]
-[b2]   [ 0   1/6  1 -1/6] [c1]
-[b3]   [ 0    0   1    0] [c2]
-*/
-
-	for (int hairIndex = 0, basePosIndex = 0, baseWidthIndex = 0; hairIndex < hairCount; hairIndex++)
+	for (int basePosIndex = 0, baseWidthIndex = 0, hairIndex = 0;
+		 hairIndex < hairCount;
+		 basePosIndex += 3 * mSegmentsCount[ hairIndex ], baseWidthIndex += mSegmentsCount[ hairIndex ] - 2, hairIndex++)
 	{
 	    // per-hair data: none
 
-	    // per-segment data: positions of control points, width
-		for (int seg = 0; seg < mSegmentsCount[ hairIndex ]; seg++)
+	    // per-vertex data: positions of control points, width
+		int seg;
+		MRTypes::PositionType* pos;
+		for (seg = 0; seg < mSegmentsCount[ hairIndex ] - 2; seg++)
 		{
-		    *p++ = mPositionData[ basePosIndex + seg*3 ];
-			*p++ = mPositionData[ basePosIndex + seg*3 + 1 ];
-			*p++ = mPositionData[ basePosIndex + seg*3 + 2 ];
+			pos = &mPositionData[ basePosIndex + 3 * (seg+1) ];
 
-			*p++ = mWidthData[ baseWidthIndex + clamp( seg-1, 0, mSegmentsCount[ hairIndex ]-2 ) ];
+            // three Bezier vertices per full Catmull-Rom segment
+			*p++ = pos[0];
+			*p++ = pos[1];
+			*p++ = pos[2];
+			*p++ = mWidthData[ baseWidthIndex + seg ];
+
+			*p++ = (pos[3+0] - pos[-3+0]) / 6 + pos[0];
+			*p++ = (pos[3+1] - pos[-3+1]) / 6 + pos[1];
+			*p++ = (pos[3+2] - pos[-3+2]) / 6 + pos[2];
+			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 1./3.);
+
+			*p++ = (pos[0+0] - pos[6+0]) / 6 + pos[3+0];
+			*p++ = (pos[0+1] - pos[6+1]) / 6 + pos[3+1];
+			*p++ = (pos[0+2] - pos[6+2]) / 6 + pos[3+2];
+			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 2./3.);
 		}
-		basePosIndex += 3 * mSegmentsCount[ hairIndex ];
-		baseWidthIndex += mSegmentsCount[ hairIndex ] - 2;
+		// final Bezier vertex
+		*p++ = pos[0];
+		*p++ = pos[1];
+		*p++ = pos[2];
+		*p++ = mWidthData[ baseWidthIndex + seg ];
 	}
  
-	mi_api_hair_scalars_end( totalSegmentCount * 4 );  // consistency check
+	mi_api_hair_scalars_end( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );  // consistency check
 
 	// Write indices ponting into scalar array
     miGeoIndex* harray = mi_api_hair_hairs_begin(hairCount + 1);
@@ -490,7 +508,7 @@ inline void MROutputGenerator::commit()
     int sIndex = 0;
 	for (int i = 0; i < hairCount; i++) {
         harray[ i ] = sIndex;
-		sIndex += mSegmentsCount[ i ] * 4;
+		sIndex += SCALARS_PER_HAIR + SCALARS_PER_VERTEX * verticesFromSegments( mSegmentsCount[ i ] );
     }
     harray[ hairCount ] = sIndex;  // last hair index = total count
 

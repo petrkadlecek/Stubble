@@ -30,6 +30,21 @@ inline Type clamp( Type value, Type min, Type max )
 }
 
 ///----------------------------------------------------------------------------------------------------
+/// Linearly interpolate between two values.
+///
+/// \param	a	The first value. 
+/// \param	b	The second value. 
+/// \param	t	The interpolation coefficient.
+///
+/// \return	a when t==0, b when t==1, interpolated inbetween.
+///----------------------------------------------------------------------------------------------------
+template < typename Type, typename Type2 >
+inline Type lerp( Type a, Type b, Type2 t )
+{
+	return a + t * (b - a);
+}
+
+///----------------------------------------------------------------------------------------------------
 /// Circle the given value around min, max interval.
 ///
 /// \param	value	The value. 

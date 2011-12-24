@@ -213,7 +213,7 @@ int DLLEXPORT stubble_geometry_version(void) { return 1; }
 /// \param	paras	Shader parameters. 
 ///-------------------------------------------------------------------------------------------------
 DLLEXPORT miBoolean stubble_geometry(miTag* result, miState* state, void* paras) {
-   miObject *obj = mi_api_object_begin(mi_mem_strdup("stubble_hair"));
+   miObject *obj = mi_api_object_begin(mi_mem_strdup("stubble_hair"));  // TODO: hardcoded name is hardcoded!
 
    // Setup a placeholder callback and enable hair geometry for it
    mi_api_object_callback(stubble_geometry_callback, (void*)paras);
@@ -222,7 +222,7 @@ DLLEXPORT miBoolean stubble_geometry(miTag* result, miState* state, void* paras)
    obj->shadowmap = miTRUE;
    obj->finalgather = 0x03;
 
-   // HACK: should somehow get the true bounding box
+   // HACK: should somehow obtain the true bounding box
    obj->bbox_min.x = -1e6;
    obj->bbox_min.y = -1e6;
    obj->bbox_min.z = -1e6;
