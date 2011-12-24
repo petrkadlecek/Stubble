@@ -39,24 +39,26 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensity
 		v.mTrianglesIds.push_back( it.getTriangleID() );
 	}
 	// For each voxel
-	for ( Voxels::iterator it = mVoxels.begin(); it != mVoxels.end(); ++it )
+	#pragma omp parallel for schedule( guided )
+	for ( int i = 0; i < static_cast< int >( mVoxels.size() ); ++i )
 	{
+		Voxel & vx = mVoxels[ i ];
 		// No current mesh, yet
-		it->mCurrentMesh = 0;
-		if ( it->mTrianglesIds.empty() ) // Empty voxel ?
+		vx.mCurrentMesh = 0;
+		if ( vx.mTrianglesIds.empty() ) // Empty voxel ?
 		{
-			it->mRestPoseMesh = 0;
-			it->mUVPointGenerator = 0;
-			it->mHairCount = 0;
+			vx.mRestPoseMesh = 0;
+			vx.mUVPointGenerator = 0;
+			vx.mHairCount = 0;
 		}
 		else
 		{
 			// Generate rest pose mesh only for this voxel
 			Triangles triangles;
-			aRestPoseMesh.getRequestedTriangles( it->mTrianglesIds, triangles );
-			it->mRestPoseMesh = new Mesh( triangles );
+			aRestPoseMesh.getRequestedTriangles( vx.mTrianglesIds, triangles );
+			vx.mRestPoseMesh = new Mesh( triangles );
 			// Create UV point generator for selected triangles
-			it->mUVPointGenerator = new UVPointGenerator( aDensityTexture, it->mRestPoseMesh->getTriangleConstIterator(), it->mRandom );
+			vx.mUVPointGenerator = new UVPointGenerator( aDensityTexture, vx.mRestPoseMesh->getTriangleConstIterator(), vx.mRandom );
 		}
 	}
 }

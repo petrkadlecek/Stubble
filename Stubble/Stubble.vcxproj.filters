@@ -103,7 +103,9 @@
     <Filter Include="Toolbox\ToolShapes\TextureToolShape">
       <UniqueIdentifier>{52b8a229-bb11-496c-b738-5eb00b7bf1e7}</UniqueIdentifier>
     </Filter>
-
+    <Filter Include="HairShape\Interpolation\MentalRay">
+      <UniqueIdentifier>{bacf5c67-00d0-4794-ba5c-e9a7d25b8909}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pluginMain.cpp" />
@@ -159,9 +161,6 @@
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
     <ClCompile Include="HairShape\HairComponents\SegmentsStorage.cpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClCompile>
-    <ClCompile Include="HairShape\HairComponents\SegmentsUG.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
     <ClCompile Include="HairShape\Interpolation\InterpolationGroups.cpp">
@@ -263,11 +262,14 @@
     <ClCompile Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.cpp">
       <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
     </ClCompile>
-    <ClCompile Include="HairShape\Interpolation\mentalray\mrOutputGenerator.cpp">
-      <Filter>HairShape\Interpolation\mentalray</Filter>
-    </ClCompile>
     <ClCompile Include="HairShape\UserInterface\PrepareForMentalRayCommand.cpp">
       <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\Interpolation\mentalray\mrOutputGenerator.cpp">
+      <Filter>HairShape\Interpolation\MentalRay</Filter>
+    </ClCompile>
+    <ClCompile Include="HairShape\HairComponents\SegmentsDS.cpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -368,9 +370,6 @@
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\SegmentsStorage.hpp">
-      <Filter>HairShape\HairComponents</Filter>
-    </ClInclude>
-    <ClInclude Include="HairShape\HairComponents\SegmentsUG.hpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\SelectedGuides.hpp">
@@ -505,11 +504,14 @@
     <ClInclude Include="Toolbox\ToolShapes\TextureToolShape\TextureToolShape.hpp">
       <Filter>Toolbox\ToolShapes\TextureToolShape</Filter>
     </ClInclude>
-    <ClInclude Include="HairShape\Interpolation\mentalray\mrOutputGenerator.hpp">
-      <Filter>HairShape\Interpolation\mentalray</Filter>
-    </ClInclude>
     <ClInclude Include="HairShape\UserInterface\PrepareForMentalRayCommand.hpp">
       <Filter>HairShape\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\Interpolation\mentalray\mrOutputGenerator.hpp">
+      <Filter>HairShape\Interpolation\MentalRay</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\HairComponents\SegmentsDS.hpp">
+      <Filter>HairShape\HairComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
