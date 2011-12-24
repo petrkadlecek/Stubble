@@ -238,7 +238,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 		const Vec3 normal = guide->mNormal;
 		Vec3 firstPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(1), worldMatrix );
-		Vec3 rootPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(0), worldMatrix ) + normal * 0.01f;
+		Vec3 rootPoint = Vec3::transformPoint( guide->mGuideSegments.mSegments.at(0), worldMatrix ) + normal * 0.01;
 
 		MFloatPoint startP(rootPoint.x, rootPoint.y, rootPoint.z );
 		MFloatVector dir(firstPoint.x - rootPoint.x, firstPoint.y - rootPoint.y, firstPoint.z - rootPoint.z);
@@ -251,12 +251,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 		if(curentPointInsideMesh)
 		{
-			MPointOnMesh closestPoint;
-			MStatus status = accelerator->getClosestPoint( firstPoint.toMayaPoint(), closestPoint );
+			MPointOnMesh closestPointInfo;
+			MStatus status = accelerator->getClosestPoint( firstPoint.toMayaPoint(), closestPointInfo );
+			MVector closestPointWorld ( closestPointInfo.getPoint().x, closestPointInfo.getPoint().y, closestPointInfo.getPoint().z );
+			closestPointWorld = closestPointWorld * inclusiveMatrix;
 
-			Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
-				closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
-				closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
+			Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
 
 			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
@@ -288,12 +288,12 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			// nearest point on mesh
 			if(curentPointInsideMesh)
 			{
-				MPointOnMesh closestPoint;
-				MStatus status = accelerator->getClosestPoint( positionEndPoint.toMayaPoint(), closestPoint );
+				MPointOnMesh closestPointInfo;
+				MStatus status = accelerator->getClosestPoint( positionEndPoint.toMayaPoint(), closestPointInfo );
+				MVector closestPointWorld ( closestPointInfo.getPoint().x, closestPointInfo.getPoint().y, closestPointInfo.getPoint().z );
+				closestPointWorld = closestPointWorld * inclusiveMatrix;
 
-				Vec3 p( closestPoint.getPoint().x + inclusiveMatrix.matrix[3][0],
-					closestPoint.getPoint().y + inclusiveMatrix.matrix[3][1],
-					closestPoint.getPoint().z + inclusiveMatrix.matrix[3][2]);
+				Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
 
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
 			}
