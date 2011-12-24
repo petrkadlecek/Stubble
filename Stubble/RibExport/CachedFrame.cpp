@@ -34,7 +34,7 @@ CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeNa
 	mMaxTime = std::numeric_limits< Time >::min();
 }
 
-void CachedFrame::AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
+void CachedFrame::addTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
 	BoundingBoxes tmpBoxes;
 	// Takes sample

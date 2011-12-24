@@ -42,7 +42,7 @@ public:
 	/// \param	aNodeName	Name of the HairShape node.
 	/// \param	aSampleTime	Time of the sample. 
 	///-------------------------------------------------------------------------------------------------
-	void AddTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime );
+	void addTimeSample( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Emits all frames to renderman.

@@ -108,7 +108,7 @@ MStatus RenderManCacheCommand::sampleTime( const MArgDatabase & aArgDatabase )
 		else
 		{
 			// Add another time sample
-			it->second->AddTimeSample( *hairShape, node.name().asChar(), static_cast< Time >( time ) );
+			it->second->addTimeSample( *hairShape, node.name().asChar(), static_cast< Time >( time ) );
 		}
 	}
 	return MStatus::kSuccess;
