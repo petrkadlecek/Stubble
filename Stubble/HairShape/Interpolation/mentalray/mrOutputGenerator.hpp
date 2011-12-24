@@ -428,6 +428,7 @@ inline void MROutputGenerator::reset()
 
 inline int MROutputGenerator::verticesFromSegments( int aSegmentCount )
 {
+	// Catmull-Rom (input) has n+2 vertices, Bezier (output) has 3n+1 vertices.
 	return 3 * (aSegmentCount - 2) + 1;
 }
 
@@ -438,10 +439,9 @@ inline void MROutputGenerator::commit()
 	{
 		return; // Nothing to commit
 	}
-	// Get hair count
-	int hairCount = int( mSegmentsCountPointer - mSegmentsCount );
 
-	// Get vertex count
+	// Get hair count and vertex count
+	int hairCount = int( mSegmentsCountPointer - mSegmentsCount );
 	int vertexCount = 0;
 	for (int i=0; i < hairCount; i++)
 	{
@@ -453,13 +453,13 @@ inline void MROutputGenerator::commit()
 
     // 0=per hair, 1=per vertex | type: n, m, t, u, r | scalar count
 	mi_api_hair_info(1, 'r', 1);    // per-vertex radius
-	mi_api_hair_info(1, 't', 3);    // per-vertex texture coords (used as RGB color)
+	mi_api_hair_info(1, 't', 4);    // per-vertex texture coords (used as RGB color and opacity)
 
 	hair->degree = 3;               // cubic (Bezier)
 
     // Initialize scalar array
 	const int SCALARS_PER_HAIR = 0;
-	const int SCALARS_PER_VERTEX = 7;   // PositionXYZ Radius ColorRGB
+	const int SCALARS_PER_VERTEX = 8;   // Position(XYZ), Radius, Color(RGB), Opacity
 	miScalar* sarray = mi_api_hair_scalars_begin( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );
 
 	// Fill scalar array
@@ -474,10 +474,12 @@ inline void MROutputGenerator::commit()
 		int seg;
 		MRTypes::PositionType* pos;
 		MRTypes::ColorType* col;
+		MRTypes::OpacityType* opa;
 		for (seg = 0; ; seg++)
 		{
 			pos = &mPositionData[ basePosIndex + 3*(seg+1) ];
 			col = &mColorData[ baseColorIndex + 3*seg ];
+			opa = &mOpacityData[ baseColorIndex + 3*seg ];  // HACK: take only the first opacity channel
 
             // three Bezier vertices per full Catmull-Rom segment + one final vertex at the end
 			*p++ = pos[0];
@@ -487,6 +489,7 @@ inline void MROutputGenerator::commit()
 			*p++ = col[0];
 			*p++ = col[1];
 			*p++ = col[2];
+			*p++ = opa[0];
 
 			if ( seg == mSegmentsCount[ hairIndex ] - 2 ) break;
 
@@ -497,6 +500,7 @@ inline void MROutputGenerator::commit()
 			*p++ = lerp(col[0], col[3+0], 1./3.);
 			*p++ = lerp(col[1], col[3+1], 1./3.);
 			*p++ = lerp(col[2], col[3+2], 1./3.);
+			*p++ = lerp(opa[0], opa[3+0], 1./3.);
 
 			*p++ = (pos[0+0] - pos[6+0]) / 6 + pos[3+0];
 			*p++ = (pos[0+1] - pos[6+1]) / 6 + pos[3+1];
@@ -505,6 +509,7 @@ inline void MROutputGenerator::commit()
 			*p++ = lerp(col[0], col[3+0], 2./3.);
 			*p++ = lerp(col[1], col[3+1], 2./3.);
 			*p++ = lerp(col[2], col[3+2], 2./3.);
+			*p++ = lerp(opa[0], opa[3+0], 2./3.);
 		}
 	}
  

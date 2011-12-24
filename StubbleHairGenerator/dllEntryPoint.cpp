@@ -315,5 +315,9 @@ int DLLEXPORT stubble_hair_color_version( void ) { return 1; }
 miBoolean DLLEXPORT stubble_hair_color(miColor* result, miState* state, void* paras)
 {
 	*result = *reinterpret_cast< miColor* >( state->tex_list );
+	// output is premultiplied RGBA
+	result->r *= result->a;
+	result->g *= result->a;
+	result->b *= result->a;
 	return miTRUE;
 } 
