@@ -356,7 +356,7 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 	$groupPrefix = $buffer[1];
 	$groupPrefix = $groupPrefix + "_group_";
 	
-	setUITemplate -pst attributeEditorTemplate;
+	//setUITemplate -pst attributeEditorTemplate;
 
 	float $groupSegmentsLength[];
 	int $groupCount = 1;
@@ -368,7 +368,12 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		$groupCount = size($groupSegmentsLength);
 	}
 	
-	rowColumnLayout  -numberOfColumns 3  -columnWidth 1 60 -columnWidth 2 1 ( $nodeName + "segmentsUI" );
+	string $layoutName = ( "stubble_segmentsUI" );
+	if ( `rowColumnLayout -exists $layoutName` )
+	{
+		deleteUI -lay $layoutName;
+	}
+	rowColumnLayout  -numberOfColumns 3  -columnWidth 1 60 -columnWidth 2 1 $layoutName;
 	for( $i = 0; $i < $groupCount; ++$i )
 	{
 		$groupName = $groupPrefix + $i;
@@ -381,7 +386,7 @@ global proc AEstubbleInterpolationGroupsNew (string $attrName)
 		catchQuiet ( `attrFieldSliderGrp -l $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName` ); 
 	}
 	
-	setUITemplate -ppt;
+	//setUITemplate -ppt;
 }
 
 global proc AEstubbleInterpolationGroupsReplace (string $attrName)
@@ -400,12 +405,12 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 	$groupPrefix = $buffer[1];
 	$groupPrefix = $groupPrefix + "_group_";
 	
-	setUITemplate -pst attributeEditorTemplate;
+	//setUITemplate -pst attributeEditorTemplate;
 
 	float $groupSegmentsLength[] = `getAttr $attrName`;
 	int $groupCount = size($groupSegmentsLength);
 
-	string $layoutName = ( $nodeName + "segmentsUI" );
+	string $layoutName = ( "stubble_segmentsUI" );
 	if ( `rowColumnLayout -exists $layoutName` )
 	{
 		deleteUI -lay $layoutName;
@@ -424,5 +429,5 @@ global proc AEstubbleInterpolationGroupsReplace (string $attrName)
 		attrFieldSliderGrp -label $label -min 2 -max 30 -at ( $nodeName + ".group_" + $i ) $groupName;
 	}
 
-	setUITemplate -ppt;
+	//setUITemplate -ppt;
 }
