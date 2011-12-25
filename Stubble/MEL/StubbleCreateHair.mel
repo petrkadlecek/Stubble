@@ -1,6 +1,6 @@
 //Error message
 $error = "";
-//First store all selected objects 
+//First store all selected objects
 $selected = `ls -sl`;
 //For every selected object
 for ( $obj in $selected )
@@ -9,7 +9,7 @@ for ( $obj in $selected )
 	if( `objExists ( $obj +".worldMesh" )` )
 	{
 		// Create our locator
-		$shape = `createNode "HairShape"`; 
+		$shape = `createNode "HairShape"`;
 		// Connect selected object mesh to our shape surface
 		connectAttr ( $obj + ".worldMesh" ) ( $shape + ".surface" );
 		// Connect time to our shape time
@@ -20,6 +20,15 @@ for ( $obj in $selected )
 		setAttr -l true ( $parent[ 0 ] + ".rotate" );
 		setAttr -l true ( $parent[ 0 ] + ".scale" );
 		setAttr -l true ( $parent[ 0 ] + ".shear" );
+
+		// Create a proxy sphere to make mental ray shaders work
+		$MRsphere = `polySphere -r 1 -sx 4 -sy 3`;
+		parent $MRsphere[0] $parent;
+		setAttr ($MRsphere[0] + ".miExportGeoShader") 1;
+
+		// Connect our geometry shader to the proxy
+		$geometry_shader = `createNode "stubble_geometry"`;
+		connectAttr -f ($geometry_shader + ".outValue") ($MRsphere[0] + ".miGeoShader");
 	}
 	else
 	{
