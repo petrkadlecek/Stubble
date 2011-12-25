@@ -41,7 +41,7 @@ public:
 	///
 	/// \param	aGuidesCurrentPositions			the guides current positions. 
 	/// \param	aFrameSegments					the guides segments in current frame.
-	/// \param	aGuidesVerticesStartIndices		the array of starting indices of vertices for each guide
+	/// \param	aGuidesVerticesEndIndices		the array of last indices of vertices for each guide
 	/// \param	aGuidesInterpolationGroupIds	the array of interpolation group indices for each guide
 	/// \param	aInterpolationGroupsSelectable	the array containing the "is selectable" flag for each interpolation group
 	/// \param	aSelectInfo						structure containing selection region and various other information
@@ -52,7 +52,7 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	bool build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
-		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+		const std::vector< unsigned __int32 > & aGuidesVerticesEndIndices,
 		const std::vector< unsigned __int32 > & aGuidesInterpolationGroupIds,
 		const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable,
 		MSelectInfo & aSelectInfo,
@@ -66,13 +66,13 @@ public:
 	///
 	/// \param	aGuidesCurrentPositions		the guides current positions. 
 	/// \param	aFrameSegments				the guides segments in current frame. 
-	/// \param	aGuidesVerticesStartIndices	the array of starting indices of vertices for each guide
+	/// \param	aGuidesVerticesEndIndices	the array of last indices of vertices for each guide
 	/// \param	aSelectedComponentIndices	the component list received from Maya's global selection list
 	///	\param	aSelectedGuides				out parameter for returning currently selected guides.
 	///-------------------------------------------------------------------------------------------------
 	void build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
-		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+		const std::vector< unsigned __int32 > & aGuidesVerticesEndIndices,
 		MIntArray &aSelectedComponentIndices,
 		SelectedGuides & aSelectedGuides);
 

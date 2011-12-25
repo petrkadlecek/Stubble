@@ -47,7 +47,7 @@ bool HairGuides::applySelection( const std::vector< unsigned __int32 > & aInterp
 	}
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	bool isAnythingSelected = ( mSelectedSegmentsDS.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), this->mGuidesInterpolationGroupIds, aInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
+	bool isAnythingSelected = ( mSelectedSegmentsDS.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesEndIndex(), this->mGuidesInterpolationGroupIds, aInterpolationGroupsSelectable, aSelectInfo, aSelectionList, aWorldSpaceSelectPts, mSelectedGuides) );
 	// Display selection
 	if ( mDisplayedGuides.isDirty() )
 	{
@@ -71,7 +71,7 @@ void HairGuides::applySelection( MIntArray &aSelectedComponentIndices )
 	}
 	// Rebuild selected segments UG
 	clearSelectedGuides();
-	mSelectedSegmentsDS.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesStartIndex(), aSelectedComponentIndices, mSelectedGuides);
+	mSelectedSegmentsDS.build(mCurrentPositions, mSegmentsStorage->getCurrentSegments(), this->guidesVerticesEndIndex(), aSelectedComponentIndices, mSelectedGuides);
 	// Display selection
 	if ( mDisplayedGuides.isDirty() )
 	{
@@ -575,17 +575,17 @@ void HairGuides::refreshInterpolationGroupIds( const Interpolation::Interpolatio
 {
 	unsigned __int32 lastId = 0;
 	// Realloc arrays
-	mGuidesVerticesStartIndex.resize( mRestPositions.size() );
+	mGuidesVerticesEndIndex.resize( mRestPositions.size() );
 	mGuidesInterpolationGroupIds.resize( mRestPositions.size() );
-	Indices::iterator index = mGuidesVerticesStartIndex.begin();
+	Indices::iterator index = mGuidesVerticesEndIndex.begin();
 	Indices::iterator groupId = mGuidesInterpolationGroupIds.begin();
 	// For every guide
 	for ( GuidesRestPositions::const_iterator posIt = mRestPositions.begin(); posIt != mRestPositions.end();
 		++posIt, ++index, ++groupId )
 	{
-		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );
-		*index = lastId;
+		*groupId = aInterpolationGroups.getGroupId( posIt->mPosition.getUCoordinate(), posIt->mPosition.getVCoordinate() );		
 		lastId += aInterpolationGroups.getGroupSegmentsCount( *groupId ) + 1; // i.e. 5 segments => 6 vertices
+		*index = lastId - 1;
 	}
 }
 

@@ -254,11 +254,11 @@ public:
 	typedef std::vector< unsigned __int32 > Indices;
 	
 	///-------------------------------------------------------------------------------------------------
-	/// Gets the index to first vertex of guide in all guides vertices array
+	/// Gets the index to last vertex of guide in all guides vertices array
 	///
-	/// \return	Index to first vertex of guide in all guides vertices array. 
+	/// \return	Index to last vertex of guide in all guides vertices array. 
 	///-------------------------------------------------------------------------------------------------
-	inline const Indices & guidesVerticesStartIndex() const;
+	inline const Indices & guidesVerticesEndIndex() const;
 
 	///-------------------------------------------------------------------------------------------------
 	/// Serialize object data.
@@ -326,7 +326,7 @@ private:
 
 	unsigned __int32 mNumberOfGuidesToInterpolateFrom;  ///< The number of guides to interpolate from
 
-	Indices mGuidesVerticesStartIndex;  ///< Index to first vertex of guide in all guides vertices array
+	Indices mGuidesVerticesEndIndex;  ///< Index to first vertex of guide in all guides vertices array
 
 	Indices mGuidesInterpolationGroupIds;	///< Identifiers for the guides interpolation group
 };
@@ -358,9 +358,9 @@ inline const FrameSegments & HairGuides::getCurrentFrameSegments() const
 	return mSegmentsStorage->getCurrentSegments();
 }
 
-inline const HairGuides::Indices & HairGuides::guidesVerticesStartIndex() const
+inline const HairGuides::Indices & HairGuides::guidesVerticesEndIndex() const
 {
-	return mGuidesVerticesStartIndex;
+	return mGuidesVerticesEndIndex;
 }
 
 } // namespace HairComponents

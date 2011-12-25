@@ -29,7 +29,7 @@ SegmentsDS::~SegmentsDS()
 
 bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	const FrameSegments & aFrameSegments,
-	const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+	const std::vector< unsigned __int32 > & aGuidesVerticesEndIndices,
 	const std::vector< unsigned __int32 > & aGuidesInterpolationGroupIds,
 	const std::vector< unsigned __int32 > & aInterpolationGroupsSelectable,
 	MSelectInfo & aSelectInfo,
@@ -38,7 +38,7 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 	SelectedGuides & aSelectedGuides)
 {
 	assert(aGuidesCurrentPositions.size() == aFrameSegments.mSegments.size());
-	assert(aGuidesVerticesStartIndices.size() > 0 );
+	assert(aGuidesVerticesEndIndices.size() > 0 );
 	aSelectedGuides.clear();
 	M3dView view = aSelectInfo.view(); // Selection view
 	
@@ -113,15 +113,15 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 					selected = true;
 					// put all segments into the selected set that will later be passed on to maya's selection list
 					isAnythingSelected = true;
-					int start = aGuidesVerticesStartIndices[ gId ]; 
-					int end = start;
-					if ( gId == aGuidesVerticesStartIndices.size() - 1 )
+					int end = aGuidesVerticesEndIndices[ gId ]; 
+					int start = end;
+					if ( gId == 0 )
 					{
-
+						start = 0;
 					}
 					else
 					{
-						end = aGuidesVerticesStartIndices[ gId + 1 ];
+						start = aGuidesVerticesEndIndices[ gId - 1 ] + 1;
 					}
 
 					for ( int k = start; k < end; k++ )
@@ -136,7 +136,8 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 					selected = true;
 					// put this segment into the selected set that will later be passed on to maya's selection list
 					isAnythingSelected = true;
-					fnComponent.addElement( aGuidesVerticesStartIndices[gId] + sId );
+					int guideVerticesStartIndex = ( gId == 0 ) ? 0 : aGuidesVerticesEndIndices[ gId - 1 ] + 1;
+					fnComponent.addElement( guideVerticesStartIndex + sId );
 				}
 			}
 			additionalInfo.push_back(sgmtInfo);
@@ -181,7 +182,7 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 
 void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 		const FrameSegments & aFrameSegments,
-		const std::vector< unsigned __int32 > & aGuidesVerticesStartIndices,
+		const std::vector< unsigned __int32 > & aGuidesVerticesEndIndices,
 		MIntArray &aSelectedComponentIndices,
 		SelectedGuides & aSelectedGuides)
 {
@@ -239,7 +240,8 @@ void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 				}
 
 				// If a hit has been recorded (calculate the current vertex position in the array of all guides' vertices)
-				if ( ( aSelectedComponentIndices[ selectedComponentArrayIndex ] - aGuidesVerticesStartIndices[ gId ] - sId == 0 ) && ( selectionCondition ) )
+				int guideVerticesStartIndex = ( gId == 0 ) ? 0 : aGuidesVerticesEndIndices[ gId - 1 ] + 1;
+				if ( ( aSelectedComponentIndices[ selectedComponentArrayIndex ] - guideVerticesStartIndex - sId == 0 ) && ( selectionCondition ) )
 				{
 					sgmtInfo.mSelected = true; //TODO: use selection filter
 					selected = true;

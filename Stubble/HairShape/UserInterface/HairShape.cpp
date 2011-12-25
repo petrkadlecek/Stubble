@@ -342,6 +342,9 @@ void HairShape::draw()
 	}
 	std::cout << "===============================================================================" << endl;
 	std::cout << endl;*/
+	std::string temps = string(this->name().asChar());
+	std::string tempss = string(this->getActiveObject()->name().asChar());
+	std::cout << "Name: " <<  temps << ", Active Object Name: " << tempss << endl;
 	
 	if ( this->isSelectionModified() )
 	{
@@ -442,14 +445,14 @@ void HairShape::draw()
 		this->setSelectionModified( false );
 	}
 	//--------------------------------------------------------------------------------
-	/*const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesStartIndex();
+	const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesEndIndex();
 	cout << "Array size: " << tmpArr.size() << endl;
 	cout << "Elements: ";
 	for( int i = 0; i < tmpArr.size(); i++ ) 
 	{
 		cout << tmpArr[i] << " ";
 	}
-	cout << endl << endl;   */
+	cout << endl << endl;   
 	//--------------------------------------------------------------------------------
 	
 	// First init gl extensions
