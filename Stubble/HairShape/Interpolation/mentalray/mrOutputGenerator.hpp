@@ -57,7 +57,7 @@ struct MRTypes
 	///-------------------------------------------------------------------------------------------------
 	/// Defines an alias representing type used to store hair and strand index.
 	///-------------------------------------------------------------------------------------------------
-	typedef float IndexType;
+	typedef int IndexType;
 
 };
 
@@ -496,20 +496,20 @@ inline void MROutputGenerator::commit()
 			*p++ = (pos[3+0] - pos[-3+0]) / 6 + pos[0];
 			*p++ = (pos[3+1] - pos[-3+1]) / 6 + pos[1];
 			*p++ = (pos[3+2] - pos[-3+2]) / 6 + pos[2];
-			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 1./3.);
-			*p++ = lerp(col[0], col[3+0], 1./3.);
-			*p++ = lerp(col[1], col[3+1], 1./3.);
-			*p++ = lerp(col[2], col[3+2], 1./3.);
-			*p++ = lerp(opa[0], opa[3+0], 1./3.);
+			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 1.f/3.f);
+			*p++ = lerp(col[0], col[3+0], 1.f/3.f);
+			*p++ = lerp(col[1], col[3+1], 1.f/3.f);
+			*p++ = lerp(col[2], col[3+2], 1.f/3.f);
+			*p++ = lerp(opa[0], opa[3+0], 1.f/3.f);
 
 			*p++ = (pos[0+0] - pos[6+0]) / 6 + pos[3+0];
 			*p++ = (pos[0+1] - pos[6+1]) / 6 + pos[3+1];
 			*p++ = (pos[0+2] - pos[6+2]) / 6 + pos[3+2];
-			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 2./3.);
-			*p++ = lerp(col[0], col[3+0], 2./3.);
-			*p++ = lerp(col[1], col[3+1], 2./3.);
-			*p++ = lerp(col[2], col[3+2], 2./3.);
-			*p++ = lerp(opa[0], opa[3+0], 2./3.);
+			*p++ = lerp(mWidthData[ baseWidthIndex + seg ], mWidthData[ baseWidthIndex + seg + 1 ], 2.f/3.f);
+			*p++ = lerp(col[0], col[3+0], 2.f/3.f);
+			*p++ = lerp(col[1], col[3+1], 2.f/3.f);
+			*p++ = lerp(col[2], col[3+2], 2.f/3.f);
+			*p++ = lerp(opa[0], opa[3+0], 2.f/3.f);
 		}
 	}
  
