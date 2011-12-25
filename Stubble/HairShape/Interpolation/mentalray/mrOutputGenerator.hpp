@@ -65,7 +65,6 @@ struct MRTypes
 /// Class for drawing generated hair inside mental ray plugin.
 /// This class implements OutputGenerator which is the standard interface for 
 /// communication with hair generator class.
-/// Differences from RMOutputGenerator are minimal; 
 ///-------------------------------------------------------------------------------------------------
 class MROutputGenerator : public OutputGenerator< MRTypes >, public MRTypes
 {
@@ -453,7 +452,7 @@ inline void MROutputGenerator::commit()
 
     // 0=per hair, 1=per vertex | type: n, m, t, u, r | scalar count
 	mi_api_hair_info(1, 'r', 1);    // per-vertex radius
-	mi_api_hair_info(1, 't', 4);    // per-vertex texture coords (used as RGB color and opacity)
+	mi_api_hair_info(1, 't', 4);    // per-vertex texture coords (treated as RGB color and opacity)
 
 	hair->degree = 3;               // cubic (Bezier)
 
@@ -470,7 +469,7 @@ inline void MROutputGenerator::commit()
 	{
 	    // per-hair data: none
 
-	    // per-vertex data: positions of control points, width
+	    // per-vertex data: position, width, color, opacity
 		int seg;
 		MRTypes::PositionType* pos;
 		MRTypes::ColorType* col;
@@ -515,18 +514,19 @@ inline void MROutputGenerator::commit()
  
 	mi_api_hair_scalars_end( SCALARS_PER_HAIR * hairCount + SCALARS_PER_VERTEX * vertexCount );  // consistency check
 
-	// Write indices ponting into scalar array
+	// For each hair: write index into scalar array
     miGeoIndex* harray = mi_api_hair_hairs_begin(hairCount + 1);
 
     int sIndex = 0;
-	for (int i = 0; i < hairCount; i++) {
+	for (int i = 0; i < hairCount; i++)
+	{
         harray[ i ] = sIndex;
 		sIndex += SCALARS_PER_HAIR + SCALARS_PER_VERTEX * verticesFromSegments( mSegmentsCount[ i ] );
     }
-    harray[ hairCount ] = sIndex;  // last hair index = total count
+    harray[ hairCount ] = sIndex;  // one extra index to mark the end
 
-    mi_api_hair_hairs_end();
-
+    // Close the object
+	mi_api_hair_hairs_end();
 	mi_api_hair_end();
 }
 

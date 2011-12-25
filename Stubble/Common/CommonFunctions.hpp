@@ -41,7 +41,7 @@ inline Type clamp( Type value, Type min, Type max )
 template < typename Type, typename Type2 >
 inline Type lerp( Type a, Type b, Type2 t )
 {
-	return a + t * (b - a);
+	return a + static_cast< Type >( t ) * (b - a);
 }
 
 ///----------------------------------------------------------------------------------------------------
