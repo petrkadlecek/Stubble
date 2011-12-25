@@ -132,7 +132,9 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Sets an internal value in context.
 	/// Called whenever any internal value is changed ( except surface and time all other attributes
-	/// we are interested in are internal ). 
+	/// we are interested in are internal ).
+	/// If the change is expensive, it may be delayed to accumulate all changes happening on the same
+	/// attribute.
 	///
 	/// \param	aPlug				Which attribute is being set.
 	/// \param [in,out]	aDataHandle	Handle to data storage.
@@ -417,7 +419,7 @@ private:
 	/// Updates the selectable interpolation groups attribute. Must be called after Interpolation groups 
 	/// have been changed.
 	/// 
-	/// \param	aFirstUpdate	If first update is selected, then the old segments count don't need to 
+	/// \param	aFirstUpdate	If first update is selected, then the old segments count doesn't need to 
 	/// 						be removed.
 	///-------------------------------------------------------------------------------------------------
 	inline void updateInterpolationGroupsSelectableAttributes( bool aFirstUpdate );
@@ -428,6 +430,34 @@ private:
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
 	MStatus registerTopologyCallback();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Synchronize UI- and true attribute versions after a delay.
+	/// Should be invoked for values that are too expensive to change in real time.
+	///
+	/// \param	elapsedTime	The amount of time since the callback was last called.
+	/// \param	aLastTime	The execution time at the previous call to this callback.
+	/// \param	aThis	"this" pointer (supplied when the callback was registered).
+	///----------------------------------------------------------------------------------------------------
+	static void delayedSetInternalValueInContext(float aElapsedTime, float aLastTime, void* aThis);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Is there a delayedSetInternalValueInContext call pending? I.e. is the timer running?
+	///
+	/// \return true when there's a call pending
+	///----------------------------------------------------------------------------------------------------
+	inline bool delayedIsPending();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Cancel the timer for delayedSetInternalValueInContext.
+	/// This is needed because Maya's timer can't be invoked in single-fire mode.
+	///----------------------------------------------------------------------------------------------------
+	inline void clearDelayed();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Set up a delayedSetInternalValueInContext call with a delay.
+	///----------------------------------------------------------------------------------------------------
+	inline void setupDelayed();
 
 	/*TODO Test and replace with proper documentation*/
 	bool					value( int pntInd, int vlInd, double & val ) const;
@@ -454,6 +484,8 @@ private:
 
 	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
+	MCallbackId mDelayedCallbackId; ///< Timer id for delayed setInternalValueInContext call (-1 when there's none)
+
 	// Stored attributes values
 
 	unsigned __int32 mGuidesHairCount;  ///< Number of guides hairs
@@ -468,7 +500,8 @@ private:
 
 	bool mDisplayInterpolated; ///< Should interpolated hair be displayed ?
 
-	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed
+	unsigned __int32 mGenDisplayCountWanted;	///< The number of generated hair to be displayed (to be shown in the UI)
+	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed (true value)
 
 	unsigned __int32 mSampleTextureDimension; ///< Texture dimension for sampling attribute
 

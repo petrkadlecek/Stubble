@@ -22,6 +22,7 @@
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
 #include <maya/MSceneMessage.h>
+#include <maya/MTimerMessage.h>
 
 #include <exception>
 #include <fstream>
@@ -76,7 +77,8 @@ HairShape::HairShape():
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
 	mSampleTextureDimension( 128 ),
-	mIsSelectionModified( false )
+	mIsSelectionModified( false ),
+	mDelayedCallbackId( -1 )
 {
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -93,6 +95,7 @@ void HairShape::postConstructor()
 
 HairShape::~HairShape()
 {
+	delayedSetInternalValueInContext( -1, -1, this );  // process final delayed callback
 	delete mUVPointGenerator;
 	delete mMayaMesh;
 	delete mHairGuides;
@@ -186,7 +189,54 @@ bool HairShape::getInternalValueInContext( const MPlug & plug, MDataHandle & res
 	return isOk;
 }
 
-bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle& aDataHandle, MDGContext& aContext)
+
+bool HairShape::delayedIsPending()
+{
+	return mDelayedCallbackId != -1;
+}
+
+void HairShape::clearDelayed()
+{
+	MMessage::removeCallback( mDelayedCallbackId );
+	mDelayedCallbackId = -1;
+}
+
+void HairShape::setupDelayed()
+{
+	if ( !delayedIsPending() )
+	{
+		mDelayedCallbackId = MTimerMessage::addTimerCallback( 0.5, delayedSetInternalValueInContext, (void*) this );
+	}
+}
+
+
+void HairShape::delayedSetInternalValueInContext( float aElapsedTime, float aLastTime, void* aThis )
+{
+	HairShape* me = static_cast< HairShape* >( aThis );
+	
+	// If there are no updates pending, return.
+	if ( !me->delayedIsPending() ) return;  
+
+	// Otherwise remove the callback and do the actual update.
+	me->clearDelayed();
+
+	// Number of interpolated hair to be displayed
+	if ( me->mGenDisplayCount != me->mGenDisplayCountWanted )
+	{
+		me->mGenDisplayCount = me->mGenDisplayCountWanted;
+		if ( me->mDisplayInterpolated )
+		{
+			if ( !( me->mUVPointGenerator == 0 || me->mMayaMesh == 0 ) ) // don't generate when in construction
+			{
+				me->mInterpolatedHair.generate( *me->mUVPointGenerator, *me->mMayaMesh, *me, me->mGenDisplayCount );
+			}
+		}
+		cerr << "Delayed: mGenDisplayCount = " << me->mGenDisplayCount << endl;
+	}
+}
+
+
+bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle& aDataHandle, MDGContext& unused )
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	if ( aPlug == countAttr ) // Guides hair count was changed
@@ -243,14 +293,15 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	if ( aPlug == genDisplayCountAttr ) // Number of interpolated hair to be displayed
 	{
-		mGenDisplayCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		if ( mDisplayInterpolated )
+		mGenDisplayCountWanted = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		// If interpolated hair is hidden, change it right away. Otherwise change it later.
+		if ( !mDisplayInterpolated )
 		{
-			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
-			{
-				return false;
-			}
-			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
+			mGenDisplayCount = mGenDisplayCountWanted;
+		}
+		else
+		{
+			setupDelayed();
 		}
 		return false;
 	}
