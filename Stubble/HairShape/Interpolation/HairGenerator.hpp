@@ -342,9 +342,11 @@ private:
 
 	ColorType mTipColor[ 3 ];   ///< The tip color
 
-	OpacityType mRootOpacity[ 3 ];  ///< The root opacity
+	ColorType mHueDistance;   ///< The distance in hue between root and tip color 
 
-	OpacityType mTipOpacity[ 3 ];   ///< The tip opacity
+	OpacityType mRootOpacity;  ///< The root opacity
+
+	OpacityType mTipOpacity;   ///< The tip opacity
 
 	WidthType mRootWidth;   ///< Width of the root
 

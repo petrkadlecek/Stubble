@@ -633,11 +633,11 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	const Real v = aRestPosition.getVCoordinate();
 	// Calculate hue shift
 	Real hueVar = mHairProperties->getHueVariation() * 
-		mHairProperties->getHueVariationTexture().realAtUV( u, v ) * 0.5f;
+		mHairProperties->getHueVariationTexture().realAtUV( u, v ) * 2;
 	ColorType hueShift = static_cast< ColorType >( ( mRandom.uniformNumber() - 0.5f ) * hueVar );
 	// Calculate value shift
 	Real valueVar = mHairProperties->getValueVariation() * 
-		mHairProperties->getValueVariationTexture().realAtUV( u, v ) * 0.5f;
+		mHairProperties->getValueVariationTexture().realAtUV( u, v ) * 2;
 	ColorType valueShift = static_cast< ColorType >( ( mRandom.uniformNumber() - 0.5f ) * valueVar );
 	// Determine whether the hair is mutant
 	if ( mRandom.uniformNumber() < 
@@ -652,6 +652,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Copy it to tip color
 		memcpy( reinterpret_cast< void * >( mTipColor ), reinterpret_cast< const void * >( mRootColor ), 
 			sizeof( ColorType ) * 3 );
+		// Same root and tip color -> no distance in hue
+		mHueDistance = 0;
 	}
 	else
 	{
@@ -666,11 +668,17 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Applies hue-value shift
 		applyHueValueShift( mRootColor, valueShift, hueShift );
 		applyHueValueShift( mTipColor, valueShift, hueShift );
+		// Calculate distance between root and color hue
+		ColorType mHueDistanceCW = mRootColor[ 0 ] >= mTipColor[ 0 ] ? mTipColor[ 0 ] + 360 - mRootColor[ 0 ] : 
+			mTipColor[ 0 ] - mRootColor[ 0 ];
+		ColorType mHueDistanceCCW = mRootColor[ 0 ] >= mTipColor[ 0 ] ? mRootColor[ 0 ] - mTipColor[ 0 ] :
+			mRootColor[ 0 ] + 360 - mTipColor[ 0 ];
+		mHueDistance = mHueDistanceCW <= mHueDistanceCCW ? mHueDistanceCW: -mHueDistanceCCW;
 	}
 	// Handle opacity
-	mRootOpacity[ 2 ] = mRootOpacity[ 1 ] = mRootOpacity[ 0 ] = static_cast< OpacityType >( 
+	mRootOpacity = static_cast< OpacityType >( 
 		mHairProperties->getRootOpacity() * mHairProperties->getRootOpacityTexture().realAtUV( u, v ) );
-	mTipOpacity[ 2 ] = mTipOpacity[ 1 ] = mTipOpacity[ 0 ] = static_cast< OpacityType >( 
+	mTipOpacity = static_cast< OpacityType >( 
 		mHairProperties->getTipOpacity() * mHairProperties->getTipOpacityTexture().realAtUV( u, v ) );
 	// Handle width
 	mRootWidth = static_cast< WidthType >( 
@@ -768,11 +776,12 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		normalOutIt += 3;
 		// Finally output color, opacity, width
 		ColorType tmp[ 3 ];
-		for ( unsigned __int32 j = 0; j < 3; ++j )
-		{
-			tmp[ j ] = t * mTipColor[ j ] + oneMinusT * mRootColor[ j ];
-			* ( opacityIt++ ) = clamp( t * mTipOpacity[ j ] + oneMinusT * mRootOpacity[ j ], 0.0f, 1.0f );      
-		}
+		tmp[ 0 ] = circleValue( t * mHueDistance + mRootColor[ 0 ], 0.0f, 360.0f ); //Hue
+		tmp[ 1 ] = t * mTipColor[ 1 ] + oneMinusT * mRootColor[ 1 ]; //Saturation
+		tmp[ 2 ] = t * mTipColor[ 2 ] + oneMinusT * mRootColor[ 2 ]; //Value
+		opacityIt[ 2 ] = opacityIt[ 1 ] = opacityIt[ 0 ] =
+			clamp( t * mTipOpacity + oneMinusT * mRootOpacity, 0.0f, 1.0f );
+		opacityIt += 3;
 		// Convert color from HSV to RGB before outputing
 		HSVtoRGB( colorIt, tmp );
 		clamp( colorIt[ 0 ], 0.0f, 1.0f );
