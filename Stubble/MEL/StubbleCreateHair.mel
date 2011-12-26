@@ -22,7 +22,7 @@ for ( $obj in $selected )
 		setAttr -l true ( $parent[ 0 ] + ".shear" );
 
 		// Create a proxy sphere to make mental ray shaders work
-		$MRsphere = `polySphere -r 1 -sx 4 -sy 3`;
+		$MRsphere = `polySphere -r 0.000001 -sx 4 -sy 3`;
 		parent $MRsphere[0] $parent;
 		setAttr ($MRsphere[0] + ".miExportGeoShader") 1;
 
