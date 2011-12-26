@@ -9,16 +9,17 @@ namespace Toolbox
 // ----------------------------------------------------------------------------
 // Static data members
 // ----------------------------------------------------------------------------
-cHapticDeviceHandler* HapticSettingsTool::mHandler;
-cGenericHapticDevice* HapticSettingsTool::mHapticDevice;
-bool HapticSettingsTool::mHapticThreadRunning;
-MVector HapticSettingsTool::mLastPosition;
-MVector HapticSettingsTool::mLastRotation;
-double HapticSettingsTool::mLastRotationAngle;
-bool HapticSettingsTool::mHapticButton1;
-bool HapticSettingsTool::mHapticButton2;
-bool HapticSettingsTool::mHapticButton1Last;
-bool HapticSettingsTool::mHapticButton2Last;
+cHapticDeviceHandler* HapticSettingsTool::sHandler;
+cGenericHapticDevice* HapticSettingsTool::sHapticDevice;
+bool HapticSettingsTool::sHapticThreadRunning;
+MVector HapticSettingsTool::sLastPosition;
+MVector HapticSettingsTool::sLastRotation;
+double HapticSettingsTool::sLastRotationAngle;
+double HapticSettingsTool::sWorkspaceRadius;
+bool HapticSettingsTool::sHapticButton1;
+bool HapticSettingsTool::sHapticButton2;
+bool HapticSettingsTool::sHapticButton1Last;
+bool HapticSettingsTool::sHapticButton2Last;
 bool HapticSettingsTool::sDeviceAvailable;
 
 //----------------------------------------------------------------------------------------------------
@@ -100,47 +101,47 @@ HapticSettingsTool::HapticSettingsTool()
 {
 	setTitleString( "Stubble haptic settings Tool" );
 	mInitFlag = false;
-	HapticSettingsTool::mHapticThreadRunning = false;
+	HapticSettingsTool::sHapticThreadRunning = false;
   
 	// set CHAI3D handler
-	HapticSettingsTool::mHandler = NULL;
-	HapticSettingsTool::mHapticDevice = NULL;
+	HapticSettingsTool::sHandler = NULL;
+	HapticSettingsTool::sHapticDevice = NULL;
 	HapticSettingsTool::sDeviceAvailable = false;
 }
 
 HapticSettingsTool::~HapticSettingsTool()
 {
-	HapticSettingsTool::mHapticThreadRunning = false;
+	HapticSettingsTool::sHapticThreadRunning = false;
 
-	if (HapticSettingsTool::mHapticDevice != NULL)
+	if (HapticSettingsTool::sHapticDevice != NULL)
 	{
-		HapticSettingsTool::mHapticDevice->close();
+		HapticSettingsTool::sHapticDevice->close();
 	}
 }
 
 MVector HapticSettingsTool::getLastPosition()
 {
-	return mLastPosition;
+	return sLastPosition / sWorkspaceRadius;
 }
 
 MVector HapticSettingsTool::getLastRotation()
 {
-	return mLastRotation;
+	return sLastRotation;
 }
 
 double HapticSettingsTool::getLastRotationAngle()
 {
-	return mLastRotationAngle;
+	return sLastRotationAngle;
 }
 
 bool HapticSettingsTool::getHapticButton1State()
 {
-	return mHapticButton1;
+	return sHapticButton1;
 }
 
 bool HapticSettingsTool::getHapticButton2State()
 {
-	return mHapticButton2;
+	return sHapticButton2;
 }
 
 void HapticSettingsTool::getClassName( MString &aName ) const
@@ -153,13 +154,19 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 	if (mInitFlag) {
 		return;
 	}
-
+	
 	mInitFlag = true;
 
+	MString sCmd = "textScrollList -e -a \"Haptic Sphere Tool Shape\" stubbleToolShape;";
+	MGlobal::executeCommandOnIdle( sCmd );
+
+	sCmd = "textScrollList -e -a \"Haptic Cylinder Tool Shape\" stubbleToolShape;";
+	MGlobal::executeCommandOnIdle( sCmd );
+
 	// create instance of mHandler on ToolSetup
-	if ( HapticSettingsTool::mHandler == NULL )
+	if ( HapticSettingsTool::sHandler == NULL )
 	{
-		HapticSettingsTool::mHandler = new cHapticDeviceHandler();
+		HapticSettingsTool::sHandler = new cHapticDeviceHandler();
 	}
 
 	cHapticDeviceInfo info; // haptic device info structure
@@ -168,14 +175,14 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 	MGlobal::executeCommandOnIdle( "textScrollList -e -ra hapticDevices;" );
 
 	// debug
-	std::cout << "HapticSettingsTool: number of detected haptic devices = " << HapticSettingsTool::mHandler->getNumDevices() << std::endl;
+	std::cout << "HapticSettingsTool: number of detected haptic devices = " << HapticSettingsTool::sHandler->getNumDevices() << std::endl;
 
-	assert( mHandler != NULL );
+	assert( sHandler != NULL );
 
 	// add devices
-	for ( unsigned int i = 0; i < HapticSettingsTool::mHandler->getNumDevices(); ++i )
+	for ( unsigned int i = 0; i < HapticSettingsTool::sHandler->getNumDevices(); ++i )
 	{
-		HapticSettingsTool::mHandler->getDeviceSpecifications( info, i );
+		HapticSettingsTool::sHandler->getDeviceSpecifications( info, i );
 
 		MString sCmd = "textScrollList -e -a \"";
 		sCmd += i;
@@ -213,23 +220,24 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	force.zero();
 
 	int sleepTime = 10; // TODO
+	int noRefreshPass = 100;
 	bool refreshNeeded = true;
 
 	M3dView mView = M3dView::active3dView();
 
 	HapticSettingsTool::sDeviceAvailable = true;
-	HapticSettingsTool::mHapticThreadRunning = true;
+	HapticSettingsTool::sHapticThreadRunning = true;
 
 	// create haptic listener node
 	MGlobal::executeCommandOnIdle("createNode HapticListener;");
 
-	while ( HapticSettingsTool::mHapticThreadRunning )
+	while ( HapticSettingsTool::sHapticThreadRunning )
 	{
-		HapticSettingsTool::mHapticDevice->getPosition( newPosition );
-		HapticSettingsTool::mHapticDevice->getRotation( newRotation );
-		HapticSettingsTool::mHapticDevice->setForce( force );
-		HapticSettingsTool::mHapticDevice->getUserSwitch( 0, HapticSettingsTool::mHapticButton1 );
-		HapticSettingsTool::mHapticDevice->getUserSwitch( 1, HapticSettingsTool::mHapticButton2 );
+		HapticSettingsTool::sHapticDevice->getPosition( newPosition );
+		HapticSettingsTool::sHapticDevice->getRotation( newRotation );
+		HapticSettingsTool::sHapticDevice->setForce( force );
+		HapticSettingsTool::sHapticDevice->getUserSwitch( 0, HapticSettingsTool::sHapticButton1 );
+		HapticSettingsTool::sHapticDevice->getUserSwitch( 1, HapticSettingsTool::sHapticButton2 );
 		
 		// optimize refreshing - refresh only when position of proxy changed 
 		if ( lastPosition.distancesq( newPosition ) > minMovementEps )
@@ -237,14 +245,14 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 			refreshNeeded = true;
 		}
 
-		if ( HapticSettingsTool::mHapticButton1 == true || HapticSettingsTool::mHapticButton2 == true )
+		if ( HapticSettingsTool::sHapticButton1 == true || HapticSettingsTool::sHapticButton2 == true )
 		{
 			refreshNeeded = true;
 		}
 
 		if ( 
-			HapticSettingsTool::mHapticButton1 != HapticSettingsTool::mHapticButton1Last || 
-			HapticSettingsTool::mHapticButton2 != HapticSettingsTool::mHapticButton2Last 
+			HapticSettingsTool::sHapticButton1 != HapticSettingsTool::sHapticButton1Last || 
+			HapticSettingsTool::sHapticButton2 != HapticSettingsTool::sHapticButton2Last 
 		)
 		{
 			refreshNeeded = true;
@@ -252,25 +260,28 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 
 		// handle position vectors
 		lastPosition = newPosition;
-		HapticSettingsTool::mLastPosition.x = newPosition.y;
-		HapticSettingsTool::mLastPosition.y = newPosition.z;
-		HapticSettingsTool::mLastPosition.z = newPosition.x;
+		HapticSettingsTool::sLastPosition.x = newPosition.y;
+		HapticSettingsTool::sLastPosition.y = newPosition.z;
+		HapticSettingsTool::sLastPosition.z = newPosition.x;
 
 		// handle rotation matrix
 		newRotation.toAngleAxis(newRotationAngle, newRotationVector);
-		HapticSettingsTool::mLastRotation.x = newRotationVector.x;
-		HapticSettingsTool::mLastRotation.y = newRotationVector.y;
-		HapticSettingsTool::mLastRotation.z = newRotationVector.z;
-		HapticSettingsTool::mLastRotationAngle = newRotationAngle;
+		HapticSettingsTool::sLastRotation.x = newRotationVector.x;
+		HapticSettingsTool::sLastRotation.y = newRotationVector.y;
+		HapticSettingsTool::sLastRotation.z = newRotationVector.z;
+		HapticSettingsTool::sLastRotationAngle = newRotationAngle;
 		
 		// handle switches
-		HapticSettingsTool::mHapticButton1Last = HapticSettingsTool::mHapticButton1;
-		HapticSettingsTool::mHapticButton2Last = HapticSettingsTool::mHapticButton2;
+		HapticSettingsTool::sHapticButton1Last = HapticSettingsTool::sHapticButton1;
+		HapticSettingsTool::sHapticButton2Last = HapticSettingsTool::sHapticButton2;
 
-		if ( refreshNeeded )
+		--noRefreshPass;
+
+		if ( refreshNeeded || noRefreshPass == 0 )
 		{
 			MGlobal::executeCommandOnIdle("refresh");
 			refreshNeeded = false;
+			noRefreshPass = 100;
 		}
 
 		//std::cout << "HapticSettingsTool::AsyncHapticLoop " <<  newPosition << std::endl;
@@ -278,7 +289,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		Sleep( sleepTime + 1 );
 	}
 	
-	HapticSettingsTool::mHapticThreadRunning = false;
+	HapticSettingsTool::sHapticThreadRunning = false;
 	HapticSettingsTool::sDeviceAvailable = false;
 
 	return 0;
@@ -286,13 +297,13 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 
 void HapticSettingsTool::AsyncHapticCallback (void *aData)
 {
-  // TODO: handle callback
+  // nothing to do here
 }
 
 void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 {
 	// inform user that haptic thread is already running and return
-	if (HapticSettingsTool::mHapticThreadRunning)
+	if (HapticSettingsTool::sHapticThreadRunning)
 	{
 		MString s = "confirmDialog -title \"HapticSettingsTool\" -message \"Haptic device has been already initialized.\" -button \"OK\";";
 		MGlobal::executeCommand(s);
@@ -301,15 +312,18 @@ void HapticSettingsTool::initHapticDevice( int aHapticDeviceIndex )
 
 	std::cout << "HapticSettingsTool: preparing device " << aHapticDeviceIndex << std::endl;
 
-	if (HapticSettingsTool::mHandler->getDevice(HapticSettingsTool::mHapticDevice, aHapticDeviceIndex) == 0)
+	if (HapticSettingsTool::sHandler->getDevice(HapticSettingsTool::sHapticDevice, aHapticDeviceIndex) == 0)
 	{
 		MGlobal::displayInfo("HapticSettingsTool: open");
-		if (mHapticDevice->open() == 0)
+		if (sHapticDevice->open() == 0)
 		{
 			MGlobal::displayInfo("HapticSettingsTool: init");
 
-			if (HapticSettingsTool::mHapticDevice->initialize() == 0)
+			if (HapticSettingsTool::sHapticDevice->initialize() == 0)
 			{
+				// get the workspace radius from the device specification
+				HapticSettingsTool::sWorkspaceRadius = HapticSettingsTool::sHapticDevice->getSpecifications().m_workspaceRadius;
+
 				MStatus pr = MThreadAsync::init();
 				pr = MThreadAsync::createTask(HapticSettingsTool::AsyncHapticLoop, 0, HapticSettingsTool::AsyncHapticCallback, NULL);
 				

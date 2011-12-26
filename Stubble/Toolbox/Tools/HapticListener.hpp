@@ -5,6 +5,7 @@
 #include <maya\MPxLocatorNode.h>
 #include <maya/MMatrix.h>
 #include <maya/MVector.h>
+
 #include "../../Primitives/Vector3D.hpp"
 
 namespace Stubble
@@ -64,10 +65,16 @@ namespace Toolbox
 		bool mHapticButton2Last;
 
 		/// last haptic proxy position
-		MVector mhapticProxyPosLast;
+		MVector mHapticProxyPosLast;
+
+		/// last haptic proxy rotation vector
+		MVector mHapticProxyRotLast;
+
+		/// last haptic proxy rotation angle
+		double mHapticProxyRotAngleLast;
 
 		/// last haptic eye space proxy position
-		MVector hapticProxyEyeSpacePosLast;
+		MVector mHapticProxyEyeSpacePosLast;
 
 		/// compute vector[4] matrix[4][4] multiplication
 		inline void VectorMatrixMul4f(float pVector[4], float pMat[16]);

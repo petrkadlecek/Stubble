@@ -107,39 +107,41 @@ private:
 	///----------------------------------------------------------------------------------------------------
 	/// CHAI 3D haptic device handlers
 	///----------------------------------------------------------------------------------------------------
-	static cHapticDeviceHandler* mHandler;  ///< handler of haptic devices CHAI 3D
+	static cHapticDeviceHandler* sHandler;  ///< handler of haptic devices CHAI 3D
 
-	static cGenericHapticDevice* mHapticDevice;  ///< haptic device CHAI 3D
+	static cGenericHapticDevice* sHapticDevice;  ///< haptic device CHAI 3D
 
 	///----------------------------------------------------------------------------------------------------
 	/// CHAI 3D device control
 	///----------------------------------------------------------------------------------------------------
-	static cVector3d mDevicePosition; ///< haptic device position
+	static cVector3d sDevicePosition; ///< haptic device position
 
-	static cMatrix3d mDeviceRotation; ///< haptic device rotation
+	static cMatrix3d sDeviceRotation; ///< haptic device rotation
 
-	static cVector3d mDeviceForce; ///< haptic device sent force
+	static cVector3d sDeviceForce; ///< haptic device sent force
 
-	static bool mHapticButton1; ///< haptic device button 1
+	static bool sHapticButton1; ///< haptic device button 1
 
-	static bool mHapticButton2; ///< haptic device button 2
+	static bool sHapticButton2; ///< haptic device button 2
+
+	static double sWorkspaceRadius; ///< haptic device workspace radius
 
 	///----------------------------------------------------------------------------------------------------
 	/// Stubble Haptic Tool properties
 	///----------------------------------------------------------------------------------------------------
 	MString mHapticDeviceStr; ///< haptic device string identifier
 
-	static bool mHapticThreadRunning; ///< haptic thread running flag
+	static bool sHapticThreadRunning; ///< haptic thread running flag
 
-	static MVector mLastPosition;  ///< last position of haptic device
+	static MVector sLastPosition;  ///< last position of haptic device
 
-	static MVector mLastRotation;  ///< last rotation vector of haptic device
+	static MVector sLastRotation;  ///< last rotation vector of haptic device
 
-	static double mLastRotationAngle;  ///< last rotation angle of haptic device
+	static double sLastRotationAngle;  ///< last rotation angle of haptic device
 
-	static bool mHapticButton1Last; ///< last haptic device button 1 state
+	static bool sHapticButton1Last; ///< last haptic device button 1 state
 
-	static bool mHapticButton2Last; ///< last haptic device button 2 state
+	static bool sHapticButton2Last; ///< last haptic device button 2 state
 
 	///----------------------------------------------------------------------------------------------------
 	/// Initialize haptic device by index aHapticDeviceIndex

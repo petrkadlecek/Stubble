@@ -1,5 +1,7 @@
 #include "HapticListener.hpp"
 #include "HapticSettingsTool.hpp"
+#include "../../HairShape/UserInterface/HairShape.hpp"
+
 #include <GL/glut.h>
 #include <iomanip>
 
@@ -33,6 +35,10 @@ HapticListener::HapticListener()
 {
 	mHapticButton1Last = false;
 	mHapticButton2Last = false;
+	mHapticProxyRotAngleLast = 0.0;
+	mHapticProxyRotLast.x = 1.0;
+	mHapticProxyRotLast.y = 0.0;
+	mHapticProxyRotLast.z = 0.0;
 }
 
 HapticListener::~HapticListener() {}
@@ -60,22 +66,46 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// get current haptic switch state
 	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
 	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
+	bool simulate5DOF = true;
+	bool enabled5DOFsim = hapticButton1State && simulate5DOF;
 
 	// get current camera
 	MDagPath cameraPath;
 	view.getCamera( cameraPath );
 	MFnCamera camera( cameraPath );
 
-	// get haptic proxy eye space coordinates
-	// TODO: set scaling
-	MVector hapticProxyEyeSpacePos = 150.0f * HapticSettingsTool::getLastPosition();
-	hapticProxyEyeSpacePos.z = -hapticProxyEyeSpacePos.z + 25.0f;;
+	MVector activeObjectCenter( 0, 0, 0 );
+
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( activeHairShape != NULL )
+	{
+		activeObjectCenter = ( activeHairShape->getActiveObject()->boundingBox().min() + activeHairShape->getActiveObject()->boundingBox().max() )/2;
+	}
 
 	// compute haptic proxy object space coordinates - snap to camera
-	MVector hapticProxyPos = camera.eyePoint( MSpace::kWorld );
-	hapticProxyPos += camera.rightDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.x;
-	hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
-	hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
+	MVector cameraEyePoint = camera.eyePoint( MSpace::kWorld );
+
+	double workspaceLength = ( activeObjectCenter - cameraEyePoint ).length() * 0.55;
+
+	// get haptic proxy eye space coordinates
+	MVector hapticDeviceLastPos = HapticSettingsTool::getLastPosition();
+	MVector hapticProxyEyeSpacePos = hapticDeviceLastPos;
+	hapticProxyEyeSpacePos.x =  workspaceLength * hapticProxyEyeSpacePos.x;
+	hapticProxyEyeSpacePos.y =  workspaceLength * hapticProxyEyeSpacePos.y;
+	hapticProxyEyeSpacePos.z = -workspaceLength * ( -1.0 + hapticProxyEyeSpacePos.z );
+
+	MVector hapticProxyPos( 0, 0, 0 );
+	if ( !enabled5DOFsim )
+	{
+		hapticProxyPos = cameraEyePoint;
+		hapticProxyPos += camera.rightDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.x;
+		hapticProxyPos += camera.upDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.y;
+		hapticProxyPos += camera.viewDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.z;
+	}
+	else
+	{
+		hapticProxyPos = mHapticProxyPosLast;
+	}
 
 	// compute haptic proxy object space rotation - snap to camera
 	MVector hapticProxyEyeSpaceRot = HapticSettingsTool::getLastRotation();
@@ -83,27 +113,41 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	
 	MVector hapticProxyRot = hapticProxyEyeSpaceRot;
 
-	/*
-	// 3-DOF test
-	MVector hapticProxyRot;
-	hapticProxyRot.x = sin(hapticProxyEyeSpacePos.x);
-	hapticProxyRot.y = cos(hapticProxyEyeSpacePos.x);
-	hapticProxyRotAngle = hapticProxyEyeSpacePos.y / 57.0;
-	*/
+	// Simulate 5DOF - rotate using translation
+	if ( enabled5DOFsim )
+	{
+		hapticProxyRot.x = -hapticDeviceLastPos.y;
+		hapticProxyRot.y = hapticDeviceLastPos.x;
+		hapticProxyRot.z = 0.0;
+		hapticProxyRotAngle = hapticProxyRot.length();
+	}
+
+	if ( simulate5DOF && !enabled5DOFsim )
+	{
+		hapticProxyRot = mHapticProxyRotLast;
+		hapticProxyRotAngle = mHapticProxyRotAngleLast;
+	}
+
+	// set last proxy rotation vector and angle
+	mHapticProxyRotLast = hapticProxyRot;
+	mHapticProxyRotAngleLast = hapticProxyRotAngle;
 	
-	// camera rotation - TODO: performance, use matrices
+	// get rotation quaternions to apply camera rotation
 	MMatrix mmatrix = cameraPath.inclusiveMatrix();
 	MTransformationMatrix tmatrix( mmatrix );
 	MQuaternion cameraRotation = tmatrix.rotation();
 	MQuaternion qHapticProxy(hapticProxyRotAngle, hapticProxyRot);
 	MQuaternion concatQRot = qHapticProxy * cameraRotation;
 
+	// apply camera rotation
 	MVector camAxis;
 	double camTheta;
 	concatQRot.getAxisAngle( camAxis, camTheta );
 
+	// save result of both rotations into hapticProxyRot
 	hapticProxyRot = camAxis;
 	hapticProxyRotAngle = camTheta * 180.0 / CHAI_PI;
+
 
 	// prepare Quadrics
 	gluQuadricDrawStyle( ql, GLU_FILL );
@@ -162,7 +206,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	view.endGL();
 
 	// handle associated tool (if there's any)
-	if (HapticListener::sTool != NULL)
+	if ( HapticListener::sTool != NULL )
 	{
 		// draw haptic tool shape and set shape position
 		HapticListener::sTool->drawHapticToolShape( hapticProxyPos, hapticProxyRot, hapticProxyRotAngle );
@@ -174,7 +218,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		}
 		else if ( hapticButton1State == true && mHapticButton1Last == true )
 		{
-			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - hapticProxyEyeSpacePosLast );
+			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast );
 		}
 		else if ( hapticButton1State == false && mHapticButton1Last == true )
 		{
@@ -185,8 +229,8 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// set last states
 	mHapticButton1Last = hapticButton1State;
 	mHapticButton2Last = hapticButton2State;
-	mhapticProxyPosLast = hapticProxyPos;
-	hapticProxyEyeSpacePosLast = hapticProxyEyeSpacePos;
+	mHapticProxyPosLast = hapticProxyPos;
+	mHapticProxyEyeSpacePosLast = hapticProxyEyeSpacePos;
 }
 
 bool HapticListener::isBounded() const
@@ -197,7 +241,7 @@ bool HapticListener::isBounded() const
 MBoundingBox HapticListener::boundingBox() const
 {
 	MBoundingBox bbox;
-	// TODO
+	// TODO SET RADIUS
 
 	bbox.expand( MPoint( -0.5f, 0.0f, -0.5f ) );
 	bbox.expand( MPoint(  0.5f, 0.0f, -0.5f ) );

@@ -63,7 +63,9 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 	glPushMatrix();
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		gluSphere( q, mRadius, 8, 8 );
+		//gluSphere( q, mRadius, 8, 8 );
+		glRotated( aHapticProxyRotationAngle, aHapticProxyRotation.x, aHapticProxyRotation.y, aHapticProxyRotation.z );
+		gluCylinder( q, mRadius * 0.1, mRadius * 0.13, mRadius, 8, 8);
 	}
 	glPopMatrix();
 

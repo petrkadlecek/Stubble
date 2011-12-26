@@ -63,7 +63,7 @@ void CylinderToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &
 	glPushMatrix();
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		glRotated(aHapticProxyRotationAngle, aHapticProxyRotation.x, aHapticProxyRotation.y, aHapticProxyRotation.z);
+		glRotated( aHapticProxyRotationAngle, aHapticProxyRotation.x, aHapticProxyRotation.y, aHapticProxyRotation.z );
 		gluCylinder(qc, mRadius * 0.1, mRadius * 0.13, mRadius, 8, 8);
 	}
 	glPopMatrix();
