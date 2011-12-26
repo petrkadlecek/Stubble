@@ -77,6 +77,7 @@ HairShape::HairShape():
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
 	mSampleTextureDimension( 128 ),
+	mIsCurrentlySelected( false ),
 	mIsSelectionModified( false ),
 	mDelayedCallbackId( -1 )
 {
@@ -386,30 +387,62 @@ void* HairShape::creator()
 
 void HairShape::draw()
 {
-	/*std::cout << "===============================================================================" << endl;
-	for ( int i = 0; i < this->mInterpolationGroups->getGroupsCount(); i++)
-	{
-		std::cout << this->mInterpolationGroupsSelectable[ i ] << " ";
-	}
-	std::cout << "===============================================================================" << endl;
-	std::cout << endl;*/
-	std::string temps = string(this->name().asChar());
+	/*std::string temps = string(this->name().asChar());
 	std::string tempss = string(this->getActiveObject()->name().asChar());
-	std::cout << "Name: " <<  temps << ", Active Object Name: " << tempss << endl;
-	
-	if ( this->isSelectionModified() )
+	std::cout << "Name: " <<  temps << ", Active Object Name: " << tempss << endl;	*/
+		
+	this->syncSelection();
+
+	//--------------------------------------------------------------------------------
+	/*const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesEndIndex();
+	cout << "Array size: " << tmpArr.size() << endl;
+	cout << "Elements: ";
+	for( int i = 0; i < tmpArr.size(); i++ ) 
 	{
+		cout << tmpArr[i] << " ";
+	}
+	cout << endl << endl;*/   
+	//--------------------------------------------------------------------------------
+	
+	// First init gl extensions
+	if ( !GLExt::isInited() )
+	{
+		GLExt::init();
+	}
+	// Display guides & interpolated hair
+	if ( mDisplayGuides )
+	{		
+		// check if we should draw vertices as well
+		bool drawVertices = ( HairShapeUI::getDrawingState() == HairShapeUI::kDrawVertices );
+		mHairGuides->draw( drawVertices );
+	}
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.draw();
+	}
+}
+
+void HairShape::syncSelection()
+{
+	MDagPath thisDagPath;
+	MDagPath::getAPathTo( this->asMObject(), thisDagPath );
+
+	if ( this->isSelectionModified() )
+	{		
+		//if the current node is no more selected, just deselect everything
+		if ( !( this->isSelectedInMaya() ) )
+		{			
+			MIntArray arr;
+			this->mHairGuides->applySelection( arr );
+			//the node is no longer selected
+			this->setCurrentlySelected( false );
+			return;
+		}
+		this->setAsActiveObject();
 		MSelectionList selList;
 		
 		// Get the list of selected items 
 		MGlobal::getActiveSelectionList( selList );
-
-		//if the list is empty, just deselect everything
-		if ( !(selList.length()) )
-		{			
-			MIntArray arr;
-			this->mHairGuides->applySelection( arr );
-		}
 
 		 // we will use an iterator this time to walk over the selection list.
 		MItSelectionList it( selList );
@@ -424,6 +457,12 @@ void HairShape::draw()
 			// to any components that are selected on that object (if any).
 			//
 			it.getDagPath( dagPath, component );
+
+			if ( dagPath.fullPathName() != thisDagPath.fullPathName() )
+			{
+				it.next();
+				continue;
+			}
 
 			// attach a function set to the object
 			MFnDependencyNode fn(dagPath.node());
@@ -458,69 +497,59 @@ void HairShape::draw()
 						// tell the node that it needs to rebuild its internal selection list
 						this->mHairGuides->applySelection( arr );
 
+						//the node is now selected
+						this->setCurrentlySelected( true );
+
 						break;
 					}
 
-					case MFn::kMeshEdgeComponent: {
-						MItMeshEdge itEdge( dagPath, component, &stat );
-						while ( !itEdge.isDone() )
-						{
-							MPoint point = itEdge.center(MSpace::kWorld );
+					//case MFn::kMeshEdgeComponent: {
+					//	MItMeshEdge itEdge( dagPath, component, &stat );
+					//	while ( !itEdge.isDone() )
+					//	{
+					//		MPoint point = itEdge.center(MSpace::kWorld );
 
-							// write the index and the position
-							/*std::cout << "\t" << itEdge.index()
-									  << ") " << point.x 
-									  << " "  << point.y 
-									  << " "  << point.z 
-									  << (itEdge.isSmooth() ? " smooth\n" : " hard\n");*/
+					//		// write the index and the position
+					//		/*std::cout << "\t" << itEdge.index()
+					//				  << ") " << point.x 
+					//				  << " "  << point.y 
+					//				  << " "  << point.z 
+					//				  << (itEdge.isSmooth() ? " smooth\n" : " hard\n");*/
 
-							itEdge.next();
-						}
-						break;
-					}
+					//		itEdge.next();
+					//	}
+					//	break;
+					//}
 											  				
 					// do the default
 					default:
 						{
 							std::cout << "HairShape::Draw() - Unknown Component Type!" << endl;
+							this->setCurrentlySelected( false );
 						}
 						break;
 
 				}
 
 			}			
-			it.next();
+			break;
 		}
 
 		// important: let the shape know that its list of selected components is up to date
 		this->setSelectionModified( false );
 	}
-	//--------------------------------------------------------------------------------
-	const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesEndIndex();
-	cout << "Array size: " << tmpArr.size() << endl;
-	cout << "Elements: ";
-	for( int i = 0; i < tmpArr.size(); i++ ) 
+	else if ( this->isCurrentlySelected() )
 	{
-		cout << tmpArr[i] << " ";
-	}
-	cout << endl << endl;   
-	//--------------------------------------------------------------------------------
-	
-	// First init gl extensions
-	if ( !GLExt::isInited() )
-	{
-		GLExt::init();
-	}
-	// Display guides & interpolated hair
-	if ( mDisplayGuides )
-	{		
-		// check if we should draw vertices as well
-		bool drawVertices = ( HairShapeUI::getDrawingState() == HairShapeUI::kDrawVertices );
-		mHairGuides->draw( drawVertices );
-	}
-	if ( mDisplayInterpolated )
-	{
-		mInterpolatedHair.draw();
+		//if the list is empty, just deselect everything
+		if ( !( this->isSelectedInMaya() ) )
+		{			
+			MIntArray arr;
+			this->mHairGuides->applySelection( arr );
+			// the node is no longer selected
+			this->setCurrentlySelected( false );
+			return;
+		}
+		this->setAsActiveObject();
 	}
 }
 
@@ -965,14 +994,59 @@ void HairShape::refreshTextures( bool aForceRefresh )
 	}
 }
 
+void HairShape::setCurrentlySelected( bool aFlag )
+{
+	mIsCurrentlySelected = aFlag;
+}
+
 void HairShape::setSelectionModified( bool aFlag )
 {
 	mIsSelectionModified = aFlag;
 }
 
+bool HairShape::isCurrentlySelected()
+{
+	return mIsCurrentlySelected;
+}
+
 bool HairShape::isSelectionModified()
 {
 	return mIsSelectionModified;
+}
+
+bool HairShape::isSelectedInMaya()
+{
+	MSelectionList selList;
+		
+	// Get the list of selected items 
+	MGlobal::getActiveSelectionList( selList );
+
+	MDagPath thisDagPath;
+
+	MDagPath::getAPathTo( this->asMObject(), thisDagPath );
+	std::string tempdgp = string( thisDagPath.fullPathName().asChar() );
+	//std::cout << "Path name: " <<  tempmdg << endl;	
+
+	MItSelectionList it( selList );
+	while ( !it.isDone() ) 
+	{
+		MDagPath dagPath; 
+		MObject	component;
+		MStatus stat;
+
+		// we retrieve a dag path to a transform or shape, so we can get to the full path name.
+		it.getDagPath( dagPath, component );
+		std::string templ = string( dagPath.fullPathName().asChar() );
+		
+		if ( dagPath.fullPathName() == thisDagPath.fullPathName() )
+		{
+			return true;
+		}
+
+		it.next();
+	}
+
+	return false;
 }
 
 /************************************************************************************************************/

@@ -128,7 +128,7 @@ bool HairShapeUI::select( MSelectInfo &aSelectInfo, MSelectionList &aSelectionLi
     // let the shape know that its selected components list might have changed
 	HairShape* hairShape = ( HairShape* ) surfaceShape();
 	hairShape->setSelectionModified( componentSelected );                                                      
-	
+
 	return selected;
 }
 

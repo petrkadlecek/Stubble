@@ -169,6 +169,11 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Synchronize the node's selection with Maya's (in case the keyboard modifiers were used).
+	///----------------------------------------------------------------------------------------------------
+	void syncSelection();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Checks if the given interpolation group is currently selectable.
 	/// 
 	/// \param	aGroupIndex		The index of the interpolation group.
@@ -276,6 +281,20 @@ public:
 	void refreshTextures( bool aForceRefresh = false );
 		
 	///----------------------------------------------------------------------------------------------------
+	/// Sets the node's current selection status (selected / not selected).
+	/// 
+	/// \param aFlag	True when the node is in the selected state.
+	///----------------------------------------------------------------------------------------------------
+	void setCurrentlySelected( bool aFlag );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Is the shape currently selected in maya?
+	/// 
+	/// \return true, if the shape (or some of its components) is in maya's active selection list.
+	///----------------------------------------------------------------------------------------------------
+	bool isCurrentlySelected();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Notifies the shape when its list of selected components might have changed.
 	/// 
 	/// \param aFlag	True when the selection list changes.
@@ -288,6 +307,13 @@ public:
 	/// \return true, if shape's list of selected components has been modified.
 	///----------------------------------------------------------------------------------------------------
 	bool isSelectionModified();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Is the shape currently in Maya's active selection list?
+	/// 
+	/// \return true, if the shape is currently in Maya's active selection list.
+	///----------------------------------------------------------------------------------------------------
+	bool isSelectedInMaya();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Sets this HairShape as active object. 
@@ -510,6 +536,8 @@ private:
 	bool mIsTopologyCallbackRegistered; ///< true if mesh topology callback is registered
 
 	bool mIsTopologyModified;   ///< true if topology is modified
+
+	bool mIsCurrentlySelected; ///< true if the node is currently selected in maya
 
 	bool mIsSelectionModified; ///< true if the selection has changed
 
