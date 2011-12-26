@@ -124,7 +124,7 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 						start = aGuidesVerticesEndIndices[ gId - 1 ] + 1;
 					}
 
-					for ( int k = start; k < end; k++ )
+					for ( int k = start; k <= end; k++ )
 					{
 						fnComponent.addElement( k );
 					}
