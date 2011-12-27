@@ -31,7 +31,7 @@ GenericTool::GenericTool() :
 }
 
 GenericTool::GenericTool(ToolShape *aToolShape) :
-	mShape(aToolShape), mScale(1.0)
+	mShape(aToolShape), mScale(1.0), mHapticToolShape(false)
 {
 }
 
