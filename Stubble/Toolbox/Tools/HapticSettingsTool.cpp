@@ -157,12 +157,6 @@ void HapticSettingsTool::toolOnSetup( MEvent &event )
 	
 	mInitFlag = true;
 
-	MString sCmd = "textScrollList -e -a \"Haptic Sphere Tool Shape\" stubbleToolShape;";
-	MGlobal::executeCommandOnIdle( sCmd );
-
-	sCmd = "textScrollList -e -a \"Haptic Cylinder Tool Shape\" stubbleToolShape;";
-	MGlobal::executeCommandOnIdle( sCmd );
-
 	// create instance of mHandler on ToolSetup
 	if ( HapticSettingsTool::sHandler == NULL )
 	{

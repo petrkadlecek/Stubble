@@ -25,11 +25,6 @@ void CylinderToolShape::update( GenericTool *aTool )
 	mRadius = mScale * DEFAULT_RADIUS;
 }
 
-void CylinderToolShape::getPosition(MVector &aProxyPositon) const
-{
-	aProxyPositon = mPrevProxyPosition;
-}
-
 void CylinderToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Type aEventType )
 {
 	// mouse support not implemented
@@ -74,7 +69,15 @@ void CylinderToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &
 	// think glPopMatrix()
 	aView->endGL();
 
+	// set proxy properties to this tool shape
 	mPrevProxyPosition = aProxyPosition;
+	mPrevProxyRotationAxis = aHapticProxyRotation;
+	mPrevProxyRotationAngle = aHapticProxyRotationAngle;
+}
+
+MString CylinderToolShape::getName()
+{
+	return "Cylinder Tool Shape";
 }
 
 } // namespace Toolbox

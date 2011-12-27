@@ -1,6 +1,9 @@
 #include "GenericTool.hpp"
+#include "HapticSettingsTool.hpp"
 #include "../ToolShapes/CircleToolShape/CircleToolShape.hpp"
 #include "../ToolShapes/TextureToolShape/TextureToolShape.hpp"
+#include "../ToolShapes/SphereToolShape/SphereToolShape.hpp"
+#include "../ToolShapes/CylinderToolShape/CylinderToolShape.hpp"
 
 // Command parameter names and shortcuts
 const char *toolScaleFlag = "-ts";
@@ -23,7 +26,7 @@ namespace Toolbox
 {
 
 GenericTool::GenericTool() :
-	mShape(0), mScale(1.0)
+	mShape(0), mScale(1.0), mHapticToolShape(false)
 {
 }
 
@@ -60,15 +63,48 @@ double GenericTool::getToolScale()
 
 void GenericTool::changeToolShape(MString aShapeName)
 {
+	mHapticToolShape = false;
+
 	if( aShapeName == "Circle Tool Shape" ) 
 	{
 		delete mShape;
 		mShape = new CircleToolShape();
 	}
+	
 	if( aShapeName == "Texture Tool Shape" )
 	{
 		delete mShape;
 		mShape = new TextureToolShape();
+	}
+
+	if( aShapeName == "Haptic Sphere Tool Shape" )
+	{
+		if (HapticSettingsTool::sDeviceAvailable)
+		{
+			delete mShape;
+			mShape = new SphereToolShape();
+			mHapticToolShape = true;
+		}
+		else
+		{
+			MString s = "confirmDialog -title \"Haptic device not initialized\" -message \"This tool shape is available only for haptic manipulation.\" -button \"OK\";";
+			MGlobal::executeCommand(s);
+		}
+	}
+
+	if( aShapeName == "Haptic Cylinder Tool Shape" )
+	{
+		if (HapticSettingsTool::sDeviceAvailable)
+		{
+			delete mShape;
+			mShape = new CylinderToolShape();
+			mHapticToolShape = true;
+		}
+		else
+		{
+			MString s = "confirmDialog -title \"Haptic device not initialized\" -message \"This tool shape is available only for haptic manipulation.\" -button \"OK\";";
+			MGlobal::executeCommand(s);
+		}
 	}
 }
 GenericToolCommand::GenericToolCommand()

@@ -66,7 +66,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// get current haptic switch state
 	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
 	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
-	bool simulate5DOF = true;
+	bool simulate5DOF = false;
 	bool enabled5DOFsim = hapticButton1State && simulate5DOF;
 
 	// get current camera

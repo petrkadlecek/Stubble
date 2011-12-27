@@ -90,6 +90,8 @@ protected:
 	M3dView mView; ///< The view in which we are currently operating.
 
 	Real mScale; ///< The scale of the tool (passed from the UI).
+
+	bool mHapticToolShape; ///< haptic enabled tool shape flag
 };
 
 ///----------------------------------------------------------------------------------------------------

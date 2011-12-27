@@ -58,5 +58,5 @@ global proc StubbleBrushToolValues( string $ctxName )
 global proc StubbleToolShapeSelected( string $ctxName )
 {
 	string $value[] = `textScrollList -q -selectItem stubbleToolShape`;
-	StubbleCutToolCommand -e -toolShape $value[0] $ctxName;
+	StubbleBrushToolCommand -e -toolShape $value[0] $ctxName;
 }

@@ -186,12 +186,6 @@ void BrushTool::toolOnSetup ( MEvent &aEvent )
 	getActiveView();
 	
 	setHelpString( sHelpTxt );	//	Sets the help text in the help UI item.
-
-	// TODO
-	if (HapticSettingsTool::sDeviceAvailable)
-	{
-		mShape = new SphereToolShape();
-	}
 	
 	setCursor( MCursor::editCursor );
 
@@ -394,6 +388,8 @@ void BrushTool::changeBrushMode()
 
 void BrushTool::filterAffectedGuides()
 {
+	if ( mHapticToolShape ) return; // do nothing when brushing with haptics
+
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
 	if ( 0 == activeHairShape )
 	{
@@ -401,11 +397,7 @@ void BrushTool::filterAffectedGuides()
 	}
 
 	// FIXME: remove dynamic_cast - do it somehow better
-	// TODO Haptic Shape
-	if ( !HapticSettingsTool::sDeviceAvailable )
-	{
-		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
-	}
+	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
 }
 
 void BrushTool::filterAffectedGuidesHaptic()
@@ -416,8 +408,14 @@ void BrushTool::filterAffectedGuidesHaptic()
 		return;
 	}
 
-	//FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+	if (mShape->getName() == "Sphere Tool Shape") // called once when pressed - optimization possible
+	{
+		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+	}
+	else
+	{
+		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+	}
 	
 }
 

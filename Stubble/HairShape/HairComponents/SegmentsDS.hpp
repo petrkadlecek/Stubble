@@ -103,8 +103,34 @@ public:
 	///-------------------------------------------------------------------------------------------------
 	void select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const;
 
-	/// TODO
+	///-------------------------------------------------------------------------------------------------
+	/// Selects the guides using haptic sphere selection mask.
+	///
+	/// \param	aSelectionMask	The selection mask. 
+	/// \param	[in,out]	aResult	The selected guides.
+	///-------------------------------------------------------------------------------------------------
 	void select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Selects the guides using haptic cylinder selection mask. 
+	///
+	/// \param	aSelectionMask	The selection mask. 
+	/// \param	[in,out]	aResult	The selected guides.
+	///-------------------------------------------------------------------------------------------------
+	void select( Stubble::Toolbox::CylinderToolShape *aSelectionMask, SelectedGuides &aResult ) const;
+
+	///-------------------------------------------------------------------------------------------------
+	/// Performs cylinder <-> point collision test
+	///
+	/// \param	aPt1	First (top) point of cylinder on main cylinder axis
+	/// \param	aPt2	Second (bottom) point of cylinder on main cylinder axis
+	/// \param	aLengthSq	Length of cylinder squared
+	/// \param	aRadiusSq	Radius of cylinder squared
+	/// \param	aTestPt	Test point
+	///
+	/// \return	-1.0f if point is outside, distance squared otherwise
+	///-------------------------------------------------------------------------------------------------
+	static float cylinderPointTest( const MVector &aPt1, const MVector &aPt2, float aLengthSq, float aRadiusSq, const MPoint &aTestPt );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Sets the dirty bit. 

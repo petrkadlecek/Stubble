@@ -53,9 +53,11 @@ global proc StubbleBrushToolProperties()
 						stubbleBrushCollision;
 					separator -style "none";
 
-				textScrollList -numberOfRows 3 -height 50
+				textScrollList -numberOfRows 3 -height 70
 					-append "Circle Tool Shape"
 					-append "Texture Tool Shape"
+					-append "Haptic Sphere Tool Shape"
+					-append "Haptic Cylinder Tool Shape"
 					-selectItem "Circle Tool Shape"
 						stubbleToolShape;
 

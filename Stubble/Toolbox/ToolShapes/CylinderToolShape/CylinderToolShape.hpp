@@ -46,6 +46,13 @@ public:
 	virtual void update( GenericTool *aTool );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Returns tool shape name.
+	///
+	/// \return The name of the tool shape
+	///----------------------------------------------------------------------------------------------------
+	virtual MString getName();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Returns Cylinder radius of the current tool.
 	/// 
 	/// \return Cylinder tool shape radius
@@ -53,17 +60,35 @@ public:
 	inline int getRadius() const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns Cylinder radius of the current tool.
+	/// Returns Cylinder position of the current tool.
 	/// 
-	/// \return Cylinder tool shape radius
+	/// \param aProxyPositon Cylinder tool shape position
 	///----------------------------------------------------------------------------------------------------
-	void getPosition(MVector &aProxyPositon) const;
+	inline void getPosition(MVector &aProxyPositon) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns Cylinder rotation axis of the current tool.
+	/// 
+	/// \param aProxyRotationAxis Cylinder tool shape rotation axis
+	///----------------------------------------------------------------------------------------------------
+	inline void getRotationAxis(MVector &aProxyRotationAxis) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns Cylinder rotation angle of the current tool.
+	/// 
+	/// \return Cylinder tool shape rotation angle
+	///----------------------------------------------------------------------------------------------------
+	inline double getRotationAngle() const;
 
 protected:
 
 	bool mIsDrawn; ///< Flag signaling if there's a Cylinder that needs to be erased
 
 	MVector mPrevProxyPosition; ///< The previous position of the proxy during moving
+	
+	MVector mPrevProxyRotationAxis; ///< The previous rotation axis of the proxy during moving
+
+	double mPrevProxyRotationAngle; ///< The previous rotation angle of the proxy during moving
 
 	static const double DEFAULT_RADIUS; ///< The scale multiplier for calculating the Cylinder radius.
 
@@ -74,7 +99,22 @@ inline int CylinderToolShape::getRadius() const
 {
 	return mRadius;
 }
-	
+
+inline void CylinderToolShape::getPosition(MVector &aProxyPositon) const
+{
+	aProxyPositon = mPrevProxyPosition;
+}
+
+inline void CylinderToolShape::getRotationAxis(MVector &aProxyRotationAxis) const
+{
+	aProxyRotationAxis = mPrevProxyRotationAxis;
+}
+
+inline double CylinderToolShape::getRotationAngle() const
+{
+	return mPrevProxyRotationAngle;
+}
+
 } // namespace Toolbox
 
 } // namespace Stubble

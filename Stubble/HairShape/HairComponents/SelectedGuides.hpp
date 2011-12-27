@@ -8,6 +8,7 @@
 #include "Toolbox\ToolShapes\ToolShape.hpp"
 #include "Toolbox\ToolShapes\CircleToolShape\CircleToolShape.hpp"
 #include "Toolbox\ToolShapes\SphereToolShape\SphereToolShape.hpp"
+#include "Toolbox\ToolShapes\CylinderToolShape\CylinderToolShape.hpp"
 
 namespace Stubble
 {
