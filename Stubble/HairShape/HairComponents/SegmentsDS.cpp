@@ -472,7 +472,7 @@ float SegmentsDS::cylinderPointTest( const MVector &pt1, const MVector &pt2, flo
 
 		// distance squared to the cylinder axis:
 
-		dsq = (pdx*pdx + pdy*pdy + pdz*pdz) - dot*dot/lengthsq;
+		dsq = ( pdx*pdx + pdy*pdy + pdz*pdz ) - dot*dot/lengthsq;
 
 		if( dsq > radius_sq )
 		{
@@ -511,8 +511,9 @@ void SegmentsDS::select( Stubble::Toolbox::CylinderToolShape *aSelectionMask, Se
 	MVector pt1;
 	aSelectionMask->getPosition( pt1 );
 	MVector pt2( pt1 + direction );
-	float lengthSq = aSelectionMask->getRadius() * aSelectionMask->getRadius() ;
-	float radiusSq = lengthSq * 1e-2;
+	
+	float radiusSq = aSelectionMask->getRadius() * aSelectionMask->getRadius() * 0.5 * 0.5;
+	float lengthSq = aSelectionMask->getRadius() * aSelectionMask->getRadius() * 5 * 5;
 
 	// For each guide in the storage
 	for (gIt = mStoredGuides.begin(); gIt != mStoredGuides.end(); ++gIt)
@@ -526,7 +527,7 @@ void SegmentsDS::select( Stubble::Toolbox::CylinderToolShape *aSelectionMask, Se
 		{
 			MPoint p = Vector3D< Real >::transformPoint( guide->mGuideSegments.mSegments[ i ], guide->mPosition.mWorldTransformMatrix ).toMayaPoint();
 
-			// guide to sphere distance
+			// guide to cylinder distance
 			float dist = SegmentsDS::cylinderPointTest( pt1, pt2, lengthSq, radiusSq, p );
 
 			if ( dist >= 0 )

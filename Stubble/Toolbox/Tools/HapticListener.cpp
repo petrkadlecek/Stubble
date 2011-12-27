@@ -66,7 +66,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// get current haptic switch state
 	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
 	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
-	bool simulate5DOF = false;
+	bool simulate5DOF = true;
 	bool enabled5DOFsim = hapticButton1State && simulate5DOF;
 
 	// get current camera
@@ -85,11 +85,12 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// compute haptic proxy object space coordinates - snap to camera
 	MVector cameraEyePoint = camera.eyePoint( MSpace::kWorld );
 
-	double workspaceLength = ( activeObjectCenter - cameraEyePoint ).length() * 0.55;
+	double workspaceLength = ( activeObjectCenter - cameraEyePoint ).length();
 
 	// get haptic proxy eye space coordinates
 	MVector hapticDeviceLastPos = HapticSettingsTool::getLastPosition();
 	MVector hapticProxyEyeSpacePos = hapticDeviceLastPos;
+
 	hapticProxyEyeSpacePos.x =  workspaceLength * hapticProxyEyeSpacePos.x;
 	hapticProxyEyeSpacePos.y =  workspaceLength * hapticProxyEyeSpacePos.y;
 	hapticProxyEyeSpacePos.z = -workspaceLength * ( -1.0 + hapticProxyEyeSpacePos.z );
@@ -108,7 +109,14 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	}
 
 	// compute haptic proxy object space rotation - snap to camera
-	MVector hapticProxyEyeSpaceRot = HapticSettingsTool::getLastRotation();
+	MVector hapticProxyEyeSpaceRotRobotic = HapticSettingsTool::getLastRotation();
+
+	// map robotic frame to opengl right-handed frame
+	MVector hapticProxyEyeSpaceRot;
+	hapticProxyEyeSpaceRot.x = hapticProxyEyeSpaceRotRobotic.y;
+	hapticProxyEyeSpaceRot.y = hapticProxyEyeSpaceRotRobotic.z;
+	hapticProxyEyeSpaceRot.z = hapticProxyEyeSpaceRotRobotic.x;
+
 	double hapticProxyRotAngle = HapticSettingsTool::getLastRotationAngle();
 	
 	MVector hapticProxyRot = hapticProxyEyeSpaceRot;
@@ -223,6 +231,32 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		else if ( hapticButton1State == false && mHapticButton1Last == true )
 		{
 			HapticListener::sTool->doHapticRelease();
+		}
+	}
+	else // camera movement
+	{
+		if ( hapticButton1State == true ) 
+		{
+			
+			MVector dragVector = hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast;
+			MPoint newEyePoint = cameraEyePoint;
+
+			/*
+			MPoint r1(activeObjectCenter);
+			MPoint r2(cameraEyePoint);
+			r1.y = 0; 
+			r2.y = 0;
+			float radius = r1.distanceTo(r2);
+			
+			newEyePoint.x = activeObjectCenter.x + cos(hapticProxyEyeSpacePos.x) * radius;
+			newEyePoint.z = activeObjectCenter.z + sin(hapticProxyEyeSpacePos.x) * radius;
+			*/
+
+			MVector viewDir( newEyePoint - activeObjectCenter );
+			MVector up( 0, 1, 0 );
+			
+
+			camera.set( newEyePoint, viewDir, camera.upDirection(MSpace::kWorld), camera.horizontalFieldOfView(), camera.aspectRatio() );
 		}
 	}
 
