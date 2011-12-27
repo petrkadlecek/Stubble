@@ -1,6 +1,7 @@
 #include <cassert>
 #include "Common\StubbleException.hpp"
 #include "DisplayedGuides.hpp"
+#include "HairShape\UserInterface\HairShapeUI.hpp"
 
 #include <gl/GL.h>
 
@@ -196,6 +197,8 @@ void DisplayedGuides::drawVertices() const
 	glPointSize(3.0f);
 	glColor3f(1.0f, 0.1f, 1.0f);
 
+	HairShapeUI::SelectionMode selMode = HairShapeUI::getSelectionMode();
+
 	// For all non-selected guides
 	if (!mHideNonSelected)
 	{
@@ -208,17 +211,49 @@ void DisplayedGuides::drawVertices() const
 			if (*selectedIt)
 			{
 				continue;
-			}
-		
+			}		
+
+			// for each guide segment (vertex)
+			SegmentId sId = 0;
+			// the index of the last segment on the guide
+			unsigned __int32 lastSegment = static_cast< unsigned __int32 >( guideIt->mSegments.size() ) - 1;
+
 			glBegin(GL_POINTS);
 			// For every segment
 			for ( Segments::const_iterator segIt = guideIt->mSegments.begin(); 
-				segIt != guideIt->mSegments.end(); ++segIt )
+				segIt != guideIt->mSegments.end(); ++segIt, ++sId )
 			{
-				// Transform vertex to world
-				Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
-				// Draw
-				glVertex3d( pos.x, pos.y, pos.z );
+				// propagate the draw condition (tips, roots, all vertices) from the Maya UI
+				bool drawCondition = false;
+				switch ( selMode )
+				{
+				case HairShapeUI::kSelectRoots : if ( sId == 0)
+												 {
+													 drawCondition = true;
+												 }
+												break;
+				case HairShapeUI::kSelectTips : if ( sId == lastSegment)
+												 {
+													 drawCondition = true;
+												 }
+												break;
+				case HairShapeUI::kSelectAllVertices :
+													 drawCondition = true;										 
+												break;
+				case HairShapeUI::kSelectGuides :
+													 drawCondition = false;										 
+												break;
+				default :
+					drawCondition = false;
+				}
+
+				if ( drawCondition )
+				{
+					// Transform vertex to world
+					Vector3D< Real > pos = posIt->mPosition.toWorld( *segIt );
+					// Draw
+					glVertex3d( pos.x, pos.y, pos.z );
+				}
 			}
 			glEnd();
 		} // For each guide
@@ -232,21 +267,54 @@ void DisplayedGuides::drawVertices() const
 		// For each segment
 		assert((*guideIt)->mGuideSegments.mSegments.size() == (*guideIt)->mSegmentsAdditionalInfo.size());
 		SegmentsAdditionalInfo::const_iterator infoIt = (*guideIt)->mSegmentsAdditionalInfo.begin();
+
+		// for each guide segment (vertex)
+		SegmentId sId = 0;
+		// the index of the last segment on the guide
+		unsigned __int32 lastSegment = static_cast< unsigned __int32 >( (*guideIt)->mGuideSegments.mSegments.size() ) - 1;
+
 		for ( Segments::const_iterator segIt = (*guideIt)->mGuideSegments.mSegments.begin(); 
-			segIt != (*guideIt)->mGuideSegments.mSegments.end(); ++segIt, ++infoIt )
+			segIt != (*guideIt)->mGuideSegments.mSegments.end(); ++segIt, ++infoIt, ++sId )
 		{
-			// Transform vertex to world
-			Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( *segIt );
-			// Draw
-			if (infoIt->mSelected)
+			// propagate the draw condition (tips, roots, all vertices) from the Maya UI
+			bool drawCondition = false;
+			switch ( selMode )
 			{
-				glColor3f(1.0f, 1.0f, 0.1f);
+			case HairShapeUI::kSelectRoots : if ( sId == 0)
+												{
+													drawCondition = true;
+												}
+											break;
+			case HairShapeUI::kSelectTips : if ( sId == lastSegment)
+												{
+													drawCondition = true;
+												}
+											break;
+			case HairShapeUI::kSelectAllVertices :
+													drawCondition = true;										 
+											break;
+			case HairShapeUI::kSelectGuides :
+													drawCondition = false;										 
+											break;
+			default :
+				drawCondition = false;
 			}
-			else
-			{
-				glColor3f(1.0f, 0.1f, 1.0f);
+
+			if ( drawCondition )
+			{			
+				// Transform vertex to world
+				Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( *segIt );
+				// Draw
+				if (infoIt->mSelected)
+				{
+					glColor3f(1.0f, 1.0f, 0.1f);
+				}
+				else
+				{
+					glColor3f(1.0f, 0.1f, 1.0f);
+				}
+				glVertex3d( pos.x, pos.y, pos.z );
 			}
-			glVertex3d( pos.x, pos.y, pos.z );
 		} // For each segment
 		glEnd();
 	} // For each selected guide

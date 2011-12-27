@@ -107,9 +107,9 @@ bool SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 			glVertex3d(pos.x, pos.y, pos.z);
 			glEnd();
 			// If a hit has been recorded
-			if ((view.endSelect() > 0) && ( selectionCondition )) // for now we are just selecting the roots or the tips
+			if ((view.endSelect() > 0) && ( selectionCondition ))
 			{
-				if ( selMode == HairShapeUI::kSelectGuides )
+				if ( ( selMode == HairShapeUI::kSelectGuides ) || ( selMode == HairShapeUI::kSelectRoots ) )
 				{
 					selected = true;
 					// put all segments into the selected set that will later be passed on to maya's selection list
@@ -222,7 +222,7 @@ void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 				bool selectionCondition = false;
 				switch ( selMode )
 				{
-				case HairShapeUI::kSelectRoots : if ( sId == 0)
+				case HairShapeUI::kSelectRoots : if ( true )
 												 {
 													 selectionCondition = true;
 												 }
