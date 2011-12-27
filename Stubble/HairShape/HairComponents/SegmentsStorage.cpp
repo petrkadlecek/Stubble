@@ -447,7 +447,8 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				// Bias distance with respect to farthest guide
 				for ( ClosestGuides::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
-					float distance = sqrtf( guideIdIt->mDistance );
+					float & distance = guideIdIt->mDistance;
+					distance = sqrtf( distance );
 					distance = ( maxDistance - distance ) / ( maxDistance * distance );
 					distance *= distance;
 				}

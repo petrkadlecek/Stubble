@@ -366,7 +366,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		for ( HairComponents::ClosestGuides::iterator guideIdIt = guidesIds.begin(); 
 			guideIdIt != guidesIds.end(); ++guideIdIt )
 		{
-			float distance = sqrtf( guideIdIt->mDistance );
+			float & distance = guideIdIt->mDistance;
+			distance = sqrtf( distance );
 			distance = ( maxDistance - distance ) / ( maxDistance * distance );
 			distance *= distance;
 		}
