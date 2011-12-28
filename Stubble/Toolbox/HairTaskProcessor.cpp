@@ -25,7 +25,6 @@ const Real HairTaskProcessor::MAX_IDLE_TIME = 0.5; // seconds
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 12;
 const size_t HairTaskProcessor::MAX_TASK_QUEUE_SIZE = 50;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
-const Real HairTaskProcessor::DELTA = 1e-4;
 const Real HairTaskProcessor::MAX_TASK_DX = 0.5;
 const Real HairTaskProcessor::MAX_TASK_DX_SQ = HairTaskProcessor::MAX_TASK_DX * HairTaskProcessor::MAX_TASK_DX;
 
@@ -239,7 +238,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 {
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh().getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
-	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrixInverse();	
+	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();	
 	MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
@@ -274,7 +273,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		{
 			MPointOnMesh closestPointInfo;
 			MStatus status = accelerator->getClosestPoint( firstPoint.toMayaPoint(), closestPointInfo );
-			MVector closestPointWorld ( closestPointInfo.getPoint().x, closestPointInfo.getPoint().y, closestPointInfo.getPoint().z );
+			MPoint closestPointWorld = closestPointInfo.getPoint();
 			closestPointWorld = closestPointWorld * inclusiveMatrix;
 
 			Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
@@ -314,7 +313,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			{
 				MPointOnMesh closestPointInfo;
 				MStatus status = accelerator->getClosestPoint( positionEndPoint.toMayaPoint(), closestPointInfo );
-				MVector closestPointWorld ( closestPointInfo.getPoint().x, closestPointInfo.getPoint().y, closestPointInfo.getPoint().z );
+				MPoint closestPointWorld = closestPointInfo.getPoint();
 				closestPointWorld = closestPointWorld * inclusiveMatrix;
 
 				Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
@@ -332,7 +331,6 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		} // for all remaining segments
 		assert ( guide->mSegmentsAdditionalInfo[ 0 ].mIsColliding == false );
 		assert ( guide->mCollisionsCount <= guide->mGuideSegments.mSegments.size() - 1 );
-		guide->mCollisionsCount = 0;
 	} // for all guides
 }
 
@@ -379,7 +377,6 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		Vec3 correction; // Vector for storing vertex corrections
 		Uint iterationsCount = 0;
 		Real absC = 0.0; // Absolute value of the constraint vector
-		Real previousAbsC = 0.0; // Previous absolute value of the constraint vector for premature convergence detection
 		while (true) // Repeat until converged
 		{
 			// -------------------------------------------------------------------------------------
@@ -394,16 +391,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			}
 
 			// Convergence condition:
-			previousAbsC = absC;
 			absC = C.MaximumAbsoluteValue();
-			bool localMinimum = (previousAbsC - HairTaskProcessor::DELTA <= absC) && (absC <= previousAbsC + HairTaskProcessor::DELTA);
 			if ( absC <= HairTaskProcessor::CONVERGENCE_THRESHOLD ||
-				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS /*||
-				localMinimum*/ )
+				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS)
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
-				HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR);
 
 				//TODO: Remove me
 				std::cout << iterationsCount << std::endl << std::flush;
@@ -448,7 +441,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Update the collision set - FIXME: doesn't work
 			if ( collisionsCount > 0 )
 			{
-				//collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
+				collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
 				assert( collisionsCount <= VERTEX_COUNT - 1 );
 				assert( collisionsCount <= guide->mCollisionsCount );
 			}

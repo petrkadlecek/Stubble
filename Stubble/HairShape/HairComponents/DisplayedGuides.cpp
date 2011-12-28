@@ -137,8 +137,8 @@ void DisplayedGuides::drawPolyline() const
 		glEnd();
 
 		//-----------------------
-		//TODO: debug - remove me
-		glBegin(GL_LINES);
+		// Debug feature - leave me alone & commented out :)
+		/*glBegin(GL_LINES);
 		glColor3f(1.0, 0.0, 0.0);
 		for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
 		{
@@ -167,12 +167,12 @@ void DisplayedGuides::drawPolyline() const
 			glVertex3d(p.x, p.y, p.z);
 		}
 		glEnd();
-		glColor3f(0.5f, 1.0f, 0.8f);
+		glColor3f(0.5f, 1.0f, 0.8f);*/
 		// End of debug code
 		//-----------------------
 
 		//-----------------------
-		//TODO: debug - remove me
+		// Debug feature - leave me alone & commented out :)
 		/*Vector3D< Real > origin = Vector3D< Real >::transformPoint((*guideIt)->mGuideSegments.mSegments[ 0 ], (*guideIt)->mPosition.mWorldTransformMatrix);
 		Vector3D< Real > normal = origin + (*guideIt)->mPosition.mPosition.getNormal();
 		Vector3D< Real > binormal = origin + (*guideIt)->mPosition.mPosition.getBinormal();
