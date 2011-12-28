@@ -337,9 +337,13 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
 	HairShape::HairComponents::SelectedGuides::iterator it;
-	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+
+	//#ifdef _OPENMP
+	//#pragma omp parallel for
+	//#endif
+	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
 	{
-		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
+		HairShape::HairComponents::SelectedGuide *guide = aSelectedGuides[ guideIndex ];
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
 
 		if (SCALE_FACTOR <= EPSILON)
@@ -348,8 +352,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		}
 
 		const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segments' length squared
+
+		// local data copy
+		HairShape::HairComponents::Segments localSegments = guide->mGuideSegments.mSegments;
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
-		const Uint VERTEX_COUNT = (Uint)hairVertices.size(); // Number of hair vertices
+
+		const Uint VERTEX_COUNT = (Uint)localSegments.size(); // Number of hair vertices
 		Uint collisionsCount = guide->mCollisionsCount; // Number of colliding hair vertices
 
 		assert( collisionsCount <= VERTEX_COUNT - 1 );
@@ -359,7 +367,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
 
 		// Rescale hair vertices before computations so all segments are of unit length
-		HairTaskProcessor::rescaleGuideHair(hairVertices, 1.0 / SCALE_FACTOR);
+		HairTaskProcessor::rescaleGuideHair(localSegments, 1.0 / SCALE_FACTOR);
 		HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
 
 		// Input vectors and matrices:
@@ -383,11 +391,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// Step 1: Update the constraint vector
 			// -------------------------------------------------------------------------------------
 			C = 0.0;
-			HairTaskProcessor::computeInextensibilityConstraints(C, hairVertices, SEGMENT_LENGTH_SQ);
+			HairTaskProcessor::computeInextensibilityConstraints(C, localSegments, SEGMENT_LENGTH_SQ);
 
 			if (collisionsCount > 0)
 			{
-				HairTaskProcessor::computeInterpenetrationConstraints(C, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
+				HairTaskProcessor::computeInterpenetrationConstraints(C, localSegments, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
 			}
 
 			// Convergence condition:
@@ -396,7 +404,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS)
 			{
 				// Rescale hair vertices to retain their original scale
-				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+				HairTaskProcessor::rescaleGuideHair(localSegments, SCALE_FACTOR);
 				// Debug feature - leave me alone & and commented out
 				//std::cout << iterationsCount << std::endl << std::flush;
 				break;
@@ -406,11 +414,11 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			// -------------------------------------------------------------------------------------
 			NC = 0.0;
 			delta = 0.0;
-			HairTaskProcessor::computeInextensibilityGradient(NC, delta, hairVertices);
+			HairTaskProcessor::computeInextensibilityGradient(NC, delta, localSegments);
 
 			if (collisionsCount > 0)
 			{
-				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
+				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, localSegments, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
 			}
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
@@ -423,7 +431,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			catch (...) // Something went terribly wrong...
 			{
 				// Rescale hair vertices to retain their original scale
-				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+				HairTaskProcessor::rescaleGuideHair(localSegments, SCALE_FACTOR);
 				break;
 			}
 			dX = -delta * lambda;
@@ -433,7 +441,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 			{
 				correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
-				hairVertices[ i + 1 ] += correction;
+				localSegments[ i + 1 ] += correction;
 			}
 
 			// Update the collision set
@@ -456,6 +464,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			iterationsCount++;
 		} // while (true)
 		
+		// local copy proparation
+		for (Uint i = 0; i < VERTEX_COUNT; ++i)
+			hairVertices[i] = localSegments[i];
+
 		// Delete information about collisions in case the user disables them
 		guide->mCollisionsCount = 0;
 	} // for each guide
