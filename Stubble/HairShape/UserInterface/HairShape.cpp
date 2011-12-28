@@ -53,7 +53,6 @@ MObject HairShape::timeChangeAttr;
 MObject HairShape::genDisplayCountAttr;
 MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
-MObject HairShape::sampleTextureDimensionAttr;
 MObject HairShape::serializedDataAttr;
 MObject HairShape::operationCountAttr;
 
@@ -76,7 +75,6 @@ HairShape::HairShape():
 	mGenDisplayCount( 1000 ),
 	mDisplayGuides( true ),
 	mDisplayInterpolated( false ),
-	mSampleTextureDimension( 128 ),
 	mIsCurrentlySelected( false ),
 	mIsSelectionModified( false ),
 	mDelayedCallbackId( -1 )
@@ -327,11 +325,7 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		}
 		return false;
 	}
-	if ( aPlug == sampleTextureDimensionAttr ) // Number of samples in one dimension of sampled texture
-	{
-		mSampleTextureDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		return false;
-	}
+
 	// Set hair properties values
 	bool segmentsCountChanged;
 	bool interpolationGroupsSelectableChanged;
@@ -838,8 +832,6 @@ MStatus HairShape::initialize()
 		addBoolAttribute( "display_guides", "digu", displayGuidesAttr, true );
 		//define display interpolated hair attribute
 		addBoolAttribute( "display_hair", "diha", displayInterpolatedAttr, false );
-		//define number of samples in one dimension of texture
-		addIntAttribute( "texture_dimension", "txtdm", sampleTextureDimensionAttr, 128, 1, 4096, 32, 1024);
 
 		// shape components influence the surface as a whole
 		attributeAffects( mControlPoints, surfaceAttr );

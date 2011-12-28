@@ -221,7 +221,7 @@ void MayaMesh::getTriangles( Triangles & aResult ) const
 {
 	aResult.clear();
 	aResult.reserve( mMayaTriangles.size() );
-	for ( unsigned __int32 i = 0; i < aResult.size(); ++i )
+	for ( unsigned __int32 i = 0; i < mMayaTriangles.size(); ++i )
 	{
 		aResult.push_back( getTriangle( i ) );
 	}

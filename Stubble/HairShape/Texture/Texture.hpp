@@ -269,12 +269,14 @@ private:
 	void computeInverseSize();
 
 	///----------------------------------------------------------------------------------------------------
-	/// Compute bilinear interpolation from 4 samples along directions U and V
+	/// Compute bilinear interpolation from 4 samples with more dimensions along directions U and V
 	///
 	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
-	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
-	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
-	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in left down corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in right up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in right down corner of pixel
+	/// \param  aUratio	ratio between samples in direction U
+	/// \param	aVratio ratio between samples in direction V
 	/// \param  [out]aOutColor output parametr for returning interpolated color 
 	///----------------------------------------------------------------------------------------------------
 	inline void colorAtUV( const Color aSampleU0V0, const Color aSampleU0V1,
@@ -283,6 +285,23 @@ private:
 
 	inline void interpolateColors( const Color3 aColor1, const Color3 aColor2,
 		const Real aRatio, Color3 aOutColor ) const;
+
+	///----------------------------------------------------------------------------------------------------
+	/// Compute bilinear interpolation from 4 real samples along directions U and V
+	///
+	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in left down corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in right up corner of pixel
+	/// \param	aSampleU0V0	coordinate of sample in right down corner of pixel
+	/// \param  aUratio	ratio between samples in direction U
+	/// \param	aVratio ratio between samples in direction V
+	/// return value
+	///----------------------------------------------------------------------------------------------------
+	inline Real realAtUV( const Color aSampleU0V0, const Color aSampleU0V1,
+		const Color aSampleU1V0, const Color aSampleU1V1,
+		const Real aURatio, const Real aVRatio ) const;
+
+	inline Real interpolateReals( const Real aColor1, const Real aColor2, const Real aRatio ) const;
 };
 
 // inline functions implementation
@@ -315,9 +334,21 @@ inline bool Texture::ColorComparator::operator() ( const Texture::Color & aColor
 
 inline float Texture::realAtUV( Real u, Real v ) const
 {
-	Color3 color;
-	colorAtUV( u, v, color ); // Alpha
-	return color[ 0 ]; //TODO: napsat funkce primo pro float aby se zrychlilo
+	//Color3 color;
+	//colorAtUV( u, v, color ); // Alpha
+	//return color[ 0 ]; //TODO: napsat funkce primo pro float aby se zrychlilo
+	u = clamp( u, 0.0, 1.0 );
+	v = clamp( v, 0.0, 1.0 );
+	unsigned __int32 x0 = static_cast< unsigned __int32 > ( floor( u * ( mWidth - 1 ) ) );
+	unsigned __int32 y0 = static_cast< unsigned __int32 > ( floor( v * ( mHeight - 1 ) ) );
+	unsigned __int32 x1 = static_cast< unsigned __int32 > ( ceil( u * ( mWidth - 1 ) ) );
+	unsigned __int32 y1 = static_cast< unsigned __int32 > ( ceil( v * ( mHeight - 1 ) ) );
+
+	return (float) realAtUV(mTexture + y0 * mWidth * mColorComponents + x0 * mColorComponents,
+		mTexture + y1 * mWidth * mColorComponents + x0 * mColorComponents,
+		mTexture + y0 * mWidth * mColorComponents + x1 * mColorComponents,
+		mTexture + y1 * mWidth * mColorComponents + x1 * mColorComponents,
+		(Real) x1 - u * (mWidth -1), (Real) y1 - v * (mHeight -1));
 }
 
 inline float Texture::derivativeByUAtUV( Real u, Real v ) const
@@ -374,7 +405,19 @@ inline void Texture::interpolateColors( const Color3 aColor1, const Color3 aColo
 	}
 }
 
+inline Real Texture::realAtUV( const Color aSampleU0V0, const Color aSampleU0V1,
+		const Color aSampleU1V0, const Color aSampleU1V1, const Real aURatio,
+		const Real aVRatio ) const
+{ 
+	return interpolateReals( interpolateReals( aSampleU0V0[0], aSampleU1V0[0], aURatio ),
+		interpolateReals( aSampleU0V1[0], aSampleU1V1[0], aURatio ), aVRatio ); 
+}
 
+inline Real Texture::interpolateReals( const Real aColor1, const Real aColor2,
+	const Real aRatio ) const
+{
+	return ( aRatio * aColor1 + ( 1 - aRatio ) * aColor2 );
+}
 
 } // namespace HairShape
 

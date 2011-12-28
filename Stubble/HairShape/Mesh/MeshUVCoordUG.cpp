@@ -11,8 +11,11 @@ namespace HairShape
 MeshUVCoordUG::MeshUVCoordUG():
 	mDirtyBit( true ),
 	mTriangles( 0 ),
-	mTrianglesInGrid( 0 )
+	mTrianglesInGrid( 0 ),
+	mGridSize( 0 )
 {
+	mGrid.mTriangles = 0;
+	mGrid.mTrianglesCount = 0;
 }
 
 MeshUVCoordUG::~MeshUVCoordUG()
@@ -54,7 +57,7 @@ void MeshUVCoordUG::build( Triangles & aTriangles )
 	{
 		mGrid.mTriangles[ i ] = new Triangle**[ mGridSize ];
 		mGrid.mTrianglesCount[ i ] = new unsigned __int32[ mGridSize ];
-		for( unsigned int j = 0; j < mGridSize; ++i )
+		for( unsigned int j = 0; j < mGridSize; ++j )
 		{
 			mGrid.mTrianglesCount[ i ][ j ] = 0;
 		}

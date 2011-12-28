@@ -55,7 +55,7 @@ global proc StubbleBrushToolProperties()
 
 				textScrollList -numberOfRows 3 -height 70
 					-append "Circle Tool Shape"
-					-append "Texture Tool Shape"
+					// -append "Texture Tool Shape"
 					-append "Haptic Sphere Tool Shape"
 					-append "Haptic Cylinder Tool Shape"
 					-selectItem "Circle Tool Shape"

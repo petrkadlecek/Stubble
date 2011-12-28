@@ -27,7 +27,7 @@ global proc StubbleCutToolProperties()
 
 				textScrollList -numberOfRows 3 -height 50
 					-append "Circle Tool Shape"
-					-append "Texture Tool Shape"
+					// -append "Texture Tool Shape"
 					-selectItem "Circle Tool Shape"
 						stubbleToolShape;
 
