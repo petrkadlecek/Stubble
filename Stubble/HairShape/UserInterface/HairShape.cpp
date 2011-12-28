@@ -234,6 +234,9 @@ void HairShape::delayedSetInternalValueInContext( float aElapsedTime, float aLas
 		}
 		cerr << "Delayed: mGenDisplayCount = " << me->mGenDisplayCount << endl;
 	}
+	
+	// Request a refresh
+	MGlobal::executeCommand( "refresh;" );
 }
 
 
