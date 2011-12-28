@@ -11,6 +11,7 @@
 #include "HairShape/HairComponents/Segments.hpp"
 #include "newmat.h"
 #include "HairTask.hpp"
+#include "Common/StubbleTimer.hpp"
 
 namespace Stubble
 {
@@ -55,6 +56,12 @@ public:
 	/// Synchronization barrier that waits until the thread finishes work, contains critical section
 	///----------------------------------------------------------------------------------------------------
 	static void waitFinishWorkerThread ();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Forces the worker thread to stop, i.e. purges the accumulator, skips waiting for possible new tasks
+	/// and waits until the loop ends. Calls purgeAccumulator and waitFinishWorkerThread
+	///----------------------------------------------------------------------------------------------------
+	static void stopWorkerThread();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Makes sure that hair retains their properties by minimizing an error functional. It takes into
@@ -182,7 +189,22 @@ private:
 	///
 	/// \param aSelectedGuides Selection of guides for collision calculation
 	///----------------------------------------------------------------------------------------------------
-	static void detectCollisions( HairShape::HairComponents::SelectedGuides &aSelectedGuides );
+	static void detectCollisions (HairShape::HairComponents::SelectedGuides &aSelectedGuides);
+
+	///----------------------------------------------------------------------------------------------------
+	/// Checks the collision information after each enforceConstraints minimization step and reduces the
+	/// collision set if any of the vertices no longer penetrates the mesh. It makes the assumption that
+	/// no new collisions may occur - possible new collisions will be treated in the next worker loop
+	/// iteration. We don't even have information for them and once we discard a point from the collision
+	/// set, we don't have means to tell whether it was previously colliding or not.
+	///
+	/// \param aHairVertices Hair vertices positions
+	/// \param[in,out] aVerticesInfo Additional info for hair vertices containing collision information
+	///
+	/// \return Number of colliding vertices
+	///----------------------------------------------------------------------------------------------------
+	inline static Uint updateCollisionInfo (const HairShape::HairComponents::Segments &aHairVertices,
+		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Fills the beginning of the constraint vector with inextensibility constraints. Doesn't do any bound
@@ -225,10 +247,9 @@ private:
 	/// \param aHairVertices Hair vertices to calculate derivatives from
 	/// \param aVerticesInfo Additional info for hair vertices
 	/// \param aConstrOffset Offset just after the inextensibility constraints part - row space
-	/// \param aDerivOffset	Offset just after the inextensibility constraints part - column space
 	///----------------------------------------------------------------------------------------------------
 	inline static void computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
-		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset, const Uint aDerivOffset);
+		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset);
 
 	///----------------------------------------------------------------------------------------------------
 	/// Helper method for rescaling guide hair vertices by an arbitrary scale factor.
@@ -249,11 +270,14 @@ private:
 
 	TaskAccumulator mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
+	Timer mTimer; ///< Timeout timer for thread suicide
 
 	static HairTaskProcessor *sInstance; ///< The class instance
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
+	static volatile bool sRun; ///< Flag for determining that the thread should still run
 
+	static const Real MAX_IDLE_TIME; ///< Maximum time of the idle worker loop iterations
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
 	static const size_t MAX_TASK_QUEUE_SIZE; ///< Maximum size of the task queue to prevent overloading
 	static const Real CONVERGENCE_THRESHOLD; ///< Maximum allowed error at which we consider solution converged
@@ -317,14 +341,43 @@ inline size_t HairTaskProcessor::getAccumulatorSize ()
 
 inline void HairTaskProcessor::processTask(HairTask *aTask)
 {
+	assert( 0 != aTask );
+
 	aTask->mBrushMode->doBrush(aTask);
 	if ( aTask->mBrushMode->isCollisionDetectionEnabled() )
 	{
 		HairTaskProcessor::detectCollisions( *(aTask->mAffectedGuides) );
 	}
 	HairTaskProcessor::enforceConstraints( *(aTask->mAffectedGuides) );
+}
 
-	aTask->mParentHairShape->updateGuides( false ); //FIXME: synchronization
+inline Uint HairTaskProcessor::updateCollisionInfo (const HairShape::HairComponents::Segments &aHairVertices,
+	HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo)
+{
+	const Uint VERTEX_COUNT = (Uint)aHairVertices.size();
+	assert( VERTEX_COUNT == (Uint)aVerticesInfo.size() );
+
+	Uint collisionsCount = 0;
+	Vec3 n(0.0, 0.0, 1.0); // The surface normal in local coordinates
+	Vec3 v;
+	for (Uint i = 1; i < VERTEX_COUNT; ++i) // For all vertices except the root
+	{
+		if (!aVerticesInfo[ i ].mIsColliding)
+		{
+			continue;
+		}
+		v = aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ];
+		if ( Vec3::dotProduct(v, n) <= 0.0 ) //FIXME: Doesn't work :-/
+		{
+			aVerticesInfo[ i ].mIsColliding = false;
+		}
+		else
+		{
+			collisionsCount++;
+		}
+	}
+
+	return collisionsCount;
 }
 
 inline void HairTaskProcessor::computeInextensibilityConstraints(RealN &aC, HairShape::HairComponents::Segments &aHairVertices, const Real aSgmtLengthSq)
@@ -381,31 +434,32 @@ inline void HairTaskProcessor::computeInterpenetrationConstraints(RealN &aC, Hai
 			continue;
 		}
 		e = aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ];
-		aC[ aOffset + j ] = Vec3::dotProduct(e, e);
+		aC[ aOffset + j ] = Vec3::dotProduct(e, e) + EPSILON;
 		++j;
 	}
 }
 
 inline void HairTaskProcessor::computeInterpenetrationGradient(RealNxN &aNC, RealNxN &aDelta, HairShape::HairComponents::Segments &aHairVertices,
-		HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset, const Uint aDerivOffset)
+	HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, const Uint aConstrOffset)
 {
 	const Uint VERTEX_COUNT = (Uint)aHairVertices.size();
 	assert( VERTEX_COUNT == (Uint)aVerticesInfo.size() );
-	Uint j = 0; // NC and delta matrices index
+	Uint j = 0; // NC and delta matrices row/column index
 	Vec3 e;
-	for (Uint i = 1; i < VERTEX_COUNT; ++i) // We don't check the root for obvious reasons
+	// For all vertices except the first
+	for (Uint i = 1; i < VERTEX_COUNT; ++i)
 	{
 		if (!aVerticesInfo[ i ].mIsColliding)
 		{
 			continue;
 		}
 		e = (aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ]) * 2.0;
-		aNC[ aConstrOffset + j ][ aDerivOffset + 3*j ] = -e.x;
-		aDelta[ aDerivOffset + 3*j ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ aDerivOffset + 3*j ];
-		aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 1 ] = -e.y;
-		aDelta[ aDerivOffset + 3*j + 1 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 1 ];
-		aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 2 ] = -e.z;
-		aDelta[ aDerivOffset + 3*j + 2 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ aDerivOffset + 3*j + 2 ];
+		aNC[ aConstrOffset + j ][ 3*(i - 1) ] = -e.x + EPSILON;
+		aDelta[ 3*(i - 1) ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) ];
+		aNC[ aConstrOffset + j ][ 3*(i - 1) + 1 ] = -e.y + EPSILON;
+		aDelta[ 3*(i - 1) + 1 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) + 1 ];
+		aNC[ aConstrOffset + j ][ 3*(i - 1) + 2 ] = -e.z + EPSILON;
+		aDelta[ 3*(i - 1) + 2 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) + 2 ];
 		++j;
 	}
 }

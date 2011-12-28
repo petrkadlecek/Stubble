@@ -31,6 +31,8 @@ class HairShape: public MPxSurfaceShape, public Interpolation::Maya::MayaHairPro
 {
 public:
 	
+	static const unsigned int MAX_GUIDE_SEGMENTS_COUNT = 30; ///< Maximum allowed segments per guide
+
 	static const MTypeId typeId; ///< The unique type ID of our custom node
 
 	static const MString typeName;  ///< The unique type name of our custom node

@@ -1187,9 +1187,9 @@ inline void HairShape::updateSegmentsCountAttributes( bool aFirstUpdate )
 		MObject c = numericAttribute.create( s, s, MFnNumericData::kInt, 
 			static_cast< int >( mInterpolationGroups->getGroupSegmentsCount( i ) ) );
 		numericAttribute.setMin( 1 );
-		numericAttribute.setMax( 100 );
+		numericAttribute.setMax( MAX_GUIDE_SEGMENTS_COUNT );
 		numericAttribute.setSoftMin( 1 );
-		numericAttribute.setSoftMax( 100 );
+		numericAttribute.setSoftMax( MAX_GUIDE_SEGMENTS_COUNT );
 		numericAttribute.setKeyable( false );
 		numericAttribute.setInternal( true );
 		nAttr.addChild(c);

@@ -133,6 +133,7 @@ void HairGuides::updateGuides( bool aStoreUpdate )
 		for( SelectedGuides::iterator it = mSelectedGuides.begin(); it != mSelectedGuides.end(); ++it )
 		{
 			(*it)->mDirtyFlag = false;
+			(*it)->mCollisionsCount = 0;
 
 			// Clear additional info
 			SegmentsAdditionalInfo::iterator nfoIt;

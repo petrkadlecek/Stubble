@@ -4,7 +4,6 @@
 #include <maya\MFloatPointArray.h>
 
 #include <algorithm>
-#include "Common/StubbleTimer.hpp" //TODO: remove me
 #include <iostream>
 
 namespace Stubble
@@ -13,8 +12,6 @@ namespace Stubble
 namespace Toolbox
 {
 
-Timer timer; //TODO: remove me
-
 // ----------------------------------------------------------------------------
 // Static data members and constants:
 // ----------------------------------------------------------------------------
@@ -22,7 +19,9 @@ Timer timer; //TODO: remove me
 HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
+volatile bool HairTaskProcessor::sRun = true;
 
+const Real HairTaskProcessor::MAX_IDLE_TIME = 0.5; // seconds
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 12;
 const size_t HairTaskProcessor::MAX_TASK_QUEUE_SIZE = 50;
 const Real HairTaskProcessor::CONVERGENCE_THRESHOLD = 1e-8;
@@ -44,6 +43,20 @@ void HairTaskProcessor::waitFinishWorkerThread ()
 		sleep(0);
 #endif
 	}
+	//std::cout << std::endl << std::flush;
+}
+
+void HairTaskProcessor::stopWorkerThread ()
+{
+	HairTaskProcessor *instance = HairTaskProcessor::getInstance();
+	if (0 == instance)
+	{
+		return;
+	}
+
+	instance->purgeAccumulator();
+	HairTaskProcessor::sRun = false;
+	waitFinishWorkerThread();
 }
 
 void HairTaskProcessor::enqueueTask (HairTask *aTask)
@@ -86,27 +99,34 @@ void HairTaskProcessor::purgeAccumulator ()
 
 void HairTaskProcessor::tryCreateWorkerThread ()
 {
-	if ( HairTaskProcessor::isRunning() ) // Contains critical section
-	{
-		return;
-	}
+	// ------------------------------------
+	// Begin critical section
+	// ------------------------------------
+	HairTaskProcessor::sIsRunningLock.lock();
+		if (!HairTaskProcessor::sIsRunning)
+		{
+			MStatus status = MThreadAsync::init();
+			if ( MStatus::kSuccess != status )
+			{
+				status.perror( "HairTaskProcessor: Failed to acquire thread resources" );
+				//TODO: exception?
+				goto END;
+			}
 
-	MStatus status = MThreadAsync::init();
-	if ( MStatus::kSuccess != status )
-	{
-		status.perror( "HairTaskProcessor: Failed to acquire thread resources" );
-		//TODO: exception?
-		return;
-	}
-
-	status = MThreadAsync::createTask(HairTaskProcessor::asyncWorkerLoop, 0, HairTaskProcessor::workerFinishedCB, 0);
-	if ( MStatus::kSuccess != status )
-	{
-		status.perror( "HairTaskProcessor: Failed to run the worker thread" );
-		//TODO: exception?
-	}
-
-	return;
+			//std::cout << "(" << std::flush;
+			HairTaskProcessor::sIsRunning = true;
+			status = MThreadAsync::createTask(HairTaskProcessor::asyncWorkerLoop, 0, HairTaskProcessor::workerFinishedCB, 0);
+			if ( MStatus::kSuccess != status )
+			{
+				status.perror( "HairTaskProcessor: Failed to run the worker thread" );
+				//TODO: exception?
+			}
+		}
+END:
+	HairTaskProcessor::sIsRunningLock.unlock();
+	// ------------------------------------
+	// End critical section
+	// ------------------------------------
 }
 
 void HairTaskProcessor::workerFinishedCB (void *aData)
@@ -115,7 +135,9 @@ void HairTaskProcessor::workerFinishedCB (void *aData)
 	// Begin critical section
 	// ------------------------------------
 	HairTaskProcessor::sIsRunningLock.lock();
+		//std::cout << ")" << std::flush;
 		HairTaskProcessor::sIsRunning = false;
+		MThreadAsync::release();
 	HairTaskProcessor::sIsRunningLock.unlock();
 	// ------------------------------------
 	// End critical section
@@ -124,36 +146,38 @@ void HairTaskProcessor::workerFinishedCB (void *aData)
 
 MThreadRetVal HairTaskProcessor::asyncWorkerLoop (void *aData)
 {
-	// ------------------------------------
-	// Begin critical section
-	// ------------------------------------
-	HairTaskProcessor::sIsRunningLock.lock();
-		HairTaskProcessor::sIsRunning = true;
-	HairTaskProcessor::sIsRunningLock.unlock();
-	// ------------------------------------
-	// End critical section
-	// ------------------------------------
+	HairTaskProcessor::sRun = true;
 
 	HairTaskProcessor *hairTaskProcessor = HairTaskProcessor::getInstance();
 	HairTask *task = 0;
-	size_t accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
-
-	do
+	size_t accumulatorSize = 0;
+	Real idleTime = 0.0;
+	
+	hairTaskProcessor->mTimer.reset();
+	while (HairTaskProcessor::sRun)
 	{
-		if ( 0 == task )
+		accumulatorSize = hairTaskProcessor->getTask(task);
+		if (0 != task)
 		{
-			continue;
+			idleTime = 0.0;
+			HairTaskProcessor::processTask(task);
+			delete task;
+			task = 0;
 		}
-		//timer.start();
-		HairTaskProcessor::processTask( task );
-		//timer.stop();
-		//timer.mayaDisplayLastElapsedTime();
-		delete task;
-		task = 0;
 
-		accumulatorSize = hairTaskProcessor->getTask(task); // Contains critical section
+		if (accumulatorSize == 0) // Loop idling
+		{
+			hairTaskProcessor->mTimer.stop();
+			idleTime = hairTaskProcessor->mTimer.getElapsedTime();
+			hairTaskProcessor->mTimer.start();
+
+			if (idleTime > HairTaskProcessor::MAX_IDLE_TIME)
+			{
+				HairTaskProcessor::sRun = false;
+			}
+		}
 	}
-	while ( accumulatorSize > 0 );
+	hairTaskProcessor->mTimer.stop();
 
 	return 0;
 }
@@ -167,14 +191,8 @@ size_t HairTaskProcessor::getTask (HairTask *&aTask)
 		size_t queueSize = mTaskAccumulator.size();
 		if ( queueSize > 0 )
 		{
-			//aTask = mTaskAccumulator.front();
-			//mTaskAccumulator.pop_front();
-			//queueSize--;
 			aTask = accumulate();
-			//size_t ds = queueSize; //TODO: remove me
 			queueSize = mTaskAccumulator.size();
-			//ds -= queueSize; //TODO: remove me
-			//std::cout << "Accumulating: " << ds << ", remaining: " << queueSize << ", |dX| = " << aTask->mDx.size() << std::endl << std::flush;
 		}
 	mTaskAccumulatorLock.unlock();
 	// ------------------------------------
@@ -199,6 +217,7 @@ HairTask *HairTaskProcessor::accumulate ()
 		{
 			accumTask->mDx += task->mDx;
 			mTaskAccumulator.pop_front();
+			delete task;
 		}
 		else
 		{
@@ -232,6 +251,8 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		{
 			continue;
 		}
+
+		assert( guide->mGuideSegments.mSegments.size() == guide->mSegmentsAdditionalInfo.size() );
 
 		Matrix< Real > &worldMatrix = guide->mPosition.mWorldTransformMatrix;
 		Matrix< Real > &localMatrix = guide->mPosition.mLocalTransformMatrix;
@@ -283,7 +304,9 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 			// current segment has an intersection -> so we change hair intersection
 			if(intersect && hitPoints.length() % 2)
+			{
 				curentPointInsideMesh = !curentPointInsideMesh;
+			}
 
 			// nearest point on mesh
 			if(curentPointInsideMesh)
@@ -296,28 +319,26 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
 
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+				guide->mSegmentsAdditionalInfo[ i ].mIsColliding = true;
+				guide->mCollisionsCount++;
 			}
 			else
 			{
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh.set(0.0, 0.0, 0.0);
+				guide->mSegmentsAdditionalInfo[ i ].mIsColliding = false;
 			}
-
-			guide->mSegmentsAdditionalInfo[ i ].mIsColliding = curentPointInsideMesh;
-			guide->mCollisionsCount += (curentPointInsideMesh) ? 1 : 0;
-		}
-	}
+		} // for all remaining segments
+		assert ( guide->mSegmentsAdditionalInfo[ 0 ].mIsColliding == false );
+		assert ( guide->mCollisionsCount <= guide->mGuideSegments.mSegments.size() - 1 );
+	} // for all guides
 }
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
-	#ifdef _OPENMP
-	#pragma omp parallel for schedule( guided )
-    #endif
-	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
-	//for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
+	HairShape::HairComponents::SelectedGuides::iterator it;
+	for (it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it)
 	{
-		//HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
-		HairShape::HairComponents::SelectedGuide *guide = aSelectedGuides[ guideIndex ];
+		HairShape::HairComponents::SelectedGuide *guide = *it; // Guide alias
 		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
 
 		if (SCALE_FACTOR <= EPSILON)
@@ -328,26 +349,27 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		const Real SEGMENT_LENGTH_SQ = 1.0; // Desired segments' length squared
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Alias for hair vertices
 		const Uint VERTEX_COUNT = (Uint)hairVertices.size(); // Number of hair vertices
-		const Uint COLLISIONS_COUNT = guide->mCollisionsCount; // Number of colliding hair vertices
+		Uint collisionsCount = guide->mCollisionsCount; // Number of colliding hair vertices
 
-		assert( COLLISIONS_COUNT <= VERTEX_COUNT - 1 );
+		assert( collisionsCount <= VERTEX_COUNT - 1 );
 
-		const Uint CONSTRAINTS_COUNT = (VERTEX_COUNT - 1) + COLLISIONS_COUNT; // Number of constraints
+		Uint constraintsCount = (VERTEX_COUNT - 1) + collisionsCount; // Number of constraints
 		const Uint COL_CONSTR_OFFSET = VERTEX_COUNT - 1; // Offset to the beginning of collision constraints
-		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1) + 3 * COLLISIONS_COUNT; // Number of constraint derivatives
-		const Uint COL_DERIV_OFFSET = 3 * (VERTEX_COUNT - 1); // Offset to the beginning of collision constraint derivatives
+		const Uint DERIVATIVES_COUNT = 3 * (VERTEX_COUNT - 1); // Number of constraint derivatives
 
 		// Rescale hair vertices before computations so all segments are of unit length
 		HairTaskProcessor::rescaleGuideHair(hairVertices, 1.0 / SCALE_FACTOR);
 		HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
 
+		// Input vectors and matrices:
+		RealN C(constraintsCount); // Constraint vector
+		RealNxN NC(constraintsCount, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
+		RealNxN delta(DERIVATIVES_COUNT, constraintsCount); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
+		
 		// Solution vectors and matrices:
-		RealN C(CONSTRAINTS_COUNT); // Constraint vector
-		RealN lambda(CONSTRAINTS_COUNT); // system inverse matrix multiplied by C vector
-		RealN dX(DERIVATIVES_COUNT); // Vector containing corrections
-		RealNxN NC(CONSTRAINTS_COUNT, DERIVATIVES_COUNT); // Nabla C matrix containing partial derivatives of the C vector
-		RealNxN delta(DERIVATIVES_COUNT, CONSTRAINTS_COUNT); // In the original paper this is NC transpose multiplied by inverse mass matrix and time step squared
-		RealNxN system(CONSTRAINTS_COUNT, CONSTRAINTS_COUNT); // NC matrix multiplied by delta matrix
+		RealN lambda; // system inverse matrix multiplied by C vector
+		RealN dX; // Vector containing corrections
+		RealNxN system; // NC matrix multiplied by delta matrix
 
 		// Temporary and utility variables:
 		Vec3 e; // Vector for calculating error
@@ -363,7 +385,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			C = 0.0;
 			HairTaskProcessor::computeInextensibilityConstraints(C, hairVertices, SEGMENT_LENGTH_SQ);
 
-			if (COLLISIONS_COUNT > 0)
+			if (collisionsCount > 0)
 			{
 				HairTaskProcessor::computeInterpenetrationConstraints(C, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
 			}
@@ -380,10 +402,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
 
 				//TODO: Remove me
-				/*if (iterationsCount >= MAX_LOOP_ITERATIONS)
-				{
-					std::cout << "Maximum iterations reached!" << std::endl << std::flush;
-				}*/
+				//std::cout << iterationsCount << std::endl << std::flush;
 
 				break;
 			}
@@ -394,9 +413,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			delta = 0.0;
 			HairTaskProcessor::computeInextensibilityGradient(NC, delta, hairVertices);
 
-			if (COLLISIONS_COUNT > 0)
+			if (collisionsCount > 0)
 			{
-				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET, COL_DERIV_OFFSET);
+				HairTaskProcessor::computeInterpenetrationGradient(NC, delta, hairVertices, guide->mSegmentsAdditionalInfo, COL_CONSTR_OFFSET);
 			}
 			// -------------------------------------------------------------------------------------
 			// Step 3: Calculate and apply position changes
@@ -406,9 +425,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			{
 				lambda = system.i() * C;
 			}
-			catch (NEWMAT::SingularException)
+			catch (...) // Something went terribly wrong...
 			{
-				//TODO: error log?
+				// Rescale hair vertices to retain their original scale
+				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
 				break;
 			}
 			dX = -delta * lambda;
@@ -417,22 +437,32 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			Uint j = 0; // dX collision correction index
 			for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 			{
-				// Inextensibility correction:
 				correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
-
-				// Interpenetration correction:
-				if (COLLISIONS_COUNT > 0 && guide->mSegmentsAdditionalInfo[ i + 1 ].mIsColliding)
-				{
-					correction += Vec3(dX[ COL_DERIV_OFFSET + 3*j ], dX[ COL_DERIV_OFFSET + 3*j + 1 ], dX[ COL_DERIV_OFFSET + 3*j + 2 ] );
-					++j;
-				}
-
 				hairVertices[ i + 1 ] += correction;
 			}
 
+			// Update the collision set - FIXME: doesn't work
+			/*if ( collisionsCount > 0 )
+			{
+				collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
+				assert( collisionsCount <= VERTEX_COUNT - 1 );
+				assert( collisionsCount <= guide->mCollisionsCount );
+			}
+			// Resize matrices if the set has been reduced
+			if ( collisionsCount < guide->mCollisionsCount )
+			{
+				guide->mCollisionsCount = collisionsCount;
+				constraintsCount = (VERTEX_COUNT - 1) + collisionsCount;
+				C.ReSize(constraintsCount);
+				NC.ReSize(constraintsCount, DERIVATIVES_COUNT);
+				delta.ReSize(DERIVATIVES_COUNT, constraintsCount);
+			}*/
+
 			iterationsCount++;
 		} // while (true)
-		guide->mCollisionsCount = 0; // Delete information about collisions in case the user disables them
+		
+		// Delete information about collisions in case the user disables them
+		guide->mCollisionsCount = 0;
 	} // for each guide
 }
 
@@ -496,9 +526,10 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 		{
 			lambda = system.i() * C;
 		}
-		catch (NEWMAT::SingularException)
+		catch (...) // Something went terribly wrong...
 		{
-			//TODO: error log?
+			// Rescale hair vertices to retain their original scale
+			HairTaskProcessor::rescaleGuideHair(aVertices, SCALE_FACTOR);
 			break;
 		}
 		dX = -delta * lambda;
@@ -507,7 +538,6 @@ void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &
 		Uint j = 0; // dX collision correction index
 		for (Uint i = 0; i < VERTEX_COUNT - 1; ++i)
 		{
-			// Inextensibility correction:
 			correction.set(dX[ 3*i ], dX[ 3*i + 1 ] , dX[ 3*i + 2 ]);
 			aVertices[ i + 1 ] += correction;
 		}
