@@ -397,10 +397,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
-
-				//TODO: Remove me
-				std::cout << iterationsCount << std::endl << std::flush;
-
+				// Debug feature - leave me alone & and commented out
+				//std::cout << iterationsCount << std::endl << std::flush;
 				break;
 			}
 			// -------------------------------------------------------------------------------------
@@ -438,7 +436,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				hairVertices[ i + 1 ] += correction;
 			}
 
-			// Update the collision set - FIXME: doesn't work
+			// Update the collision set
 			if ( collisionsCount > 0 )
 			{
 				collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
