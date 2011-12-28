@@ -727,8 +727,8 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 	normal = Vector::crossProduct( Vector::crossProduct( *aTangents, normal ), *aTangents );
 	unsigned __int32 count = 0;
 	// Select parameter step and iteration end
-	--aCount; // Points count -> segments count
-	PositionType step = 1.0f / aCount;
+	--aCurvePointsCount; // Points count -> segments count
+	PositionType step = 1.0f / aCurvePointsCount;
 	bool iterationEnd = false;
 	// We have to ensure that cut procedure is only executed if needed
 	aCutFactor = aCutFactor == 1 ? 2 : aCutFactor; 
@@ -740,7 +740,7 @@ inline unsigned __int32 HairGenerator< tPositionGenerator, tOutputGenerator >::
 		{
 			// Calculate new point position
 			Point newPos;
-			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
+			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCurvePointsCount );
 			t = aCutFactor;
 			iterationEnd = true;
 			// Move current point to next and calculate tangent
@@ -920,8 +920,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		unsigned __int32 aCurvePointsCount, BoundingBox & aBoundingBox, PositionType aCutFactor )
 {
 	// Select parameter step and iteration end
-	--aCount; // Points count -> segments count
-	PositionType step = 1.0f / aCount;
+	--aCurvePointsCount; // Points count -> segments count
+	PositionType step = 1.0f / aCurvePointsCount;
 	bool iterationEnd = false;
 	// We have to ensure that cut procedure is only executed if needed
 	aCutFactor = aCutFactor == 1 ? 2 : aCutFactor; 
@@ -933,7 +933,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		{
 			// Calculate new point position
 			Point newPos;
-			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCount );
+			catmullRomEval( newPos, aPoints - 2, 1 - ( t - aCutFactor ) * aCurvePointsCount );
 			t = aCutFactor;
 			iterationEnd = true;
 			// Move current point to next and calculate tangent

@@ -503,7 +503,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		addColorAttribute( "tip_color_texture", "tcoltxt", tipColorTextureAttr, 1, 1, 1);
 		addColorAttribute( "tip_color", "tcol", tipColorAttr, 1, 1, 1);
 		addFloatAttribute( "hue_variation_texture", "huetxt", hueVariationTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "hue_variation", "hue", hueVariationAttr, 0, 0, 360, 0, 360 );
+		addFloatAttribute( "hue_variation", "hue", hueVariationAttr, 0, 0, 180, 0, 180 );
 		addFloatAttribute( "value_variation_texture", "valuetxt", valueVariationTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "value_variation", "value", valueVariationAttr, 0, 0, 1, 0, 1 );
 		addColorAttribute( "mutant_hair_color_texture", "mcoltxt", mutantHairColorTextureAttr, 1, 1, 1);
@@ -516,11 +516,11 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "tip_frizz_texture", "tfzztxt", tipFrizzTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "tip_frizz", "tfzz", tipFrizzAttr, 1, 0, float_max, 0, 10 );
 		addFloatAttribute( "frizz_X_freq_texture", "fzzXftxt", frizzXFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "frizz_X_frequency", "fzzXf", frizzXFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "frizz_X_frequency", "fzzXf", frizzXFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		addFloatAttribute( "frizz_Y_freq_texture", "fzzYftxt", frizzYFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "frizz_Y_frequency", "fzzYf", frizzYFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "frizz_Y_frequency", "fzzYf", frizzYFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		addFloatAttribute( "frizz_Z_freq_texture", "fzzZftxt", frizzZFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "frizz_Z_frequency", "fzzZf", frizzZFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "frizz_Z_frequency", "fzzZf", frizzZFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		addFloatAttribute( "frizz_anim_texture", "afzztxt", frizzAnimTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "frizz_anim", "afzz", frizzAnimAttr, 0, 0, 1, 0, 1 );
 		addFloatAttribute( "frizz_anim_speed_texture", "asfzztxt", frizzAnimSpeedTextureAttr, 1, 0, 1, 0, 1 );
@@ -539,11 +539,11 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "tip_kink_texture", "tknktxt", tipKinkTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "tip_kink", "tknk", tipKinkAttr, 1, 0, float_max, 0, 10 );
 		addFloatAttribute( "kink_X_freq_texture", "knkXftxt", kinkXFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "kink_X_frequency", "knkXf", kinkXFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "kink_X_frequency", "knkXf", kinkXFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		addFloatAttribute( "kink_Y_freq_texture", "knkYftxt", kinkYFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "kink_Y_frequency", "knkYf", kinkYFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "kink_Y_frequency", "knkYf", kinkYFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		addFloatAttribute( "kink_Z_freq_texture", "knkZftxt", kinkZFrequencyTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "kink_Z_frequency", "knkZf", kinkZFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 2 );
+		addFloatAttribute( "kink_Z_frequency", "knkZf", kinkZFrequencyAttr, 0.5f, 0.001f, float_max, 0.001f, 50 );
 		/* MAYA MULTI STRAND PROPERTIES */
 		addIntAttribute( "multi_strand_count", "msc", multiStrandCountAttr, 0, 0, int_max, 0, 10 );
 		addFloatAttribute( "root_splay_texture", "rspltxt", rootSplayTextureAttr, 1, 0, 1, 0, 1 );
