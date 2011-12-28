@@ -239,7 +239,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 {
 	MMeshIntersector *accelerator =  HairShape::HairShape::getActiveObject()->getCurrentMesh().getMeshIntersector();
 	MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
-	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrix();	
+	MMatrix inclusiveMatrix = HairShape::HairShape::getActiveObject()->getCurrentInclusiveMatrixInverse();	
 	MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
 
 	for( HairShape::HairComponents::SelectedGuides::iterator it = aSelectedGuides.begin(); it != aSelectedGuides.end(); ++it )
@@ -280,6 +280,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 			Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
 
 			guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+			guide->mSegmentsAdditionalInfo[ 1 ].mSurfaceDirection = (guide->mSegmentsAdditionalInfo[ 1 ].mClosestPointOnMesh - guide->mGuideSegments.mSegments[ 1 ]).normalize();
 			guide->mSegmentsAdditionalInfo[ 1 ].mIsColliding = true;
 			guide->mCollisionsCount++;
 		}
@@ -319,6 +320,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 				Vec3 p( closestPointWorld.x, closestPointWorld.y, closestPointWorld.z);
 
 				guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh = Vec3::transformPoint(p, localMatrix);
+				guide->mSegmentsAdditionalInfo[ i ].mSurfaceDirection = (guide->mSegmentsAdditionalInfo[ i ].mClosestPointOnMesh - guide->mGuideSegments.mSegments[ i ]).normalize();
 				guide->mSegmentsAdditionalInfo[ i ].mIsColliding = true;
 				guide->mCollisionsCount++;
 			}
@@ -330,6 +332,7 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 		} // for all remaining segments
 		assert ( guide->mSegmentsAdditionalInfo[ 0 ].mIsColliding == false );
 		assert ( guide->mCollisionsCount <= guide->mGuideSegments.mSegments.size() - 1 );
+		guide->mCollisionsCount = 0;
 	} // for all guides
 }
 
@@ -395,14 +398,15 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			absC = C.MaximumAbsoluteValue();
 			bool localMinimum = (previousAbsC - HairTaskProcessor::DELTA <= absC) && (absC <= previousAbsC + HairTaskProcessor::DELTA);
 			if ( absC <= HairTaskProcessor::CONVERGENCE_THRESHOLD ||
-				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS ||
-				localMinimum )
+				iterationsCount >= HairTaskProcessor::MAX_LOOP_ITERATIONS /*||
+				localMinimum*/ )
 			{
 				// Rescale hair vertices to retain their original scale
 				HairTaskProcessor::rescaleGuideHair(hairVertices, SCALE_FACTOR);
+				HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, SCALE_FACTOR);
 
 				//TODO: Remove me
-				//std::cout << iterationsCount << std::endl << std::flush;
+				std::cout << iterationsCount << std::endl << std::flush;
 
 				break;
 			}
@@ -442,9 +446,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 			}
 
 			// Update the collision set - FIXME: doesn't work
-			/*if ( collisionsCount > 0 )
+			if ( collisionsCount > 0 )
 			{
-				collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
+				//collisionsCount = HairTaskProcessor::updateCollisionInfo(hairVertices, guide->mSegmentsAdditionalInfo);
 				assert( collisionsCount <= VERTEX_COUNT - 1 );
 				assert( collisionsCount <= guide->mCollisionsCount );
 			}
@@ -456,7 +460,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 				C.ReSize(constraintsCount);
 				NC.ReSize(constraintsCount, DERIVATIVES_COUNT);
 				delta.ReSize(DERIVATIVES_COUNT, constraintsCount);
-			}*/
+			}
 
 			iterationsCount++;
 		} // while (true)

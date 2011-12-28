@@ -372,6 +372,14 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline MMatrix getCurrentInclusiveMatrix() const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the current maya mesh inclusive matrix inverse.
+	/// Inclusive matrix stores all transforms which are applied on surface connected to this node.
+	/// 
+	/// \return	Get current maya mesh inclusive matrix inverse.
+	///----------------------------------------------------------------------------------------------------
+	inline MMatrix getCurrentInclusiveMatrixInverse() const;
+
 	///-------------------------------------------------------------------------------------------------
 	/// Return this node as Maya MObject.
 	/// 
@@ -655,6 +663,11 @@ inline const MayaMesh & HairShape::getCurrentMesh() const
 inline MMatrix HairShape::getCurrentInclusiveMatrix() const
 {
 	return mConnectedMeshPath.inclusiveMatrix();
+}
+
+inline MMatrix HairShape::getCurrentInclusiveMatrixInverse() const
+{
+	return mConnectedMeshPath.inclusiveMatrixInverse();
 }
 
 inline MObject HairShape::asMObject()

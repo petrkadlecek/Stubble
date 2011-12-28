@@ -358,8 +358,7 @@ inline Uint HairTaskProcessor::updateCollisionInfo (const HairShape::HairCompone
 	assert( VERTEX_COUNT == (Uint)aVerticesInfo.size() );
 
 	Uint collisionsCount = 0;
-	Vec3 n(0.0, 0.0, 1.0); // The surface normal in local coordinates
-	Vec3 v;
+	Vec3 v, dir; // Actual direction towards closest point and initial direction towards the surface
 	for (Uint i = 1; i < VERTEX_COUNT; ++i) // For all vertices except the root
 	{
 		if (!aVerticesInfo[ i ].mIsColliding)
@@ -367,7 +366,8 @@ inline Uint HairTaskProcessor::updateCollisionInfo (const HairShape::HairCompone
 			continue;
 		}
 		v = aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ];
-		if ( Vec3::dotProduct(v, n) <= 0.0 ) //FIXME: Doesn't work :-/
+		dir = aVerticesInfo[ i ].mSurfaceDirection;
+		if ( Vec3::dotProduct(v, dir) > 0.0 )
 		{
 			aVerticesInfo[ i ].mIsColliding = false;
 		}
