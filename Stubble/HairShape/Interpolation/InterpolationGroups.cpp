@@ -1,5 +1,4 @@
 #include "InterpolationGroups.hpp"
-#include "HairShape/UserInterface/HairShape.hpp"
 
 #include <map>
 
@@ -28,10 +27,6 @@ void InterpolationGroups::updateGroups( const Texture & aInterpolationGroupsText
 	if ( aSegmentsCount == 0 )
 	{
 		throw StubbleException(" InterpolationGroups::setGroupSegmentsCount : segments count must be greater than 0 ");
-	}
-	if ( aSegmentsCount > HairShape::MAX_GUIDE_SEGMENTS_COUNT )
-	{
-		throw StubbleException(" InterpolationGroups::setGroupSegmentsCount : segments count must be lesser than " + HairShape::MAX_GUIDE_SEGMENTS_COUNT );
 	}
 	unsigned __int32 * tempInterpolationGroupsTexture = 0;
 	Texture::Color tempInterpolationGroupsColors = 0;
