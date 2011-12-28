@@ -32,6 +32,9 @@ for ( $obj in $selected )
 			// Connect our geometry shader to the proxy
 			$geometry_shader = `createNode "stubble_geometry"`;
 			connectAttr -f ($geometry_shader + ".outValue") ($MRsphere[0] + ".miGeoShader");
+
+			// Select the hair again
+			select -r $shape;
 		}
 	}
 	else
