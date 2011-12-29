@@ -282,6 +282,7 @@ private:
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 	static volatile bool sRun; ///< Flag for determining that the thread should still run
+	static bool sDetectedThreadCount; ///< Init of OpenMP threads
 	static int sNumberOfThreads; ///< Number of threads used by OpenMP
 	
 	static const Real MAX_IDLE_TIME; ///< Maximum time of the idle worker loop iterations

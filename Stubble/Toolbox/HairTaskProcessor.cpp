@@ -21,6 +21,7 @@ bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 volatile bool HairTaskProcessor::sRun = true;
 int HairTaskProcessor::sNumberOfThreads = 1;
+bool HairTaskProcessor::sDetectedThreadCount = false;
 
 const Real HairTaskProcessor::MAX_IDLE_TIME = 0.5; // seconds
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 12;
@@ -337,6 +338,23 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
+	if(!sDetectedThreadCount)
+	{
+		sDetectedThreadCount = true;
+
+		// maximum number of threads that could be used by OpenMP
+		MString commandString = "intSliderGrp -e -maxValue ";
+		commandString += omp_get_max_threads();
+		commandString += " \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+
+		// setting max - 1 as a value
+		commandString = "intSliderGrp -e -value ";
+		commandString += max(1, omp_get_max_threads() - 1);
+		commandString += " \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+	}
+
 	HairShape::HairComponents::SelectedGuides::iterator it;
 
 	#ifdef _OPENMP

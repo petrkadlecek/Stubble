@@ -31,7 +31,7 @@ global proc StubbleBrushToolValues( string $ctxName )
 		stubbleToolScale;
 
 	intSliderGrp -e
-		-v $scale
+		-v $numberOfThreads
 		-cc ("StubbleBrushToolCommand -e -brushNumberOfThreads #1 " + $ctxName)
 		stubbleNumberOfThreads;
 			

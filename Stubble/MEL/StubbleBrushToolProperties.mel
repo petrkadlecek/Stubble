@@ -43,10 +43,10 @@ global proc StubbleBrushToolProperties()
 					separator -style "none";
 
 				intSliderGrp -label "Number of threads"
-					-value 1.0
+					-value 1
 					-field true
-					-minValue 1 -maxValue 8
-					-fieldMinValue 1 -fieldMaxValue 8
+					-minValue 1 -maxValue 1
+					-fieldMinValue 1 -fieldMaxValue 1
 						stubbleNumberOfThreads;
 
 					separator -style "none";
