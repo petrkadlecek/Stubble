@@ -277,7 +277,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		if ( HapticSettingsTool::sSpringDamperSet )
 		{
 			// compute force in robotic coord system
-			MVector forceVector = HapticSettingsTool::sSpringDamper - (HapticSettingsTool::sLastPosition / sWorkspaceRadius);
+			MVector forceVector = 10.0 * ( HapticSettingsTool::sSpringDamper - (HapticSettingsTool::sLastPosition / sWorkspaceRadius) );
 			force.x = forceVector.z;
 			force.y = forceVector.x;
 			force.z = forceVector.y;
