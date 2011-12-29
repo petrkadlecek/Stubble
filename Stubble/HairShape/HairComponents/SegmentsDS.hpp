@@ -37,7 +37,7 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid using selection information, the end product is a grid built using only
-	/// selected guides. TODO: add selection filter support
+	/// selected guides.
 	///
 	/// \param	aGuidesCurrentPositions			the guides current positions. 
 	/// \param	aFrameSegments					the guides segments in current frame.
@@ -62,7 +62,7 @@ public:
 
 	///-------------------------------------------------------------------------------------------------
 	/// Builds the uniform grid using selection information, the end product is a grid built using only
-	/// selected guides. TODO: add selection filter support
+	/// selected guides.
 	///
 	/// \param	aGuidesCurrentPositions		the guides current positions. 
 	/// \param	aFrameSegments				the guides segments in current frame. 
@@ -147,7 +147,7 @@ public:
 private:
 	bool mDirtyBit; ///< true to dirty bit
 
-	SelectedGuides mStoredGuides; ///< Testing data storage, TODO: remove me
+	SelectedGuides mStoredGuides; ///< Data storage
 };
 
 // inline functions implementation

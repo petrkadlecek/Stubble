@@ -283,8 +283,6 @@ void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions, 
 	const FrameSegments & aFrameSegments )
 {
-	// ------------------------------------------
-	//TODO: rewrite testing code with actual code
 	assert(aGuidesCurrentPositions.size() == aFrameSegments.mSegments.size());
 	const size_t GUIDE_COUNT = aGuidesCurrentPositions.size();
 
@@ -303,30 +301,18 @@ void SegmentsDS::build( const GuidesCurrentPositions & aGuidesCurrentPositions,
 
 		mStoredGuides.push_back(guide);
 	}
-	// End of testing code
-	// ------------------------------------------
 
 	mDirtyBit = false;
 }
 
 void SegmentsDS::build( const SelectedGuides & aSelectedGuides, bool aFullBuild )
 {
-	// Should not copy contents once again - just use information obtained via aSelectedGuides parameter
-	// see usage in the first method
-
-	// ------------------------------------------
-	//TODO: rewrite testing code with actual code
 	mStoredGuides = SelectedGuides(aSelectedGuides);
-	// End of testing code
-	// ------------------------------------------
 	mDirtyBit = false;
 }
 
 void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, short aX, short aY, SelectedGuides &aResult ) const
 {
-	// ------------------------------------------
-	//TODO: rewrite testing code with actual code
-
 	aResult.clear();
 
 	MStatus status;
@@ -373,9 +359,6 @@ void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 			aResult.push_back(guide);
 		}
 	} // for each guide in the storage
-
-	// End of testing code
-	// ------------------------------------------
 }
 
 void SegmentsDS::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, SelectedGuides &aResult ) const
