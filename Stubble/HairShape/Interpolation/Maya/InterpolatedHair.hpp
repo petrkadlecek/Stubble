@@ -9,7 +9,9 @@
 #include "MayaPositionGenerator.hpp"
 
 #include <vector>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 namespace Stubble
 {

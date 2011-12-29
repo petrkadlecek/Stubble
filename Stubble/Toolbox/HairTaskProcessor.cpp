@@ -339,10 +339,10 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 {
 	HairShape::HairComponents::SelectedGuides::iterator it;
 
+	#ifdef _OPENMP
 	int currentThreads = omp_get_num_threads();
 	omp_set_num_threads( sNumberOfThreads );
 
-	#ifdef _OPENMP
 	#pragma omp parallel for
 	#endif
 	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
@@ -478,7 +478,9 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		guide->mCollisionsCount = 0;
 	} // for each guide
 
+	#ifdef _OPENMP
 	omp_set_num_threads( currentThreads );
+	#endif
 }
 
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)

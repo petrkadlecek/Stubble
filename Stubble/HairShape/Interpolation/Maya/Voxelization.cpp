@@ -39,7 +39,9 @@ Voxelization::Voxelization( const Mesh & aRestPoseMesh, const Texture & aDensity
 		v.mTrianglesIds.push_back( it.getTriangleID() );
 	}
 	// For each voxel
+    #ifdef _OPENMP
 	#pragma omp parallel for schedule( guided )
+	#endif
 	for ( int i = 0; i < static_cast< int >( mVoxels.size() ); ++i )
 	{
 		Voxel & vx = mVoxels[ i ];
