@@ -61,6 +61,8 @@ private:
 	/// \param[out] aFromOrigin Inverse translation
 	///----------------------------------------------------------------------------------------------------
 	void getTranslationMatrices ( const Vector3D< Real > &aPosition, Matrix< Real > &aToOrigin, Matrix< Real > &aFromOrigin);
+
+	static const Real ROTATION_SENSITIVITY; ///< To damp too sensitive brush
 };
 
 } // namespace Toolbox

@@ -7,6 +7,8 @@ namespace Stubble
 namespace Toolbox
 {
 
+const Real RotateBrushMode::ROTATION_SENSITIVITY = 0.3141592;
+
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
 	Vector3D< Real> axis, position; // Axis of rotation and its position respectively
@@ -63,7 +65,7 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 {
 	// R = uu^T + (cos theta)(I - uu^T) + (sin theta)S, see OpenGL Red Book 2.0, appendix F
 	// u is unit vector of the axis, S is 3x3 matrix as defined bellow
-	Real theta = aMeasure;
+	Real theta = aMeasure * RotateBrushMode::ROTATION_SENSITIVITY;
 	const Real cosT = cos(theta); // Cosine theta
 	const Real sinT = sin(theta); // Sine theta
 	Matrix< Real > M1, M2, S;
