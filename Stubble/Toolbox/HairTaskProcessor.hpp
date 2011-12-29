@@ -267,13 +267,12 @@ private:
 	inline static void rescaleGuideHair(HairShape::HairComponents::Segments &aVertices, Real aScaleFactor);
 	
 	///----------------------------------------------------------------------------------------------------
-	/// Helper method for rescaling closest points on mesh and original positions for all hair vertices by
-	/// an arbitrary scale factor.
+	/// Helper method for rescaling closest points on mesh all hair vertices by an arbitrary scale factor.
 	///
 	/// \param[in,out] aVerticesInfo Container containing additional vertex info
 	/// \param aScaleFactor Scale factor to be applied
 	///----------------------------------------------------------------------------------------------------
-	inline static void rescaleAdditionalInfo(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor);
+	inline static void rescaleClosestPointsOnMesh(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor);
 
 	TaskAccumulator mTaskAccumulator; ///< The task queue
 	MSpinLock mTaskAccumulatorLock; ///< Task queue spinlock
@@ -480,13 +479,12 @@ inline void HairTaskProcessor::rescaleGuideHair(HairShape::HairComponents::Segme
 	}
 }
 
-inline void HairTaskProcessor::rescaleAdditionalInfo(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor)
+inline void HairTaskProcessor::rescaleClosestPointsOnMesh(HairShape::HairComponents::SegmentsAdditionalInfo &aVerticesInfo, Real aScaleFactor)
 {
 	HairShape::HairComponents::SegmentsAdditionalInfo::iterator it;
 	for (it = aVerticesInfo.begin(); it != aVerticesInfo.end(); ++it)
 	{
 		it->mClosestPointOnMesh *= aScaleFactor;
-		it->mOriginalPosition *= aScaleFactor;
 	}
 }
 

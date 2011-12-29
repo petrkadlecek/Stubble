@@ -21,13 +21,17 @@ void PuffEndBrushMode::doBrush ( HairTask *aTask )
 		}
 
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		HairShape::HairComponents::SegmentsAdditionalInfo &verticesInfo = guide->mSegmentsAdditionalInfo; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
+
+		assert ( SEGMENT_COUNT == verticesInfo.size() );
 
 		// Loop through all guide segments except the first one
 		Real segmentLength = guide->mGuideSegments.mSegmentLength;
-		Vector3D< Real > vertexAtNormal;
-		Vector3D< Real > distance;
-		Vector3D< Real > d;
+		Vector3D< Real > vertexAtNormal; // Vertex position on the surface normal
+		Vector3D< Real > dir; // Direction from the original position
+		Vector3D< Real > distance; // Remaining distance from the current position.
+		Vector3D< Real > d; // Increment
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( !guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
@@ -35,8 +39,15 @@ void PuffEndBrushMode::doBrush ( HairTask *aTask )
 				continue;
 			}
 			vertexAtNormal.set(0.0, 0.0, i * segmentLength);
-			distance = vertexAtNormal - hairVertices[ i ];
-			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * guide->mSegmentsAdditionalInfo[ i ].mFallOff : distance * aTask->mDx.x;
+			if ( aTask->mDx.x > 0.0 ) // Determine direction - toward normal or original position?
+			{
+				distance = vertexAtNormal - hairVertices[ i ];
+			}
+			else // Make sure we don't travel behind the original point
+			{
+				distance = hairVertices[ i ] - verticesInfo[ i ].mOriginalPosition;
+			}
+			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * verticesInfo[ i ].mFallOff : distance * aTask->mDx.x;
 			hairVertices[ i ] += d;
 		}
 
