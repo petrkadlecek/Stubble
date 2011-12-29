@@ -395,6 +395,7 @@ void BrushTool::changeBrushMode()
 		mBrushModeChoice = 1;
 	}
 	mBrushMode->setFalloffSwitch(mEnableFalloff);
+	mBrushMode->setCollisionDetectionSwitch(mEnableCollisionDetection);
 }
 
 void BrushTool::filterAffectedGuides()
