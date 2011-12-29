@@ -41,6 +41,15 @@ global proc StubbleBrushToolProperties()
 						stubbleBrushSensitivity;
 
 					separator -style "none";
+
+				intSliderGrp -label "Number of threads"
+					-value 1.0
+					-field true
+					-minValue 1 -maxValue 8
+					-fieldMinValue 1 -fieldMaxValue 8
+						stubbleNumberOfThreads;
+
+					separator -style "none";
 					
 				checkBox -label "Enable falloff"
 					-value true

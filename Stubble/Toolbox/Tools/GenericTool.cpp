@@ -18,6 +18,8 @@ const char *brushFalloffFlag = "-bfo";
 const char *brushFalloffLongFlag = "-brushFalloff";
 const char *brushCollisionFlag = "-bco";
 const char *brushCollisionLongFlag = "-brushCollision";
+const char *brushNumberOfThreadsFlag = "-bt";
+const char *brushNumberOfThreadsLongFlag = "-brushNumberOfThreads";
 
 namespace Stubble
 {
@@ -130,6 +132,8 @@ MStatus	GenericToolCommand::appendSyntax()
 	syn.addFlag( brushFalloffFlag, brushFalloffLongFlag, MSyntax::kBoolean );
 
 	syn.addFlag( brushCollisionFlag, brushCollisionLongFlag, MSyntax::kBoolean );
+
+	syn.addFlag( brushNumberOfThreadsFlag, brushNumberOfThreadsLongFlag, MSyntax::kLong );
 
 	return MS::kSuccess;
 }

@@ -6,6 +6,7 @@ global proc StubbleBrushToolValues( string $ctxName )
 	int $brushModeChoice = `StubbleBrushToolCommand -q -brushModeChoice $ctxName`;
 	float $scale = `StubbleBrushToolCommand -q -toolScale $ctxName`;
 	float $sensitivity = `StubbleBrushToolCommand -q -brushSensitivity $ctxName`;
+	float $numberOfThreads = `StubbleBrushToolCommand -q -brushNumberOfThreads $ctxName`;
 	int $falloff = `StubbleBrushToolCommand -q -brushFalloff $ctxName`;
 	int $collisions = `StubbleBrushToolCommand -q -brushCollision $ctxName`;
 	
@@ -28,6 +29,11 @@ global proc StubbleBrushToolValues( string $ctxName )
 		-v $scale
 		-cc ("StubbleBrushToolCommand -e -toolScale #1 " + $ctxName)
 		stubbleToolScale;
+
+	intSliderGrp -e
+		-v $scale
+		-cc ("StubbleBrushToolCommand -e -brushNumberOfThreads #1 " + $ctxName)
+		stubbleNumberOfThreads;
 			
 	radioButtonGrp -e
 		-on1 ("StubbleBrushToolCommand -e -brushModeChoice 1 " + $ctxName)

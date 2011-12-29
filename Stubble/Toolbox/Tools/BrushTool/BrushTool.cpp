@@ -14,6 +14,8 @@ extern const char *brushFalloffFlag;
 extern const char *brushFalloffLongFlag;
 extern const char *brushCollisionFlag;
 extern const char *brushCollisionLongFlag;
+extern const char *brushNumberOfThreadsFlag;
+extern const char *brushNumberOfThreadsLongFlag;
 
 namespace Stubble
 {
@@ -71,6 +73,11 @@ MStatus	BrushToolCommand::doEditFlags()
 		pars.getFlagArgument( brushSensitivityFlag, 0, mCurrentBrushToolObject->mSensitivity );
 	}
 
+	if( pars.isFlagSet( brushNumberOfThreadsFlag ) )
+	{
+		pars.getFlagArgument( brushNumberOfThreadsFlag, 0, HairTaskProcessor::getNumberOfThreads() );
+	}
+
 	if ( pars.isFlagSet( brushFalloffFlag ) )
 	{
 		pars.getFlagArgument( brushFalloffFlag, 0, mCurrentBrushToolObject->mEnableFalloff );
@@ -112,6 +119,11 @@ MStatus	BrushToolCommand::doQueryFlags()
 	if ( pars.isFlagSet( brushSensitivityFlag ) )
 	{
 		setResult( mCurrentBrushToolObject->mSensitivity );
+	}
+
+	if ( pars.isFlagSet( brushNumberOfThreadsFlag ) )
+	{
+		setResult( HairTaskProcessor::getNumberOfThreads() );
 	}
 
 	if ( pars.isFlagSet( brushFalloffFlag ) )

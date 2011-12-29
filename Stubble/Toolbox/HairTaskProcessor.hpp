@@ -109,6 +109,13 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline size_t getAccumulatorSize ();
 
+	///----------------------------------------------------------------------------------------------------
+	/// Returns the number of threads that will be used by OpenMP framework.
+	///
+	/// \return The number of threads
+	///----------------------------------------------------------------------------------------------------
+	inline static int& getNumberOfThreads ();
+
 private:
 
 	///----------------------------------------------------------------------------------------------------
@@ -276,7 +283,8 @@ private:
 	static bool sIsRunning; ///< Flag for determining that the thread is active
 	static MSpinLock sIsRunningLock; ///< isRunning spinlock
 	static volatile bool sRun; ///< Flag for determining that the thread should still run
-
+	static int sNumberOfThreads; ///< Number of threads used by OpenMP
+	
 	static const Real MAX_IDLE_TIME; ///< Maximum time of the idle worker loop iterations
 	static const Uint MAX_LOOP_ITERATIONS; ///< Maximum convergence loop iterations after which we consider solution converged
 	static const size_t MAX_TASK_QUEUE_SIZE; ///< Maximum size of the task queue to prevent overloading
@@ -479,6 +487,11 @@ inline void HairTaskProcessor::rescaleClosestPoints(HairShape::HairComponents::S
 	{
 		it->mClosestPointOnMesh *= aScaleFactor;
 	}
+}
+
+inline int& HairTaskProcessor::getNumberOfThreads ()
+{
+	return HairTaskProcessor::sNumberOfThreads;
 }
 
 } // namespace Toolbox

@@ -20,6 +20,7 @@ HairTaskProcessor *HairTaskProcessor::sInstance = 0;
 bool HairTaskProcessor::sIsRunning = false;
 MSpinLock HairTaskProcessor::sIsRunningLock;
 volatile bool HairTaskProcessor::sRun = true;
+int HairTaskProcessor::sNumberOfThreads = 1;
 
 const Real HairTaskProcessor::MAX_IDLE_TIME = 0.5; // seconds
 const Uint HairTaskProcessor::MAX_LOOP_ITERATIONS = 12;
@@ -338,9 +339,12 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 {
 	HairShape::HairComponents::SelectedGuides::iterator it;
 
-	//#ifdef _OPENMP
-	//#pragma omp parallel for
-	//#endif
+	int currentThreads = omp_get_num_threads();
+	omp_set_num_threads( sNumberOfThreads );
+
+	#ifdef _OPENMP
+	#pragma omp parallel for
+	#endif
 	for (__int64 guideIndex = 0; guideIndex < static_cast< __int64 >(aSelectedGuides.size()); ++guideIndex)
 	{
 		HairShape::HairComponents::SelectedGuide *guide = aSelectedGuides[ guideIndex ];
@@ -473,6 +477,8 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 		// Delete information about collisions in case the user disables them
 		guide->mCollisionsCount = 0;
 	} // for each guide
+
+	omp_set_num_threads( currentThreads );
 }
 
 void HairTaskProcessor::enforceConstraints(HairShape::HairComponents::Segments &aVertices, Real aSegmentLength)
