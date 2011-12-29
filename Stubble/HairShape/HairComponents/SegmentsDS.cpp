@@ -352,6 +352,7 @@ void SegmentsDS::select( Stubble::Toolbox::CircleToolShape *aSelectionMask, shor
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;
 				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
 			}
+			guide->mSegmentsAdditionalInfo[ i ].mOriginalPosition = guide->mGuideSegments.mSegments[ i ];
 		}
 
 		if (selected)
@@ -403,6 +404,7 @@ void SegmentsDS::select( Stubble::Toolbox::SphereToolShape *aSelectionMask, Sele
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;
 				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
 			}
+			guide->mSegmentsAdditionalInfo[ i ].mOriginalPosition = guide->mGuideSegments.mSegments[ i ];
 		}
 
 		if (selected)
@@ -525,6 +527,7 @@ void SegmentsDS::select( Stubble::Toolbox::CylinderToolShape *aSelectionMask, Se
 				guide->mSegmentsAdditionalInfo[ i ].mInsideBrush = false;
 				guide->mSegmentsAdditionalInfo[ i ].mFallOff = 0.0;
 			}
+			guide->mSegmentsAdditionalInfo[ i ].mOriginalPosition = guide->mGuideSegments.mSegments[ i ];
 		}
 
 		if (selected)

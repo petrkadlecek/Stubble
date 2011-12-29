@@ -21,7 +21,7 @@ namespace HairComponents
 
 ///-------------------------------------------------------------------------------------------------
 /// Additional information about the segment for tools (brush tool, cut tool etc.) 
-/// By segment we meean one hair vertex.
+/// By segment we mean one hair vertex.
 ///-------------------------------------------------------------------------------------------------
 struct OneSegmentAdditionalInfo
 {
@@ -38,7 +38,9 @@ struct OneSegmentAdditionalInfo
 
 	Vector3D< Real > mClosestPointOnMesh;	///< In case of collision the closest point on mesh
 
-	Vector3D< Real > mSurfaceDirection; ///< Direction of to the surface (closest point - penetrating point)
+	Vector3D< Real > mSurfaceDirection; ///< For collision detection purposes - direction to the surface
+
+	Vector3D< Real > mOriginalPosition; ///< Original endpoint positions prior to any changes
 
 	Real mFallOff;	///< The fall off of brushing transformation = 1 - d, where d is the distance of the vertex from the brush center
 };

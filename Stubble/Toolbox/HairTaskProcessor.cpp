@@ -372,7 +372,7 @@ void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedG
 
 		// Rescale hair vertices before computations so all segments are of unit length
 		HairTaskProcessor::rescaleGuideHair(localVertices, 1.0 / SCALE_FACTOR);
-		HairTaskProcessor::rescaleClosestPoints(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
+		HairTaskProcessor::rescaleAdditionalInfo(guide->mSegmentsAdditionalInfo, 1.0 / SCALE_FACTOR);
 
 		// Input vectors and matrices:
 		RealN C(constraintsCount); // Constraint vector
