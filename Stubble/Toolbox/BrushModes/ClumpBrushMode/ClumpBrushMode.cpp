@@ -24,7 +24,11 @@ void ClumpBrushMode::doBrush ( HairTask *aTask )
 		}
 
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		HairShape::HairComponents::SegmentsAdditionalInfo &verticesInfo = guide->mSegmentsAdditionalInfo; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
+
+		assert ( SEGMENT_COUNT == verticesInfo.size() );
+
 		Vector3D< Real > clumpPositionLocal = Vector3D< Real >::transformPoint(clumpPosition, guide->mPosition.mLocalTransformMatrix);
 		Vector3D< Real > clumpNormalLocal = Vector3D< Real >::transform(clumpNormal, guide->mPosition.mLocalTransformMatrix);
 
@@ -40,7 +44,14 @@ void ClumpBrushMode::doBrush ( HairTask *aTask )
 				continue;
 			}
 			vertexAtClumpNormal = clumpPositionLocal + clumpNormalLocal * (i * segmentLength);
-			distance = vertexAtClumpNormal - hairVertices[ i ];
+			if ( aTask->mDx.x > 0.0 ) // Determine direction - toward normal or original position?
+			{
+				distance = vertexAtClumpNormal - hairVertices[ i ];
+			}
+			else // Make sure we don't travel behind the original point
+			{
+				distance = hairVertices[ i ] - verticesInfo[ i ].mOriginalPosition;
+			}
 			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * guide->mSegmentsAdditionalInfo[ i ].mFallOff : distance * aTask->mDx.x;
 			hairVertices[ i ] += d;
 		}
