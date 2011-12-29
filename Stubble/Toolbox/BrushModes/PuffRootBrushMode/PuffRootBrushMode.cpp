@@ -21,7 +21,11 @@ void PuffRootBrushMode::doBrush ( HairTask *aTask )
 		}
 
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		HairShape::HairComponents::SegmentsAdditionalInfo &verticesInfo = guide->mSegmentsAdditionalInfo; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
+
+		assert ( SEGMENT_COUNT == verticesInfo.size() );
+
 		const Real START_BOOST = SEGMENT_COUNT / 2;
 
 		// Loop through all guide segments except the first one
@@ -37,8 +41,15 @@ void PuffRootBrushMode::doBrush ( HairTask *aTask )
 				continue;
 			}
 			vertexAtNormal.set(0.0, 0.0, i * segmentLength);
-			distance = vertexAtNormal - hairVertices[ i ];
-			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * guide->mSegmentsAdditionalInfo[ i ].mFallOff : distance * aTask->mDx.x;
+			if ( aTask->mDx.x > 0.0 ) // Determine direction - toward normal or original position?
+			{
+				distance = vertexAtNormal - hairVertices[ i ];
+			}
+			else // Make sure we don't travel behind the original point
+			{
+				distance = hairVertices[ i ] - verticesInfo[ i ].mOriginalPosition;
+			}
+			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * verticesInfo[ i ].mFallOff : distance * aTask->mDx.x;
 			boost = START_BOOST / ((i + 1) * (i + 1));
 			d *= boost;
 			hairVertices[ i ] += d;

@@ -29,7 +29,6 @@ void PuffEndBrushMode::doBrush ( HairTask *aTask )
 		// Loop through all guide segments except the first one
 		Real segmentLength = guide->mGuideSegments.mSegmentLength;
 		Vector3D< Real > vertexAtNormal; // Vertex position on the surface normal
-		Vector3D< Real > dir; // Direction from the original position
 		Vector3D< Real > distance; // Remaining distance from the current position.
 		Vector3D< Real > d; // Increment
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
