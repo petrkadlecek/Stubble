@@ -433,7 +433,7 @@ inline void HairTaskProcessor::computeInterpenetrationConstraints(RealN &aC, Hai
 			continue;
 		}
 		e = aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ];
-		aC[ aOffset + j ] = Vec3::dotProduct(e, e) + EPSILON;
+		aC[ aOffset + j ] = Vec3::dotProduct(e, e);
 		++j;
 	}
 }
@@ -453,11 +453,11 @@ inline void HairTaskProcessor::computeInterpenetrationGradient(RealNxN &aNC, Rea
 			continue;
 		}
 		e = (aVerticesInfo[ i ].mClosestPointOnMesh - aHairVertices[ i ]) * 2.0;
-		aNC[ aConstrOffset + j ][ 3*(i - 1) ] = -e.x + EPSILON;
+		aNC[ aConstrOffset + j ][ 3*(i - 1) ] = -e.x;
 		aDelta[ 3*(i - 1) ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) ];
-		aNC[ aConstrOffset + j ][ 3*(i - 1) + 1 ] = -e.y + EPSILON;
+		aNC[ aConstrOffset + j ][ 3*(i - 1) + 1 ] = -e.y;
 		aDelta[ 3*(i - 1) + 1 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) + 1 ];
-		aNC[ aConstrOffset + j ][ 3*(i - 1) + 2 ] = -e.z + EPSILON;
+		aNC[ aConstrOffset + j ][ 3*(i - 1) + 2 ] = -e.z;
 		aDelta[ 3*(i - 1) + 2 ][ aConstrOffset + j ] = aNC[ aConstrOffset + j ][ 3*(i - 1) + 2 ];
 		++j;
 	}
