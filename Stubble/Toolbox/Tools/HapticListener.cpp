@@ -14,6 +14,9 @@
 #include <maya/MQuaternion.h>
 #include <maya/MMatrix.h>
 
+#include <maya\MMeshIntersector.h>
+#include <maya\MFloatPointArray.h>
+
 namespace Stubble
 {
 
@@ -167,6 +170,44 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// this makes a copy of the current openGL settings so that anything
 	// we change will not affect anything else maya draws afterwards.
 	glPushAttrib( GL_CURRENT_BIT );
+
+	// collision detection
+	if (HairShape::HairShape::getActiveObject() != NULL)
+	{
+		MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
+		MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
+
+		MFloatPoint startP( hapticProxyPos );
+		MFloatVector dir( 0, 1 , 0 );
+
+		MFloatPointArray hitPoints;
+
+		// TODO 100!
+		bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 100, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
+
+		// clearing additional information
+		bool curentPointInsideMesh = hitPoints.length() % 2;
+
+		if(curentPointInsideMesh)
+		{
+			MVector collisionVector ( mHapticProxyEyeSpacePosNotCollidingLast - hapticDeviceLastPos * workspaceLength );
+			HapticSettingsTool::setCollisionVector( collisionVector );
+
+			glBegin(GL_LINES);
+				glColor3f( 1.0f, 1.0f, 1.0f );
+				glVertex3f( mHapticProxyPosNotCollidingLast.x, mHapticProxyPosNotCollidingLast.y, mHapticProxyPosNotCollidingLast.z );
+				glColor3f( 1.0f, 0.0f, 0.0f );
+				glVertex3f( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
+			glEnd();
+		}
+		else
+		{
+			MVector zero( 0, 0, 0 );
+			HapticSettingsTool::setCollisionVector( zero );
+			mHapticProxyEyeSpacePosNotCollidingLast = hapticDeviceLastPos * workspaceLength;
+			mHapticProxyPosNotCollidingLast = hapticProxyPos;
+		}
+	}
 	
 	glColor3f( 0.5f, 0.5f, 0.5f );
 
@@ -231,8 +272,8 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		else if ( hapticButton1State == true && mHapticButton1Last == true )
 		{
 			HapticSettingsTool::setSpringDamper();
-			HapticListener::sTool->doHapticRelease();
-			HapticListener::sTool->doHapticPress();
+			//HapticListener::sTool->doHapticRelease();
+			//HapticListener::sTool->doHapticPress();
 
 			// call haptic drag event
 			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast );

@@ -96,6 +96,7 @@ MStatus	HapticSettingsToolCommand::appendSyntax()
 	return MS::kSuccess;
 }
 
+MVector colVector; // TODO
 
 //----------------------------------------------------------------------------------------------------
 // HapticSettingsTool
@@ -113,6 +114,10 @@ HapticSettingsTool::HapticSettingsTool()
 	HapticSettingsTool::sDeviceAvailable = false;
 
 	HapticSettingsTool::sSpringDamperSet = false;
+
+	colVector.x = 0;
+	colVector.y = 0;
+	colVector.z = 0;
 }
 
 HapticSettingsTool::~HapticSettingsTool()
@@ -123,6 +128,11 @@ HapticSettingsTool::~HapticSettingsTool()
 	{
 		HapticSettingsTool::sHapticDevice->close();
 	}
+}
+
+void HapticSettingsTool::setCollisionVector( MVector &aCollisionVector )
+{
+	colVector = aCollisionVector;
 }
 
 void HapticSettingsTool::setSpringDamper()
@@ -274,6 +284,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		HapticSettingsTool::sLastPosition.y = newPosition.z;
 		HapticSettingsTool::sLastPosition.z = newPosition.x;
 
+		/*
 		if ( HapticSettingsTool::sSpringDamperSet )
 		{
 			// compute force in robotic coord system
@@ -286,7 +297,13 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		else
 		{
 			force.zero();
-		}
+		}*/
+
+		force.x = 0.3 * colVector.z;
+		force.y = 0.3 * colVector.x;
+		force.z = 0.3 * colVector.y;
+
+
 		HapticSettingsTool::sHapticDevice->setForce( force );
 
 		// handle rotation matrix

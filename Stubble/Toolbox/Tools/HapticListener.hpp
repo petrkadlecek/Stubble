@@ -6,6 +6,7 @@
 #include <maya/MMatrix.h>
 #include <maya/MVector.h>
 
+#include "Common/CommonTypes.hpp"
 #include "../../Primitives/Vector3D.hpp"
 
 #include <GL/glut.h>
@@ -68,6 +69,12 @@ namespace Toolbox
 
 		/// last haptic proxy position
 		MVector mHapticProxyPosLast;
+
+		/// last haptic not colliding proxy position
+		MVector mHapticProxyPosNotCollidingLast;
+
+		/// last haptic not colliding eye space proxy position
+		MVector mHapticProxyEyeSpacePosNotCollidingLast;
 
 		/// last haptic proxy rotation vector
 		MVector mHapticProxyRotLast;
