@@ -334,8 +334,7 @@ void BrushTool::doHapticRelease()
 {
 	// Makes sure that no computations in the worker thread are done beyond this point to prevent
 	// horrible crashes due to changes in shared resources (affected guides etc.)
-	HairTaskProcessor::getInstance()->purgeAccumulator();
-	HairTaskProcessor::waitFinishWorkerThread();
+	HairTaskProcessor::stopWorkerThread();
 
 	// Put the change into the undo stack
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();

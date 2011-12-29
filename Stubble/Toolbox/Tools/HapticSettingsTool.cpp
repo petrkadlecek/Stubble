@@ -260,7 +260,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 			refreshNeeded = true;
 		}
 
-		if ( 
+		if (
 			HapticSettingsTool::sHapticButton1 != HapticSettingsTool::sHapticButton1Last || 
 			HapticSettingsTool::sHapticButton2 != HapticSettingsTool::sHapticButton2Last 
 		)
@@ -277,7 +277,8 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		if ( HapticSettingsTool::sSpringDamperSet )
 		{
 			// compute force in robotic coord system
-			MVector forceVector = 10.0 * ( HapticSettingsTool::sSpringDamper - (HapticSettingsTool::sLastPosition / sWorkspaceRadius) );
+			MVector forceVector = 2.0 * ( HapticSettingsTool::sSpringDamper / HapticSettingsTool::sWorkspaceRadius - HapticSettingsTool::sLastPosition / HapticSettingsTool::sWorkspaceRadius );
+
 			force.x = forceVector.z;
 			force.y = forceVector.x;
 			force.z = forceVector.y;

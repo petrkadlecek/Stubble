@@ -230,6 +230,10 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		}
 		else if ( hapticButton1State == true && mHapticButton1Last == true )
 		{
+			HapticSettingsTool::setSpringDamper();
+			HapticListener::sTool->doHapticRelease();
+			HapticListener::sTool->doHapticPress();
+
 			// call haptic drag event
 			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast );
 		}
@@ -251,16 +255,16 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 			MPoint newEyePoint = cameraEyePoint;
 
 			const MVector up( 0, 1, 0 );
-			MVector viewDir( mHapticProxyPosLast - newEyePoint );
+			MVector viewDir( hapticProxyPos - newEyePoint );
 			const MVector right( viewDir^up );
 
 			MQuaternion qY( -dragVector.y * 0.05, right );
 			MQuaternion qX( dragVector.x * 0.05, up );
 			viewDir = viewDir.rotateBy( qX * qY );
 
-			viewDir -= viewDir * dragVector.z * 0.01;
+			viewDir -= viewDir * dragVector.z * 0.02;
 
-			newEyePoint = mHapticProxyPosLast - viewDir;
+			newEyePoint = hapticProxyPos - viewDir;
 
 			MVector rightVector = viewDir^up;
 			MVector upVector = rightVector^viewDir;
@@ -289,14 +293,19 @@ bool HapticListener::isBounded() const
 
 MBoundingBox HapticListener::boundingBox() const
 {
+	MDagPath cameraPath;
+	M3dView::active3dView().getCamera( cameraPath );
+	MFnCamera cam( cameraPath );
+	MVector camEye( cam.eyePoint( MSpace::kWorld ) );
+
 	MBoundingBox bbox;
 
-	bbox.expand( MPoint( -0.5f, 0.0f, -0.5f ) );
-	bbox.expand( MPoint(  0.5f, 0.0f, -0.5f ) );
-	bbox.expand( MPoint(  0.5f, 0.0f,  0.5f ) );
-	bbox.expand( MPoint( -0.5f, 0.0f,  0.5f ) );
-	bbox.expand( MPoint(  0.0f,-0.5f,  0.0f ) );
-	bbox.expand( MPoint(  0.0f, 0.5f,  0.0f ) );
+	bbox.expand( MPoint( -0.5f, 0.0f, -0.5f ) + camEye );
+	bbox.expand( MPoint(  0.5f, 0.0f, -0.5f ) + camEye );
+	bbox.expand( MPoint(  0.5f, 0.0f,  0.5f ) + camEye );
+	bbox.expand( MPoint( -0.5f, 0.0f,  0.5f ) + camEye );
+	bbox.expand( MPoint(  0.0f,-0.5f,  0.0f ) + camEye );
+	bbox.expand( MPoint(  0.0f, 0.5f,  0.0f ) + camEye );
 
 	return bbox;
 }
