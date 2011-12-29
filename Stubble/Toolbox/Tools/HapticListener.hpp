@@ -8,6 +8,8 @@
 
 #include "../../Primitives/Vector3D.hpp"
 
+#include <GL/glut.h>
+
 namespace Stubble
 {
 
@@ -78,6 +80,9 @@ namespace Toolbox
 
 		/// compute vector[4] matrix[4][4] multiplication
 		inline void VectorMatrixMul4f(float pVector[4], float pMat[16]);
+
+		/// GLU quadric object
+		GLUquadric *mGlu;
 	};
 
 } // namespace Toolbox

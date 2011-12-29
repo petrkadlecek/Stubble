@@ -2,7 +2,6 @@
 #include "HapticSettingsTool.hpp"
 #include "../../HairShape/UserInterface/HairShape.hpp"
 
-#include <GL/glut.h>
 #include <iomanip>
 
 #include <maya/MPxSelectionContext.h>
@@ -39,6 +38,12 @@ HapticListener::HapticListener()
 	mHapticProxyRotLast.x = 1.0;
 	mHapticProxyRotLast.y = 0.0;
 	mHapticProxyRotLast.z = 0.0;
+
+	// prepare quadric
+	
+	mGlu = gluNewQuadric();
+	gluQuadricDrawStyle( mGlu, GLU_FILL );
+	gluQuadricNormals( mGlu, GLU_SMOOTH );
 }
 
 HapticListener::~HapticListener() {}
@@ -59,14 +64,12 @@ void HapticListener::VectorMatrixMul4f(float pVector[4], float pMat[16])
 	pVector[3] = pMat[3]*pVector2[0] + pMat[7]*pVector2[1] + pMat[11]*pVector2[2] + pMat[15]*pVector2[3] ;
 }
 
-GLUquadric *ql = gluNewQuadric(); // put this into the class
-
 void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::DisplayStyle style, M3dView::DisplayStatus status )
 {
 	// get current haptic switch state
 	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
 	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
-	bool simulate5DOF = true;
+	bool simulate5DOF = false;
 	bool enabled5DOFsim = hapticButton1State && simulate5DOF;
 
 	// get current camera
@@ -96,7 +99,9 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyEyeSpacePos.z = -workspaceLength * ( -1.0 + hapticProxyEyeSpacePos.z );
 
 	MVector hapticProxyPos( 0, 0, 0 );
-	if ( !enabled5DOFsim )
+
+	// do not set proxy position when simulating 5-DOF or moving camera
+	if ( !enabled5DOFsim && !( hapticButton1State && HapticListener::sTool == NULL) )
 	{
 		hapticProxyPos = cameraEyePoint;
 		hapticProxyPos += camera.rightDirection( MSpace::kWorld ) * hapticProxyEyeSpacePos.x;
@@ -156,11 +161,6 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	hapticProxyRot = camAxis;
 	hapticProxyRotAngle = camTheta * 180.0 / CHAI_PI;
 
-
-	// prepare Quadrics
-	gluQuadricDrawStyle( ql, GLU_FILL );
-	gluQuadricNormals( ql, GLU_SMOOTH );
-
 	// think glPushMatrix()
 	view.beginGL();
 	
@@ -202,7 +202,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	glPushMatrix();
 	{
 		glTranslatef( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
-		gluSphere( ql, 0.2, 8, 8 );
+		gluSphere( mGlu, 0.2, 8, 8 );
 
 	}
 	glPopMatrix();
@@ -222,14 +222,23 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		// call tool haptic events
 		if ( hapticButton1State == true && mHapticButton1Last == false )
 		{
+			// set spring damper to generate force
+			HapticSettingsTool::setSpringDamper();
+
+			// call haptic press event
 			HapticListener::sTool->doHapticPress();
 		}
 		else if ( hapticButton1State == true && mHapticButton1Last == true )
 		{
+			// call haptic drag event
 			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast );
 		}
 		else if ( hapticButton1State == false && mHapticButton1Last == true )
 		{
+			// unset spring damper
+			HapticSettingsTool::unsetSpringDamper();
+
+			// call haptic release event
 			HapticListener::sTool->doHapticRelease();
 		}
 	}
@@ -237,26 +246,32 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	{
 		if ( hapticButton1State == true ) 
 		{
-			
+			// use three degrees of freedom to move camera around proxy position
 			MVector dragVector = hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast;
 			MPoint newEyePoint = cameraEyePoint;
 
-			/*
-			MPoint r1(activeObjectCenter);
-			MPoint r2(cameraEyePoint);
-			r1.y = 0; 
-			r2.y = 0;
-			float radius = r1.distanceTo(r2);
-			
-			newEyePoint.x = activeObjectCenter.x + cos(hapticProxyEyeSpacePos.x) * radius;
-			newEyePoint.z = activeObjectCenter.z + sin(hapticProxyEyeSpacePos.x) * radius;
-			*/
+			const MVector up( 0, 1, 0 );
+			MVector viewDir( mHapticProxyPosLast - newEyePoint );
+			const MVector right( viewDir^up );
 
-			MVector viewDir( newEyePoint - activeObjectCenter );
-			MVector up( 0, 1, 0 );
-			
+			MQuaternion qY( -dragVector.y * 0.05, right );
+			MQuaternion qX( dragVector.x * 0.05, up );
+			viewDir = viewDir.rotateBy( qX * qY );
 
-			camera.set( newEyePoint, viewDir, camera.upDirection(MSpace::kWorld), camera.horizontalFieldOfView(), camera.aspectRatio() );
+			viewDir -= viewDir * dragVector.z * 0.01;
+
+			newEyePoint = mHapticProxyPosLast - viewDir;
+
+			MVector rightVector = viewDir^up;
+			MVector upVector = rightVector^viewDir;
+
+			float angle = upVector.angle( up );
+
+			// do not get beyond PI/2
+			if ( angle < CHAI_PI / 2.1 && angle > -CHAI_PI / 2.1 )
+			{
+				camera.set( newEyePoint, viewDir, upVector, camera.horizontalFieldOfView(), camera.aspectRatio() );
+			}
 		}
 	}
 
@@ -275,7 +290,6 @@ bool HapticListener::isBounded() const
 MBoundingBox HapticListener::boundingBox() const
 {
 	MBoundingBox bbox;
-	// TODO SET RADIUS
 
 	bbox.expand( MPoint( -0.5f, 0.0f, -0.5f ) );
 	bbox.expand( MPoint(  0.5f, 0.0f, -0.5f ) );
@@ -291,8 +305,6 @@ void HapticListener::setTool( GenericTool *aOwner )
 {
 	HapticListener::sTool = aOwner;
 }
-
-// TODO unsetTool
 
 void* HapticListener::creator()
 {
@@ -311,3 +323,4 @@ MStatus HapticListener::initialize()
 } // namespace Toolbox
 
 } // namespace Stubble
+

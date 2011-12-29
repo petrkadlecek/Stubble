@@ -21,6 +21,8 @@ bool HapticSettingsTool::sHapticButton2;
 bool HapticSettingsTool::sHapticButton1Last;
 bool HapticSettingsTool::sHapticButton2Last;
 bool HapticSettingsTool::sDeviceAvailable;
+MVector HapticSettingsTool::sSpringDamper;
+bool HapticSettingsTool::sSpringDamperSet;
 
 //----------------------------------------------------------------------------------------------------
 // HapticSettingsToolCommand
@@ -50,6 +52,8 @@ void* HapticSettingsToolCommand::creator()
 HapticSettingsToolCommand::HapticSettingsToolCommand()
 {
 	mCurrentObject = NULL;
+	HapticSettingsTool::sHapticButton1 = false;
+	HapticSettingsTool::sHapticButton2 = false;
 }
 
 HapticSettingsToolCommand::~HapticSettingsToolCommand()
@@ -107,16 +111,29 @@ HapticSettingsTool::HapticSettingsTool()
 	HapticSettingsTool::sHandler = NULL;
 	HapticSettingsTool::sHapticDevice = NULL;
 	HapticSettingsTool::sDeviceAvailable = false;
+
+	HapticSettingsTool::sSpringDamperSet = false;
 }
 
 HapticSettingsTool::~HapticSettingsTool()
 {
 	HapticSettingsTool::sHapticThreadRunning = false;
 
-	if (HapticSettingsTool::sHapticDevice != NULL)
+	if ( HapticSettingsTool::sHapticDevice != NULL )
 	{
 		HapticSettingsTool::sHapticDevice->close();
 	}
+}
+
+void HapticSettingsTool::setSpringDamper()
+{
+	HapticSettingsTool::sSpringDamper = HapticSettingsTool::sLastPosition;
+	HapticSettingsTool::sSpringDamperSet = true;
+}
+
+void HapticSettingsTool::unsetSpringDamper()
+{
+	HapticSettingsTool::sSpringDamperSet = false;
 }
 
 MVector HapticSettingsTool::getLastPosition()
@@ -210,10 +227,10 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	static cVector3d newRotationVector;
 	static double newRotationAngle;
 	static cVector3d force;
-	static double minMovementEps = std::numeric_limits<double>::epsilon();
 	force.zero();
+	static double minMovementEps = std::numeric_limits<double>::epsilon();
 
-	int sleepTime = 10; // TODO
+	int sleepTime = 10;
 	int noRefreshPass = 100;
 	bool refreshNeeded = true;
 
@@ -229,7 +246,6 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	{
 		HapticSettingsTool::sHapticDevice->getPosition( newPosition );
 		HapticSettingsTool::sHapticDevice->getRotation( newRotation );
-		HapticSettingsTool::sHapticDevice->setForce( force );
 		HapticSettingsTool::sHapticDevice->getUserSwitch( 0, HapticSettingsTool::sHapticButton1 );
 		HapticSettingsTool::sHapticDevice->getUserSwitch( 1, HapticSettingsTool::sHapticButton2 );
 		
@@ -258,6 +274,20 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		HapticSettingsTool::sLastPosition.y = newPosition.z;
 		HapticSettingsTool::sLastPosition.z = newPosition.x;
 
+		if ( HapticSettingsTool::sSpringDamperSet )
+		{
+			// compute force in robotic coord system
+			MVector forceVector = HapticSettingsTool::sSpringDamper - (HapticSettingsTool::sLastPosition / sWorkspaceRadius);
+			force.x = forceVector.z;
+			force.y = forceVector.x;
+			force.z = forceVector.y;
+		}
+		else
+		{
+			force.zero();
+		}
+		HapticSettingsTool::sHapticDevice->setForce( force );
+
 		// handle rotation matrix
 		newRotation.toAngleAxis(newRotationAngle, newRotationVector);
 		HapticSettingsTool::sLastRotation.x = newRotationVector.x;
@@ -277,8 +307,6 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 			refreshNeeded = false;
 			noRefreshPass = 100;
 		}
-
-		//std::cout << "HapticSettingsTool::AsyncHapticLoop " <<  newPosition << std::endl;
 
 		Sleep( sleepTime + 1 );
 	}

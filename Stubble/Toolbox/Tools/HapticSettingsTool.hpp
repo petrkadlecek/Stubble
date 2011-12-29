@@ -61,6 +61,16 @@ public:
 	virtual void toolOnSetup( MEvent &event );
 
 	///----------------------------------------------------------------------------------------------------
+	/// Haptic Tool spring damper position setter for force calculation
+	///----------------------------------------------------------------------------------------------------
+	static void setSpringDamper();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Haptic Tool spring damper position unsetter for force calculation
+	///----------------------------------------------------------------------------------------------------
+	static void unsetSpringDamper();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Haptic Tool position getter
 	///----------------------------------------------------------------------------------------------------
 	static MVector getLastPosition();
@@ -132,6 +142,10 @@ private:
 	MString mHapticDeviceStr; ///< haptic device string identifier
 
 	static bool sHapticThreadRunning; ///< haptic thread running flag
+
+	static MVector sSpringDamper;  ///< spring damper force vector
+
+	static bool sSpringDamperSet;  ///< spring damper force vector set flag
 
 	static MVector sLastPosition;  ///< last position of haptic device
 

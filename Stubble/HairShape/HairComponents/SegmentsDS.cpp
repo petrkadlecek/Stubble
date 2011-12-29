@@ -505,7 +505,7 @@ void SegmentsDS::select( Stubble::Toolbox::CylinderToolShape *aSelectionMask, Se
 	// compute direction vector of cylinder
 	MVector direction( 0, 0, 1 );
 	direction = direction.rotateBy( quatDir );
-	direction *= aSelectionMask->getRadius();
+	direction *= aSelectionMask->getRadius() * 5;
 
 	// prepare structures for cylinder - point test
 	MVector pt1;
