@@ -10,6 +10,8 @@ namespace Toolbox
 
 typedef std::numeric_limits< Real > RealLim;
 
+const Real ScaleBrushMode::SCALE_SENSITIVITY = 0.25;
+
 void ScaleBrushMode::doBrush ( HairTask *aTask )
 {
 	// Loop through all guides

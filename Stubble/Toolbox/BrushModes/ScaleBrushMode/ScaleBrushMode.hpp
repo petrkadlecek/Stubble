@@ -37,11 +37,13 @@ private:
 	/// \return New segment length
 	///----------------------------------------------------------------------------------------------------
 	inline double getNewSegmentLength ( Real aMeasure, Real aLength );
+
+	static const Real SCALE_SENSITIVITY; ///< To damp too sensitive brush
 };
 
 inline double ScaleBrushMode::getNewSegmentLength ( Real aMeasure, Real aLength )
 {
-	Real length = aLength + aMeasure /* aLength*/;
+	Real length = aLength + aMeasure * ScaleBrushMode::SCALE_SENSITIVITY;
 	return (length < 0.0) ? 0.0 : length;
 }
 
