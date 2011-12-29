@@ -437,7 +437,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 				}
 			}
 			// First check, if they are not on the same position
-			if ( first->mDistance < EPSILON )
+			if ( first->mDistance < EPSILON || guidesIds.size() == 1 )
 			{
 				// Just copy
 				guide =  aOldSegments.mSegments[ first->mGuideId ];

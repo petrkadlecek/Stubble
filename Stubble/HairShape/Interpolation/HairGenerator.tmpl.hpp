@@ -347,7 +347,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 	}
 	// Too close to some guide
-	if ( closest->mDistance < static_cast< float >( EPSILON ) )
+	if ( closest->mDistance < static_cast< float >( EPSILON ) || guidesIds.size() == 1 )
 	{
 		// Guide segment points iterator
 		HairComponents::Segments::const_iterator segIt = mHairProperties->getGuidesSegments()
@@ -959,7 +959,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		}
 		else
 		{
-			// Excpand bounding box by only 3 first of four control point of coresponding bezier curve :
+			// Expand bounding box by only 3 first of four control point of coresponding bezier curve :
 			aBoundingBox.expand( Vector3D< Real >( *aPoints ) );
 			aBoundingBox.expand( Vector3D< Real >( *aPoints + ( aPoints[ 1 ] - aPoints[ -1 ] ) * ( 1.0f / 6 ) ) );
 			aBoundingBox.expand( Vector3D< Real >( aPoints[ 1 ] + ( *aPoints - aPoints[ 2 ] ) * ( 1.0f / 6 ) ) );
