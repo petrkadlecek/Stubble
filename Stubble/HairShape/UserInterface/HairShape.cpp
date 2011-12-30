@@ -56,6 +56,8 @@ MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::serializedDataAttr;
 MObject HairShape::operationCountAttr;
 
+HairShape::HairShapeNodes HairShape::mHairShapeNodes;  ///< The hair shape nodes
+
 // Callback ids
 MCallbackIdArray HairShape::mCallbackIds;
 
@@ -77,8 +79,11 @@ HairShape::HairShape():
 	mDisplayInterpolated( false ),
 	mIsCurrentlySelected( false ),
 	mIsSelectionModified( false ),
-	mDelayedCallbackId( -1 )
+	mDelayedCallbackId( -1 ),
+	mIsNew( true ),
+	mLateLoad( false)
 {
+	mHairShapeNodes.insert( this );
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
 	// Sets active object
@@ -94,6 +99,7 @@ void HairShape::postConstructor()
 
 HairShape::~HairShape()
 {
+	mHairShapeNodes.erase( this );
 	delayedSetInternalValueInContext( -1, -1, this );  // process final delayed callback
 	delete mUVPointGenerator;
 	delete mMayaMesh;
@@ -747,26 +753,48 @@ bool HairShape::match(	const MSelectionMask & aMask, const MObjectArray& aCompon
 
 // serialization callbacks
 
+void HairShape::saveAllHairShapes()
+{
+	for ( HairShapeNodes::iterator it = mHairShapeNodes.begin(); it != mHairShapeNodes.end(); ++it )
+	{
+		MObject thisNode = ( *it )->asMObject();	
+		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
+		dataPlug.setString( ( *it )->serialize().c_str() );
+		( *it )->mIsNew = false;
+	}
+}
+
+void HairShape::loadAllHairShapes()
+{
+	for ( HairShapeNodes::iterator it = mHairShapeNodes.begin(); it != mHairShapeNodes.end(); ++it )
+	{
+		MObject thisNode = ( *it )->asMObject();	
+		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
+		if ( ( *it )->mIsNew && dataPlug.asString().length() > 0 )
+		{
+			( *it )->mIsNew = false;
+			if ( ( *it )->mMayaMesh != 0 )
+			{
+				( *it )->deserialize( dataPlug.asString().asChar() );
+				dataPlug.setString("");
+			}
+			else
+			{
+				( *it )->mLateLoad = true;
+			}
+		}
+	}
+}
+
+
 static void saveSceneCallback( void * )
 {	
-	HairShape *hairShape = 0;
-	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
-	{	
-		MObject thisNode = hairShape->asMObject();	
-		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
-		dataPlug.setString( hairShape->serialize().c_str() );
-	}		
+	HairShape::saveAllHairShapes();
 }
 
 static void loadSceneCallback( void * )
 {
-	HairShape *hairShape = 0;
-	if ( ( hairShape = HairShape::getActiveObject() ) != 0 )
-	{
-		MObject thisNode = hairShape->asMObject();	
-		MPlug dataPlug( thisNode, HairShape::serializedDataAttr );
-		hairShape->deserialize( dataPlug.asString().asChar() );
-	}
+	HairShape::loadAllHairShapes();
 }
 
 MStatus HairShape::initialize()
@@ -1084,6 +1112,15 @@ void HairShape::meshChange( MObject aMeshObj )
 			*mMayaMesh,
 			MayaHairProperties::getInterpolationGroups(),
 			mGuidesHairCount, getScaleFactor() );
+
+		// Load was delayed before all has been initialized ?
+		if ( mLateLoad )
+		{
+			MPlug dataPlug( asMObject(), HairShape::serializedDataAttr );
+			deserialize( dataPlug.asString().asChar() );
+			dataPlug.setString("");
+			mLateLoad = false;
+		}
 		mHairGuides->setCurrentTime( mTime );
 		refreshPointersToGuidesForInterpolation();
 

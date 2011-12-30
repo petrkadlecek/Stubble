@@ -14,6 +14,7 @@
 #include <maya/MStatus.h>
 
 #include <ostream>
+#include <set>
 
 namespace Stubble
 {
@@ -409,6 +410,16 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	inline void setVoxelsResolution(Dimensions3 aNewVoxelsResolution, Dimensions3 & aOldVoxelsResolution);
 
+	///-------------------------------------------------------------------------------------------------
+	/// Saves all hair shapes. 
+	///-------------------------------------------------------------------------------------------------
+	static void saveAllHairShapes();
+
+	///-------------------------------------------------------------------------------------------------
+	/// Loads all hair shapes. 
+	///-------------------------------------------------------------------------------------------------
+	static void loadAllHairShapes();
+
 private:
 	
 	friend class HairShapeUI;
@@ -501,6 +512,9 @@ private:
 	bool					setValue( int pntInd, int vlInd, double val );
 	bool					setValue( int pntInd, const MPoint & val );
 
+	bool mIsNew;   ///< Is the object just created, not loaded
+
+	bool mLateLoad; ///< True, if we should load after the creation of mesh/guides..
 
 	// Inner objects 
 
@@ -556,6 +570,13 @@ private:
 	// Active hair shape object
 
 	static HairShape * mActiveHairShapeNode;   ///< The active node
+
+	///-------------------------------------------------------------------------------------------------
+	/// Defines an alias representing the hair shape nodes .
+	///-------------------------------------------------------------------------------------------------
+	typedef std::set< HairShape * > HairShapeNodes;
+
+	static HairShapeNodes mHairShapeNodes;  ///< The hair shape nodes
 };
 
 // inline functions implementation
