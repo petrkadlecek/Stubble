@@ -54,15 +54,31 @@ MayaMesh::MayaMesh(MObject & aMesh, const MString & aUVSet):
 			{
 				// Select texture coordinates
 				float2 uv;
-				iter.getUV( localVerticesIndices[ trianglePointsIndices[ j ] ], uv, &aUVSet );
+				if ( !iter.getUV( localVerticesIndices[ trianglePointsIndices[ j ] ], uv, &aUVSet ) )
+				{
+					uv[ 0 ] = 0;
+					uv[ 1 ] = 0;
+				}
+
 				// Select normal
 				MVector normal;
-				iter.getNormal( localVerticesIndices[ trianglePointsIndices[ j ] ], normal, MSpace::kWorld );
+				if ( !iter.getNormal( localVerticesIndices[ trianglePointsIndices[ j ] ], normal, MSpace::kWorld ) )
+				{
+					normal = ( trianglePoints[ 1 ] - trianglePoints[ 0 ] )^( trianglePoints[ 2 ] - trianglePoints[ 0 ] );
+				}
 				// Select tangent
 				MVector tangent;
-				fnMesh.getFaceVertexTangent( polygonID, trianglePointsIndices[ j ], tangent, MSpace::kWorld, &aUVSet );
-				iter.getNormal( localVerticesIndices[ trianglePointsIndices[ j ] ], normal, MSpace::kWorld );
-
+				MStatus tangentOk = 
+					fnMesh.getFaceVertexTangent( polygonID, trianglePointsIndices[ j ], tangent, MSpace::kWorld, &aUVSet );
+				if ( !tangentOk )
+				{
+					switch( j )
+					{
+					case 0:tangent = trianglePoints[ 1 ] - trianglePoints[ 0 ];break;
+					case 1:tangent = trianglePoints[ 2 ] - trianglePoints[ 1 ];break;
+					case 2:tangent = trianglePoints[ 2 ] - trianglePoints[ 0 ];break;
+					}
+				}
 				triangleMeshPoints[j] = MeshPoint( Vector3D<Real> ( trianglePoints [ j ] ), // Position
 					Vector3D< Real > ( normal ), // Normal
 					Vector3D< Real > ( tangent ), // Tangent
@@ -106,26 +122,45 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	indices[ 2 ] = vertices[ triangle.getLocalVertex3() ];
 
 	// Calculate position of point
-	MPoint point, tmpPoint;
-	mMayaMesh->getPoint( indices[ 0 ], point, MSpace::kWorld );
-	mMayaMesh->getPoint( indices[ 1 ], tmpPoint, MSpace::kWorld );
-	point = point * u + tmpPoint * v;
-	mMayaMesh->getPoint( indices[ 2 ], tmpPoint, MSpace::kWorld );
-	point += tmpPoint * w;
+	MPoint tmpPoint[ 3 ];
+	MPoint point;
+	mMayaMesh->getPoint( indices[ 0 ], tmpPoint[ 0 ], MSpace::kWorld );
+	mMayaMesh->getPoint( indices[ 1 ], tmpPoint[ 1 ], MSpace::kWorld );
+	mMayaMesh->getPoint( indices[ 2 ], tmpPoint[ 2 ], MSpace::kWorld );
+	point = tmpPoint[ 0 ] * u + tmpPoint[ 1 ] * v;
+	point += tmpPoint[ 2 ] * w;
 
 	// Calculate normal
 	MVector normal1, normal2, normal3;
-	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normal1, MSpace::kWorld );
-	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 1 ], normal2, MSpace::kWorld );
-	mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 2 ], normal3, MSpace::kWorld );
+	if ( !mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 0 ], normal1, MSpace::kWorld ) )
+	{
+		normal1 = ( tmpPoint[ 1 ] - tmpPoint[ 0 ] )^( tmpPoint[ 2 ] - tmpPoint[ 0 ] );
+	}
+	if ( !mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 1 ], normal2, MSpace::kWorld ) )
+	{
+		normal2 = ( tmpPoint[ 1 ] - tmpPoint[ 0 ] )^( tmpPoint[ 2 ] - tmpPoint[ 0 ] );
+	}
+	if ( !mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ 2 ], normal3, MSpace::kWorld ) )
+	{
+		normal3 = ( tmpPoint[ 1 ] - tmpPoint[ 0 ] )^( tmpPoint[ 2 ] - tmpPoint[ 0 ] );
+	}
 	MVector normal = normal1 * u + normal2 * v + normal3 * w;
 	normal.normalize();
 
 	// Calculate tangent
 	MVector tangent1, tangent2, tangent3;
-	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, &mUVSet );
-	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, &mUVSet );
-	mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, &mUVSet );
+	if ( !mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 0 ], tangent1, MSpace::kWorld, &mUVSet ) )
+	{
+		tangent1 = tmpPoint[ 1 ] - tmpPoint[ 0 ];
+	}
+	if ( !mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 1 ], tangent2, MSpace::kWorld, &mUVSet ) )
+	{
+		tangent2 = tmpPoint[ 2 ] - tmpPoint[ 1 ];
+	}
+	if ( !mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ 2 ], tangent3, MSpace::kWorld, &mUVSet ) )
+	{
+		tangent3 = tmpPoint[ 2 ] - tmpPoint[ 0 ];
+	}
 	MVector tangent = tangent1 * u + tangent2 * v + tangent3 * w;
 
 	// Orthonormalize tangent to normal
@@ -135,13 +170,25 @@ MeshPoint MayaMesh::getMeshPoint( const UVPoint &aPoint ) const
 	// Calculate texture coordinates
 	double textU, textV;
 	float tmpU, tmpV;
-	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, &mUVSet);
+	if ( !mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex1(), tmpU, tmpV, &mUVSet) )
+	{
+		tmpU = 0;
+		tmpV = 0;
+	}
 	textU = tmpU * u;
 	textV = tmpV * u;
-	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, &mUVSet);
+	if ( !mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex2(), tmpU, tmpV, &mUVSet))
+	{
+		tmpU = 0;
+		tmpV = 0;
+	}
 	textU += tmpU * v;
 	textV += tmpV * v;
-	mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, &mUVSet);
+	if ( !mMayaMesh->getPolygonUV( triangle.getFaceID(), triangle.getLocalVertex3(), tmpU, tmpV, &mUVSet))
+	{
+		tmpU = 0;
+		tmpV = 0;
+	}
 	textU += tmpU * ( 1 - u - v );
 	textV += tmpV * ( 1 - u - v );
 
@@ -175,10 +222,27 @@ inline const Triangle MayaMesh::getTriangle( unsigned __int32 aID) const
 	for( unsigned __int32 i = 0; i < 3; ++i)
 	{
 		mMayaMesh->getPoint( indices[ i ], points [ i ], MSpace::kWorld );
-		mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ i ], normals[ i ], MSpace::kWorld );
-		mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ i ], tangents[ i ], MSpace::kWorld, &mUVSet );
-		mMayaMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet);
-
+	}
+	for( unsigned __int32 i = 0; i < 3; ++i)
+	{
+		if ( ! mMayaMesh->getFaceVertexNormal( triangle.getFaceID(), indices[ i ], normals[ i ], MSpace::kWorld ) )
+		{
+			normals[ i ] = ( points[ 1 ] - points[ 0 ] )^( points[ 2 ] - points[ 0 ] );
+		}
+		if ( !mMayaMesh->getFaceVertexTangent( triangle.getFaceID(), indices[ i ], tangents[ i ], MSpace::kWorld, &mUVSet ) )
+		{
+			switch( i )
+			{
+			case 0:tangents[ 0 ] = points[ 1 ] - points[ 0 ];break;
+			case 1:tangents[ 1 ] = points[ 2 ] - points[ 1 ];break;
+			case 2:tangents[ 2 ] = points[ 2 ] - points[ 0 ];break;
+			}
+		}
+		if ( !mMayaMesh->getPolygonUV( triangle.getFaceID(), local_indices[ i ], textU [ i ], textV [ i ], &mUVSet) )
+		{
+			textU[ i ] = 0;
+			textV[ i ] = 0;
+		}
 		meshPoints [ i ] = MeshPoint(Vector3D < Real > ( points[ i ] ), Vector3D < Real > ( normals[ i ] ),
 			Vector3D < Real > ( tangents[ i ] ), static_cast< Real >(textU[ i ]), static_cast < Real >(textV[ i ] ));
 	}
