@@ -176,7 +176,8 @@ void Texture::resample( unsigned __int32 aTextureUSamples, unsigned __int32 aTex
 	}
 	else
 	{
-		removeConnection();
+		delete [] mTexture;
+		init();
 	}
 }
 

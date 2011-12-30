@@ -155,17 +155,17 @@ inline void InterpolatedHair::generate( UVPointGenerator & aUVPointGenerator, co
 		mAllocatedHairCount = mAllocatedHairCount > MAX_HAIR_COUNT ? MAX_HAIR_COUNT : mAllocatedHairCount;
 		// Allocate memory for generated positions
 		mGeneratedPositions = new MayaPositionGenerator::GeneratedPosition[ mAllocatedHairCount ];
-		// Iterates over all positions
-		MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mAllocatedHairCount;
-		aUVPointGenerator.reset();
-		const Mesh & restPoseMesh = aCurrentMesh.getRestPose();
-		for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
-		{
-			it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos
-			// Calculate positions
-			it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
-			it->mRestPosition = restPoseMesh.getMeshPoint( it->mUVPoint );
-		}
+	}
+	aUVPointGenerator.reset();
+	const Mesh & restPoseMesh = aCurrentMesh.getRestPose();
+	// Iterates over all positions
+	MayaPositionGenerator::GeneratedPosition * endIteration = mGeneratedPositions + mAllocatedHairCount;
+	for ( MayaPositionGenerator::GeneratedPosition * it = mGeneratedPositions; it != endIteration; ++it )
+	{
+		it->mUVPoint = aUVPointGenerator.next(); // Generate uv pos
+		// Calculate positions
+		it->mCurrentPosition = aCurrentMesh.getMeshPoint( it->mUVPoint );
+		it->mRestPosition = restPoseMesh.getMeshPoint( it->mUVPoint );
 	}
 	// Copy new hair count
 	mHairCount = aCount;

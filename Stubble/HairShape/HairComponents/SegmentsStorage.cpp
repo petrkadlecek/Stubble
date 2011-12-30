@@ -406,7 +406,7 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 		// Now selected closest guides
 		ClosestGuides guidesIds;
 		aOldRestPositionsDS.getNClosestGuides( pos.mPosition.getPosition(), 
-			interpolationGroup, aNumberOfGuidesToInterpolateFrom, guidesIds );
+			interpolationGroup, aNumberOfGuidesToInterpolateFrom + 1, guidesIds );
 		if ( guidesIds.size() == 0 ) // No guides in this interpolation group
 		{
 			// Get segments count
@@ -444,8 +444,10 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 			}
 			else
 			{
+				// In next calculations, we will always ignore the farthest guide
 				// Bias distance with respect to farthest guide
-				for ( ClosestGuides::iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				for ( HairComponents::ClosestGuides::iterator guideIdIt = guidesIds.begin() + 1; 
+					guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					float & distance = guideIdIt->mDistance;
 					distance = sqrtf( distance );
@@ -453,14 +455,16 @@ void SegmentsStorage::InterpolateFrame( const FrameSegments & aOldSegments, cons
 					distance *= distance;
 				}
 				// Finaly calculate cumulated distance
-				Real cumulatedDistance = 0;
-				for ( ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				float cumulatedDistance = 0;
+				for ( HairComponents::ClosestGuides::const_iterator guideIdIt = guidesIds.begin() + 1; 
+					guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					cumulatedDistance += guideIdIt->mDistance;
 				}
-				Real inverseCumulatedDistance = 1.0 / cumulatedDistance;
+				float inverseCumulatedDistance = 1.0f / cumulatedDistance;
 				// For every old guide segments to interpolate from
-				for ( ClosestGuides::const_iterator guideIdIt = guidesIds.begin(); guideIdIt != guidesIds.end(); ++guideIdIt )
+				for ( HairComponents::ClosestGuides::const_iterator guideIdIt = guidesIds.begin() + 1; 
+					guideIdIt != guidesIds.end(); ++guideIdIt )
 				{
 					// Old segments iterator
 					Segments::const_iterator oldSegIt = aOldSegments.mSegments[ guideIdIt->mGuideId ].mSegments.begin();
