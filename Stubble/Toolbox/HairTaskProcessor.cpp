@@ -61,6 +61,23 @@ void HairTaskProcessor::stopWorkerThread ()
 
 void HairTaskProcessor::enqueueTask (HairTask *aTask)
 {
+	if(!sDetectedThreadCount)
+	{
+		sDetectedThreadCount = true;
+
+		// maximum number of threads that could be used by OpenMP
+		MString commandString = "intSliderGrp -e -maxValue ";
+		commandString += omp_get_max_threads();
+		commandString += " \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+
+		// setting max - 1 as a value
+		commandString = "intSliderGrp -e -value ";
+		commandString += max(1, omp_get_max_threads() - 1);
+		commandString += " \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+	}
+
 	// ------------------------------------
 	// Begin critical section
 	// ------------------------------------
@@ -335,23 +352,6 @@ void HairTaskProcessor::detectCollisions( HairShape::HairComponents::SelectedGui
 
 void HairTaskProcessor::enforceConstraints (HairShape::HairComponents::SelectedGuides &aSelectedGuides)
 {
-	if(!sDetectedThreadCount)
-	{
-		sDetectedThreadCount = true;
-
-		// maximum number of threads that could be used by OpenMP
-		MString commandString = "intSliderGrp -e -maxValue ";
-		commandString += omp_get_max_threads();
-		commandString += " \"stubbleNumberOfThreads\";";
-		MGlobal::executeCommand( commandString );
-
-		// setting max - 1 as a value
-		commandString = "intSliderGrp -e -value ";
-		commandString += max(1, omp_get_max_threads() - 1);
-		commandString += " \"stubbleNumberOfThreads\";";
-		MGlobal::executeCommand( commandString );
-	}
-
 	HairShape::HairComponents::SelectedGuides::iterator it;
 
 	#ifdef _OPENMP

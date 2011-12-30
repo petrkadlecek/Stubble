@@ -99,32 +99,6 @@ bool HairShapeUI::select( MSelectInfo &aSelectInfo, MSelectionList &aSelectionLi
 	componentSelected = selectVertices( aSelectInfo, aSelectionList, aWorldSpaceSelectPts );
 	selected = selected || componentSelected;
 	
-
-	if ( !selected ) {
-
-		HairShape* hairShape = (HairShape*) surfaceShape();
-
-		selected = true;
-		// Tell Maya that the object has been selected
-		MSelectionMask priorityMask( MSelectionMask::kSelectMeshes );
-		MSelectionList item;
-		item.add( aSelectInfo.selectPath() );
-
-		//MDagPath	dagPath;	// will hold a path to the selected object
-		//MObject		component;	// will hold a list of selected components
-    
-		MPoint xformedPt;
-		if ( aSelectInfo.singleSelection() ) {
-			MPoint center = hairShape->boundingBox().center();
-			xformedPt = center;
-			xformedPt *= aSelectInfo.selectPath().inclusiveMatrix();
-		}
-
-		aSelectInfo.addSelection( item, xformedPt, aSelectionList, aWorldSpaceSelectPts, priorityMask, false );
-
-		// Select hair guides	
-		// hairShape->mHairGuides->applySelection( aSelectInfo, aSelectionList, aWorldSpaceSelectPts );
-	}
     // let the shape know that its selected components list might have changed
 	HairShape* hairShape = ( HairShape* ) surfaceShape();
 	hairShape->setSelectionModified( componentSelected );                                                      
