@@ -43,17 +43,6 @@ private:
 	Matrix< Real > getRotationMatrix ( Real aMeasure, const Vector3D< Real > &aAxis );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Returns the rotation axis and position (in world coordinates) from a given viewport information.
-	///
-	/// \param aX Cursor x coordinate
-	/// \param aY Cursor y coordinate
-	/// \param aView Viewport information
-	/// \param[out] aAxis Axis of rotation
-	/// \param[out] aPosition Position of the camera (and the rotation)
-	///----------------------------------------------------------------------------------------------------
-	void getRotationAxis ( short aX, short aY, M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition );
-
-	///----------------------------------------------------------------------------------------------------
 	/// Calculates world coordinates translation matrices to be applied during arbitrary rotation.
 	///
 	/// \param aPosition Guide position (hair root)

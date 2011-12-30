@@ -7,12 +7,10 @@ namespace Stubble
 namespace Toolbox
 {
 
-const Real RotateBrushMode::ROTATION_SENSITIVITY = 0.3141592;
+const Real RotateBrushMode::ROTATION_SENSITIVITY = 0.1;
 
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
-	Vector3D< Real> axis, position; // Axis of rotation and its position respectively
-	getRotationAxis(aTask->mMousePos[ 0 ], aTask->mMousePos[ 1 ], aTask->mView, axis, position);
 	Matrix< Real > R, T, Tinv;  // Rotation matrix, translation matrix to the origin and its inverse
 
 	// For each guide
@@ -29,8 +27,8 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
-		Vector3D< Real > axisLocal = Vector3D< Real >::transform(axis, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
-		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(position, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
+		Vector3D< Real > axisLocal = Vector3D< Real >::transform(aTask->mMouseDir, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
+		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(aTask->mMouseWorld, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
 
 		getTranslationMatrices( positionLocal, T, Tinv );
 		Matrix< Real > A; // A = Tinv * R * T => p' = A * p
@@ -112,22 +110,6 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 	Matrix<Real> R = M1 + M2 + S;
 	R[ 15 ] = 1.0; // Make it proper homogenic 4x4 matrix
 	return R;
-}
-
-void RotateBrushMode::getRotationAxis ( short aX, short aY, M3dView &aView, Vector3D< Real > &aAxis, Vector3D< Real>  &aPosition )
-{
-	// Get the viewing vector and cursor position in world coordinates
-	MStatus status;
-	MPoint pos;
-	MVector dir;
-	status = aView.viewToWorld(aX, aY, pos, dir);
-	
-	Vector3D< Real > axis(dir.x, dir.y, dir.z);
-	axis.normalize();
-	Vector3D< Real > position(pos.x, pos.y, pos.z);
-
-	aAxis = axis;
-	aPosition = position;
 }
 
 void RotateBrushMode::getTranslationMatrices ( const Vector3D< Real > &aPosition, Matrix< Real > &aToOrigin, Matrix< Real > &aFromOrigin)

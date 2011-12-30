@@ -44,7 +44,6 @@ void HairTaskProcessor::waitFinishWorkerThread ()
 		sleep(0);
 #endif
 	}
-	//std::cout << std::endl << std::flush;
 }
 
 void HairTaskProcessor::stopWorkerThread ()
@@ -114,7 +113,6 @@ void HairTaskProcessor::tryCreateWorkerThread ()
 				goto END;
 			}
 
-			//std::cout << "(" << std::flush;
 			HairTaskProcessor::sIsRunning = true;
 			status = MThreadAsync::createTask(HairTaskProcessor::asyncWorkerLoop, 0, HairTaskProcessor::workerFinishedCB, 0);
 			if ( MStatus::kSuccess != status )
@@ -136,7 +134,6 @@ void HairTaskProcessor::workerFinishedCB (void *aData)
 	// Begin critical section
 	// ------------------------------------
 	HairTaskProcessor::sIsRunningLock.lock();
-		//std::cout << ")" << std::flush;
 		HairTaskProcessor::sIsRunning = false;
 		MThreadAsync::release();
 	HairTaskProcessor::sIsRunningLock.unlock();

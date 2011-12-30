@@ -246,7 +246,7 @@ MStatus BrushTool::doPress( MEvent &aEvent )
 		getActiveView();
 
 		// We'll only handle the event if the left mouse button is the only thing held down.
-		if( !aEvent.isModifierShift() &&	!aEvent.isModifierControl() && !aEvent.isModifierMiddleMouseButton() )
+		if( !aEvent.isModifierShift() && !aEvent.isModifierControl() && !aEvent.isModifierMiddleMouseButton() )
 		{
 			// Get the current position of the cursor. We need to know this so we can
 			// start drawing our BrushToolShape and to be able to calculate the deltas for the brushing.
@@ -355,8 +355,17 @@ void BrushTool::doBrush( Vector3D< double > aDX )
 	Real ratio = BrushTool::SENSITIVITY_RATIO * mSensitivity;
 	Vector3D< Real > moveVector( ratio * aDX.x, ratio * aDX.y, ratio * aDX.z );
 
+	// Get the viewing vector and cursor position in world coordinates
+	MPoint pos;
+	MVector dir;
+	mView.viewToWorld(mStartPos[ 0 ], mStartPos[ 1 ], pos, dir);
+
+	Vector3D< Real > position(pos.x, pos.y, pos.z);
+	Vector3D< Real > direction(dir.x, dir.y, dir.z);
+	direction.normalize();
+
 	// Create and dispatch the hair task
-	HairTask *task = new HairTask( mView, mStartPos[ 0 ], mStartPos[ 1 ], moveVector, activeHairShape, &mAffectedGuides, mBrushMode );
+	HairTask *task = new HairTask( mView, position, direction, moveVector, activeHairShape, &mAffectedGuides, mBrushMode );
 	HairTaskProcessor::getInstance()->enqueueTask( task );
 }
 
