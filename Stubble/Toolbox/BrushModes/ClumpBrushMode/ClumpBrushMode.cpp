@@ -34,9 +34,9 @@ void ClumpBrushMode::doBrush ( HairTask *aTask )
 
 		// Loop through all guide segments except the first one
 		Real segmentLength = guide->mGuideSegments.mSegmentLength;
-		Vector3D< Real > vertexAtClumpNormal;
-		Vector3D< Real > distance;
-		Vector3D< Real > d;
+		Vector3D< Real > vertexAtClumpNormal; // Vertex position at the clump normal
+		Vector3D< Real > distance; // Remaining distance towards destination
+		Vector3D< Real > d; // Increment
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( !guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
@@ -53,6 +53,10 @@ void ClumpBrushMode::doBrush ( HairTask *aTask )
 				distance = hairVertices[ i ] - verticesInfo[ i ].mOriginalPosition;
 			}
 			d = (mEnableFalloff == true) ? distance * aTask->mDx.x * guide->mSegmentsAdditionalInfo[ i ].mFallOff : distance * aTask->mDx.x;
+			if ( d.sizePwr2() > segmentLength * segmentLength )
+			{
+				d = d.normalize() * segmentLength;
+			}
 			hairVertices[ i ] += d;
 		}
 

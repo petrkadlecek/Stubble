@@ -31,9 +31,9 @@ void PuffRootBrushMode::doBrush ( HairTask *aTask )
 		// Loop through all guide segments except the first one
 		Real segmentLength = guide->mGuideSegments.mSegmentLength;
 		Real boost = START_BOOST;
-		Vector3D< Real > vertexAtNormal;
-		Vector3D< Real > distance;
-		Vector3D< Real > d;
+		Vector3D< Real > vertexAtNormal; // Vertex position on the surface normal
+		Vector3D< Real > distance; // Remaining distance from the current position.
+		Vector3D< Real > d; // Increment
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( !guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
