@@ -7,8 +7,6 @@ namespace Stubble
 namespace Toolbox
 {
 
-const Real RotateBrushMode::ROTATION_SENSITIVITY = 0.1;
-
 void RotateBrushMode::doBrush ( HairTask *aTask )
 {
 	Matrix< Real > R, T, Tinv;  // Rotation matrix, translation matrix to the origin and its inverse
@@ -26,31 +24,31 @@ void RotateBrushMode::doBrush ( HairTask *aTask )
 		}
 
 		HairShape::HairComponents::Segments &hairVertices = guide->mGuideSegments.mSegments; // Local alias
+		HairShape::HairComponents::SegmentsAdditionalInfo &verticesInfo = guide->mSegmentsAdditionalInfo; // Local alias
 		const size_t SEGMENT_COUNT = hairVertices.size();
+
+		assert ( SEGMENT_COUNT == verticesInfo.size() );
+
+		const Real SCALE_FACTOR = guide->mGuideSegments.mSegmentLength;
 		Vector3D< Real > axisLocal = Vector3D< Real >::transform(aTask->mMouseDir, guide->mPosition.mLocalTransformMatrix); // Local coordinate axis
 		Vector3D< Real > positionLocal = Vector3D< Real >::transformPoint(aTask->mMouseWorld, guide->mPosition.mLocalTransformMatrix); // Local coordinate position
-
 		getTranslationMatrices( positionLocal, T, Tinv );
-		Matrix< Real > A; // A = Tinv * R * T => p' = A * p
-		if ( !mEnableFalloff )
-		{
-			R = getRotationMatrix( aTask->mDx.x, axisLocal );
-			A = Tinv * (R * T); // Note that * is left associative
-		}
 
 		// Loop through all guide segments except the first one (that's a follicle and should not move)
+		Matrix< Real > A; // A = Tinv * R * T => p' = A * p
 		for (size_t i = 1; i < SEGMENT_COUNT; ++i)
 		{
 			if ( !guide->mSegmentsAdditionalInfo[ i ].mInsideBrush )
 			{
 				continue;
 			}
-			if ( mEnableFalloff )
-			{
-				R = getRotationMatrix( aTask->mDx.x * guide->mSegmentsAdditionalInfo[ i ].mFallOff, axisLocal );
-				A = Tinv * (R * T); // Note that * is left associative
-			}
-			
+			// Distance between the point and rotation axis for scaling
+			Real d = Vector3D< Real >::crossProduct(axisLocal, positionLocal - hairVertices[ i ]).size() / axisLocal.size();
+			Real theta = (mEnableFalloff) ? aTask->mDx.x * verticesInfo[ i ].mFallOff / d : aTask->mDx.x / d;
+			theta *= SCALE_FACTOR;
+			R = getRotationMatrix( theta, axisLocal );
+			A = Tinv * (R * T); // Note that * is left associative
+
 			hairVertices[ i ] = Vector3D< Real >::transformPoint(hairVertices[ i ], A);
 		}
 
@@ -63,7 +61,7 @@ Matrix< Real > RotateBrushMode::getRotationMatrix ( Real aMeasure, const Vector3
 {
 	// R = uu^T + (cos theta)(I - uu^T) + (sin theta)S, see OpenGL Red Book 2.0, appendix F
 	// u is unit vector of the axis, S is 3x3 matrix as defined bellow
-	Real theta = aMeasure * RotateBrushMode::ROTATION_SENSITIVITY;
+	Real theta = aMeasure;
 	const Real cosT = cos(theta); // Cosine theta
 	const Real sinT = sin(theta); // Sine theta
 	Matrix< Real > M1, M2, S;
