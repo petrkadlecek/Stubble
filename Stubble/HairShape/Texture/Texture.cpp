@@ -62,6 +62,10 @@ void Texture::init()
 	mHeight = 1;
 	mDirty = false;
 	mTexture = new float[mWidth * mHeight * mColorComponents];
+	for ( unsigned int i = 0; i < mColorComponents; ++i )
+	{
+		mTexture[ i ] = 1.0f;
+	}
 	computeInverseSize();
 }
 

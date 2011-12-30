@@ -23,6 +23,8 @@ void MayaOutputGenerator::draw()
 	// Enable blending
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	// Smooth shade
+	glShadeModel( GL_SMOOTH );
 	// Bind vertex buffer 
 	GLExt::glBindBuffer( GL_ARRAY_BUFFER_ARB, mVertexBO ); // For vertices data
 	// Enable vertex arrays
@@ -37,6 +39,8 @@ void MayaOutputGenerator::draw()
 	// Disable vertex arrays
 	glDisableClientState( GL_VERTEX_ARRAY );
 	glDisableClientState( GL_COLOR_ARRAY );
+	// Smooth shade
+	glShadeModel( GL_FLAT );
 	// Disable blending
 	glEnable( GL_BLEND );
 	// Disable depth-buffer

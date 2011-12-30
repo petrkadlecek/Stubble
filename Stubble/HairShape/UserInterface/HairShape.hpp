@@ -659,6 +659,11 @@ inline void HairShape::setVoxelsResolution(Dimensions3 aNewVoxelsResolution, Dim
 inline void HairShape::importNURBS()
 {
 	mHairGuides->importNURBS( *mInterpolationGroups );
+	refreshPointersToGuidesForInterpolation();
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline void HairShape::exportToNURBS()
@@ -669,11 +674,21 @@ inline void HairShape::exportToNURBS()
 inline void HairShape::reinitCuttedHair()
 {
 	mHairGuides->reinitCuttedHair( getScaleFactor() );
+	refreshPointersToGuidesForInterpolation();
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline void HairShape::resetGuides()
 {
 	mHairGuides->resetGuides( getScaleFactor() );
+	refreshPointersToGuidesForInterpolation();
+	if ( mDisplayInterpolated )
+	{
+		mInterpolatedHair.propertiesUpdate( *this );
+	}
 }
 
 inline const MayaMesh & HairShape::getCurrentMesh() const
