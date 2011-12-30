@@ -23,6 +23,10 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 {
 	try {
 		std::ifstream file( aVoxelFileName.c_str(), std::ios::binary );
+		if ( !file )
+		{
+			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : file can not be opened ! ");
+		}
 		zlib_stream::zip_istream unzipper( file, 15, BUFFER_SIZE, BUFFER_SIZE );
 		char fileid[20];
 		// Read file id
@@ -49,6 +53,10 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 		unzipper >> tmp;
 		mVoxelBoundingBox.expand( tmp );
 		// Close file
+		if ( !file )
+		{
+			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : file can not be opened ! ");
+		}
 		file.close();
 	}
 	catch( ... )

@@ -26,6 +26,32 @@ void freeData(RtPointer data)
 	/* NOTHING TO FREE */
 }
 
+///-------------------------------------------------------------------------------------------------
+/// Creates a path. Method originaly created by Birender Singh.
+///
+/// \param	aPath	Full pathname.
+///-------------------------------------------------------------------------------------------------
+
+void createPath( const char* aPath )
+{
+	char dirName[ 256 ];
+	const char * p = aPath;
+	char * q = dirName; 
+	while( *p )
+	{
+		if ( ('\\' == *p) || ('/' == *p) )
+		{
+			if ( ':' != *(p-1) )
+			{
+				CreateDirectory( dirName, NULL );
+			}
+		}
+		*q++ = *p++;
+		*q = '\0';
+	}
+	CreateDirectory( dirName, NULL);
+}
+
 CachedFrame::CachedFrame( HairShape::HairShape & aHairShape, std::string aNodeName, Time aSampleTime )
 {
 	loadStubbleWorkDir();
@@ -97,7 +123,7 @@ void CachedFrame::generateSample( HairShape::HairShape & aHairShape, std::string
 	// Create dir
 	if ( GetFileAttributes( fullDirName.c_str() ) == INVALID_FILE_ATTRIBUTES )
 	{
-		CreateDirectory( fullDirName.c_str(), NULL );
+		createPath( fullDirName.c_str() );
 	}
 	// Prepare sample properties
 	Sample s; 

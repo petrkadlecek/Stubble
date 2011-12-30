@@ -19,6 +19,10 @@ namespace Interpolation
 RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 {
 	std::ifstream file( aFrameFileName.c_str(), std::ios::binary );
+	if ( !file )
+	{
+		throw StubbleException(" RMHairProperties::RMHairProperties : file can not be opened ! ");
+	}
 	zlib_stream::zip_istream unzipper( file, 15, BUFFER_SIZE, BUFFER_SIZE );
 	char fileid[20];
 	// Read file id
@@ -129,6 +133,10 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 		{
 			unzipper >> *segIt;
 		}
+	}
+	if ( !file )
+	{
+		throw StubbleException(" RMHairProperties::RMHairProperties : file can not be opened ! ");
 	}
 	file.close();
 }

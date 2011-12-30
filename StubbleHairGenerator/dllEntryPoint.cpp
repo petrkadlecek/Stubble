@@ -149,27 +149,34 @@ RtVoid DLLEXPORT Subdivide( RtPointer aData, RtFloat aDetailSize )
 	// For every sample
 	for ( FileNames it = bp.mFileNames, end = bp.mFileNames + bp.mSamplesCount; it != end; ++it )
 	{
-		// Get file prefix
-		std::string filePrefix = stubbleWorkDir + *it;
-		// Read frame file with hair properties
-		RMHairProperties hairProperties( filePrefix + ".FRM" );
-		// Get voxel file name
-		std::ostringstream str;
-		str << filePrefix << ".VX" << bp.mVoxelId;
-		// Read voxel file with mesh geometry and create position generator
-		RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
-		// Create hair generator
-		HairGenerator< RMPositionGenerator, RMOutputGenerator > hairGenerator( positionGenerator, outputGenerator );
-		// Should normals be outputed ?
-		outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
-		// Finally begin generating hair
-		hairGenerator.generate( hairProperties );
+		try {
+			// Get file prefix
+			std::string filePrefix = stubbleWorkDir + *it;
+			// Read frame file with hair properties
+			RMHairProperties hairProperties( filePrefix + ".FRM" );
+			// Get voxel file name
+			std::ostringstream str;
+			str << filePrefix << ".VX" << bp.mVoxelId;
+			// Read voxel file with mesh geometry and create position generator
+			RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
+			// Create hair generator
+			HairGenerator< RMPositionGenerator, RMOutputGenerator > hairGenerator( positionGenerator, outputGenerator );
+			// Should normals be outputed ?
+			outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
+			// Finally begin generating hair
+			hairGenerator.generate( hairProperties );
 #ifdef CALCULATE_BBOX
 		if ( !positionGenerator.getVoxelBoundingBox().contains( hairGenerator.getBoundingBox() ) )
 		{
 			std::cerr << "StubbleHairGenerator.dll::Subdivide containment failed !!!";
 		}
 #endif
+		}
+		catch ( StubbleException & ex )
+		{
+			std::cerr << ex.what();
+			return;
+		}
 	}
 	if ( bp.mSamplesCount > 1 )
 	{
