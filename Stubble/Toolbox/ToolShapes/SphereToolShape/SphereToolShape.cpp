@@ -65,7 +65,7 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 	glPushMatrix();
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		gluSphere( q, mRadius, 8, 8 );
+		gluSphere( q, mRadius, HapticSettingsTool::sProxyDetail, HapticSettingsTool::sProxyDetail );
 	}
 	glPopMatrix();
 
@@ -80,7 +80,7 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 
 MString SphereToolShape::getName()
 {
-	return "Sphere Tool Shape";
+	return "Haptic Sphere Tool Shape";
 }
 
 } // namespace Toolbox

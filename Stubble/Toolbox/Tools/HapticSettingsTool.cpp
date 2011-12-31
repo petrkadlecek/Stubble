@@ -10,10 +10,13 @@ namespace Toolbox
 // Static data members
 // ----------------------------------------------------------------------------
 cHapticDeviceHandler* HapticSettingsTool::sHandler;
+
 cGenericHapticDevice* HapticSettingsTool::sHapticDevice;
 bool HapticSettingsTool::sHapticThreadRunning;
 MVector HapticSettingsTool::sLastPosition;
 MVector HapticSettingsTool::sLastRotation;
+MVector HapticSettingsTool::sSpringDamper;
+MVector HapticSettingsTool::sCollisionVector;
 double HapticSettingsTool::sLastRotationAngle;
 double HapticSettingsTool::sWorkspaceRadius;
 bool HapticSettingsTool::sHapticButton1;
@@ -21,8 +24,16 @@ bool HapticSettingsTool::sHapticButton2;
 bool HapticSettingsTool::sHapticButton1Last;
 bool HapticSettingsTool::sHapticButton2Last;
 bool HapticSettingsTool::sDeviceAvailable;
-MVector HapticSettingsTool::sSpringDamper;
 bool HapticSettingsTool::sSpringDamperSet;
+int HapticSettingsTool::sHapticThreadFrequency;
+int HapticSettingsTool::sProxyDetail;
+bool HapticSettingsTool::sInteractiveBrush;
+bool HapticSettingsTool::sSimulate5DOF;
+bool HapticSettingsTool::sShowXZHelper;
+bool HapticSettingsTool::sEnableSpringForce;
+bool HapticSettingsTool::sEnableCollisionDetection;
+bool HapticSettingsTool::sHapticRendering;
+int HapticSettingsTool::sForceMagnitude;
 
 //----------------------------------------------------------------------------------------------------
 // HapticSettingsToolCommand
@@ -30,13 +41,25 @@ bool HapticSettingsTool::sSpringDamperSet;
 
 const MString HapticSettingsToolCommand::sCommandName( "StubbleHapticSettingsToolCommand" );
 
-const char *bigBrushFlag = "-bb", *bigBrushLongFlag = "-bigBrush";
-const char *interactiveSelectonFlag = "-is", *interactiveSelectonLongFlag = "-interactiveSelection";
-const char *integratorRatioFlag = "-ir", *integratorRatioLongFlag = "-integratorRatio";
-const char *proxyRadiusFlag = "-pr", *proxyRadiusLongFlag = "-proxyRadius";
-const char *radiusFlag = "-r", *radiusLongFlag = "-radius";
-const char *proxyDetailFlag = "-d", *proxyDetailLongFlag = "-proxyDetail";
-const char *initFlag = "-i", *initLongFlag = "-init";
+const char *initFlag = "-i"; const char *initLongFlag = "-init";
+
+const char *hapticThreadFrequencyFlag = "-fr"; const char *hapticThreadFrequencyFlagLong = "-freq";
+
+const char *proxyDetailFlag = "-d"; const char *proxyDetailFlagLong = "-proxyDetail";
+
+const char *interactiveBrushFlag = "-ib"; const char *interactiveBrushFlagLong = "-interactiveBrushing";
+
+const char *simulate5DOFFlag = "-s"; const char *simulate5DOFFlagLong = "-simulate5dof";
+
+const char *showXZHelperFlag = "-h"; const char *showXZHelperFlagLong = "-showXZHelper";
+
+const char *enableSpringForceFlag = "-fs"; const char *enableSpringForceFlagLong = "-sprinForce";
+
+const char *enableCollisionDetectionFlag = "-cd"; const char *enableCollisionDetectionFlagLong = "-collisionDetecion";
+
+const char *hapticRenderingFlag = "-r"; const char *hapticRenderingFlagLong = "-hapticRendering";
+
+const char *forceMagnitudeFlag = "-mr"; const char *forceMagnitudeFlagLong = "-magnitudeRatio";
 
 MPxContext* HapticSettingsToolCommand::makeObj()
 {
@@ -52,8 +75,6 @@ void* HapticSettingsToolCommand::creator()
 HapticSettingsToolCommand::HapticSettingsToolCommand()
 {
 	mCurrentObject = NULL;
-	HapticSettingsTool::sHapticButton1 = false;
-	HapticSettingsTool::sHapticButton2 = false;
 }
 
 HapticSettingsToolCommand::~HapticSettingsToolCommand()
@@ -71,6 +92,64 @@ MStatus	HapticSettingsToolCommand::doEditFlags()
 		mCurrentObject->initHapticDevice(mCurrentObject->mHapticDeviceStr.substring(0,0).asInt());
 	}
 
+	if( pars.isFlagSet( interactiveBrushFlag ) ) {
+		pars.getFlagArgument( interactiveBrushFlag, 0, HapticSettingsTool::sInteractiveBrush );
+	}
+
+	if( pars.isFlagSet( proxyDetailFlag ) )
+	{
+		pars.getFlagArgument( proxyDetailFlag, 0, HapticSettingsTool::sProxyDetail );
+	}
+
+	if( pars.isFlagSet( showXZHelperFlag ) )
+	{
+		pars.getFlagArgument( showXZHelperFlag, 0, HapticSettingsTool::sShowXZHelper );
+	}
+
+	if( pars.isFlagSet( hapticThreadFrequencyFlag ) )
+	{
+		int freq;
+		pars.getFlagArgument( hapticThreadFrequencyFlag, 0, freq );
+		HapticSettingsTool::sHapticThreadFrequency = 1000 / freq;
+	}
+
+	if( pars.isFlagSet( simulate5DOFFlag ) )
+	{
+		pars.getFlagArgument( simulate5DOFFlag, 0, HapticSettingsTool::sSimulate5DOF );
+	}
+
+	if( pars.isFlagSet( enableSpringForceFlag ) )
+	{
+		pars.getFlagArgument( enableSpringForceFlag, 0, HapticSettingsTool::sEnableSpringForce );
+	}
+
+	if( pars.isFlagSet( enableCollisionDetectionFlag ) )
+	{
+		pars.getFlagArgument( enableCollisionDetectionFlag, 0, HapticSettingsTool::sEnableCollisionDetection );
+
+		if ( !HapticSettingsTool::sEnableCollisionDetection && HapticSettingsTool::sHapticRendering )
+		{
+			HapticSettingsTool::sHapticRendering = false;
+			MGlobal::executeCommand("checkBoxGrp -e -v1 false stubbleHapticRendering");
+		}
+	}
+
+	if( pars.isFlagSet( hapticRenderingFlag ) )
+	{
+		pars.getFlagArgument( hapticRenderingFlag, 0, HapticSettingsTool::sHapticRendering );
+
+		if ( HapticSettingsTool::sHapticRendering )
+		{
+			HapticSettingsTool::sEnableCollisionDetection = true;
+			MGlobal::executeCommand("checkBoxGrp -e -v1 true stubbleHapticCollisionDetection");
+		}
+	}
+
+	if( pars.isFlagSet( forceMagnitudeFlag ) )
+	{
+		pars.getFlagArgument( forceMagnitudeFlag, 0, HapticSettingsTool::sForceMagnitude );
+	}
+
 	return MS::kSuccess;
 }
 
@@ -85,18 +164,28 @@ MStatus	HapticSettingsToolCommand::appendSyntax()
 {
 	MSyntax syn = syntax();
 	
-	syn.addFlag( bigBrushFlag, bigBrushLongFlag, MSyntax::kBoolean );
-	syn.addFlag( interactiveSelectonFlag, interactiveSelectonLongFlag, MSyntax::kBoolean );
-	syn.addFlag( integratorRatioFlag, integratorRatioLongFlag, MSyntax::kDouble );
-	syn.addFlag( proxyRadiusFlag, proxyRadiusLongFlag, MSyntax::kDouble );
-	syn.addFlag( proxyDetailFlag, proxyDetailLongFlag, MSyntax::kLong );
-	syn.addFlag( radiusFlag, radiusLongFlag, MSyntax::kLong );
 	syn.addFlag( initFlag, initLongFlag, MSyntax::kString );
+
+	syn.addFlag( interactiveBrushFlag, interactiveBrushFlagLong, MSyntax::kBoolean );
+
+	syn.addFlag( simulate5DOFFlag, simulate5DOFFlagLong, MSyntax::kBoolean );
+
+	syn.addFlag( showXZHelperFlag, showXZHelperFlagLong, MSyntax::kBoolean );
+
+	syn.addFlag( enableSpringForceFlag, enableSpringForceFlagLong, MSyntax::kBoolean );
+
+	syn.addFlag( enableCollisionDetectionFlag, enableCollisionDetectionFlagLong, MSyntax::kBoolean );
+
+	syn.addFlag( hapticRenderingFlag, hapticRenderingFlagLong, MSyntax::kBoolean );
+	
+	syn.addFlag( proxyDetailFlag, proxyDetailFlagLong, MSyntax::kLong );
+
+	syn.addFlag( hapticThreadFrequencyFlag, hapticThreadFrequencyFlagLong, MSyntax::kLong );
+
+	syn.addFlag( forceMagnitudeFlag, forceMagnitudeFlagLong, MSyntax::kLong );
 
 	return MS::kSuccess;
 }
-
-MVector colVector; // TODO
 
 //----------------------------------------------------------------------------------------------------
 // HapticSettingsTool
@@ -105,19 +194,49 @@ MVector colVector; // TODO
 HapticSettingsTool::HapticSettingsTool()
 {
 	setTitleString( "Stubble haptic settings Tool" );
+	
 	mInitFlag = false;
+
 	HapticSettingsTool::sHapticThreadRunning = false;
-  
+
 	// set CHAI3D handler
 	HapticSettingsTool::sHandler = NULL;
+	
 	HapticSettingsTool::sHapticDevice = NULL;
+	
 	HapticSettingsTool::sDeviceAvailable = false;
+
+	// UI default settings
 
 	HapticSettingsTool::sSpringDamperSet = false;
 
-	colVector.x = 0;
-	colVector.y = 0;
-	colVector.z = 0;
+	HapticSettingsTool::sHapticButton1 = false;
+
+	HapticSettingsTool::sHapticButton2 = false;
+
+	HapticSettingsTool::sHapticThreadFrequency = 10;
+
+	HapticSettingsTool::sProxyDetail = 8;
+
+	HapticSettingsTool::sInteractiveBrush  = true;
+
+	HapticSettingsTool::sSimulate5DOF = false;
+
+	HapticSettingsTool::sShowXZHelper = true;
+
+	HapticSettingsTool::sEnableSpringForce = false;
+
+	HapticSettingsTool::sEnableCollisionDetection = false;
+
+	HapticSettingsTool::sHapticRendering = false;
+
+	HapticSettingsTool::sForceMagnitude = 30;
+
+	// zero collision vector
+
+	sCollisionVector.x = 0;
+	sCollisionVector.y = 0;
+	sCollisionVector.z = 0;
 }
 
 HapticSettingsTool::~HapticSettingsTool()
@@ -132,7 +251,7 @@ HapticSettingsTool::~HapticSettingsTool()
 
 void HapticSettingsTool::setCollisionVector( MVector &aCollisionVector )
 {
-	colVector = aCollisionVector;
+	sCollisionVector = aCollisionVector;
 }
 
 void HapticSettingsTool::setSpringDamper()
@@ -240,7 +359,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 	force.zero();
 	static double minMovementEps = std::numeric_limits<double>::epsilon();
 
-	int sleepTime = 10;
+	int sleepTime = HapticSettingsTool::sHapticThreadFrequency;
 	int noRefreshPass = 100;
 	bool refreshNeeded = true;
 
@@ -284,11 +403,18 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		HapticSettingsTool::sLastPosition.y = newPosition.z;
 		HapticSettingsTool::sLastPosition.z = newPosition.x;
 
-		/*
-		if ( HapticSettingsTool::sSpringDamperSet )
+		// handle force reaction
+		if ( sHapticRendering )
 		{
-			// compute force in robotic coord system
-			MVector forceVector = 2.0 * ( HapticSettingsTool::sSpringDamper / HapticSettingsTool::sWorkspaceRadius - HapticSettingsTool::sLastPosition / HapticSettingsTool::sWorkspaceRadius );
+			force.x = 1e-2 * sForceMagnitude * sCollisionVector.z;
+			force.y = 1e-2 * sForceMagnitude * sCollisionVector.x;
+			force.z = 1e-2 * sForceMagnitude * sCollisionVector.y;
+		}
+		else if ( sEnableSpringForce && sSpringDamperSet )
+		{
+			MVector forceVector = 1e-1 * sForceMagnitude * 
+				( HapticSettingsTool::sSpringDamper / HapticSettingsTool::sWorkspaceRadius 
+				- HapticSettingsTool::sLastPosition / HapticSettingsTool::sWorkspaceRadius );
 
 			force.x = forceVector.z;
 			force.y = forceVector.x;
@@ -297,12 +423,7 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		else
 		{
 			force.zero();
-		}*/
-
-		force.x = 0.3 * colVector.z;
-		force.y = 0.3 * colVector.x;
-		force.z = 0.3 * colVector.y;
-
+		}
 
 		HapticSettingsTool::sHapticDevice->setForce( force );
 
@@ -327,6 +448,8 @@ MThreadRetVal HapticSettingsTool::AsyncHapticLoop( void *aData )
 		}
 
 		Sleep( sleepTime + 1 );
+
+		sleepTime = HapticSettingsTool::sHapticThreadFrequency;
 	}
 	
 	HapticSettingsTool::sHapticThreadRunning = false;

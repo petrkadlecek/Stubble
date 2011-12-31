@@ -1,79 +1,101 @@
-print "Processing StubbleHapticSettingsToolProperties.mel\n";
-
 global proc StubbleHapticSettingsToolProperties ()
 {
-	print "StubbleHapticSettingsToolProperties\n";
-	setUITemplate -pushTemplate DefaultTemplate;
+	if( !`control -exists StubbleHapticSettingsToolLayout` )
+	{
+		setUITemplate -pushTemplate OptionsTemplate;
 
-	string $parent = `toolPropertyWindow -q -location`;
-    setParent $parent;
-	string $curctx = `currentCtx`;
+		string $parent = `toolPropertyWindow -query -location`;
+		setParent $parent;
 
-	columnLayout StubbleHapticSettingsTool;
-		tabLayout -childResizable true StubbleHapticSettingsToolTabs;
-			columnLayout StubbleHapticSettingsToolTab;
-				frameLayout -cll true -cl false -l "StubbleHapticSettingsTool Options" StubbleHapticSettingsToolFrame;
-					columnLayout StubbleHapticSettingsToolOptions;
-						separator -style "none";
-						
-						textScrollList 
-							-height 50
-							-doubleClickCommand "manageHapticDevices"
-							hapticDevices;
+		columnLayout StubbleHapticSettingsToolLayout;
+			frameLayout -collapsable true -collapse false -l "Stubble Haptic Settings Tool Options" StubbleHapticSettingsToolFrame;
+				columnLayout StubbleHapticSettingsToolOptions;
+					
+					$parent = `setParent -query`;
+
+					separator -style "none";
+				
+					text -label "Available haptic devices:" -align "left";
+
+					textScrollList
+						-height 50
+						-doubleClickCommand "manageHapticDevices"
+						hapticDevices;
 							
-						button
-							-label "Disable haptics"
-							-width 100
-							stubbleDisableHaptics;
-							
-						intSliderGrp
-							-field 1
-							-label "Haptic thread step interval"
-							-minValue 1
-							-maxValue 200
-							-value 10
-							-cc "StubbleHapticSettingsToolCommand -e -r `intSliderGrp -q -v hapticThreadSleepInt` StubbleHapticSettingsToolContext1"
-							stubbleHapticThreadSleepInt;
+					intSliderGrp
+						-label "I/O frequency [Hz]"
+						-minValue 10
+						-maxValue 1000
+						-value 100
+						-cc "StubbleHapticSettingsToolCommand -e -fr `intSliderGrp -q -v stubbleHapticThreadFreq` StubbleHapticSettingsToolContext1"
+						stubbleHapticThreadFreq;
 
-						intSliderGrp
-							-field 1
-							-label "Proxy detail"
-							-minValue 2
-							-maxValue 32
-							-value 15
-							-cc "StubbleHapticSettingsToolCommand -e -d `intSliderGrp -q -v proxyDetail` StubbleHapticSettingsToolContext1"
-							stubbleProxyDetail;
+					intSliderGrp
+						-label "Proxy detail"
+						-minValue 2
+						-maxValue 32
+						-value 8
+						-cc "StubbleHapticSettingsToolCommand -e -d `intSliderGrp -q -v stubbleProxyDetail` StubbleHapticSettingsToolContext1"
+						stubbleProxyDetail;
 
-						checkBoxGrp
-							-label "Attach proxy to camera"
-							-numberOfCheckBoxes 1
-							-l1 " "
-							stubbleAttachToCameraGrp;
+					checkBoxGrp
+						-label "Interactive mode"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-value1 true
+						-cc "StubbleHapticSettingsToolCommand -e -ib `checkBoxGrp -q -v1 stubbleInteractiveBrushing` StubbleHapticSettingsToolContext1"
+						stubbleInteractiveBrushing;
 
-						checkBoxGrp
-							-label "Simulate 5-DOF device"
-							-numberOfCheckBoxes 1
-							-l1 " "
-							stubbleEnable5dof;
+					checkBoxGrp
+						-label "Simulate 5-DOF device"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-cc "StubbleHapticSettingsToolCommand -e -s `checkBoxGrp -q -v1 stubbleEnable5dof` StubbleHapticSettingsToolContext1"
+						stubbleEnable5dof;
 
-						checkBoxGrp
-							-label "Simulate damper-spring forces"
-							-numberOfCheckBoxes 1
-							-l1 " "
-							stubbleDamperSpring;
+					checkBoxGrp
+						-label "Show XZ-plane helper"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-value1 true
+						-cc "StubbleHapticSettingsToolCommand -e -h `checkBoxGrp -q -v1 stubbleHapticHelper` StubbleHapticSettingsToolContext1"
+						stubbleHapticHelper;
 
-					setParent ..; // StubbleHapticSettingsToolOptions
-				setParent ..; // StubbleHapticSettingsToolFrame
-			setParent ..; // StubbleHapticSettingsToolTab
-		setParent ..; // StubbleHapticSettingsToolTabs
-	setParent ..; // StubbleHapticSettingsTool
+					checkBoxGrp
+						-label "Brushing spring force"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-cc "StubbleHapticSettingsToolCommand -e -fs `checkBoxGrp -q -v1 stubbleDamperSpring` StubbleHapticSettingsToolContext1"
+						stubbleDamperSpring;
 
-	// Name the tabs; -tl does not allow tab labelling upon creation
-	tabLayout -e -tl StubbleHapticSettingsToolTab "Tool Defaults" StubbleHapticSettingsToolTabs;
+					checkBoxGrp
+						-label "Collision detection"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-cc "StubbleHapticSettingsToolCommand -e -cd `checkBoxGrp -q -v1 stubbleHapticCollisionDetection` StubbleHapticSettingsToolContext1"
+						stubbleHapticCollisionDetection;
 
-	setUITemplate -popTemplate;
+					checkBoxGrp
+						-label "Collision force rendering"
+						-numberOfCheckBoxes 1
+						-l1 " "
+						-cc "StubbleHapticSettingsToolCommand -e -r `checkBoxGrp -q -v1 stubbleHapticRendering` StubbleHapticSettingsToolContext1"
+						stubbleHapticRendering;
 
-	//StubbleHapticSettingsToolSetCallbacks($parent);
+					intSliderGrp
+						-label "Force mag. ratio [%]"
+						-minValue 1
+						-maxValue 100
+						-value 30
+						-cc "StubbleHapticSettingsToolCommand -e -mr `intSliderGrp -q -v stubbleForceMagnitude` StubbleHapticSettingsToolContext1"
+						stubbleForceMagnitude;
+
+				setParent ..;
+			setParent ..;
+		setParent ..;
+
+		setUITemplate -popTemplate;
+	}
 }
 
 
@@ -83,29 +105,4 @@ global proc manageHapticDevices()
 	string $objectToSelect[] = `textScrollList -q -si hapticDevices`;
 	for ($ots in $objectToSelect) StubbleHapticSettingsToolCommand -e -i $ots StubbleHapticSettingsToolContext1;
 	print "\n";
-}
-
-global proc StubbleHapticSettingsToolSetCallbacks(string $parent)
-{
-	print "StubbleHapticSettingsToolSetCallbacks\n";
-	setParent	$parent;
-	string		$whichCtx = `currentCtx`;
-
- 	checkBoxGrp -e
- 		-on1 ("StubbleHapticSettingsToolCommand -e -upsideDown true `currentCtx`")
- 		-of1 ("StubbleHapticSettingsToolCommand -e -upsideDown false `currentCtx`")
- 		upsideDownGrp;
-		
-
- 	intSliderGrp -e
- 		-cc ("StubbleHapticSettingsToolCommand `currentCtx`")
- 		numCVs;
-
-	intSliderGrp -e
- 		-cc ("StubbleHapticSettingsToolCommand `currentCtx`")
- 		proxyDetail;
-
-	floatSliderGrp -e
- 		-cc ("StubbleHapticSettingsToolCommand `currentCtx`")
- 		proxyRadius;
 }

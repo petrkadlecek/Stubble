@@ -14,13 +14,13 @@ global proc StubbleCutToolValues( string $ctxName )
 
 	textScrollList -e
 			-selectItem $shape
-			-selectCommand ("StubbleToolShapeSelected " + $ctxName )
-			stubbleToolShape;
+			-selectCommand ("StubbleCutToolShapeSelected " + $ctxName )
+			stubbleCutToolShape;
 
 	toolPropertySelect stubbleCutToolLayout;
 }
-global proc StubbleToolShapeSelected( string $ctxName )
+global proc StubbleCutToolShapeSelected( string $ctxName )
 {
-	string $value[] = `textScrollList -q -selectItem stubbleToolShape`;
+	string $value[] = `textScrollList -q -selectItem stubbleCutToolShape`;
 	StubbleCutToolCommand -e -toolShape $value[0] $ctxName;
 }

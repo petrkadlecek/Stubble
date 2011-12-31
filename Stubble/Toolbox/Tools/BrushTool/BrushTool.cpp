@@ -428,7 +428,7 @@ void BrushTool::filterAffectedGuidesHaptic()
 		return;
 	}
 
-	if (mShape->getName() == "Sphere Tool Shape") // called once when pressed - optimization possible
+	if (mShape->getName() == "Haptic Sphere Tool Shape") // called once when pressed - optimization possible
 	{
 		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
 	}
@@ -439,10 +439,6 @@ void BrushTool::filterAffectedGuidesHaptic()
 	
 }
 
-//void BrushTool::changeToolShape()
-//{
-//	/*TODO*/
-//}
 
 } // namespace Toolbox
 

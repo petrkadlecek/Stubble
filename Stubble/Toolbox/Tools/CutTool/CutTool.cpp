@@ -125,6 +125,9 @@ void CutTool::toolOnSetup ( MEvent & )
 	// initialize the mouse move listener with the current tool as its owner
 	sMouseMoveListener = new MouseMoveListener( mView.widget(), this );
 
+	// update the haptic listener with the current tool as its owner
+	HapticListener::setTool( this );
+
 	// Record current selection mode and masks
 	mPrevSelMode = MGlobal::selectionMode();
 	if( mPrevSelMode == MGlobal::kSelectComponentMode )
@@ -151,6 +154,7 @@ void CutTool::toolOffCleanup()
 	}
 
 	CutTool::deleteMouseMoveListener();
+	HapticListener::setTool( NULL );
 }
 
 MStatus CutTool::doPress( MEvent & aEvent )
@@ -163,17 +167,26 @@ MStatus CutTool::doPress( MEvent & aEvent )
 
 void CutTool::doHapticPress()
 {
-	// TODO
+	getActiveView();
 }
 
 void CutTool::doHapticRelease()
 {
-	// TODO
+	filterAffectedGuidesHaptic();
+
+	this->doCut();
+
+	// Put the change into the undo stack
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 != activeHairShape )
+	{
+		activeHairShape->updateGuides( true );
+	}
 }
 
 void CutTool::doHapticDrag( MVector &aDragVector )
 {
-	// TODO
+	// nothing to do
 }
 
 
@@ -257,11 +270,6 @@ void CutTool::doCut()
 	HairTaskProcessor::enforceConstraints(mAffectedGuides);
 }
 
-//void CutTool::changeToolShape( void )
-//{
-//	// TODO?
-//}
-
 void CutTool::notify()
 {
 	mShape->update( this );
@@ -278,6 +286,25 @@ void CutTool::filterAffectedGuides()
 	//FIXME: remove dynamic_cast - do it somehow better
 	activeHairShape->getSelectedGuidesDS().select(
 		dynamic_cast< CircleToolShape * >( mShape ), mPosition[ 0 ], mPosition[ 1 ], mAffectedGuides );
+}
+
+void CutTool::filterAffectedGuidesHaptic()
+{
+	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
+	if ( 0 == activeHairShape )
+	{
+		return;
+	}
+
+	if (mShape->getName() == "Haptic Sphere Tool Shape") // called once when pressed - optimization possible
+	{
+		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+	}
+	else
+	{
+		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+	}
+
 }
 
 } // namespace Toolbox

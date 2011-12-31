@@ -110,6 +110,29 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	static bool sDeviceAvailable; ///< is there any haptic device available
 
+	///----------------------------------------------------------------------------------------------------
+	/// Haptic settings tool UI
+	///----------------------------------------------------------------------------------------------------
+
+	static int sHapticThreadFrequency; ///< haptic thread frequency
+
+	static int sProxyDetail; ///< haptic proxy geometry detail
+
+	static bool sInteractiveBrush; ///< interactive brushing flag
+
+	static bool sSimulate5DOF; ///< simulation of virtual 5-DOF
+	
+	static bool sShowXZHelper; ///< XZ-plane helper visibility flag
+
+	static bool sEnableSpringForce; ///< spring force generated when brushing flag
+
+	static bool sEnableCollisionDetection; ///< collision detection enabled flag
+
+	static bool sHapticRendering; ///< collision force haptic rendering
+
+	static int sForceMagnitude; ///< force magnitude ratio
+
+
 protected:
 
 	M3dView mView; ///< The view in which we are currently operating.
@@ -161,6 +184,8 @@ private:
 	static bool sHapticButton1Last; ///< last haptic device button 1 state
 
 	static bool sHapticButton2Last; ///< last haptic device button 2 state
+
+	static MVector sCollisionVector; ///< collision vector of haptic proxy vs. mesh
 
 	///----------------------------------------------------------------------------------------------------
 	/// Initialize haptic device by index aHapticDeviceIndex

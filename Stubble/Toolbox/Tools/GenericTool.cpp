@@ -63,7 +63,7 @@ double GenericTool::getToolScale()
 	return mScale;
 }
 
-void GenericTool::changeToolShape(MString aShapeName)
+void GenericTool::changeToolShape( MString aShapeName )
 {
 	mHapticToolShape = false;
 
@@ -81,7 +81,7 @@ void GenericTool::changeToolShape(MString aShapeName)
 
 	if( aShapeName == "Haptic Sphere Tool Shape" )
 	{
-		if (HapticSettingsTool::sDeviceAvailable)
+		if ( HapticSettingsTool::sDeviceAvailable )
 		{
 			delete mShape;
 			mShape = new SphereToolShape();
@@ -96,7 +96,7 @@ void GenericTool::changeToolShape(MString aShapeName)
 
 	if( aShapeName == "Haptic Cylinder Tool Shape" )
 	{
-		if (HapticSettingsTool::sDeviceAvailable)
+		if ( HapticSettingsTool::sDeviceAvailable )
 		{
 			delete mShape;
 			mShape = new CylinderToolShape();

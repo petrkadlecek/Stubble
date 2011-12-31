@@ -130,6 +130,12 @@ protected:
 	/// mAffectedGuides for further processing.
 	///----------------------------------------------------------------------------------------------------
 	void filterAffectedGuides();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Takes currently selected guides and filters them against current haptic hair shape. 
+	/// Stores it inside mAffectedGuides for further processing.
+	///----------------------------------------------------------------------------------------------------
+	void filterAffectedGuidesHaptic();
 		
 private:
 

@@ -196,7 +196,7 @@ global proc StubbleCreateUI()
 				-visible 1
 				-annotation "Stubble haptic settings tool"
 				-label "Stubble haptic settings tool"
-				-image1 "hypergraph.png"
+				-image1 "stubble_haptic.png"
 				-style "iconOnly"
 				-command "setToolTo StubbleHapticSettingsToolContext1"`;
 

@@ -2,24 +2,8 @@ print "Processing StubbleHapticSettingsToolValues.mel\n";
 
 global proc StubbleHapticSettingsToolValues(string $toolName) 
 {
-	print "StubbleHapticSettingsToolValues\n";
-	string $parent = 
-		(`toolPropertyWindow -q -location` + "|StubbleHapticSettingsTool|StubbleHapticSettingsToolTabs|StubbleHapticSettingsToolTab");
+	string $parent = (`toolPropertyWindow -q -location` + "|StubbleHapticSettingsToolLayout");
 	setParent $parent;
 
-	string $icon = "collapseContainer.png";
-	string $help = "";
-	toolPropertySetCommon $toolName $icon $help;
-
-	frameLayout -e -en true -cl false StubbleHapticSettingsToolFrame;
-	StubbleHapticSettingsToolOptionValues($toolName);
-
-	toolPropertySelect StubbleHapticSettingsTool;
+	toolPropertySelect StubbleHapticSettingsToolLayout;
 }
-
-
-global proc StubbleHapticSettingsToolOptionValues(string $toolName)
-{
-	print "StubbleHapticSettingsToolOptionValues\n";
-}
-

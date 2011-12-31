@@ -52,7 +52,7 @@ global proc StubbleBrushToolValues( string $ctxName )
 	else if (4 <= $brushModeChoice && $brushModeChoice <= 6)
 		radioButtonGrp -e -sl ($brushModeChoice-3) stubbleBrushToolBrushMode2;
 
-	string $shape = `StubbleCutToolCommand -q -toolShape $ctxName`;
+	string $shape = `StubbleBrushToolCommand -q -toolShape $ctxName`;
 
 	textScrollList -e
 			-selectItem $shape

@@ -72,7 +72,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	// get current haptic switch state
 	bool hapticButton1State = HapticSettingsTool::getHapticButton1State();
 	bool hapticButton2State = HapticSettingsTool::getHapticButton2State();
-	bool simulate5DOF = false;
+	bool simulate5DOF = HapticSettingsTool::sSimulate5DOF;
 	bool enabled5DOFsim = hapticButton1State && simulate5DOF;
 
 	// get current camera
@@ -172,7 +172,7 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	glPushAttrib( GL_CURRENT_BIT );
 
 	// collision detection
-	if (HairShape::HairShape::getActiveObject() != NULL)
+	if ( HapticSettingsTool::sEnableCollisionDetection && HairShape::HairShape::getActiveObject() != NULL)
 	{
 		MFnMesh *currentMesh = HairShape::HairShape::getActiveObject()->getCurrentMesh().getMayaMesh();
 		MMeshIsectAccelParams accelParam = currentMesh->autoUniformGridParams();
@@ -182,10 +182,8 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 
 		MFloatPointArray hitPoints;
 
-		// TODO 100!
 		bool intersect = currentMesh->allIntersections( startP, dir, 0, 0, false, MSpace::kWorld, 100, false, &accelParam, false, hitPoints, 0, 0, 0, 0, 0 );
 
-		// clearing additional information
 		bool curentPointInsideMesh = hitPoints.length() % 2;
 
 		if(curentPointInsideMesh)
@@ -211,22 +209,25 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 	
 	glColor3f( 0.5f, 0.5f, 0.5f );
 
-	// draw proxy helper in world space
-	glBegin(GL_QUADS);
-	glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
-	glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
-	glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
-	glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
-	glEnd();
+	if ( HapticSettingsTool::sShowXZHelper )
+	{
+		// draw proxy helper in world space
+		glBegin(GL_QUADS);
+		glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
+		glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z - 0.5f );
+		glVertex3f( hapticProxyPos.x + 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
+		glVertex3f( hapticProxyPos.x - 0.5f, 0.0f, hapticProxyPos.z + 0.5f );
+		glEnd();
 
-	glLineStipple(3, 0xAAAA);
-	glPushAttrib(GL_ENABLE_BIT); 
-	glEnable(GL_LINE_STIPPLE);
-	glBegin( GL_LINES );
-	glVertex3f( hapticProxyPos.x, 0.0f, hapticProxyPos.z );
-	glVertex3f( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
-	glEnd();
-	glPopAttrib();
+		glLineStipple(3, 0xAAAA);
+		glPushAttrib(GL_ENABLE_BIT); 
+		glEnable(GL_LINE_STIPPLE);
+		glBegin( GL_LINES );
+		glVertex3f( hapticProxyPos.x, 0.0f, hapticProxyPos.z );
+		glVertex3f( hapticProxyPos.x, hapticProxyPos.y, hapticProxyPos.z );
+		glEnd();
+		glPopAttrib();
+	}
 
 	// set a color of haptic proxy
 	if ( hapticButton1State == true )
@@ -271,9 +272,11 @@ void HapticListener::draw( M3dView& view, const MDagPath& DGpath, M3dView::Displ
 		}
 		else if ( hapticButton1State == true && mHapticButton1Last == true )
 		{
-			HapticSettingsTool::setSpringDamper();
-			//HapticListener::sTool->doHapticRelease();
-			//HapticListener::sTool->doHapticPress();
+			if ( HapticSettingsTool::sInteractiveBrush )
+			{
+				HapticListener::sTool->doHapticRelease();
+				HapticListener::sTool->doHapticPress();
+			}
 
 			// call haptic drag event
 			HapticListener::sTool->doHapticDrag( hapticProxyEyeSpacePos - mHapticProxyEyeSpacePosLast );
