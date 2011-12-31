@@ -22,18 +22,24 @@ for ( $obj in $selected )
 		setAttr -l true ( $parent[0] + ".shear" );
 
 		// If mental ray is loaded, ...
-		if (`pluginInfo -query -loaded -name "Mayatomr"`)
+		if ( `pluginInfo -query -loaded -name "Mayatomr"` )
 		{
-			// Create a proxy sphere to make mental ray shaders work
-			$MRsphere = `polySphere -r 0.001 -sx 4 -sy 3`;
-			parent $MRsphere[0] $parent[0];
-			setAttr ($MRsphere[0] + ".miExportGeoShader") 1;
+			// And if the stubble_geometry shader exists, ...
+			if ( stringArrayContains("stubble_geometry", `listNodeTypes "rendernode/mentalray"`) )
+			{
+				// Create a proxy sphere as a child of HairShape transform node and connect our geometry shader to it
+				$MRsphere = `polySphere -r 0.001 -sx 4 -sy 3`;
+				parent $MRsphere[0] $parent[0];
+				setAttr ($MRsphere[0] + ".miExportGeoShader") 1;
+				$geometry_shader = `createNode "stubble_geometry"`;
+				connectAttr -f ($geometry_shader + ".outValue") ($MRsphere[0] + ".miGeoShader");
+			}
+			else
+			{
+				warning "Couldn't find the \"stubble_geometry\" shader. Please check the Stubble installation.";
+			}
 
-			// Connect our geometry shader to the proxy
-			$geometry_shader = `createNode "stubble_geometry"`;
-			connectAttr -f ($geometry_shader + ".outValue") ($MRsphere[0] + ".miGeoShader");
-
-			// Select the hair again
+			// Reselect the hair
 			select -r $shape;
 		}
 	}
