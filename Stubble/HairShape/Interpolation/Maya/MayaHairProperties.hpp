@@ -909,25 +909,27 @@ inline void MayaHairProperties::setInterpolationGroupsSelectableAttr( const MObj
 inline void MayaHairProperties::setScaleFactor( Real aScaleFactor )
 {
 	Real change = aScaleFactor / mScaleFactor;
+	Real changeInverse = 1 / change;
 	mScaleFactor = aScaleFactor;
 	// Rescale all size depented attributes :
 	mRootThickness *= change;
 	mTipThickness *= change;
 	mRootFrizz *= change;
 	mTipFrizz *= change;
-	mFrizzXFrequency *= change;
-	mFrizzYFrequency *= change;
-	mFrizzZFrequency *= change;
 	mFrizzAnimSpeed *= change;
 	mRootKink *= change;
 	mTipKink *= change;
-	mKinkXFrequency *= change;
-	mKinkYFrequency *= change;
-	mKinkZFrequency *= change;
 	mRootSplay *= change;
 	mTipSplay *= change;
 	mCenterSplay *= change;
 	mOffset *= change;
+	// Frequencies must become greater for smaller objects
+	mFrizzXFrequency *= changeInverse;
+	mFrizzYFrequency *= changeInverse;
+	mFrizzZFrequency *= changeInverse;
+	mKinkXFrequency *= changeInverse;
+	mKinkYFrequency *= changeInverse;
+	mKinkZFrequency *= changeInverse;
 }
 
 inline Real MayaHairProperties::getScaleFactor() const
