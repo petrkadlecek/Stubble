@@ -65,6 +65,7 @@ void HairTaskProcessor::enqueueTask (HairTask *aTask)
 	{
 		sDetectedThreadCount = true;
 
+		#ifdef _OPENMP
 		// maximum number of threads that could be used by OpenMP
 		MString commandString = "intSliderGrp -e -maxValue ";
 		commandString += omp_get_max_threads();
@@ -76,6 +77,15 @@ void HairTaskProcessor::enqueueTask (HairTask *aTask)
 		commandString += max(1, omp_get_max_threads() - 1);
 		commandString += " \"stubbleNumberOfThreads\";";
 		MGlobal::executeCommand( commandString );
+		#else
+		// maximum number of threads that could be used by OpenMP
+		MString commandString = "intSliderGrp -e -maxValue 1 \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+
+		// setting max - 1 as a value
+		commandString = "intSliderGrp -e -value 1 \"stubbleNumberOfThreads\";";
+		MGlobal::executeCommand( commandString );
+		#endif
 	}
 
 	// ------------------------------------
