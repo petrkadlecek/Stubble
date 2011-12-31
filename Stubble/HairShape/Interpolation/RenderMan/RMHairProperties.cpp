@@ -136,7 +136,7 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	}
 	if ( !file )
 	{
-		throw StubbleException(" RMHairProperties::RMHairProperties : file can not be opened ! ");
+//		throw StubbleException(" RMHairProperties::RMHairProperties : file can not be opened ! ");
 	}
 	file.close();
 }

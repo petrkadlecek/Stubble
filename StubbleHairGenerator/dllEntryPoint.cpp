@@ -260,47 +260,54 @@ DLLEXPORT miBoolean stubble_geometry_callback( miTag tag, void *args )
 	// Load stubble workdir
 	std::string stubbleWorkDir = Stubble::getEnvironmentVariable("STUBBLE_WORKDIR") + "\\";
 
-    // Start mentalRay object.
+	// Start mental ray object.
 	char const* name = mi_api_tag_lookup(tag);
-    mi_api_incremental(miTRUE);
-    miObject* obj = mi_api_object_begin(mi_mem_strdup(name));
-    obj->visible = miTRUE;
-    obj->shadow = obj->reflection = obj->refraction = 0x03;
+	mi_api_incremental(miTRUE);
+	miObject* obj = mi_api_object_begin(mi_mem_strdup(name));
+	obj->visible = miTRUE;
+	obj->shadow = obj->reflection = obj->refraction = 0x03;
 
 	// Create output generator
 	MROutputGenerator outputGenerator( 1000000 ); // One million segments max. for each commit
 
 	// Use only a single voxel for output.
-	
-	// Get file prefix
-	std::string filePrefix = stubbleWorkDir + "stubble_mr_hair";
-	// Read frame file with hair properties
-	RMHairProperties hairProperties( filePrefix + ".FRM" );
-	// Get voxel file name
-	std::ostringstream str;
-	str << filePrefix << ".VX0";
-	// Read voxel file with mesh geometry and create position generator (it's OK to use RenderMan's)
-	RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
-	// Create hair generator
-	HairGenerator< RMPositionGenerator, MROutputGenerator > hairGenerator( positionGenerator, outputGenerator );
-	// Should normals be output?
-	outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
-	// Finally begin generating hair
-	hairGenerator.generate( hairProperties );
+	try {
+		// Get file prefix
+		std::string filePrefix = stubbleWorkDir + "stubble_mr_hair";
+		// Read frame file with hair properties
+		RMHairProperties hairProperties( filePrefix + ".FRM" );
+		// Get voxel file name
+		std::ostringstream str;
+		str << filePrefix << ".VX0";
+		// Read voxel file with mesh geometry and create position generator (it's OK to use RenderMan's)
+		RMPositionGenerator positionGenerator( hairProperties.getDensityTexture(), str.str() );
+		// Create hair generator
+		HairGenerator< RMPositionGenerator, MROutputGenerator > hairGenerator( positionGenerator, outputGenerator );
+		// Should normals be output?
+		outputGenerator.setOutputNormals( hairProperties.areNormalsCalculated() );
 
-	// Set bounding box
-	BoundingBox bb = hairGenerator.getBoundingBox();
-	obj->bbox_min.x = miScalar( bb.min()[ 0 ] );
-	obj->bbox_min.y = miScalar( bb.min()[ 1 ] );
-	obj->bbox_min.z = miScalar( bb.min()[ 2 ] );
-	obj->bbox_max.x = miScalar( bb.max()[ 0 ] );
-	obj->bbox_max.y = miScalar( bb.max()[ 1 ] );
-	obj->bbox_max.z = miScalar( bb.max()[ 2 ] );
+		// Generate hair
+		hairGenerator.generate( hairProperties );
+
+		// Set bounding box
+		BoundingBox bb = hairGenerator.getBoundingBox();
+		obj->bbox_min.x = miScalar( bb.min()[ 0 ] );
+		obj->bbox_min.y = miScalar( bb.min()[ 1 ] );
+		obj->bbox_min.z = miScalar( bb.min()[ 2 ] );
+		obj->bbox_max.x = miScalar( bb.max()[ 0 ] );
+		obj->bbox_max.y = miScalar( bb.max()[ 1 ] );
+		obj->bbox_max.z = miScalar( bb.max()[ 2 ] );
+
+		std::cerr << "Stubble for mental ray: hair object generated successfully." << std::endl;
+	}
+	catch ( StubbleException & ex )
+	{
+		std::cerr << "Stubble for mental ray error: " << ex.what() << std::endl;
+	}
 
 	// Close mental ray object.
 	mi_api_object_end();
 
-	std::cerr << "Stubble for mental ray: Hair object generated." << std::endl;
 	return miTRUE;
 }
 

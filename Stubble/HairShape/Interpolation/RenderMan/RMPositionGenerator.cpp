@@ -55,7 +55,7 @@ RMPositionGenerator::RMPositionGenerator( const Texture & aDensityTexture, const
 		// Close file
 		if ( !file )
 		{
-			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : file can not be opened ! ");
+//			throw StubbleException(" RMPositionGenerator::RMPositionGenerator : file can not be opened ! ");
 		}
 		file.close();
 	}
