@@ -18,6 +18,7 @@
 #include "HairShape/UserInterface/ResetCommand.hpp"
 #include "HairShape/UserInterface/HistoryCommands.hpp"
 #include "HairShape/UserInterface/PrepareForMentalRayCommand.hpp"
+#include "HairShape/UserInterface/SwitchSelectionModeCommand.hpp"
 
 #include "HairShape/UserInterface/CommandsNURBS.hpp"
 #include "HairShape/UserInterface/CommandsTextures.hpp"
@@ -231,6 +232,19 @@ EXPORT MStatus initializePlugin( MObject aObj )
 		return status;
 	}
 
+	// register StubbleSwitchSelectionModeCommand command
+	status = plugin.registerCommand( "StubbleSwitchSelectionModeCommand", Stubble::HairShape::SwitchSelectionModeCommand::creator );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not register the StubbleSwitchSelectionModeCommand command" );
+		return status;
+	}
+
+	// initialize the selection mode
+	MGlobal::setOptionVarValue( "stubbleSelectionMode", 1 );
+
 	return status;
 }
 
@@ -363,6 +377,24 @@ EXPORT MStatus uninitializePlugin( MObject aObj )
 	if ( status != MS::kSuccess )
 	{
 		status.perror( "could not unregister the StubbleResetCommand command" );
+	}
+
+	// deregister StubblePrepareForMentalRayCommand command
+	status = plugin.deregisterCommand( "StubblePrepareForMentalRayCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubblePrepareForMentalRayCommand command" );
+	}
+
+	// deregister StubbleSwitchSelectionModeCommand command
+	status = plugin.deregisterCommand( "StubbleSwitchSelectionModeCommand" );
+
+	// check for error
+	if ( status != MS::kSuccess )
+	{
+		status.perror( "could not unregister the StubbleSwitchSelectionModeCommand command" );
 	}
 
 	// Clean up the brush worker thread

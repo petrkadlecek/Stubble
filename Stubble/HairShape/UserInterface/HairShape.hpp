@@ -172,9 +172,38 @@ public:
 	void draw();
 
 	///----------------------------------------------------------------------------------------------------
+	/// Returns the full path name of the hair shape in Maya's dependency graph.
+	///----------------------------------------------------------------------------------------------------
+	MString getFullPathName();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Returns the full path name of the hair shape in Maya's dependency graph.
+	///----------------------------------------------------------------------------------------------------
+	std::string getFullPathNameAsString();
+
+	///----------------------------------------------------------------------------------------------------
 	/// Synchronize the node's selection with Maya's (in case the keyboard modifiers were used).
 	///----------------------------------------------------------------------------------------------------
 	void syncSelection();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Change the list of the node's active components in Maya, based on the given flag (results in an inconsistent internal state).
+	///----------------------------------------------------------------------------------------------------
+	void changeComponentsInMaya( const MIntArray & aComponentIndices, std::string aFlag );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Deselect the node's active components in Maya (results in an inconsistent internal state).
+	///----------------------------------------------------------------------------------------------------
+	void deselectComponentsInMaya( const MIntArray & aComponentIndices );
+
+	///----------------------------------------------------------------------------------------------------
+	/// Select the node's active components in Maya (results in an inconsistent internal state).
+	///----------------------------------------------------------------------------------------------------
+	void selectComponentsInMaya( const MIntArray & aComponentIndices );
+
+	void getSelectedGuidesIndices( MIntArray & aSelectedGuidesIndices );
+
+	void getComponentsIndicesToSelect( MIntArray & aComponentsToSelect );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Checks if the given interpolation group is currently selectable.
@@ -291,7 +320,7 @@ public:
 	void setCurrentlySelected( bool aFlag );
 
 	///----------------------------------------------------------------------------------------------------
-	/// Is the shape currently selected in maya?
+	/// Is the shape currently selected (do not query maya, just return the cached answer)?
 	/// 
 	/// \return true, if the shape (or some of its components) is in maya's active selection list.
 	///----------------------------------------------------------------------------------------------------
@@ -419,6 +448,21 @@ public:
 	/// Loads all hair shapes. 
 	///-------------------------------------------------------------------------------------------------
 	static void loadAllHairShapes();
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Synchronize the selected components with the current selection mode (guides, roots, tips, all vertices).
+	///----------------------------------------------------------------------------------------------------
+	void switchSelectedComponents();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Set the node's currently selected components' indices.
+	///----------------------------------------------------------------------------------------------------
+	void setSelectedComponentsIndices( const MIntArray & aSelectedComponentsIndices );
+	
+	///----------------------------------------------------------------------------------------------------
+	/// Get the node's currently selected components' indices.
+	///----------------------------------------------------------------------------------------------------
+	const MIntArray & getSelectedComponentsIndices();
 
 private:
 	
@@ -564,6 +608,8 @@ private:
 	bool mIsCurrentlySelected; ///< true if the node is currently selected in maya
 
 	bool mIsSelectionModified; ///< true if the selection has changed
+
+	MIntArray mSelectedComponentsIndices; ///< array of currently selected components' indices
 
 	static MCallbackIdArray mCallbackIds;	///< List of identifiers for the callbacks
 

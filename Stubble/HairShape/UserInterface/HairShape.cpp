@@ -90,6 +90,8 @@ HairShape::HairShape():
 	mActiveHairShapeNode = this;
 	// initialize the vector to a random size that is greater than the max
 	mInterpolationGroupsSelectable.resize( 50, 1 );
+	// initialize the array of currently selected components' indices
+	mSelectedComponentsIndices = MIntArray();
 }
 
 void HairShape::postConstructor()
@@ -213,7 +215,6 @@ void HairShape::setupDelayed()
 		mDelayedCallbackId = MTimerMessage::addTimerCallback( 0.5, delayedSetInternalValueInContext, (void*) this );
 	}
 }
-
 
 void HairShape::delayedSetInternalValueInContext( float aElapsedTime, float aLastTime, void* aThis )
 {
@@ -425,10 +426,23 @@ void HairShape::draw()
 	}
 }
 
-void HairShape::syncSelection()
+MString HairShape::getFullPathName()
 {
 	MDagPath thisDagPath;
 	MDagPath::getAPathTo( this->asMObject(), thisDagPath );
+	return thisDagPath.fullPathName();
+}
+
+std::string HairShape::getFullPathNameAsString()
+{
+	MDagPath thisDagPath;
+	MDagPath::getAPathTo( this->asMObject(), thisDagPath );
+	return string( thisDagPath.fullPathName().asChar() );
+}
+
+void HairShape::syncSelection()
+{
+	MString fullPathName = this->getFullPathName();
 
 	if ( this->isSelectionModified() )
 	{		
@@ -439,6 +453,7 @@ void HairShape::syncSelection()
 			this->mHairGuides->applySelection( arr );
 			//the node is no longer selected
 			this->setCurrentlySelected( false );
+			this->setSelectedComponentsIndices( arr );
 			return;
 		}
 		this->setAsActiveObject();
@@ -461,7 +476,7 @@ void HairShape::syncSelection()
 			//
 			it.getDagPath( dagPath, component );
 
-			if ( dagPath.fullPathName() != thisDagPath.fullPathName() )
+			if ( dagPath.fullPathName() != fullPathName )
 			{
 				it.next();
 				continue;
@@ -493,13 +508,17 @@ void HairShape::syncSelection()
 						for ( unsigned int i = 0; i < arr.length(); i++ )
 						{
 							cout << arr[i] << " ";
-						}*/
+						}
 
-						cout << endl;
-
+						cout << endl;*/
+						
+						this->setSelectedComponentsIndices( arr );
+						
+						
 						// tell the node that it needs to rebuild its internal selection list
 						this->mHairGuides->applySelection( arr );
-
+						
+						
 						//the node is now selected
 						this->setCurrentlySelected( true );
 
@@ -550,9 +569,123 @@ void HairShape::syncSelection()
 			this->mHairGuides->applySelection( arr );
 			// the node is no longer selected
 			this->setCurrentlySelected( false );
+			this->setSelectedComponentsIndices( arr );
 			return;
 		}
 		this->setAsActiveObject();
+	}
+}
+
+void HairShape::deselectComponentsInMaya( const MIntArray & aComponentIndices )
+{
+	changeComponentsInMaya( aComponentIndices, "d" );
+}
+
+void HairShape::selectComponentsInMaya( const MIntArray & aComponentIndices )
+{
+	changeComponentsInMaya( aComponentIndices, "add" );
+}
+
+void HairShape::changeComponentsInMaya( const MIntArray & aComponentIndices, std::string aFlag )
+{
+	unsigned int start = 0, end = 0, index = 1;
+	std::stringstream ss;
+	std::string fullPathName = this->getFullPathNameAsString();
+	std::string command = "select -" + aFlag + " " + fullPathName + ".vtx[";
+
+	while ( index < aComponentIndices.length() )
+	{
+		if ( aComponentIndices[ index ] == ( aComponentIndices[ end ] + 1 ) )
+		{
+			end = index;
+		}
+		else
+		{			
+			ss << command;
+			ss << aComponentIndices[ start ];
+			if ( start != end ) ss << ":" << aComponentIndices[ end ];
+			ss << "];";
+
+			std::cout << ss.str() << endl;
+			MGlobal::executeCommand( MString( ss.str().c_str() ) );
+			ss.str("");
+
+			start = end = index;
+		}
+
+		index++;
+	}
+	/*std::cout << command;
+	std::cout << start;
+	if ( start != end ) std::cout << ":" << end;
+	std::cout << "]" << std::endl;*/
+	ss << command;
+	ss << aComponentIndices[ start ];
+	if ( start != end ) ss << ":" << aComponentIndices[ end ];
+	ss << "];";
+
+	std::cout << ss.str() << endl;
+	MGlobal::executeCommand( MString( ss.str().c_str() ) );
+	ss.str("");
+}
+
+void HairShape::getSelectedGuidesIndices( MIntArray & aSelectedGuidesIndices )
+{
+	const MIntArray guidesSelectedVerticesIndices = this->getSelectedComponentsIndices();
+	std::vector< unsigned __int32 > guidesVerticesEndIndices = this->mHairGuides->guidesVerticesEndIndex();
+
+	unsigned int selInd = 0, allInd = 0;
+
+	while ( selInd < guidesSelectedVerticesIndices.length() && allInd < guidesVerticesEndIndices.size() )
+	{
+		int start = ( allInd == 0 ) ? 0 : guidesVerticesEndIndices[ allInd - 1 ] + 1;
+		int end = guidesVerticesEndIndices[ allInd ];
+
+		while ( ( selInd < guidesSelectedVerticesIndices.length() ) && ( guidesSelectedVerticesIndices[ selInd ] < start ) )
+		{
+			selInd++;
+		}
+
+		if ( selInd < guidesSelectedVerticesIndices.length() )
+		{
+			if ( guidesSelectedVerticesIndices[ selInd ] <= end )
+			{
+				aSelectedGuidesIndices.append( allInd );
+			}
+		}
+
+		allInd++;
+	}
+
+}
+
+void HairShape::getComponentsIndicesToSelect( MIntArray & aComponentsToSelect )
+{
+	MIntArray selectedGuidesArr;
+	std::vector< unsigned __int32 > guidesVerticesEndIndices = this->mHairGuides->guidesVerticesEndIndex();
+	this->getSelectedGuidesIndices( selectedGuidesArr );
+	HairShapeUI::SelectionMode selMode = HairShapeUI::getSelectionMode();
+
+	for ( unsigned int i = 0; i < selectedGuidesArr.length(); i++ )
+	{
+		int start = ( selectedGuidesArr[ i ] == 0 ) ? 0 : guidesVerticesEndIndices[ selectedGuidesArr[ i ] - 1 ] + 1;
+		int end = guidesVerticesEndIndices[ selectedGuidesArr[ i ] ];
+
+		switch ( selMode )
+		{
+			case HairShapeUI::kSelectRoots :
+			case HairShapeUI::kSelectGuides :
+												for ( int j = start; j <= end; j++ )
+												{
+													aComponentsToSelect.append( j );
+												}
+										break;
+			case HairShapeUI::kSelectTips : 
+												aComponentsToSelect.append( end );
+											break;
+			default :
+				false;
+		}
 	}
 }
 
@@ -786,6 +919,48 @@ void HairShape::loadAllHairShapes()
 	}
 }
 
+
+void HairShape::switchSelectedComponents()
+{
+	/*int tmp[] = {0, 1, 2, 3, 4, 5, 12, 13, 14, 18};
+	MIntArray componentsToDeselect = MIntArray( tmp, 10 );*/
+	const MIntArray componentsToDeselect = MIntArray( this->getSelectedComponentsIndices() );
+	/*cout << "Index array length: " << componentsToDeselect.length() << endl;
+						for ( unsigned int i = 0; i < componentsToDeselect.length(); i++ )
+						{
+							cout << componentsToDeselect[i] << " ";
+						}
+
+						cout << endl;*/
+	/*int tmp2[] = {0, 1, 2, 3, 4, 5, 12, 16, 17, 18};
+	MIntArray componentsToSelect = MIntArray( tmp2, 10 );*/
+	MIntArray componentsToSelect;
+	this->getComponentsIndicesToSelect( componentsToSelect );
+	/*cout << "Index array length: " << componentsToSelect.length() << endl;
+						for ( unsigned int i = 0; i < componentsToSelect.length(); i++ )
+						{
+							cout << componentsToSelect[i] << " ";
+						}
+
+						cout << endl;*/
+	
+	this->deselectComponentsInMaya( componentsToDeselect );
+	this->selectComponentsInMaya( componentsToSelect );
+
+	
+	this->setSelectionModified( true );
+	this->syncSelection();
+}
+
+const MIntArray & HairShape::getSelectedComponentsIndices()
+{
+	return mSelectedComponentsIndices;
+}
+
+void HairShape::setSelectedComponentsIndices( const MIntArray & aSelectedComponentsIndices )
+{
+	mSelectedComponentsIndices = MIntArray( aSelectedComponentsIndices );
+}
 
 static void saveSceneCallback( void * )
 {	
@@ -1044,11 +1219,7 @@ bool HairShape::isSelectedInMaya()
 	// Get the list of selected items 
 	MGlobal::getActiveSelectionList( selList );
 
-	MDagPath thisDagPath;
-
-	MDagPath::getAPathTo( this->asMObject(), thisDagPath );
-	std::string tempdgp = string( thisDagPath.fullPathName().asChar() );
-	//std::cout << "Path name: " <<  tempmdg << endl;	
+	MString fullPathName = this->getFullPathName();	
 
 	MItSelectionList it( selList );
 	while ( !it.isDone() ) 
@@ -1059,9 +1230,8 @@ bool HairShape::isSelectedInMaya()
 
 		// we retrieve a dag path to a transform or shape, so we can get to the full path name.
 		it.getDagPath( dagPath, component );
-		std::string templ = string( dagPath.fullPathName().asChar() );
 		
-		if ( dagPath.fullPathName() == thisDagPath.fullPathName() )
+		if ( dagPath.fullPathName() == fullPathName )
 		{
 			return true;
 		}

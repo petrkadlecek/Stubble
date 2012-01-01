@@ -326,6 +326,11 @@ void HairGuides::setCurrentTime( Time aTime )
 	mBoundingBoxDirtyFlag = true;
 }
 
+void HairGuides::getSelectedComponentsIndices( MIntArray & aComponentIndices )
+{
+	mDisplayedGuides.getSelectedComponentsIndices( aComponentIndices );
+}
+
 void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,
 	bool aTopologyChanged )
 {

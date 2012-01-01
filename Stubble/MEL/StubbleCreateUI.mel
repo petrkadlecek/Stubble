@@ -114,7 +114,7 @@ global proc StubbleCreateUI()
 				-label "Select Guides"
 				-image1 "stubble_guides_selection.png"
 				-style "iconOnly"
-				-command "optionVar -iv \"stubbleSelectionMode\" 1;refresh;"`;
+				-command "optionVar -iv \"stubbleSelectionMode\" 1;StubbleSwitchSelectionModeCommand;refresh;"`;
 
 	// create Stubble Select Vertices icon
 	string $brushButton = 	`shelfButton
@@ -128,7 +128,7 @@ global proc StubbleCreateUI()
 				-label "Select Vertices"
 				-image1 "stubble_vertices_selection.png"
 				-style "iconOnly"
-				-command "optionVar -iv \"stubbleSelectionMode\" 2;refresh;"`;
+				-command "optionVar -iv \"stubbleSelectionMode\" 2;StubbleSwitchSelectionModeCommand;refresh;"`;
 				
 	// create Stubble Select Tips icon
 	string $brushButton = 	`shelfButton
@@ -142,7 +142,7 @@ global proc StubbleCreateUI()
 				-label "Select Tips"
 				-image1 "stubble_tips_selection.png"
 				-style "iconOnly"
-				-command "optionVar -iv \"stubbleSelectionMode\" 3;refresh;"`;
+				-command "optionVar -iv \"stubbleSelectionMode\" 3;StubbleSwitchSelectionModeCommand;refresh;"`;
 
 	// create Stubble Select Roots icon
 	string $brushButton = 	`shelfButton
@@ -156,7 +156,7 @@ global proc StubbleCreateUI()
 				-label "Select Roots"
 				-image1 "stubble_roots_selection.png"
 				-style "iconOnly"
-				-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"`;
+				-command "optionVar -iv \"stubbleSelectionMode\" 4;StubbleSwitchSelectionModeCommand;refresh;"`;
 
 	// create Stubble Brush tool icon
 	string $brushButton = 	`shelfButton

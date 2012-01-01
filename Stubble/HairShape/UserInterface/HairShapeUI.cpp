@@ -23,6 +23,9 @@ namespace Stubble
 
 namespace HairShape
 {
+// initialize the internal selection mode and drawing state
+HairShapeUI::SelectionMode HairShapeUI::sSelectionMode = kSelectGuides;
+HairShapeUI::DrawingState HairShapeUI::sDrawingState = kDrawGuides;
 
 HairShapeUI::HairShapeUI() {}
 
@@ -144,19 +147,16 @@ bool HairShapeUI::selectVertices( MSelectInfo &aSelectInfo, MSelectionList &aSel
 
 HairShapeUI::SelectionMode HairShapeUI::getSelectionMode()
 {
+	return HairShapeUI::sSelectionMode;
+}
+
+void HairShapeUI::syncSelectionMode()
+{
 	int selectionMode;
 	HairShapeUI::SelectionMode selMode;
 	
-
-	MStatus stat = MGlobal::executeCommand( MString("optionVar -q \"stubbleSelectionMode\";"), selectionMode );
-
-	if ( stat != MStatus::kSuccess )
-	{
-		std::cout << "Error retrieving environment variable stubbleSelectionMode!" << endl;
-	}
-
-	//int selectionMode = ( int ) selectionModeEnv;
-
+	selectionMode = MGlobal::optionVarIntValue( MString( "stubbleSelectionMode" ) );
+	
 	switch ( selectionMode )
 	{
 	case 1:
@@ -173,19 +173,15 @@ HairShapeUI::SelectionMode HairShapeUI::getSelectionMode()
 		break;
 	default:
 		std::cout << "Variable stubbleSelectionMode has an invalid value! Defaulting to 1." << endl;
-		stat = MGlobal::executeCommand( "optionVar -iv \"stubbleSelectionMode\" 1;" );
+		MGlobal::setOptionVarValue( "stubbleSelectionMode", 1 );
 		selMode = kSelectGuides;
 	}
 
-	return selMode;
-}
+	HairShapeUI::sSelectionMode = selMode;
 
-HairShapeUI::DrawingState HairShapeUI::getDrawingState()
-{
 	HairShapeUI::DrawingState drawingState;
-	HairShapeUI::SelectionMode selectionMode = HairShapeUI::getSelectionMode();
 	
-	switch ( selectionMode )
+	switch ( HairShapeUI::sSelectionMode )
 	{
 	case kSelectGuides:
 		drawingState = kDrawGuides;
@@ -196,11 +192,16 @@ HairShapeUI::DrawingState HairShapeUI::getDrawingState()
 		drawingState = kDrawVertices;
 		break;
 	default:
-		std::cout << "Error in method getDrawingState()!" << endl;
+		std::cout << "Error in method syncSelectionMode()!" << endl;
 		drawingState = kDrawGuides;
 	}
 
-	return drawingState;
+	HairShapeUI::sDrawingState = drawingState;
+}
+
+HairShapeUI::DrawingState HairShapeUI::getDrawingState()
+{
+	return HairShapeUI::sDrawingState;
 }
 
 } // namespace HairShape

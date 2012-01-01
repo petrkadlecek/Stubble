@@ -80,7 +80,7 @@ public:
 	};
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the selection mode from the environment and derives the correct DrawingState.
+	/// Returns the current drawing state, based on the current selection mode.
 	/// (select guides -> kDrawGuides)
 	/// (select vertices, roots, tips -> kDrawVertices)
 	///----------------------------------------------------------------------------------------------------
@@ -97,9 +97,17 @@ public:
 	};
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets the selection mode from the environment by using optionVar -q "stubbleSelectionMode".
+	/// Returns the current selection mode
 	///----------------------------------------------------------------------------------------------------
 	static SelectionMode getSelectionMode();
+
+	///----------------------------------------------------------------------------------------------------
+	/// Gets the selection mode from the Maya environment
+	///----------------------------------------------------------------------------------------------------
+	static void syncSelectionMode();
+		
+	static SelectionMode sSelectionMode;
+	static DrawingState sDrawingState;
 	
 };
 
