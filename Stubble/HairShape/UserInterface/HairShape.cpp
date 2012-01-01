@@ -337,8 +337,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	bool segmentsCountChanged;
 	bool interpolationGroupsSelectableChanged;
 	bool hairPropertiesChanged;
+	bool textureResolutionHasChanged;
 	bool textureChanged = 
-		MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, interpolationGroupsSelectableChanged, hairPropertiesChanged );
+		MayaHairProperties::setAttributesValues( aPlug, aDataHandle, segmentsCountChanged, 
+		interpolationGroupsSelectableChanged, hairPropertiesChanged, textureResolutionHasChanged );
 	// Calls this always, it cost nothing..
 	if ( mHairGuides != 0 )
 	{
@@ -374,6 +376,10 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		{
 			mInterpolatedHair.propertiesUpdate( *this );
 		}
+		return textureChanged;
+	}
+	if ( textureResolutionHasChanged )
+	{
 		return textureChanged;
 	}
 	return true;

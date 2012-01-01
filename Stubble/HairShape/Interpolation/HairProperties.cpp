@@ -80,7 +80,7 @@ HairProperties::HairProperties():
 	mOffsetTexture( 0 ),
 	mOffset( 0 ),
 	mAspectTexture( 0 ),
-	mAspect( 0 ),
+	mAspect( 1 ),
 	mRandomizeStrandTexture( 0 ),
 	mRandomizeStrand( 0 )
 {

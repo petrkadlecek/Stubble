@@ -82,7 +82,7 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const Hair
 			getGroupSegmentsCount( groupId ) + 1;
 		// Calculate points count after cut, if cut < 1 than we need to include one more point for cut calculation
 		unsigned __int32 ptsCountAfterCut = 
-			static_cast< unsigned __int32 >( std::ceil( cutFactor * ptsCountBeforeCut ) ) + 1;
+			static_cast< unsigned __int32 >( std::ceil( cutFactor * ptsCountBeforeCut ) ) + 2;
 		// Limit pts count
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides
@@ -230,9 +230,9 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		// Get points count = segments count + 1
 		unsigned __int32 ptsCountBeforeCut = aHairProperties.getInterpolationGroups().
 			getGroupSegmentsCount( groupId ) + 1;
-		// Calculate points count after cut, if cut < 1 than we need to include two more point for cut calculation
+		// Calculate points count after cut, if cut < 1 than we need to include one more point for cut calculation
 		unsigned __int32 ptsCountAfterCut = 
-			static_cast< unsigned __int32 >( std::ceil( cutFactor * ptsCountBeforeCut ) ) + 2;
+			static_cast< unsigned __int32 >( std::ceil( cutFactor * ptsCountBeforeCut ) ) + 1;
 		// Limit pts count
 		ptsCountAfterCut = ptsCountBeforeCut < ptsCountAfterCut ? ptsCountBeforeCut : ptsCountAfterCut;
 		// Interpolate points of hair from closest guides

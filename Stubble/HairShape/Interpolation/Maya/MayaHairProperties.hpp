@@ -454,11 +454,13 @@ protected:
 	/// \param [in,out]	aSegmentsCountChanged					The segments count has changed.
 	/// \param [in,out]	aInterpolationGroupsSelectableChanged	The selectable interpolation groups attribute has changed.
 	/// \param [in,out]	aHairPropertiesChanged					The hair properties has changed. 
+	/// \param [in,out]	aTextureResolutionHasChanged			The textures resolution has changed. 	
 	/// 	
 	/// \return Returns true, only if any texture was changed ( prevent Maya errors )
 	///----------------------------------------------------------------------------------------------------
 	bool setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
-		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged);
+		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged,
+		bool & aTextureResolutionHasChanged );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Brakes a connection to plug on our node.

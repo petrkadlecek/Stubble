@@ -557,7 +557,7 @@ MStatus MayaHairProperties::initializeAttributes()
 		addFloatAttribute( "offset_texture", "offtxt", offsetTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "offset", "off", offsetAttr, 0, 0, float_max, 0, 5 );
 		addFloatAttribute( "aspect_texture", "asptxt", aspectTextureAttr, 1, 0, 1, 0, 1 );
-		addFloatAttribute( "aspect", "asp", aspectAttr, 0, 0, float_max, 0, 5 );
+		addFloatAttribute( "aspect", "asp", aspectAttr, 1, 0, float_max, 0, 5 );
 		addFloatAttribute( "randomize_strand_texture", "rstrtxt", randomizeStrandTextureAttr, 1, 0, 1, 0, 1 );
 		addFloatAttribute( "randomize_strand", "rstr", randomizeStrandAttr, 0, 0, 1, 0, 1 );
 		/* TEXTURE DIMENSIONS FOR SAMPLING ATTRIBUTES */
@@ -716,10 +716,12 @@ MStatus MayaHairProperties::initializeAttributes()
 }
 
 bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHandle& aDataHandle,
-		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged )
+		bool & aSegmentsCountChanged, bool & aInterpolationGroupsSelectableChanged, bool & aHairPropertiesChanged,
+		bool & aTextureResolutionHasChanged )
 {
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
-	aSegmentsCountChanged = aInterpolationGroupsSelectableChanged = aHairPropertiesChanged = false;
+	aSegmentsCountChanged = aInterpolationGroupsSelectableChanged = aHairPropertiesChanged =
+		aTextureResolutionHasChanged = false;
 	if ( root == mSegmentsCountAttr )
 	{
 		// For all interpolation groups
@@ -1176,96 +1178,112 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == densityTextureSamplingUDimensionAttr )
 	{
 		mDensityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == densityTextureSamplingVDimensionAttr )
 	{
 		mDensityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == interpolationGroupsTextureSamplingUDimensionAttr )
 	{
 		mInterpolationGroupsTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == interpolationGroupsTextureSamplingVDimensionAttr )
 	{
 		mInterpolationGroupsTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == cutTextureSamplingUDimensionAttr )
 	{
 		mCutTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == cutTextureSamplingVDimensionAttr )
 	{
 		mCutTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == scaleTextureSamplingUDimensionAttr )
 	{
 		mScaleTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == scaleTextureSamplingVDimensionAttr )
 	{
 		mScaleTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == randScaleTextureSamplingUDimensionAttr )
 	{
 		mRandScaleTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == randScaleTextureSamplingVDimensionAttr )
 	{
 		mRandScaleTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootThicknessTextureSamplingUDimensionAttr )
 	{
 		mRootThicknessTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootThicknessTextureSamplingVDimensionAttr )
 	{
 		mRootThicknessTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipThicknessTextureSamplingUDimensionAttr )
 	{
 		mTipThicknessTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipThicknessTextureSamplingVDimensionAttr )
 	{
 		mTipThicknessTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == displacementTextureSamplingUDimensionAttr )
 	{
 		mDisplacementTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == displacementTextureSamplingVDimensionAttr )
 	{
 		mDisplacementTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
@@ -1273,96 +1291,112 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == rootOpacityTextureSamplingUDimensionAttr )
 	{
 		mRootOpacityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootOpacityTextureSamplingVDimensionAttr )
 	{
 		mRootOpacityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipOpacityTextureSamplingUDimensionAttr )
 	{
 		mTipOpacityTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipOpacityTextureSamplingVDimensionAttr )
 	{
 		mTipOpacityTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootColorTextureSamplingUDimensionAttr )
 	{
 		mRootColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootColorTextureSamplingVDimensionAttr )
 	{
 		mRootColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipColorTextureSamplingUDimensionAttr )
 	{
 		mTipColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipColorTextureSamplingVDimensionAttr )
 	{
 		mTipColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == hueVariationTextureSamplingUDimensionAttr )
 	{
 		mHueVariationTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == hueVariationTextureSamplingVDimensionAttr )
 	{
 		mHueVariationTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == valueVariationTextureSamplingUDimensionAttr )
 	{
 		mValueVariationTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == valueVariationTextureSamplingVDimensionAttr )
 	{
 		mValueVariationTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == mutantHairColorTextureSamplingUDimensionAttr )
 	{
 		mMutantHairColorTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == mutantHairColorTextureSamplingVDimensionAttr )
 	{
 		mMutantHairColorTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == percentMutantHairTextureSamplingUDimensionAttr )
 	{
 		mPercentMutantHairTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == percentMutantHairTextureSamplingVDimensionAttr )
 	{
 		mPercentMutantHairTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
@@ -1370,84 +1404,98 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == rootFrizzTextureSamplingUDimensionAttr )
 	{
 		mRootFrizzTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootFrizzTextureSamplingVDimensionAttr )
 	{
 		mRootFrizzTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipFrizzTextureSamplingUDimensionAttr )
 	{
 		mTipFrizzTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipFrizzTextureSamplingVDimensionAttr )
 	{
 		mTipFrizzTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzXFrequencyTextureSamplingUDimensionAttr )
 	{
 		mFrizzXFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzXFrequencyTextureSamplingVDimensionAttr )
 	{
 		mFrizzXFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzYFrequencyTextureSamplingUDimensionAttr )
 	{
 		mFrizzYFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzYFrequencyTextureSamplingVDimensionAttr )
 	{
 		mFrizzYFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzZFrequencyTextureSamplingUDimensionAttr )
 	{
 		mFrizzZFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzZFrequencyTextureSamplingVDimensionAttr )
 	{
 		mFrizzZFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzAnimTextureSamplingUDimensionAttr )
 	{
 		mFrizzAnimTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzAnimTextureSamplingVDimensionAttr )
 	{
 		mFrizzAnimTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzAnimSpeedTextureSamplingUDimensionAttr )
 	{
 		mFrizzAnimSpeedTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == frizzAnimSpeedTextureSamplingVDimensionAttr )
 	{
 		mFrizzAnimSpeedTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
@@ -1455,60 +1503,70 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == rootKinkTextureSamplingUDimensionAttr )
 	{
 		mRootKinkTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootKinkTextureSamplingVDimensionAttr )
 	{
 		mRootKinkTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipKinkTextureSamplingUDimensionAttr )
 	{
 		mTipKinkTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipKinkTextureSamplingVDimensionAttr )
 	{
 		mTipKinkTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkXFrequencyTextureSamplingUDimensionAttr )
 	{
 		mKinkXFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkXFrequencyTextureSamplingVDimensionAttr )
 	{
 		mKinkXFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkYFrequencyTextureSamplingUDimensionAttr )
 	{
 		mKinkYFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkYFrequencyTextureSamplingVDimensionAttr )
 	{
 		mKinkYFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkZFrequencyTextureSamplingUDimensionAttr )
 	{
 		mKinkZFrequencyTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == kinkZFrequencyTextureSamplingVDimensionAttr )
 	{
 		mKinkZFrequencyTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
@@ -1516,84 +1574,98 @@ bool MayaHairProperties::setAttributesValues( const MPlug& aPlug, const MDataHan
 	if ( aPlug == rootSplayTextureSamplingUDimensionAttr )
 	{
 		mRootSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == rootSplayTextureSamplingVDimensionAttr )
 	{
 		mRootSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipSplayTextureSamplingUDimensionAttr )
 	{
 		mTipSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == tipSplayTextureSamplingVDimensionAttr )
 	{
 		mTipSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == centerSplayTextureSamplingUDimensionAttr )
 	{
 		mCenterSplayTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == centerSplayTextureSamplingVDimensionAttr )
 	{
 		mCenterSplayTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == twistTextureSamplingUDimensionAttr )
 	{
 		mTwistTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == twistTextureSamplingVDimensionAttr )
 	{
 		mTwistTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == offsetTextureSamplingUDimensionAttr )
 	{
 		mOffsetTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == offsetTextureSamplingVDimensionAttr )
 	{
 		mOffsetTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == aspectTextureSamplingUDimensionAttr )
 	{
 		mAspectTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == aspectTextureSamplingVDimensionAttr )
 	{
 		mAspectTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == randomizeStrandTextureSamplingUDimensionAttr )
 	{
 		mRandomizeStrandTextureSamplingUDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
 	if ( aPlug == randomizeStrandTextureSamplingVDimensionAttr )
 	{
 		mRandomizeStrandTextureSamplingVDimension = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		aTextureResolutionHasChanged = true;
 		return false;
 	}
 
@@ -1792,7 +1864,7 @@ void MayaHairProperties::refreshTextures( unsigned __int32 aTextureSamples, bool
 			mInterpolationGroupsTextureSamplingVDimension );
 		mInterpolationGroups->updateGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
 		updateIntArrayComponentsCount( segmentsCountAttr, mInterpolationGroups->getGroupsCount(), 
-			DEFAULT_SEGMENTS_COUNT, 1, 100, 1, 10 );
+			DEFAULT_SEGMENTS_COUNT, 1, 30, 1, 30 );
 		updateIntArrayComponentsCount( interpolationGroupsSelectableAttr, mInterpolationGroups->getGroupsCount(), 
 			1, 0, 1, 0, 1, "groups_selectable_" );
 		aInterpolationGroupsChanged = true;

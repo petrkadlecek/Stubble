@@ -276,9 +276,9 @@ void Texture::resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __i
 
 void Texture::getSampleUVPoints(float* aUSamples, float* aVSamples, unsigned __int32 aUDimension, unsigned __int32 aVDimension)
 {
-	for( unsigned __int32 i = 0; i < aUDimension; ++i )
+	for( unsigned __int32 i = 0; i < aVDimension; ++i )
 	{
-		for( unsigned __int32 j = 0; j < aVDimension; ++j )
+		for( unsigned __int32 j = 0; j < aUDimension; ++j )
 		{
 			aUSamples[ i * aUDimension + j ] = ( float )i / ( aUDimension - 1 );
 			aVSamples[ i * aUDimension + j ] = ( float )j / ( aVDimension - 1 );
