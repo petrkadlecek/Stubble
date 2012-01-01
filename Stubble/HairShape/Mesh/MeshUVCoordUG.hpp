@@ -11,6 +11,9 @@ namespace HairShape
 {
 
 ///-------------------------------------------------------------------------------------------------
+/// This class serves as mapping between UV coordinates and triangles on mesh.
+/// Its build from array of triangles which belongs to the mesh and then makes possible to answer in 
+/// which triangle is tested UV point.
 /// Mesh uv coordinates uniform grid used after topology change
 ///-------------------------------------------------------------------------------------------------
 class MeshUVCoordUG
