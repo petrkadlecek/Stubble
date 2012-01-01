@@ -196,6 +196,7 @@
     <ClCompile Include="HairShape\UserInterface\ReinitCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\ResetCommand.cpp" />
     <ClCompile Include="HairShape\UserInterface\SelectCommand.cpp" />
+    <ClCompile Include="HairShape\UserInterface\SwitchSelectionModeCommand.cpp" />
     <ClCompile Include="pluginMain.cpp" />
     <ClCompile Include="RibExport\CachedFrame.cpp" />
     <ClCompile Include="RibExport\RenderManCacheCommand.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="HairShape\UserInterface\ReinitCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\ResetCommand.hpp" />
     <ClInclude Include="HairShape\UserInterface\SelectCommand.hpp" />
+    <ClInclude Include="HairShape\UserInterface\SwitchSelectionModeCommand.hpp" />
     <ClInclude Include="Primitives\BoundingBox.hpp" />
     <ClInclude Include="Primitives\Matrix.hpp" />
     <ClInclude Include="Primitives\Vector3D.hpp" />

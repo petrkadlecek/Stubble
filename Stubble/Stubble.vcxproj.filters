@@ -271,6 +271,9 @@
     <ClCompile Include="HairShape\HairComponents\SegmentsDS.cpp">
       <Filter>HairShape\HairComponents</Filter>
     </ClCompile>
+    <ClCompile Include="HairShape\UserInterface\SwitchSelectionModeCommand.cpp">
+      <Filter>HairShape\UserInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Toolbox\BrushModes\BrushMode.hpp">
@@ -512,6 +515,9 @@
     </ClInclude>
     <ClInclude Include="HairShape\HairComponents\SegmentsDS.hpp">
       <Filter>HairShape\HairComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="HairShape\UserInterface\SwitchSelectionModeCommand.hpp">
+      <Filter>HairShape\UserInterface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
