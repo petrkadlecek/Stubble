@@ -1172,6 +1172,7 @@ void HairShape::refreshTextures( bool aForceRefresh )
 	{
 		delete mUVPointGenerator;
 		delete mVoxelization;
+		mVoxelization = 0;
 		mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 			mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 		// HairGuides reconstruction
@@ -1316,6 +1317,7 @@ void HairShape::meshChange( MObject aMeshObj )
 			// Creates new generator
 			delete mUVPointGenerator;
 			delete mVoxelization;
+			mVoxelization = 0;
 			mUVPointGenerator = new UVPointGenerator( MayaHairProperties::getDensityTexture(),
 				mMayaMesh->getRestPose().getTriangleConstIterator(), mRandom);
 			mHairGuides->meshUpdate( *mMayaMesh, *mInterpolationGroups, true );
