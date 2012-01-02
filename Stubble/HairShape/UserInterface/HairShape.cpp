@@ -8,6 +8,7 @@
 #include <maya/MAttributeSpecArray.h>
 #include <maya/MAttributeSpec.h>
 #include <maya/MAttributeIndex.h>
+#include <maya/MDGMessage.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnSingleIndexedComponent.h>   
@@ -18,6 +19,7 @@
 #include <maya/MItMeshEdge.h>
 #include <maya/MItMeshVertex.h>
 #include <maya/MItSelectionList.h>
+#include <maya/MNodeMessage.h>
 #include <maya/MPlugArray.h>
 #include <maya/MPolyMessage.h>
 #include <maya/MTime.h>
@@ -1488,6 +1490,16 @@ static void meshTopologyChangedFunction( MObject & aNode, void *aIsTopologyModif
 	*( reinterpret_cast< bool * >( aIsTopologyModified ) ) = true; // Mesh has been modified !!!
 }
 
+///-------------------------------------------------------------------------------------------------
+/// Mesh deleted. 
+///
+/// \param [in,out]	aModifier	The dag modifier. 
+/// \param [in,out]	aOurNode	Pointer to our node.
+///-------------------------------------------------------------------------------------------------
+void meshDeleted( MDGModifier & aModifier, void* aOurNode ) {
+	aModifier.deleteNode( reinterpret_cast< HairShape * >( aOurNode )->thisMObject() );
+}
+
 MStatus HairShape::registerTopologyCallback()
 {
 	MStatus status; // Error checking
@@ -1532,6 +1544,13 @@ MStatus HairShape::registerTopologyCallback()
 	if ( status != MStatus::kSuccess )
 	{
 		status.perror( " Failed to register topology changed callback #2 " );
+		return status;
+	}
+	mCallbackIds.append( MNodeMessage::addNodeAboutToDeleteCallback( shapeNode, meshDeleted, 
+		reinterpret_cast< void * >( this ), &status ) );
+	if ( status != MStatus::kSuccess )
+	{
+		status.perror( " Failed to register mesh pre-removal callback " );
 		return status;
 	}
 	// Register callback to mesh
