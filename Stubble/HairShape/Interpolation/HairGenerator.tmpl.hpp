@@ -485,6 +485,7 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 		frizzAnimFactor * ( animNoise[ 1 ] - 0.5f ) );
 	displace[ 2 ] = 2 * static_cast< RtFloat >( frizzStaticFactor * ( staticNoise[ 2 ] - 0.5f ) + 
 		frizzAnimFactor * ( animNoise[ 2 ] - 0.5f ) );
+	displace[ 2 ] = static_cast< RtFloat >( -abs( displace[ 2 ] ) );
 	// Calculate max displace factor
 	Real maxFactor = std::max( rootDisplaceFactor, tipDisplaceFactor );  
 	// Curve t param
