@@ -570,11 +570,11 @@ private:
 
 	MayaMesh *mMayaMesh; ///< Maya mesh on which hair grows
 
-	HairComponents::HairGuides *mHairGuides; ///< Object for storing hair guides segments
+	HairComponents::HairGuides *mHairGuides; ///< Object for storing guide segments
 
 	Interpolation::Maya::Voxelization * mVoxelization;   ///< The voxelization class for external interpolation of hair
 
-	Interpolation::Maya::InterpolatedHair mInterpolatedHair;	///< The object for displaying interpolate hair in Maya
+	Interpolation::Maya::InterpolatedHair mInterpolatedHair;	///< The object for displaying interpolated hair in Maya
 
 	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
@@ -582,9 +582,10 @@ private:
 
 	// Stored attributes values
 
-	unsigned __int32 mGuidesHairCount;  ///< Number of guides hairs
+	unsigned __int32 mGuidesHairCountWanted;  ///< Number of guides (UI value)
+	unsigned __int32 mGuidesHairCount;  ///< Number of guides (true value)
 
-	unsigned __int32 mGeneratedHairCount;	///< Number of generated hair
+	unsigned __int32 mGeneratedHairCount;	///< Number of generated hairs
 
 	Dimensions3 mVoxelsResolution;  ///< The voxels resolution
 
@@ -594,7 +595,7 @@ private:
 
 	bool mDisplayInterpolated; ///< Should interpolated hair be displayed ?
 
-	unsigned __int32 mGenDisplayCountWanted;	///< The number of generated hair to be displayed (to be shown in the UI)
+	unsigned __int32 mGenDisplayCountWanted;	///< The number of generated hair to be displayed (UI value)
 	unsigned __int32 mGenDisplayCount;	///< The number of generated hair to be displayed (true value)
 
 	unsigned __int32 mSampleTextureDimension; ///< Texture dimension for sampling attribute
