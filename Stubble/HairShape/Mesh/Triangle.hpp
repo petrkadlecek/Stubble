@@ -31,11 +31,11 @@ public:
 	/// Constructor. 
 	/// Creates triangle from 3 vertices.
 	///
-	/// \param	mVertex1	The first triangle vertex. 
-	/// \param	mVertex2	The second triangle vertex. 
-	/// \param	mVertex3	The third triangle vertex. 
+	/// \param	aVertex1	The first triangle vertex. 
+	/// \param	aVertex2	The second triangle vertex. 
+	/// \param	aVertex3	The third triangle vertex. 
 	///----------------------------------------------------------------------------------------------------
-	inline Triangle( const MeshPoint & mVertex1, const MeshPoint & mVertex2, const MeshPoint & mVertex3 );
+	inline Triangle( const MeshPoint & aVertex1, const MeshPoint & aVertex2, const MeshPoint & aVertex3 );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Constructor. 

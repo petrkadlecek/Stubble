@@ -118,7 +118,7 @@ public:
 	///
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
-	virtual MStatus compute( const MPlug &aPlug, MDataBlock &aDataBlock );
+	virtual MStatus compute( const MPlug & aPlug, MDataBlock & aDataBlock );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets an internal value in context. 
@@ -157,7 +157,7 @@ public:
 	///
 	/// \return Maya status code.
 	///----------------------------------------------------------------------------------------------------
-	virtual MStatus connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug,bool aAsSrc );
+	virtual MStatus connectionBroken( const MPlug & aPlug, const MPlug & aOtherPlug, bool aAsSrc );
 
 	///----------------------------------------------------------------------------------------------------
 	/// Creates new HairShape node.

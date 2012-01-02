@@ -50,7 +50,7 @@ public:
 	/// \param	aCalculateDerivatives	If true, partial derivatives of position and normal will be
 	/// 								calculated and stored ( used for surface displacement )
 	///----------------------------------------------------------------------------------------------------
-	Mesh( const Triangles &aTriangles, bool aCalculateDerivatives = false );
+	Mesh( const Triangles & aTriangles, bool aCalculateDerivatives = false );
 
 	///-------------------------------------------------------------------------------------------------
 	/// Exports mesh to binary file. 
@@ -80,7 +80,7 @@ public:
 	/// 				
 	/// \return	The point on mesh.
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint getMeshPoint( const UVPoint &aPoint ) const;
+	inline MeshPoint getMeshPoint( const UVPoint & aPoint ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets point on mesh interpolated from 3 vertices of given triangle.
@@ -100,7 +100,7 @@ public:
 	/// 				
 	/// \return	The position.
 	///----------------------------------------------------------------------------------------------------
-	inline Vector3D< Real > getPosition( const UVPoint &aPoint ) const;
+	inline Vector3D< Real > getPosition( const UVPoint & aPoint ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets point on displaced mesh interpolated from 3 vertices of given triangle.
@@ -112,7 +112,7 @@ public:
 	///
 	/// \return	The displaced point on mesh. 
 	///----------------------------------------------------------------------------------------------------
-	inline MeshPoint getDisplacedMeshPoint( const UVPoint &aPoint, const Texture & aDisplacementTexture, 
+	inline MeshPoint getDisplacedMeshPoint( const UVPoint & aPoint, const Texture & aDisplacementTexture, 
 		Real aDisplacementFactor ) const;
 
 	///----------------------------------------------------------------------------------------------------
