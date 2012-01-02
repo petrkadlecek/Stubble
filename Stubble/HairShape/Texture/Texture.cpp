@@ -171,10 +171,7 @@ void Texture::resample( unsigned __int32 aTextureUSamples, unsigned __int32 aTex
 			}
 			else if ( sourceNode.hasFn( MFn::kTexture3d ) )
 			{
-				MDagPath cameraPath;
-				M3dView::active3dView().getCamera( cameraPath );
-				MFloatMatrix cameraMat( cameraPath.inclusiveMatrix().matrix );
-				//MRenderUtil::sampleShadingNetwork(textureDataSourcePlug.name(),1,false,false,cameraMat,NULL,
+				// TODO: In future versions can be added sampling of 3D textures.
 			}
 			mDirty = false;
 	}
@@ -227,9 +224,6 @@ void Texture::reloadFileTextureImage( MImage & aTextureImage )
 
 void Texture::resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples )
 {
-	Stubble::Timer timer;
-	timer.reset();
-	timer.start();
 	if ( mWidth != aTextureUSamples || mHeight != aTextureVSamples )
 	{
 		// Change texture and texture attributes only if the dimension of texture changes
@@ -268,8 +262,6 @@ void Texture::resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __i
 			}
 		}
 	}
-	timer.stop();
-	timer.mayaDisplayLastElapsedTime();
 }
 
 #endif
