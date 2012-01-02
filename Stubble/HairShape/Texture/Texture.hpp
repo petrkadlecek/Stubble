@@ -30,7 +30,10 @@ namespace Stubble
 namespace HairShape
 {
 ///----------------------------------------------------------------------------------------------------
-/// Class that holds texture that is used as an attribute
+/// Class that holds texture that is used as an attribute.
+/// In this class can be stored only 2D textures. But can hold one or three color channels.
+/// It can handle image based or procedural textures. But for procedural textures is needed sampling
+/// because Maya don't allows to access texture values directly before rendertime.
 ///----------------------------------------------------------------------------------------------------
 class Texture
 {
@@ -111,6 +114,7 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Gets texture value at the given UV coordinates.
+	/// The value is computed using bilinear interpolation.
 	///
 	/// \param	u	u coordinate
 	/// \param	v	v coordinate
@@ -140,7 +144,8 @@ public:
 	inline float derivativeByVAtUV( Real u, Real v ) const;
 
 	///----------------------------------------------------------------------------------------------------
-	/// Gets texture value at the given UV coordinates.
+	/// Gets texture color value at the given UV coordinates.
+	/// The color value is computed using bilinear interpolation.
 	///
 	/// \param	aU	u coordinate
 	/// \param	aV	v coordinate
@@ -211,15 +216,14 @@ public:
 
 	///----------------------------------------------------------------------------------------------------
 	/// Removes a connection to a source of texture data.
-	///
 	///----------------------------------------------------------------------------------------------------
 	void removeConnection(); 
 
 	///----------------------------------------------------------------------------------------------------
 	/// Resample entire texture.
 	///
-	/// \param aTextureUSamples number of samples in U dimension of sampled texture
-	/// \param aTextureVSamples number of samples in V dimension of sampled texture
+	/// \param aTextureUSamples number of samples in U direction of sampled texture
+	/// \param aTextureVSamples number of samples in V direction of sampled texture
 	///----------------------------------------------------------------------------------------------------
 	void resample( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples );
 
@@ -233,8 +237,8 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	/// Samples connected 2DTexture and stores the samplevalues.
 	///
-	/// \param aTextureUSamples number of samples in U dimension of sampled texture
-	/// \param aTextureVSamples number of samples in V dimension of sampled texture
+	/// \param aTextureUSamples number of samples in U direction of sampled texture
+	/// \param aTextureVSamples number of samples in V direction of sampled texture
 	///----------------------------------------------------------------------------------------------------
 	void resample2DTexture( unsigned __int32 aTextureUSamples, unsigned __int32 aTextureVSamples );
 
@@ -263,10 +267,22 @@ private:
 
 	float mInverseHeight;  ///< The inverse value of texture height
 
-
+	///----------------------------------------------------------------------------------------------------
+	/// Precompute samples for sampling procedural 2D textures.
+	/// The samples are computed as vertexes in grid of dimensions aVDimension and aUdimension.
+	/// Output arrays should be allocated of size aUDimension*aVDimension
+	///
+	/// \param	[out]aUSamples[]	array for storing U coordinates of samples
+	/// \param	[out]aVSamples[]	array for storing V coordinates of samples
+	/// \param	aUDimension	number of samples in U direction
+	/// \param	aVDimension	number of samples in V direction
+	///----------------------------------------------------------------------------------------------------
 	void getSampleUVPoints( float aUSamples[], float aVSamples[], unsigned __int32 aUDimension, unsigned __int32 aVDimension );
 
-	void computeInverseSize();
+	///----------------------------------------------------------------------------------------------------
+	/// Computes inverse values for width and height of current texture.
+	///----------------------------------------------------------------------------------------------------
+	inline void computeInverseSize();
 
 	///----------------------------------------------------------------------------------------------------
 	/// Compute bilinear interpolation from 4 samples with more dimensions along directions U and V
@@ -283,11 +299,20 @@ private:
 		const Color aSampleU1V0, const Color aSampleU1V1,
 		const Real aURatio, const Real aVRatio, Color3 aOutColor ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Compute linear interpolation from 2 Color samples with defined ratio.
+	///
+	/// \param	aColor1	first sample used for interpolation
+	/// \param	aColor2	second sample used for interpolation
+	/// \param  aRatio	ratio between aColor1 and aColor2
+	/// \param [out]aOutColor color interpolated from aColor1 and aColor2
+	///----------------------------------------------------------------------------------------------------
 	inline void interpolateColors( const Color3 aColor1, const Color3 aColor2,
 		const Real aRatio, Color3 aOutColor ) const;
 
 	///----------------------------------------------------------------------------------------------------
 	/// Compute bilinear interpolation from 4 real samples along directions U and V
+	/// It has separate implementation because of speed reasons.
 	///
 	/// \param	aSampleU0V0	coordinate of sample in left up corner of pixel
 	/// \param	aSampleU0V0	coordinate of sample in left down corner of pixel
@@ -301,6 +326,15 @@ private:
 		const Color aSampleU1V0, const Color aSampleU1V1,
 		const Real aURatio, const Real aVRatio ) const;
 
+	///----------------------------------------------------------------------------------------------------
+	/// Compute linear interpolation from 2 real samples with defined ratio.
+	/// It has separate implementation because of speed reasons.
+	///
+	/// \param	aColor1	first sample used for interpolation
+	/// \param	aColor2	second sample used for interpolation
+	/// \param  aRatio	ratio between aColor1 and aColor2
+	/// return value interpolated from aColor1 and aColor2
+	///----------------------------------------------------------------------------------------------------
 	inline Real interpolateReals( const Real aColor1, const Real aColor2, const Real aRatio ) const;
 };
 
