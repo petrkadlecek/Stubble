@@ -93,6 +93,8 @@ protected:
 	static const double DEFAULT_RADIUS; ///< The scale multiplier for calculating the Cylinder radius.
 
 	double mRadius; ///< The radius of the displayed Cylinder (mRadius = mScale * mScaleFactor).
+
+	GLUquadric *mGlu; ///< GLU quadric object
 };
 
 inline int CylinderToolShape::getRadius() const

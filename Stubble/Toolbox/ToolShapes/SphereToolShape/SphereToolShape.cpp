@@ -19,6 +19,10 @@ SphereToolShape::SphereToolShape()
 	mScale = 1.0; // initialize the value before it is first passed from the UI
 
 	mRadius = mScale * DEFAULT_RADIUS;
+
+	mGlu = gluNewQuadric();
+	gluQuadricDrawStyle( mGlu, GLU_SILHOUETTE );
+	gluQuadricNormals( mGlu, GLU_SMOOTH );
 }
 
 void SphereToolShape::update( GenericTool *aTool )
@@ -37,13 +41,8 @@ void SphereToolShape::draw( M3dView *aView, short aScreenCoords[ 2 ], QEvent::Ty
 	// mouse support not implemented
 }
 
-GLUquadric *q = gluNewQuadric(); // put this into the class
-
 void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle )
 {
-	gluQuadricDrawStyle( q, GLU_SILHOUETTE );
-	gluQuadricNormals( q, GLU_SMOOTH );
-
 	// think glPushMatrix()
 	aView->beginGL();
 
@@ -65,7 +64,7 @@ void SphereToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aH
 	glPushMatrix();
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
-		gluSphere( q, mRadius, HapticSettingsTool::sProxyDetail, HapticSettingsTool::sProxyDetail );
+		gluSphere( mGlu, mRadius, HapticSettingsTool::sProxyDetail, HapticSettingsTool::sProxyDetail );
 	}
 	glPopMatrix();
 

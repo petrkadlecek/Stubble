@@ -17,6 +17,10 @@ CylinderToolShape::CylinderToolShape()
 	mScale = 1.0; // initialize the value before it is first passed from the UI
 
 	mRadius = mScale * DEFAULT_RADIUS;
+
+	mGlu = gluNewQuadric();
+	gluQuadricDrawStyle( mGlu, GLU_SILHOUETTE );
+	gluQuadricNormals( mGlu, GLU_SMOOTH );
 }
 
 void CylinderToolShape::update( GenericTool *aTool )
@@ -34,9 +38,6 @@ GLUquadric *qc = gluNewQuadric(); // put this into the class
 
 void CylinderToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &aHapticProxyRotation, double &aHapticProxyRotationAngle )
 {
-	gluQuadricDrawStyle( qc, GLU_SILHOUETTE );
-	gluQuadricNormals( qc, GLU_SMOOTH );
-
 	// think glPushMatrix()
 	aView->beginGL();
 
@@ -59,7 +60,7 @@ void CylinderToolShape::draw( M3dView *aView, MVector &aProxyPosition, MVector &
 	{
 		glTranslatef( aProxyPosition.x, aProxyPosition.y, aProxyPosition.z );
 		glRotated( aHapticProxyRotationAngle, aHapticProxyRotation.x, aHapticProxyRotation.y, aHapticProxyRotation.z );
-		gluCylinder( qc, mRadius * 0.5, mRadius * 0.6, mRadius * 5.0, HapticSettingsTool::sProxyDetail, HapticSettingsTool::sProxyDetail );
+		gluCylinder( mGlu, mRadius * 0.5, mRadius * 0.6, mRadius * 5.0, HapticSettingsTool::sProxyDetail, HapticSettingsTool::sProxyDetail );
 	}
 	glPopMatrix();
 

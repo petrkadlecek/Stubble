@@ -297,6 +297,11 @@ void HapticSettingsTool::getClassName( MString &aName ) const
 
 void HapticSettingsTool::toolOnSetup( MEvent &event )
 {
+	if ( HapticSettingsTool::sDeviceAvailable )
+	{
+		MGlobal::executeCommandOnIdle("if (!`objExists \"HapticListener1\"`) { createNode HapticListener; }");
+	}
+
 	if (mInitFlag) {
 		return;
 	}
