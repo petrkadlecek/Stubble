@@ -404,23 +404,9 @@ void* HairShape::creator()
 }
 
 void HairShape::draw()
-{
-	/*std::string temps = string(this->name().asChar());
-	std::string tempss = string(this->getActiveObject()->name().asChar());
-	std::cout << "Name: " <<  temps << ", Active Object Name: " << tempss << endl;	*/
-		
+{		
+	// check if the selection of this node was modified by maya
 	this->syncSelection();
-
-	//--------------------------------------------------------------------------------
-	/*const std::vector< unsigned __int32 > &tmpArr = this->mHairGuides->guidesVerticesEndIndex();
-	cout << "Array size: " << tmpArr.size() << endl;
-	cout << "Elements: ";
-	for( int i = 0; i < tmpArr.size(); i++ ) 
-	{
-		cout << tmpArr[i] << " ";
-	}
-	cout << endl << endl;*/   
-	//--------------------------------------------------------------------------------
 	
 	// First init gl extensions
 	if ( !GLExt::isInited() )
@@ -487,7 +473,6 @@ void HairShape::syncSelection()
 
 			// we retrieve a dag path to a transform or shape, and an MObject
 			// to any components that are selected on that object (if any).
-			//
 			it.getDagPath( dagPath, component );
 
 			if ( dagPath.fullPathName() != fullPathName )
@@ -498,12 +483,6 @@ void HairShape::syncSelection()
 
 			// attach a function set to the object
 			MFnDependencyNode fn(dagPath.node());
-		
-			// print the object name
-			//std::cout << "\nOBJECT: " << fn.name().asChar() << std::endl;
-
-			/*MObjectArray activeComponents = this->activeComponents();
-			std::cout << "Number of vertices: " << activeComponents.length() << std::endl;*/
 
 			// If we have components to iterate over
 			if (!component.isNull()) 
@@ -518,44 +497,17 @@ void HairShape::syncSelection()
 						MFnSingleIndexedComponent *iComp = new MFnSingleIndexedComponent( component );
 						MIntArray arr;
 						iComp->getElements( arr );
-						/*cout << "Index array length: " << arr.length() << endl;
-						for ( unsigned int i = 0; i < arr.length(); i++ )
-						{
-							cout << arr[i] << " ";
-						}
-
-						cout << endl;*/
 						
-						this->setSelectedComponentsIndices( arr );
-						
+						this->setSelectedComponentsIndices( arr );						
 						
 						// tell the node that it needs to rebuild its internal selection list
-						this->mHairGuides->applySelection( arr );
-						
+						this->mHairGuides->applySelection( arr );						
 						
 						//the node is now selected
 						this->setCurrentlySelected( true );
 
 						break;
-					}
-
-					//case MFn::kMeshEdgeComponent: {
-					//	MItMeshEdge itEdge( dagPath, component, &stat );
-					//	while ( !itEdge.isDone() )
-					//	{
-					//		MPoint point = itEdge.center(MSpace::kWorld );
-
-					//		// write the index and the position
-					//		/*std::cout << "\t" << itEdge.index()
-					//				  << ") " << point.x 
-					//				  << " "  << point.y 
-					//				  << " "  << point.z 
-					//				  << (itEdge.isSmooth() ? " smooth\n" : " hard\n");*/
-
-					//		itEdge.next();
-					//	}
-					//	break;
-					//}
+					}					
 											  				
 					// do the default
 					default:
@@ -564,9 +516,7 @@ void HairShape::syncSelection()
 							this->setCurrentlySelected( false );
 						}
 						break;
-
 				}
-
 			}			
 			break;
 		}
@@ -629,10 +579,6 @@ void HairShape::changeComponentsInMaya( const MIntArray & aComponentIndices, std
 
 		index++;
 	}
-	/*std::cout << command;
-	std::cout << start;
-	if ( start != end ) std::cout << ":" << end;
-	std::cout << "]" << std::endl;*/
 	ss << command;
 	ss << aComponentIndices[ start ];
 	if ( start != end ) ss << ":" << aComponentIndices[ end ];
@@ -776,38 +722,27 @@ MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aI
 	MAttributeSpec attrSpec = aSpec[0];
 	int dim = attrSpec.dimensions();
 	MAttributeSpec attrSpec2;
-	int dim2 = 0;
-
-	/*if ( aSpec.length() > 1 )
-	{
-		attrSpec2 = aSpec[1];
-		dim2 = attrSpec2.dimensions();
-		cout << "aSpec.length(): " << aSpec.length() << endl;
-	}*/
-	
+	int dim2 = 0;	
 
 	// Look for attributes specifications of the form :
 	//     vtx[ index ]
 	//     vtx[ lower:upper ]
-	//
 	
 	if ( (1 == aSpec.length()) && (dim > 0) && (attrSpec.name() == "vtx") ) {
-		//int numVertices = meshGeom()->vertices.length();
-		int numVertices = 500;
+		std::vector< unsigned __int32 > guidesVerticesEndIndices = this->mHairGuides->guidesVerticesEndIndex();
+		int numVertices = guidesVerticesEndIndices[ guidesVerticesEndIndices.size() - 1 ] + 1;
 		MAttributeIndex attrIndex = attrSpec[0];
 
 		int upper = 0;
 		int lower = 0;
 		if ( attrIndex.hasLowerBound() ) {
 			attrIndex.getLower( lower );
-			cout << "Has lower bound: " << lower << endl;
 		}
 		if ( attrIndex.hasUpperBound() ) {
 			attrIndex.getUpper( upper );
-			cout << "Has upper bound: " << upper << endl;
 		}
 
-		// Check the attribute index range is valid
+		// Check that the attribute index range is valid
 		//
 		if ( (lower > upper) || (upper >= numVertices) ) {
 			result = MPxSurfaceShape::kMatchInvalidAttributeRange;	
@@ -826,42 +761,7 @@ MPxSurfaceShape::MatchResult HairShape::matchComponent( const MSelectionList& aI
 			aList.add( path, edgeComp );
 			cout << endl;
 		}
-	}
-	//else if ( (2 == aSpec.length()) && (dim > 0) && (dim2 > 0) && (attrSpec.name() == "cv") ) {
-	//	int numVertices = 500;
-	//	MAttributeIndex attrIndex = attrSpec[0];
-
-	//	int upper = 0;
-	//	int lower = 0;
-	//	if ( attrIndex.hasLowerBound() ) {
-	//		attrIndex.getLower( lower );
-	//		cout << "Has lower bound: " << lower << endl;
-	//	}
-	//	if ( attrIndex.hasUpperBound() ) {
-	//		attrIndex.getUpper( upper );
-	//		cout << "Has upper bound: " << upper << endl;
-	//	}
-
-	//	// Check the attribute index range is valid
-	//	//
-	//	if ( (lower > upper) || (upper >= numVertices) ) {
-	//		result = MPxSurfaceShape::kMatchInvalidAttributeRange;	
-	//	}
-	//	else {
-	//		/*MDagPath path;
-	//		aItem.getDagPath( 0, path );
-	//		MFnSingleIndexedComponent fnVtxComp;
-	//		MObject vtxComp = fnVtxComp.create( MFn::kMeshVertComponent );*/
-	//		
-	//		for ( int i=lower; i<=upper; i++ )
-	//		{
-	//			//fnVtxComp.addElement( i );
-	//			cout << i << " ";
-	//		}
-	//		//aList.add( path, vtxComp );
-	//		cout << endl;
-	//	}
-	//}
+	}	
 	else {
 		// Pass this to the parent class
 		return MPxSurfaceShape::matchComponent( aItem, aSpec, aList );
@@ -936,31 +836,13 @@ void HairShape::loadAllHairShapes()
 
 void HairShape::switchSelectedComponents()
 {
-	/*int tmp[] = {0, 1, 2, 3, 4, 5, 12, 13, 14, 18};
-	MIntArray componentsToDeselect = MIntArray( tmp, 10 );*/
-	const MIntArray componentsToDeselect = MIntArray( this->getSelectedComponentsIndices() );
-	/*cout << "Index array length: " << componentsToDeselect.length() << endl;
-						for ( unsigned int i = 0; i < componentsToDeselect.length(); i++ )
-						{
-							cout << componentsToDeselect[i] << " ";
-						}
-
-						cout << endl;*/
-	/*int tmp2[] = {0, 1, 2, 3, 4, 5, 12, 16, 17, 18};
-	MIntArray componentsToSelect = MIntArray( tmp2, 10 );*/
+	const MIntArray componentsToDeselect = MIntArray( this->getSelectedComponentsIndices() );	
+	
 	MIntArray componentsToSelect;
-	this->getComponentsIndicesToSelect( componentsToSelect );
-	/*cout << "Index array length: " << componentsToSelect.length() << endl;
-						for ( unsigned int i = 0; i < componentsToSelect.length(); i++ )
-						{
-							cout << componentsToSelect[i] << " ";
-						}
-
-						cout << endl;*/
+	this->getComponentsIndicesToSelect( componentsToSelect );	
 	
 	this->deselectComponentsInMaya( componentsToDeselect );
 	this->selectComponentsInMaya( componentsToSelect );
-
 	
 	this->setSelectionModified( true );
 	this->syncSelection();

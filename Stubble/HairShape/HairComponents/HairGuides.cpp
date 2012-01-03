@@ -328,7 +328,7 @@ void HairGuides::setCurrentTime( Time aTime )
 
 void HairGuides::getSelectedComponentsIndices( MIntArray & aComponentIndices )
 {
-	mDisplayedGuides.getSelectedComponentsIndices( aComponentIndices );
+	//mDisplayedGuides.getSelectedComponentsIndices( aComponentIndices );
 }
 
 void HairGuides::meshUpdate( const MayaMesh & aMayaMesh, const Interpolation::InterpolationGroups & aInterpolationGroups,

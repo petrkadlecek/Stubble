@@ -75,37 +75,6 @@ void DisplayedGuides::draw( bool aDrawVerts ) const
 	}
 }
 
-void DisplayedGuides::getSelectedComponentsIndices( MIntArray & aComponentIndices )
-{
-	//// For each selected guide
-	//for ( SelectedGuides::const_iterator guideIt = mSelectedGuides->begin(); 
-	//	guideIt != mSelectedGuides->end(); ++guideIt )
-	//{
-	//	glBegin(GL_LINE_STRIP);
-
-	//	// For each segment
-	//	for (size_t i = 0; i < (*guideIt)->mGuideSegments.mSegments.size(); ++i)
-	//	{
-	//		Vector3D< Real > pos = ( *mGuidesCurrentPositions )[ (*guideIt)->mGuideId ].mPosition.toWorld( (*guideIt)->mGuideSegments.mSegments[ i ] );
-
-	//		// set color depending on whether the segment is inside the brush or not
-	//		if ( (*guideIt)->mSegmentsAdditionalInfo[ i ].mInsideBrush == true )
-	//		{
-	//			glColor3f(1.0f, 0.4f, 0.2f);
-	//		}
-	//		else
-	//		{
-	//			glColor3f(0.5f, 1.0f, 0.8f);
-	//		}
-
-	//		// Draw
-	//		glVertex3d( pos.x, pos.y, pos.z );
-	//	}
-
-	//	glEnd();
-	//}
-}
-
 void DisplayedGuides::drawPolyline() const
 {
 	glColor3f(0.18f, 0.5f, 0.3f);
