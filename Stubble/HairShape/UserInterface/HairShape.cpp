@@ -269,8 +269,18 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	const MPlug &root = aPlug.isChild() ? aPlug.parent() : aPlug;  // root
 	if ( aPlug == countAttr ) // Guide hair count was changed: delay
 	{
-		mGuidesHairCountWanted = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		setupDelayed();
+		mGuidesHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+		{
+			return false;
+		}
+		mHairGuides->generate( *mUVPointGenerator, *mMayaMesh, MayaHairProperties::getInterpolationGroups(), 
+			mGuidesHairCount, getScaleFactor(), true );
+		refreshPointersToGuidesForInterpolation();
+		if ( mDisplayInterpolated )
+		{
+			mInterpolatedHair.propertiesUpdate( *this );
+		}
 		return false;
 	}
 	if ( aPlug == genCountAttr ) // Generated hair count was changed
@@ -311,14 +321,15 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 	}
 	if ( aPlug == genDisplayCountAttr ) // Number of interpolated hair to be displayed: delay if interpolated hair is shown
 	{
-		mGenDisplayCountWanted = static_cast< unsigned __int32 >( aDataHandle.asInt() );
-		if ( !mDisplayInterpolated )
+		mGenDisplayCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
+		if ( mDisplayInterpolated )
 		{
-			mGenDisplayCount = mGenDisplayCountWanted;
-		}
-		else
-		{
-			setupDelayed();
+			if ( mUVPointGenerator == 0 || mMayaMesh == 0 ) // object is in construction
+			{
+				return false;
+			}
+
+			mInterpolatedHair.generate( *mUVPointGenerator, *mMayaMesh, *this, mGenDisplayCount );
 		}
 		return false;
 	}
