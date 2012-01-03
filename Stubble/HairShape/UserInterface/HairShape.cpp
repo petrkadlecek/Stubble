@@ -1547,7 +1547,7 @@ void HairShape::delayedCallbackUpdate()
 				me->mInterpolatedHair.propertiesUpdate( *me );
 			}
 		}
-		cerr << "Delayed: hair count = " << me->mGuidesHairCount << endl;
+		//cerr << "Delayed: hair count = " << me->mGuidesHairCount << endl;
 	}
 
 	if ( me->mGenDisplayCount != me->mGenDisplayCountWanted )
@@ -1560,7 +1560,7 @@ void HairShape::delayedCallbackUpdate()
 				me->mInterpolatedHair.generate( *me->mUVPointGenerator, *me->mMayaMesh, *me, me->mGenDisplayCount );
 			}
 		}
-		cerr << "Delayed: displayed count = " << me->mGenDisplayCount << endl;
+		//cerr << "Delayed: displayed count = " << me->mGenDisplayCount << endl;
 	}
 
 	HairShape::sDelayedCallbackFlag = false;
