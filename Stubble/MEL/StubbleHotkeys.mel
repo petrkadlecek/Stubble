@@ -5,49 +5,49 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
         -cat "Stubble"
     	-command "source StubbleCreateHair.mel;"
     	-annotation "Create new Stubble hair"
-    	StubbleCreateHair;
+    	Stubble_CreateHair;
     
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "toolPropertyWindow; setToolTo stubbleBrushTool;"
     	-annotation "Set tool to Stubble brush tool"
-    	StubbleBrushTool;
+    	Stubble_BrushTool;
 
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "toolPropertyWindow; setToolTo stubbleCutTool;"
     	-annotation "Set tool to Stubble cut tool"
-    	StubbleCutTool;
+    	Stubble_CutTool;
     
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "setToolTo StubbleHapticSettingsToolContext1"
     	-annotation "Set tool to Stubble haptic tool"
-    	StubbleHapticTool;
+    	Stubble_HapticTool;
     
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleUndoCommand; refresh;"
     	-annotation "Undo last Stubble operation"
-    	StubbleUndo;
+    	Stubble_Undo;
     
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleRedoCommand; refresh;"
     	-annotation "Redo last Stubble operation"
-    	StubbleRedo;
+    	Stubble_Redo;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "optionVar -iv \"stubbleSelectionMode\" 4;refresh;"
     	-annotation "Select hair roots"
-    	StubbleSelectRoots;
+    	Stubble_SelectRoots;
        
     runTimeCommand
         -d true
@@ -55,42 +55,42 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
     	-command "optionVar -iv \"stubbleSelectionMode\" 3;refresh;"
 
     	-annotation "Select hair tips"
-    	StubbleSelectTips;
+    	Stubble_SelectTips;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "optionVar -iv \"stubbleSelectionMode\" 1;refresh;"
     	-annotation "Select whole guides"
-    	StubbleSelectGuides;
+    	Stubble_SelectGuides;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "optionVar -iv \"stubbleSelectionMode\" 2;refresh;"
     	-annotation "Select vertices"
-    	StubbleSelectVertices;
+    	Stubble_SelectVertices;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleResetCommand;"
     	-annotation "Reset hair"
-    	StubbleResetHair;
+    	Stubble_ResetHair;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleReinitCommand"
     	-annotation "Restore zero sized hair"
-    	StubbleRestoreZeroSizedHair;
+    	Stubble_RestoreZeroSizedHair;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleResetTextures;refresh;"
     	-annotation "Update textures"
-    	StubbleUpdateTextures;
+    	Stubble_UpdateTextures;
        
     runTimeCommand
         -d true
@@ -102,7 +102,7 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
 			string $parent[] = `listRelatives -p $node`;\
 			select -add $parent[ 0 ]; "
     	-annotation "Export to NURBS"
-    	StubbleExportToNURBS;
+    	Stubble_ExportToNURBS;
        
     runTimeCommand
         -d true
@@ -115,14 +115,14 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
 			select -add $parent[ 0 ]; \
 			MakeCurvesDynamic;"
     	-annotation "Export to dynamic NURBS"
-    	StubbleExportToDynamicNURBS;
+    	Stubble_ExportToDynamicNURBS;
        
     runTimeCommand
         -d true
         -cat "Stubble"
     	-command "StubbleImportNURBS;"
     	-annotation "Import NURBS"
-    	StubbleImportNURBS;
+    	Stubble_ImportNURBS;
        
     runTimeCommand
         -d true
@@ -140,7 +140,7 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
     			floatSliderGrp -e -v 0.5 stubbleToolScale; \
     		};"
     	-annotation "Set smaller tool scale"
-    	StubbleSmallerToolScale;
+    	Stubble_SmallerToolScale;
     
     runTimeCommand
         -d true
@@ -158,5 +158,5 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
     			floatSliderGrp -e -v $toolscale stubbleToolScale; \
     		};"
     	-annotation "Set greater tool scale"
-    	StubbleGreaterToolScale;
+    	Stubble_GreaterToolScale;
 }
