@@ -464,10 +464,6 @@ public:
 	///----------------------------------------------------------------------------------------------------
 	const MIntArray & getSelectedComponentsIndices();
 
-	static bool sDelayedCallbackFlag;
-
-	static void delayedCallbackUpdate();
-
 private:
 	
 	friend class HairShapeUI;
@@ -582,7 +578,7 @@ private:
 
 	MDagPath mConnectedMeshPath; ///< Path to connected mesh object
 
-	static MCallbackId sDelayedCallbackId; ///< Timer id for delayed setInternalValueInContext call (-1 when there's none)
+	MCallbackId mDelayedCallbackId; ///< Timer id for delayed setInternalValueInContext call (-1 when there's none)
 
 	// Stored attributes values
 

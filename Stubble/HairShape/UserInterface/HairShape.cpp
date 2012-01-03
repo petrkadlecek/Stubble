@@ -57,8 +57,6 @@ MObject HairShape::displayGuidesAttr;
 MObject HairShape::displayInterpolatedAttr;
 MObject HairShape::serializedDataAttr;
 MObject HairShape::operationCountAttr;
-MCallbackId HairShape::sDelayedCallbackId;
-bool HairShape::sDelayedCallbackFlag;
 
 HairShape::HairShapeNodes HairShape::mHairShapeNodes;  ///< The hair shape nodes
 
@@ -83,13 +81,10 @@ HairShape::HairShape():
 	mDisplayInterpolated( false ),
 	mIsCurrentlySelected( false ),
 	mIsSelectionModified( false ),
+	mDelayedCallbackId( -1 ),
 	mIsNew( true ),
 	mLateLoad( false)
 {
-	sDelayedCallbackId = -1;
-	
-	sDelayedCallbackFlag = false;
-
 	mHairShapeNodes.insert( this );
 	// Sets voxels resolution
 	mVoxelsResolution[ 0 ] = mVoxelsResolution[ 1 ] = mVoxelsResolution[ 2 ] = 1;
@@ -206,20 +201,20 @@ bool HairShape::getInternalValueInContext( const MPlug & plug, MDataHandle & res
 
 bool HairShape::delayedIsPending()
 {
-	return sDelayedCallbackId != -1;
+	return mDelayedCallbackId != -1;
 }
 
 void HairShape::clearDelayed()
 {
-	MMessage::removeCallback( sDelayedCallbackId );
-	sDelayedCallbackId = -1;
+	MMessage::removeCallback( mDelayedCallbackId );
+	mDelayedCallbackId = -1;
 }
 
 void HairShape::setupDelayed()
 {
 	if ( !delayedIsPending() )
 	{
-		sDelayedCallbackId = MTimerMessage::addTimerCallback( 0.2f, delayedSetInternalValueInContext, (void*) this );
+		mDelayedCallbackId = MTimerMessage::addTimerCallback( 0.2f, delayedSetInternalValueInContext, (void*) this );
 	}
 }
 
@@ -230,11 +225,40 @@ void HairShape::delayedSetInternalValueInContext( float aElapsedTime, float aLas
 	// If there are no updates pending, return.
 	if ( !me->delayedIsPending() ) return;  
 
-	sDelayedCallbackFlag = true;
-
 	// Otherwise remove the callback and do the actual update.
 	me->clearDelayed();
 
+	// Number of interpolated hair to be displayed
+
+	if ( me->mGuidesHairCount != me->mGuidesHairCountWanted )
+	{
+		me->mGuidesHairCount = me->mGuidesHairCountWanted;
+		if ( !( me->mUVPointGenerator == 0 || me->mMayaMesh == 0 ) ) // don't generate when in construction
+		{
+			me->mHairGuides->generate( *me->mUVPointGenerator, *me->mMayaMesh, me->MayaHairProperties::getInterpolationGroups(), 
+				me->mGuidesHairCount, me->getScaleFactor(), true );
+			me->refreshPointersToGuidesForInterpolation();
+			if ( me->mDisplayInterpolated )
+			{
+				me->mInterpolatedHair.propertiesUpdate( *me );
+			}
+		}
+		cerr << "Delayed: hair count = " << me->mGuidesHairCount << endl;
+	}
+
+	if ( me->mGenDisplayCount != me->mGenDisplayCountWanted )
+	{
+		me->mGenDisplayCount = me->mGenDisplayCountWanted;
+		if ( me->mDisplayInterpolated )
+		{
+			if ( !( me->mUVPointGenerator == 0 || me->mMayaMesh == 0 ) ) // don't generate when in construction
+			{
+				me->mInterpolatedHair.generate( *me->mUVPointGenerator, *me->mMayaMesh, *me, me->mGenDisplayCount );
+			}
+		}
+		cerr << "Delayed: displayed count = " << me->mGenDisplayCount << endl;
+	}
+	
 	// Request a refresh
 	MGlobal::executeCommand( "refresh;" );
 }
@@ -249,7 +273,6 @@ bool HairShape::setInternalValueInContext( const MPlug& aPlug, const MDataHandle
 		setupDelayed();
 		return false;
 	}
-	
 	if ( aPlug == genCountAttr ) // Generated hair count was changed
 	{
 		mGeneratedHairCount = static_cast< unsigned __int32 >( aDataHandle.asInt() );
@@ -1526,44 +1549,6 @@ bool HairShape::setValue( int pntInd, const MPoint & val )
 	childChanged( MPxSurfaceShape::kObjectChanged );
 
 	return result;
-}
-
-void HairShape::delayedCallbackUpdate()
-{
-	HairShape* me = HairShape::getActiveObject();
-
-	if ( me == NULL ) return;
-
-	if ( me->mGuidesHairCount != me->mGuidesHairCountWanted )
-	{
-		me->mGuidesHairCount = me->mGuidesHairCountWanted;
-		if ( !( me->mUVPointGenerator == 0 || me->mMayaMesh == 0 ) ) // don't generate when in construction
-		{
-			me->mHairGuides->generate( *me->mUVPointGenerator, *me->mMayaMesh, me->MayaHairProperties::getInterpolationGroups(), 
-				me->mGuidesHairCount, me->getScaleFactor(), true );
-			me->refreshPointersToGuidesForInterpolation();
-			if ( me->mDisplayInterpolated )
-			{
-				me->mInterpolatedHair.propertiesUpdate( *me );
-			}
-		}
-		//cerr << "Delayed: hair count = " << me->mGuidesHairCount << endl;
-	}
-
-	if ( me->mGenDisplayCount != me->mGenDisplayCountWanted )
-	{
-		me->mGenDisplayCount = me->mGenDisplayCountWanted;
-		if ( me->mDisplayInterpolated )
-		{
-			if ( !( me->mUVPointGenerator == 0 || me->mMayaMesh == 0 ) ) // don't generate when in construction
-			{
-				me->mInterpolatedHair.generate( *me->mUVPointGenerator, *me->mMayaMesh, *me, me->mGenDisplayCount );
-			}
-		}
-		//cerr << "Delayed: displayed count = " << me->mGenDisplayCount << endl;
-	}
-
-	HairShape::sDelayedCallbackFlag = false;
 }
 
 

@@ -73,11 +73,6 @@ void DisplayedGuides::draw( bool aDrawVerts ) const
 	{
 		drawVertices();
 	}
-
-	if ( HairShape::sDelayedCallbackFlag )
-	{
-		HairShape::delayedCallbackUpdate();
-	}
 }
 
 void DisplayedGuides::drawPolyline() const
