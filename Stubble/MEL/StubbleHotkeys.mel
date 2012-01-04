@@ -131,13 +131,13 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
     		if (`currentCtx` == \"stubbleBrushTool\") { \
     			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
     			$toolscale = max(0, $toolscale - 0.1); \
-    			StubbleBrushToolCommand -e -toolScale $toolscale; \
-    			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+    			StubbleBrushToolCommand -e -toolScale $toolscale stubbleBrushTool; \
+    			floatSliderGrp -e -v $toolscale stubbleBrushToolScale; \
     		} else if (`currentCtx` == \"stubbleCutTool\") { \
-    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			float $toolscale = `StubbleCutToolCommand -q -toolScale stubbleCutTool`; \
     			$toolscale = max(0, $toolscale - 0.1); \
-    			StubbleBrushToolCommand -e -toolScale $toolscale; \
-    			floatSliderGrp -e -v 0.5 stubbleToolScale; \
+    			StubbleCutToolCommand -e -toolScale $toolscale stubbleCutTool; \
+    			floatSliderGrp -e -v $toolscale stubbleToolScale; \
     		};"
     	-annotation "Set smaller tool scale"
     	Stubble_SmallerToolScale;
@@ -149,12 +149,12 @@ if (!`runTimeCommand -exists StubbleCreateNewHair`)
     		if (`currentCtx` == \"stubbleBrushTool\") { \
     			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
     			$toolscale = min(5, $toolscale + 0.1); \
-    			StubbleBrushToolCommand -e -toolScale $toolscale; \
-    			floatSliderGrp -e -v $toolscale stubbleToolScale; \
+    			StubbleBrushToolCommand -e -toolScale $toolscale stubbleBrushTool; \
+    			floatSliderGrp -e -v $toolscale stubbleBrushToolScale; \
     		} else if (`currentCtx` == \"stubbleCutTool\") { \
-    			float $toolscale = `StubbleBrushToolCommand -q -toolScale stubbleBrushTool`; \
+    			float $toolscale = `StubbleCutToolCommand -q -toolScale stubbleCutTool`; \
     			$toolscale = min(5, $toolscale + 0.1); \
-    			StubbleBrushToolCommand -e -toolScale $toolscale; \
+    			StubbleCutToolCommand -e -toolScale $toolscale stubbleCutTool; \
     			floatSliderGrp -e -v $toolscale stubbleToolScale; \
     		};"
     	-annotation "Set greater tool scale"

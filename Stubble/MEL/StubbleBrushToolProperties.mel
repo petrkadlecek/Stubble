@@ -28,7 +28,7 @@ global proc StubbleBrushToolProperties()
 					-precision 2
 					-minValue 0.1 -maxValue 5.0
 					-fieldMinValue 0.1 -fieldMaxValue 10.0 
-						stubbleToolScale;
+						stubbleBrushToolScale;
 					
 					separator -style "none";
 

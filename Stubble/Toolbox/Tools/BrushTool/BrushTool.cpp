@@ -238,6 +238,8 @@ void BrushTool::toolOffCleanup()
 
 MStatus BrushTool::doPress( MEvent &aEvent )
 {
+	if ( mHapticToolShape ) return MS::kSuccess; // do nothing when brushing with haptics
+
 	// If we have a left mouse click, start the selection.
 	if( aEvent.mouseButton() == MEvent::kLeftMouse )
 	{
@@ -279,6 +281,8 @@ void BrushTool::doHapticPress()
 
 MStatus BrushTool::doDrag( MEvent &aEvent )
 {
+	if ( mHapticToolShape ) return MS::kSuccess; // do nothing when brushing with haptics
+
 	// If we are dragging and left mouse button is pressed, then handle the event.
 	if( !aEvent.isModifierLeftMouseButton() )
 	{
@@ -306,6 +310,8 @@ void BrushTool::doHapticDrag( MVector &aDragVector )
 
 MStatus BrushTool::doRelease( MEvent & aEvent )
 {
+	if ( mHapticToolShape ) return MS::kSuccess; // do nothing when brushing with haptics
+
 	MStatus stat;
 
 	// only bother handling the release of a left mouse button.
@@ -416,8 +422,12 @@ void BrushTool::filterAffectedGuides()
 		return;
 	}
 
-	// FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CircleToolShape *>(mShape), mStartPos[0], mStartPos[1], mAffectedGuides);
+	CircleToolShape *shape = dynamic_cast<CircleToolShape *>(mShape);
+
+	if ( shape )
+	{
+		activeHairShape->getSelectedGuidesDS().select(shape, mStartPos[0], mStartPos[1], mAffectedGuides);
+	}
 }
 
 void BrushTool::filterAffectedGuidesHaptic()
@@ -430,11 +440,21 @@ void BrushTool::filterAffectedGuidesHaptic()
 
 	if (mShape->getName() == "Haptic Sphere Tool Shape") // called once when pressed - optimization possible
 	{
-		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+		SphereToolShape *shape = dynamic_cast<SphereToolShape *>(mShape);
+
+		if ( shape )
+		{
+			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+		}
 	}
 	else
 	{
-		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+		CylinderToolShape *shape = dynamic_cast<CylinderToolShape *>(mShape);
+
+		if ( shape )
+		{
+			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+		}
 	}
 	
 }

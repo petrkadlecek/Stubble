@@ -192,6 +192,8 @@ void CutTool::doHapticDrag( MVector &aDragVector )
 
 MStatus CutTool::doRelease( MEvent & aEvent )
 {
+	if ( mHapticToolShape ) return MS::kSuccess; // do nothing when brushing with haptics
+
 	MStatus stat;
 
 	// Let the base class handle release of other buttons
@@ -277,15 +279,20 @@ void CutTool::notify()
 
 void CutTool::filterAffectedGuides()
 {
+	if ( mHapticToolShape ) return; // do nothing when brushing with haptics
+
 	HairShape::HairShape *activeHairShape = HairShape::HairShape::getActiveObject();
 	if ( 0 == activeHairShape )
 	{
 		return;
 	}
 
-	//FIXME: remove dynamic_cast - do it somehow better
-	activeHairShape->getSelectedGuidesDS().select(
-		dynamic_cast< CircleToolShape * >( mShape ), mPosition[ 0 ], mPosition[ 1 ], mAffectedGuides );
+	CircleToolShape *shape = dynamic_cast<CircleToolShape *>(mShape);
+
+	if ( shape )
+	{
+		activeHairShape->getSelectedGuidesDS().select(shape, mPosition[0], mPosition[1], mAffectedGuides);
+	}
 }
 
 void CutTool::filterAffectedGuidesHaptic()
@@ -298,13 +305,22 @@ void CutTool::filterAffectedGuidesHaptic()
 
 	if (mShape->getName() == "Haptic Sphere Tool Shape") // called once when pressed - optimization possible
 	{
-		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+		SphereToolShape *shape = dynamic_cast<SphereToolShape *>(mShape);
+
+		if ( shape )
+		{
+			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+		}
 	}
 	else
 	{
-		activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
-	}
+		CylinderToolShape *shape = dynamic_cast<CylinderToolShape *>(mShape);
 
+		if ( shape )
+		{
+			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+		}
+	}
 }
 
 } // namespace Toolbox
