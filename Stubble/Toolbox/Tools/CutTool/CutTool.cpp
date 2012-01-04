@@ -309,7 +309,7 @@ void CutTool::filterAffectedGuidesHaptic()
 
 		if ( shape )
 		{
-			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<SphereToolShape *>(mShape), mAffectedGuides);
+			activeHairShape->getSelectedGuidesDS().select(shape, mAffectedGuides);
 		}
 	}
 	else
@@ -318,7 +318,7 @@ void CutTool::filterAffectedGuidesHaptic()
 
 		if ( shape )
 		{
-			activeHairShape->getSelectedGuidesDS().select(dynamic_cast<CylinderToolShape *>(mShape), mAffectedGuides);
+			activeHairShape->getSelectedGuidesDS().select(shape, mAffectedGuides);
 		}
 	}
 }
