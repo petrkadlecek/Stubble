@@ -216,7 +216,7 @@ void Texture::reloadFileTextureImage( MImage & aTextureImage )
 			for ( unsigned __int32 j = 0; j < mColorComponents; ++j )
 			{	
 				// Modulo solves problems with sourceTexture with less channels than we need
-				mTexture[ i * mColorComponents + j ] = aTextureImage.pixels()[ i * depth + j % depth ];
+				mTexture[ i * mColorComponents + j ] = aTextureImage.pixels()[ i * depth + j % depth ] / 255.0f;
 			}
 		}
 	}
