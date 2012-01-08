@@ -71,6 +71,7 @@ RMHairProperties::RMHairProperties( const std::string & aFrameFileName )
 	mInterpolationGroups = new InterpolationGroups( *mInterpolationGroupsTexture, DEFAULT_SEGMENTS_COUNT );
 	mInterpolationGroups->importSegmentsCountFromFile( unzipper );
 	// Read non-texture hair properties
+	unzipper.read( reinterpret_cast< char * >( & mCurrentTime ), sizeof( Time ) );	
 	unzipper.read( reinterpret_cast< char * >( & mScale ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( & mRandScale ), sizeof( Real ) );	
 	unzipper.read( reinterpret_cast< char * >( & mRootThickness ), sizeof( Real ) );	

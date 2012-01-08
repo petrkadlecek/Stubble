@@ -290,6 +290,7 @@ void MayaHairProperties::exportToFile( std::ostream & aOutputStream ) const
 	// Write segments count
 	mInterpolationGroups->exportSegmentsCountToFile( aOutputStream );
 	// Write non-texture hair properties
+	aOutputStream.write( reinterpret_cast< const char * >( & mCurrentTime ), sizeof( Time ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mScale ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mRandScale ), sizeof( Real ) );	
 	aOutputStream.write( reinterpret_cast< const char * >( & mRootThickness ), sizeof( Real ) );	
