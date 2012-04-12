@@ -118,27 +118,32 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::generate( const Hair
 			// Generate all hair in strand
 			for ( unsigned __int32 j = 0; j < aHairProperties.getMultiStrandCount(); ++j )
 			{
+				// Randomized cut factor
+				PositionType randomizedCutFactor = cutFactor * static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
+				// Recalculate points count
+				unsigned __int32 ptsCountAfterRandomizedCut = static_cast< unsigned __int32 >( std::ceil( randomizedCutFactor * ptsCountBeforeCut ) ) + 2;
+				ptsCountAfterRandomizedCut = ptsCountBeforeCut < ptsCountAfterRandomizedCut ? ptsCountBeforeCut : ptsCountAfterRandomizedCut;
 				// First generate points
-				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, pointsPlusOne,
+				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterRandomizedCut, ptsCountBeforeCut, pointsPlusOne,
 					normals, binormals );
 				// Convert positions to current world space
-				transformPoints( pointsStrandPlusOne, ptsCountAfterCut, localToCurr );
+				transformPoints( pointsStrandPlusOne, ptsCountAfterRandomizedCut, localToCurr );
 				// Duplicate first and last point ( last points need to be duplicated, 
 				// only if cut has not decreased points count, so we will use total points count )
 				// These duplicated points are used for curve points calculation at any given param t
 				copyToLastAndFirst( pointsStrand, ptsCountBeforeCut + 2 );
 				// Calculate tangents
-				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterCut );
+				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterRandomizedCut );
 				// Duplicate tangents ( same reason as with points duplication )
 				copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 				// Finally begin hair output ( first and last points are duplicated )
-				mOutputGenerator.beginHair( ptsCountAfterCut + 2 );
+				mOutputGenerator.beginHair( ptsCountAfterRandomizedCut + 2 );
 				// Output indices and uv coordinates
 				outputHairIndexAndUVs( ++hairIndex, strandIndex, restPos );
 				// Generate final hair : calculates normals, colors, opacity, width and may reject some points,
 				// so final points count is returned ( including two duplicated points : first and last )
-				unsigned __int32 pointsCount = generateHair( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterCut, 
-					ptsCountBeforeCut, restPos, cutFactor );
+				unsigned __int32 pointsCount = generateHair( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterRandomizedCut, 
+					ptsCountBeforeCut, restPos, randomizedCutFactor );
 				// End hair generation
 				mOutputGenerator.endHair( pointsCount );
 			}
@@ -268,22 +273,27 @@ void HairGenerator< tPositionGenerator, tOutputGenerator >::
 			// Generate all hair in strand
 			for ( unsigned __int32 j = 0; j < aHairProperties.getMultiStrandCount(); ++j )
 			{
+				// Randomized cut factor
+				PositionType randomizedCutFactor = cutFactor * static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
+				// Recalculate points count
+				unsigned __int32 ptsCountAfterRandomizedCut = static_cast< unsigned __int32 >( std::ceil( randomizedCutFactor * ptsCountBeforeCut ) ) + 2;
+				ptsCountAfterRandomizedCut = ptsCountBeforeCut < ptsCountAfterRandomizedCut ? ptsCountBeforeCut : ptsCountAfterRandomizedCut;
 				// First generate points
-				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterCut, ptsCountBeforeCut, pointsPlusOne,
+				generateHairInStrand( pointsStrandPlusOne, ptsCountAfterRandomizedCut, ptsCountBeforeCut, pointsPlusOne,
 					normals, binormals );
 				// Convert positions to current world space
-				transformPoints( pointsStrandPlusOne, ptsCountAfterCut, localToCurr );
+				transformPoints( pointsStrandPlusOne, ptsCountAfterRandomizedCut, localToCurr );
 				// Duplicate first and last point ( last points need to be duplicated, 
 				// only if cut has not decreased points count, so we will use total points count )
 				// These duplicated points are used for curve points calculation at any given param t
 				copyToLastAndFirst( pointsStrand, ptsCountBeforeCut + 2 );
 				// Calculate tangents
-				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterCut );
+				calculateTangents( tangentsPlusOne, pointsStrandPlusOne, ptsCountAfterRandomizedCut );
 				// Duplicate tangents ( same reason as with points duplication )
 				copyToLastAndFirst( tangents, ptsCountBeforeCut + 2 );
 				// Finally updates bounding box
-				updateBoundingBox( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterCut, 
-					ptsCountBeforeCut, aBoundingBox, cutFactor );
+				updateBoundingBox( pointsStrandPlusOne, tangentsPlusOne, ptsCountAfterRandomizedCut, 
+					ptsCountBeforeCut, aBoundingBox, randomizedCutFactor );
 			}
 		}
 		else // Single hair only
@@ -888,8 +898,6 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 	PositionType cosPhi, sinPhi, radius;
 	sampleDisk( static_cast< PositionType >( 2 * mRandom.uniformNumber() - 1 ), 
 		static_cast< PositionType >( 2 * mRandom.uniformNumber() - 1 ) , cosPhi, sinPhi, radius );
-	// Generate random scale
-	PositionType scale = static_cast< PositionType >( 1 - mRandomizeScale * mRandom.uniformNumber() );
 	// Curve t param
 	PositionType step = 1.0f / ( aCurvePointsCount - 1 ), t = 0;
 	// For every point on cut curve
@@ -905,9 +913,8 @@ inline void HairGenerator< tPositionGenerator, tOutputGenerator >::
 			offset = mOffset * t * t * t;
 		// Calculate final position :
 		// mainHairPos + position on plane defined by normal and binormal * radius + offset in direction of normal
-		// and finally scale whole thing by scale factor
 		*it = ( *aMainHairPoints + ( *aMainHairNormals * cosPhi + *aMainHairBinormals * sinPhi * mAspect ) * currRadius +
-			*aMainHairNormals * offset ) * scale;
+			*aMainHairNormals * offset );
 		// Add twist to cosPhi and sinPhi using trigonometric formulas
 		PositionType newSinPhi = sinPhi * mCosTwist + mSinTwist * cosPhi;
 		cosPhi *= mCosTwist;
