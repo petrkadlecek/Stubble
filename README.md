@@ -3,7 +3,8 @@ Stubble
 
 Stubble is a plugin for Autodesk Maya providing user-friendly virtual hairstyling, i.e.,
 creation, editing, and animation of hair or fur on 3D models. It is a student software
-project developed on Faculty of Mathematics and Physics, Charles University in Prague.
+project developed on Faculty of Mathematics and Physics, Charles University in Prague,
+managed by Computer Graphics Group - Charles University (http://cgg.mff.cuni.cz).
 It is written mainly in C++ with bits of MEL scripting for proper Maya binding.
 
 Main features
